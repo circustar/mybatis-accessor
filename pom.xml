@@ -8,11 +8,11 @@
         <version>2.3.4.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>org.yxy.circustar</groupId>
-    <artifactId>mvc</artifactId>
-    <version>0.0.1-BETA</version>
-    <name>enhanced_mvc_by_mybatis_plus</name>
-    <description>mvc enhancement based on mybatis plus</description>
+    <groupId>com.circustar</groupId>
+    <artifactId>mybatis-plus-mvc-enhance</artifactId>
+    <version>1.0.0</version>
+    <name>enhanced_mvc_with_mybatis_plus</name>
+    <description>springmvc enhancement based on mybatis plus</description>
 
     <properties>
         <java.version>1.8</java.version>
