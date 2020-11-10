@@ -1,5 +1,6 @@
 package com.circustar.mvcenhance.common.error;
 
+@Deprecated
 public class ResourceNotFoundErrorInfo implements IErrorInfo<String> {
     private static String ERROR_MESSAGE = "request resource not found:";
     public ErrorType getErrorType() {

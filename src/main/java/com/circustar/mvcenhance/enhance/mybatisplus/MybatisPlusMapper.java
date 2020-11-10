@@ -15,5 +15,5 @@ public interface MybatisPlusMapper<T> extends BaseMapper<T> {
 
     int physicDelete(@Param("ew") Wrapper<T> wrapper);
 
-    int physicDeleteBatchIds(@Param("coll") Collection<? extends Serializable> idList);
+    int physicDeleteBatchByIds(@Param("coll") Collection<? extends Serializable> idList);
 }

@@ -68,7 +68,7 @@ public class ScanRelationOnStartup implements ApplicationRunner {
                                 x.dtoClass() == Void.class?clazz : x.dtoClass()
                                 , x.entityClass() == Void.class?clazz : x.entityClass()
                                 , x.service()
-                                , x.converter())));
+                                , x.updateObjectProvider())));
 
             }
         }

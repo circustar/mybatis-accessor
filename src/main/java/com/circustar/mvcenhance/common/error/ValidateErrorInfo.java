@@ -4,7 +4,8 @@ import org.springframework.validation.FieldError;
 
 import java.util.List;
 
-public class FieldErrorInfo implements IErrorInfo<List<FieldError>> {
+@Deprecated
+public class ValidateErrorInfo implements IErrorInfo<List<FieldError>> {
     public ErrorType getErrorType() {
         return ErrorType.FieldError;
     }
@@ -25,7 +26,7 @@ public class FieldErrorInfo implements IErrorInfo<List<FieldError>> {
         this.errorDetail = errorDetail;
     }
 
-    public FieldErrorInfo(String message, List<FieldError> errorDetail) {
+    public ValidateErrorInfo(String message, List<FieldError> errorDetail) {
         this.message = message;
         this.errorDetail = errorDetail;
     }

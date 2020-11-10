@@ -1,20 +1,18 @@
 package com.circustar.mvcenhance.common.response;
 
-import com.circustar.mvcenhance.common.error.IErrorInfo;
+import org.springframework.validation.FieldError;
+
+import java.util.List;
 
 public class DefaultServiceResult<T> implements IServiceResult<T> {
     private T data;
-    private IErrorInfo e;
+    private List<FieldError> errorList;
     private PageInfo pageInfo;
     @Override
     public void setData(T data) {
         this.data = data;
     }
 
-    @Override
-    public void setError(IErrorInfo e) {
-        this.e = e;
-    }
 
     @Override
     public T getData() {
@@ -22,9 +20,24 @@ public class DefaultServiceResult<T> implements IServiceResult<T> {
     }
 
     @Override
-    public IErrorInfo getError() {
-        return e;
+    public void setFieldErrorList(List<FieldError> errorList) {
+        this.errorList = errorList;
     }
+
+    @Override
+    public List<FieldError> getFieldErrorList() {
+        return errorList;
+    }
+
+    @Override
+    public void addFieldErrorList(List<FieldError> errorList) {
+        if(this.errorList == null) {
+            this.errorList = errorList;
+        } else {
+            this.errorList.addAll(errorList);
+        }
+    }
+
 
     @Override
     public void setPageInfo(PageInfo pageInfo) {

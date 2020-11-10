@@ -38,7 +38,7 @@ public class MybatisPlusUtils {
     public static Boolean deleteBatchIds(IService service, Collection<? extends Serializable> idList, boolean physic) {
         BaseMapper mapper = service.getBaseMapper();
         if(physic && mapper instanceof MybatisPlusMapper) {
-            return SqlHelper.retBool(((MybatisPlusMapper)mapper).physicDeleteBatchIds(idList));
+            return SqlHelper.retBool(((MybatisPlusMapper)mapper).physicDeleteBatchByIds(idList));
         } else {
             return service.removeByIds(idList);
         }

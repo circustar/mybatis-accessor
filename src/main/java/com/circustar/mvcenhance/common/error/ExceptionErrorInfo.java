@@ -1,5 +1,6 @@
 package com.circustar.mvcenhance.common.error;
 
+@Deprecated
 public class ExceptionErrorInfo implements IErrorInfo<Exception> {
     public ErrorType getErrorType() {
         return ErrorType.Exception;

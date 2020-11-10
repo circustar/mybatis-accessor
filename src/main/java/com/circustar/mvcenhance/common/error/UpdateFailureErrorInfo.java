@@ -1,5 +1,6 @@
 package com.circustar.mvcenhance.common.error;
 
+@Deprecated
 public class UpdateFailureErrorInfo implements IErrorInfo<String> {
     private static String ERROR_MESSAGE = "update failed";
 

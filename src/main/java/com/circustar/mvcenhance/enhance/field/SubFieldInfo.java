@@ -132,11 +132,17 @@ public class SubFieldInfo {
         subFieldInfo.getFieldInfo().getField().set(obj, c);
     }
 
-    public static void setSubDtoAfterQueryById(ApplicationContext applicationContext, EnhancedConversionService converter, IEntityDtoServiceRelationMap relationMap, EntityDtoServiceRelation relationInfo, Object dto, List<String> subDtoNameList
+    public static void setSubDtoAfterQueryById(ApplicationContext applicationContext
+            , EnhancedConversionService converter, IEntityDtoServiceRelationMap relationMap
+            , EntityDtoServiceRelation relationInfo, Object dto
+            , List<String> subDtoNameList
             , String idName, Serializable idValue) throws IllegalAccessException, InstantiationException {
         List<SubFieldInfo> subFieldInfoList = SubFieldInfo.getSubFieldInfoList(relationMap, relationInfo, subDtoNameList);
         for(SubFieldInfo x : subFieldInfoList) {
             EntityDtoServiceRelation subEntityInfo = relationMap.getByDtoClass((Class)x.getFieldInfo().getActualType());
+            if(subEntityInfo == null) {
+                continue;
+            }
             IService service = (IService)applicationContext.getBean(subEntityInfo.getService());
             QueryWrapper qw = new QueryWrapper();
             qw.eq(idName, idValue);
@@ -147,7 +153,7 @@ public class SubFieldInfo {
 
     public static void setSubDtoAfterQueryByTableJoiner(ApplicationContext applicationContext, EnhancedConversionService converter, IEntityDtoServiceRelationMap relationMap, EntityDtoServiceRelation relationInfo, Object dto
             , Map<String , EntityFilter[]> tableJoinerMap, String groupName) throws IllegalAccessException, InstantiationException {
-        StandardEvaluationContext context = new StandardEvaluationContext(dto);
+        StandardEvaluationContext standardEvaluationContext = new StandardEvaluationContext(dto);
         for(String fieldName : tableJoinerMap.keySet()) {
             EntityFilter[] entityFilters = tableJoinerMap.get(fieldName);
             if(entityFilters == null) {
@@ -164,7 +170,7 @@ public class SubFieldInfo {
                         return (x.group().length == 0 && StringUtils.isEmpty(groupName))
                                 || (Arrays.stream(x.group()).anyMatch(y -> y.equals(groupName)));
                     }).forEach(x -> x.connector().consume(x.column(), qw
-                    , SPELParser.parseExpression(context, Arrays.asList(x.valueExpression()))));
+                    , SPELParser.parseExpression(standardEvaluationContext, Arrays.asList(x.valueExpression()))));
 
             List searchResult = service.list(qw);
             setListBySubDtoInfo(converter, dto, subFieldInfo, searchResult, subRelation.getDto());

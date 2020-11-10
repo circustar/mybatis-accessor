@@ -9,6 +9,5 @@ public interface IUpdateObjectProvider {
     public <S> void validateBeforeUpdate(S s, BindingResult bindingResult);
     default void onSuccess() {};
     default void onException(Exception ex) {}
-    default void onFail() {};
     default void onEnd() {};
 }

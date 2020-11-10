@@ -31,28 +31,28 @@ public class EntityDtoServiceRelation {
         this.service = service;
     }
 
-    public Class<IUpdateObjectProvider> getConverter() {
-        return converter;
+    public Class<IUpdateObjectProvider> getUpdateObjectProvider() {
+        return updateObjectProvider;
     }
 
-    public void setConverter(Class<IUpdateObjectProvider> converter) {
-        this.converter = converter;
+    public void setUpdateObjectProvider(Class<IUpdateObjectProvider> updateObjectProvider) {
+        this.updateObjectProvider = updateObjectProvider;
     }
 
     private Class<? extends  IService> service;
-    private Class<IUpdateObjectProvider> converter;
+    private Class<IUpdateObjectProvider> updateObjectProvider;
 
     public EntityDtoServiceRelation(Class dto, Class entity, Class<? extends  IService> service) {
         this.entity = entity;
         this.dto = dto;
         this.service = service;
-        this.converter = null;
+        this.updateObjectProvider = null;
     }
 
-    public EntityDtoServiceRelation(Class dto, Class entity,  Class<? extends  IService> service, Class<IUpdateObjectProvider> converter) {
+    public EntityDtoServiceRelation(Class dto, Class entity,  Class<? extends  IService> service, Class<IUpdateObjectProvider> updateObjectProvider) {
         this.entity = entity;
         this.dto = dto;
         this.service = service;
-        this.converter = converter;
+        this.updateObjectProvider = updateObjectProvider;
     }
 }

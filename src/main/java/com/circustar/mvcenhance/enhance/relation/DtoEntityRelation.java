@@ -13,5 +13,5 @@ public @interface DtoEntityRelation {
     Class dtoClass() default Void.class;
     Class entityClass() default Void.class;
     Class<? extends IService> service() default IService.class;
-    Class<IUpdateObjectProvider> converter() default  IUpdateObjectProvider.class;
+    Class<IUpdateObjectProvider> updateObjectProvider() default  IUpdateObjectProvider.class;
 }
