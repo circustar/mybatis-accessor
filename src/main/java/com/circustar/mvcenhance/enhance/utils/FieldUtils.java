@@ -28,23 +28,36 @@ public class FieldUtils {
         return name.substring(0,1).toLowerCase() + name.substring(1);
 
     }
+
     public static void setFieldByName(Object obj, String name, Object value) throws NoSuchFieldException, IllegalAccessException, InstantiationException {
         Field f = obj.getClass().getDeclaredField(name);
         f.setAccessible(true);
         f.set(obj, value);
     }
 
-    public static void setFieldByName(Object obj, String name, Object value, EnhancedConversionService conversionService) throws NoSuchFieldException, IllegalAccessException, InstantiationException {
-        Field f = obj.getClass().getDeclaredField(name);
-        f.setAccessible(true);
-        Object finalValue = value;
-        if(finalValue != null) {
-            if(f.getType() != finalValue.getClass()) {
-                finalValue = conversionService.convert(finalValue, f.getType());
+    public static void setFieldByNameWithCollection(Object object, String name, Object value) throws NoSuchFieldException, IllegalAccessException, InstantiationException {
+        if(object == null) {return;}
+        if(Collection.class.isAssignableFrom(object.getClass())) {
+            Collection c = (Collection)object;
+            for (Object obj : c) {
+                setFieldByName(obj, name, value);
             }
+        } else {
+            setFieldByName(object, name, value);
         }
-        f.set(obj, finalValue);
     }
+
+//    public static void setFieldByName(Object obj, String name, Object value, EnhancedConversionService conversionService) throws NoSuchFieldException, IllegalAccessException, InstantiationException {
+//        Field f = obj.getClass().getDeclaredField(name);
+//        f.setAccessible(true);
+//        Object finalValue = value;
+//        if(finalValue != null) {
+//            if(f.getType() != finalValue.getClass()) {
+//                finalValue = conversionService.convert(finalValue, f.getType());
+//            }
+//        }
+//        f.set(obj, finalValue);
+//    }
 
     public static Object getValueByName(Object obj, String name) throws NoSuchFieldException, IllegalAccessException {
         Field f = obj.getClass().getDeclaredField(name);

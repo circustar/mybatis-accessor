@@ -1,7 +1,7 @@
 package com.circustar.mvcenhance.enhance.relation;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.mvcenhance.enhance.update.IUpdateObjectProvider;
+import com.circustar.mvcenhance.enhance.update.*;
 
 import java.lang.annotation.*;
 
@@ -13,5 +13,10 @@ public @interface DtoEntityRelation {
     Class dtoClass() default Void.class;
     Class entityClass() default Void.class;
     Class<? extends IService> service() default IService.class;
-    Class<IUpdateObjectProvider> updateObjectProvider() default  IUpdateObjectProvider.class;
+    Class<? extends IUpdateEntityProvider>[] updateObjectProviders() default {
+            AutoDetectUpdateEntityProvider.class, DefaultDeleteEntitiesByIdsProvider.class
+        , DefaultDeleteEntityByIdProvider.class, DefaultInertEntitiesEntityProvider.class
+        , DefaultInertEntityEntityProvider.class, DefaultUpdateEntityProvider.class
+        , DefaultSaveUpdateDeleteEntitiesProvider.class, DefaultUpdateSubEntitiesProvider.class
+    };
 }

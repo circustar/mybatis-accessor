@@ -112,7 +112,7 @@ public class TestController implements IControllerAdapter {
 
     /*
      *** 通过ID获取实体类，转换成dto后返回
-     *** 指定sub_entities参数可返回关联的子项
+     *** 指定sub_entities参数可返回关联的子项(多个子项已逗号分隔)
      */
     @GetMapping("/entity/{dto_name}/{id}")
     public IServiceResult testGetById(@PathVariable("dto_name") String dto_name
@@ -122,7 +122,7 @@ public class TestController implements IControllerAdapter {
     }
 
     /*
-     *** QueryFieldModel设置查询条件后可查询实体列表，转化dto列表后返回
+     *** QueryFieldModel作为查询条件，查询数据并转化dto列表后返回
      *** page_index、page_size指定分页信息
      */
     @PostMapping("/query_field/entities/{dto_name}")
@@ -170,7 +170,7 @@ public class TestController implements IControllerAdapter {
     }
 
     /*
-     *** 保存一个实体
+     *** 保存一个实体，可保存关联的子项（通过sub_entities设置）
      */
     @PostMapping("/entity/{dto_name}")
     public IServiceResult testSave(@PathVariable("dto_name") String dto_name

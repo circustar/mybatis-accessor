@@ -1,36 +1,27 @@
 package com.circustar.mvcenhance.enhance.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mvcenhance.common.error.ResourceNotFoundException;
-import com.circustar.mvcenhance.common.query.EntityFilter;
 import com.circustar.mvcenhance.common.query.QueryFieldModel;
 import com.circustar.mvcenhance.common.response.DefaultServiceResult;
 import com.circustar.mvcenhance.common.response.IServiceResult;
 import com.circustar.mvcenhance.common.response.PageInfo;
-import com.circustar.mvcenhance.enhance.field.SubFieldInfo;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.enhance.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.enhance.service.ICrudService;
+import com.circustar.mvcenhance.enhance.service.ISelectService;
 import com.circustar.mvcenhance.enhance.update.UpdateSubEntityStrategy;
-import com.circustar.mvcenhance.enhance.update.IUpdateObjectProvider;
-import com.circustar.mvcenhance.enhance.update.UpdateEntity;
+import com.circustar.mvcenhance.enhance.update.IUpdateEntityProvider;
+import com.circustar.mvcenhance.enhance.update.ValidateException;
+import com.circustar.mvcenhance.enhance.utils.ArrayParamUtils;
 import com.circustar.mvcenhance.enhance.utils.EnhancedConversionService;
 import com.circustar.mvcenhance.enhance.utils.FieldUtils;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.SmartValidator;
-import org.springframework.validation.Validator;
+import org.springframework.validation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.ApplicationContext;
-import org.springframework.util.StringUtils;
-import org.springframework.validation.BindException;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public interface IControllerAdapter {
     ApplicationContext getApplicationContext();
@@ -41,6 +32,10 @@ public interface IControllerAdapter {
 
     default ICrudService getCrudService() {
         return getApplicationContext().getBean(ICrudService.class);
+    };
+
+    default ISelectService getSelectService() {
+        return getApplicationContext().getBean(ISelectService.class);
     };
 
     default Validator getValidator() {
@@ -78,8 +73,6 @@ public interface IControllerAdapter {
             groupName = "";
         }
 
-        ApplicationContext applicationContext = getApplicationContext();
-        EnhancedConversionService converter = getEnhancedConversionService();
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
 
         String entityName = FieldUtils.parseClassName(dto_name);
@@ -87,33 +80,10 @@ public interface IControllerAdapter {
         if (relationInfo == null) {
             throw new ResourceNotFoundException(dto_name);
         }
-//            Class serviceName = relationInfo.getService();
-        IService s = (IService) applicationContext.getBean(relationInfo.getService());
-        Object oriEntity = s.getById(id);
-        if (oriEntity == null) {
-            return serviceResult;
-        }
-        Object dto = converter.convert(oriEntity, relationInfo.getDto());
-
-        serviceResult.setData(dto);
-        if (dto == null || StringUtils.isEmpty(sub_entities)) {
-            return serviceResult;
-        }
-
-        List<String> subEntityList = FieldUtils.parseSubEntityNames(sub_entities);
-        List<Field> subFields = FieldUtils.getExistFields(dto, subEntityList, false);
-
-        Map<String, EntityFilter[]> tableJoinerMap = new HashMap<>();
-        List<String> noAnnotationInfoList = new ArrayList<>();
-        FieldUtils.parseFieldAnnotationToMap(subFields, EntityFilter.class
-                , tableJoinerMap, noAnnotationInfoList);
-
-        String keyColumn = TableInfoHelper.getTableInfo(relationInfo.getEntity()).getKeyColumn();
-        SubFieldInfo.setSubDtoAfterQueryById(applicationContext, converter, entityDtoServiceRelationMap
-                , relationInfo, dto, noAnnotationInfoList, keyColumn, id);
-
-        SubFieldInfo.setSubDtoAfterQueryByTableJoiner(applicationContext, converter, entityDtoServiceRelationMap
-                , relationInfo, dto, tableJoinerMap, groupName);
+        Object data = getSelectService().getDtoById(relationInfo, id
+                , ArrayParamUtils.convertStringToArray(sub_entities, ArrayParamUtils.DELIMITER_COMMA)
+                , groupName);
+        serviceResult.setData(data);
         return serviceResult;
     }
 
@@ -144,35 +114,23 @@ public interface IControllerAdapter {
             queryGroup = "";
         }
 
-        ApplicationContext applicationContext = getApplicationContext();
-        EnhancedConversionService converter = getEnhancedConversionService();
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
         String entityName = FieldUtils.parseClassName(dto_name);
         EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
         if (relationInfo == null) {
             throw new ResourceNotFoundException(dto_name);
         }
-        Class serviceName = relationInfo.getService();
-        IService s = (IService)applicationContext.getBean(serviceName);
-
         ObjectMapper objectMapper = new ObjectMapper();
         Object dto= objectMapper.convertValue(map, relationInfo.getDto());
 
-        QueryWrapper qw = new QueryWrapper();
+        if(page_index != null && page_size != null) {
+            PageInfo pageInfo = getSelectService().getPagesByDtoAnnotation(relationInfo, dto
+                    , queryGroup, page_index, page_size);
 
-        List<QueryFieldModel> queryFiledModelList = QueryFieldModel.getQueryFieldModeFromDto(dto, queryGroup);
-        QueryFieldModel.setQueryWrapper(queryFiledModelList, qw);
-
-        if(page_index != null && page_size != null){
-            Page page = new Page(page_index, page_size);
-            IPage pageInfo = s.page(page, qw);
-
-            List dtoList = converter.convertList(pageInfo.getRecords(), relationInfo.getDto());
-            serviceResult.setData(dtoList);
-            serviceResult.setPageInfo(new PageInfo(pageInfo.getTotal(), pageInfo.getSize(), pageInfo.getCurrent()));
+            serviceResult.setData(pageInfo);
         } else {
-            List dtoList = converter.convertList(s.list(qw), relationInfo.getDto());
-            serviceResult.setData(dtoList);
+            List dataList = getSelectService().getListByDtoAnnotation(relationInfo, dto, queryGroup);
+            serviceResult.setData(dataList);
         }
 
         return serviceResult;
@@ -188,117 +146,103 @@ public interface IControllerAdapter {
             , Integer page_size
             , List<QueryFieldModel> queryFiledModelList) throws Exception {
         IServiceResult serviceResult = new DefaultServiceResult();
-        ApplicationContext applicationContext = getApplicationContext();
-        EnhancedConversionService converter = getEnhancedConversionService();
+
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
         String entityName = FieldUtils.parseClassName(dto_name);
         EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
         if (relationInfo == null) {
             throw new ResourceNotFoundException(dto_name);
         }
-        Class serviceName = relationInfo.getService();
-        IService s = (IService)applicationContext.getBean(serviceName);
-
-        QueryWrapper qw = new QueryWrapper();
-
-        QueryFieldModel.setQueryWrapper(queryFiledModelList, qw);
-
-        if(page_index != null && page_size != null){
-            Page page = new Page(page_index, page_size);
-            IPage pageInfo = s.page(page, qw);
-
-            List dtoList = converter.convertList(pageInfo.getRecords(), relationInfo.getDto());
-            serviceResult.setData(dtoList);
-            serviceResult.setPageInfo(new PageInfo(pageInfo.getTotal(), pageInfo.getSize(), pageInfo.getCurrent()));
+        if(page_index != null && page_size != null) {
+            PageInfo pageInfo = getSelectService().getPagesByQueryFields(relationInfo
+                    , queryFiledModelList, page_index, page_size);
+            serviceResult.setData(pageInfo);
         } else {
-            List dtoList = converter.convertList(s.list(qw), relationInfo.getDto());
-            serviceResult.setData(dtoList);
+            List dataList = getSelectService().getListByQueryFields(relationInfo, queryFiledModelList);
+            serviceResult.setData(dataList);
         }
+
         return serviceResult;
     }
 
-    /*
-     *** 通过ID删除指定实体
-     *** sub_entities指定级联删除对象
-     *** 如果在mybatis-plus开启逻辑删除后，仍要执行物理删除，可将physic_delete置为true
-     */
-    default IServiceResult deleteById(
-             String dto_name
-            , Serializable id
-            , String sub_entities
-            , boolean physicDelete) throws Exception {
-        IServiceResult serviceResult = new DefaultServiceResult();
-        IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
-        ICrudService crudService = getCrudService();
-        String entityName = FieldUtils.parseClassName(dto_name);
-        EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
-        if (relationInfo == null) {
-            throw new ResourceNotFoundException(dto_name);
-        }
-        String keyColumn = TableInfoHelper.getTableInfo(relationInfo.getEntity()).getKeyColumn();
+//    /*
+//     *** 通过ID删除指定实体
+//     *** sub_entities指定级联删除对象
+//     *** 如果在mybatis-plus开启逻辑删除后，仍要执行物理删除，可将physic_delete置为true
+//     */
+//    default IServiceResult deleteById(
+//             String dto_name
+//            , Serializable id
+//            , String sub_entities
+//            , boolean physicDelete) throws Exception {
+//        IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
+//        String entityName = FieldUtils.parseClassName(dto_name);
+//        EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
+//        if (relationInfo == null) {
+//            throw new ResourceNotFoundException(dto_name);
+//        }
+//
+//        return defaultUpdateObject(id, dto_name, relationInfo
+//                , new String[]{IUpdateEntityProvider.DELETE_BY_ID}
+//                , new Object[]{sub_entities, physicDelete});
+//    }
 
-        crudService.deleteById(relationInfo, keyColumn, id
-                , FieldUtils.parseSubEntityNames(sub_entities), physicDelete);
-        return serviceResult;
-    }
+//    /*
+//     *** 通过ids删除多个实体
+//     *** sub_entities指定级联删除对象
+//     *** 如果在mybatis-plus开启逻辑删除后，仍要执行物理删除，可将physic_delete置为true
+//     */
+//    default IServiceResult deleteByIds(
+//             String dto_name
+//            , List<Serializable> ids
+//            , boolean physicDelete) throws Exception {
+//        String entityName = FieldUtils.parseClassName(dto_name);
+//        IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
+//        EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
+//        if (relationInfo == null) {
+//            throw new ResourceNotFoundException(dto_name);
+//        }
+//        if(ids == null || ids.size() == 0) {
+//            throw new Exception("ID not found");
+//        }
+//        Map<String, Object> map = new HashMap<>();
+//
+//        return updateByMap(dto_name, IUpdateEntityProvider.DELETE_LIST_BY_IDS
+//                , new Object[]{physicDelete}, map);
+//    }
 
-    /*
-     *** 通过ids删除多个实体
-     *** sub_entities指定级联删除对象
-     *** 如果在mybatis-plus开启逻辑删除后，仍要执行物理删除，可将physic_delete置为true
-     */
-    default IServiceResult deleteByIds(
-             String dto_name
-            , List<Serializable> ids
-            , String sub_entities
-            , boolean physicDelete) throws Exception {
-        IServiceResult serviceResult = new DefaultServiceResult();
-        ICrudService crudService = getCrudService();
-        String entityName = FieldUtils.parseClassName(dto_name);
-        IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
-        EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
-        if (relationInfo == null) {
-            throw new ResourceNotFoundException(dto_name);
-        }
-        String keyColumn = TableInfoHelper.getTableInfo(relationInfo.getEntity()).getKeyColumn();
-
-        crudService.deleteByIds(relationInfo, keyColumn, ids
-                , FieldUtils.parseSubEntityNames(sub_entities), physicDelete);
-        return serviceResult;
-    }
-
-    /*
-     *** 保存一个实体
-     *** sub_entities指定级联保存对象
-     */
-    default IServiceResult save(
-             String dto_name
-            , Map map
-            , String sub_entities) throws Exception {
-        IServiceResult serviceResult = new DefaultServiceResult();
-        Validator validator = getValidator();
-        ICrudService crudService = getCrudService();
-        IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
-        String entityName = FieldUtils.parseClassName(dto_name);
-        EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
-        if (relationInfo == null) {
-            throw new ResourceNotFoundException(dto_name);
-        }
-        ObjectMapper objectMapper = new ObjectMapper();
-        Object o= objectMapper.convertValue(map, relationInfo.getDto());
-        BindException errors = new BindException(o, dto_name);
-        if(validator != null) {
-            validator.validate(o, errors);
-        }
-        if(errors.hasErrors()) {
-            serviceResult.addFieldErrorList(errors.getFieldErrors());
-            return serviceResult;
-        }
-        crudService.save(relationInfo, o
-                , FieldUtils.parseSubEntityNames(sub_entities));
-        serviceResult.setData(o);
-        return serviceResult;
-    }
+//    /*
+//     *** 保存一个实体
+//     *** sub_entities指定级联保存对象
+//     */
+//    default IServiceResult save(
+//             String dto_name
+//            , Map map
+//            , String sub_entities) throws Exception {
+//        IServiceResult serviceResult = new DefaultServiceResult();
+//        Validator validator = getValidator();
+//        ICrudService crudService = getCrudService();
+//        IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
+//        String entityName = FieldUtils.parseClassName(dto_name);
+//        EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
+//        if (relationInfo == null) {
+//            throw new ResourceNotFoundException(dto_name);
+//        }
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        Object o= objectMapper.convertValue(map, relationInfo.getDto());
+//        BindException errors = new BindException(o, dto_name);
+//        if(validator != null) {
+//            validator.validate(o, errors);
+//        }
+//        if(errors.hasErrors()) {
+//            serviceResult.addFieldErrorList(errors.getFieldErrors());
+//            return serviceResult;
+//        }
+//        crudService.save(relationInfo, o
+//                , FieldUtils.parseSubEntityNames(sub_entities));
+//        serviceResult.setData(o);
+//        return serviceResult;
+//    }
 
 //    /*
 //     *** 保存多个实体
@@ -348,60 +292,211 @@ public interface IControllerAdapter {
 //        return serviceResult;
 //    }
 
-    /*
-     *** 通过ID更新实体
-     *** subEntities指定更新级联对象
-     *** subEntityRemoveAndInsert为true时级联对象先删除再插入
-     *** subEntityPhysicDelete为true时物理删除
-     */
-    default IServiceResult update(
-             String dto_name
-            , Serializable id
+//    /*
+//     *** 通过ID更新实体
+//     *** subEntities指定更新级联对象
+//     *** subEntityRemoveAndInsert为true时级联对象先删除再插入
+//     *** subEntityPhysicDelete为true时物理删除
+//     */
+//    default IServiceResult update(
+//             String dto_name
+//            , Serializable id
+//            , Map map
+//            , String subEntityName
+//            , boolean subEntityRemoveAndInsert
+//            , boolean subEntityPhysicDelete) throws Exception {
+//        IServiceResult serviceResult = new DefaultServiceResult();
+//        ICrudService crudService = getCrudService();
+//        Validator validator = getValidator();
+//        IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
+//        String entityName = FieldUtils.parseClassName(dto_name);
+//        EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
+//        if (relationInfo == null) {
+//            throw new ResourceNotFoundException(dto_name);
+//        }
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        Object o= objectMapper.convertValue(map, relationInfo.getDto());
+//
+//        BindException errors = new BindException(o, dto_name);
+//        if(validator != null) {
+//            validator.validate(o, errors);
+//        }
+//        if(errors.hasErrors()) {
+//            serviceResult.addFieldErrorList(errors.getFieldErrors());
+//            return serviceResult;
+//        }
+//
+//        UpdateSubEntityStrategy updateStrategy = subEntityRemoveAndInsert?
+//                UpdateSubEntityStrategy.DELETE_BEFORE_INSERT : UpdateSubEntityStrategy.INSERT_OR_UPDATE;
+//        List<String> updateSubEntityList = FieldUtils.parseSubEntityNames(subEntityName);
+//
+//        crudService.update(relationInfo, id, o
+//                , updateSubEntityList, updateStrategy, subEntityPhysicDelete);
+//        return serviceResult;
+//    }
+
+//    /*
+//     *** 新增、修改或删除多个实体
+//     *** physicDelete为true时物理删除
+//     */
+//    default IServiceResult saveOrUpdateOrDeleteList(
+//            String dto_name
+//            , List<Map> mapList
+//            , boolean physicDelete) throws Exception {
+//        IServiceResult serviceResult = new DefaultServiceResult();
+//        ICrudService crudService = getCrudService();
+//        Validator validator = getValidator();
+//        IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
+//        String entityName = FieldUtils.parseClassName(dto_name);
+//        EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
+//        if (relationInfo == null) {
+//            throw new ResourceNotFoundException(dto_name);
+//        }
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        List<Object> objectList = new ArrayList<>();
+//        List<FieldError> errorInfos = new ArrayList<>();
+//        for(Map map : mapList) {
+//            Object o = objectMapper.convertValue(map, relationInfo.getDto());
+//            BindException errors = new BindException(o, dto_name);
+//            if (validator != null) {
+//                validator.validate(o, errors);
+//            }
+//            if (errors.hasErrors()) {
+//                serviceResult.addFieldErrorList(errors.getFieldErrors());
+//            }
+//            objectList.add(o);
+//        }
+//        if(serviceResult.containValidateErrors()) {
+//            return serviceResult;
+//        }
+//
+//        crudService.saveOrUpdateOrDeleteList(relationInfo, objectList, physicDelete);
+//
+//        return serviceResult;
+//    }
+
+//    /*
+//     *** 只更新一个实体（通过id指定）的级联对象
+//     *** subEntityName指定更新级联对象
+//     *** subEntityRemoveAndInsert为true时级联对象先删除再插入
+//     *** subEntityPhysicDelete为true时物理删除
+//     */
+//    default IServiceResult updateSubEntities(
+//            String dto_name
+//            , Serializable id
+//            , List<Map> mapList
+//            , String subEntityName
+//            , boolean subEntityRemoveAndInsert
+//            , boolean subEntityPhysicDelete) throws Exception {
+//        IServiceResult serviceResult = new DefaultServiceResult();
+//        ICrudService crudService = getCrudService();
+//        Validator validator = getValidator();
+//        IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
+//        String entityName = FieldUtils.parseClassName(dto_name);
+//        EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
+//        if (relationInfo == null) {
+//            throw new ResourceNotFoundException(dto_name);
+//        }
+//        List<SubFieldInfo> subDtoList = SubFieldInfo.getSubFieldInfoList(entityDtoServiceRelationMap
+//                , relationInfo, Collections.singletonList(subEntityName));
+//        if(subDtoList == null || subDtoList.size() == 0) {
+//            throw new ResourceNotFoundException(subEntityName);
+//        }
+//        EntityDtoServiceRelation subFiledRelationInfo = entityDtoServiceRelationMap.getByDtoClass((Class)subDtoList.get(0).getFieldInfo().getActualType());
+//        if(subFiledRelationInfo == null) {
+//            throw new ResourceNotFoundException(subEntityName);
+//        }
+//
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        List<Object> objectList = new ArrayList<>();
+//        for(Map map : mapList) {
+//            Object o = objectMapper.convertValue(map, subFiledRelationInfo.getDto());
+//            BindException errors = new BindException(o, dto_name);
+//            if (validator != null) {
+//                validator.validate(o, errors);
+//            }
+//            if (errors.hasErrors()) {
+//                serviceResult.addFieldErrorList(errors.getFieldErrors());
+//            }
+//            objectList.add(o);
+//        }
+//        if(serviceResult.containValidateErrors()) {
+//            return serviceResult;
+//        }
+//
+//        UpdateSubEntityStrategy updateStrategy = subEntityRemoveAndInsert?
+//                UpdateSubEntityStrategy.DELETE_BEFORE_INSERT : UpdateSubEntityStrategy.INSERT_OR_UPDATE;
+//
+//        crudService.updateSubEntityList(relationInfo, id, subFiledRelationInfo
+//                , objectList, updateStrategy, subEntityPhysicDelete);
+//        return serviceResult;
+//    }
+
+//    default IServiceResult defaultUpdate(
+//            String dto_name, String[] updateNames, Object[] options
+//            , Map map) throws Exception {
+//
+//        IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
+//        String entityName = FieldUtils.parseClassName(dto_name);
+//        EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
+//        if (relationInfo == null) {
+//            throw new ResourceNotFoundException(dto_name);
+//        }
+//        Object updateObject = (new ObjectMapper()).convertValue(map, relationInfo.getDto());
+//
+//        return defaultUpdateObject(updateObject, dto_name,  relationInfo, updateNames, options);
+//    }
+
+    default IServiceResult deleteById(String dto_name
+            , String id
+            , String sub_entities
+            , Boolean physic_delete) throws Exception {
+        return defaultUpdateObject(id, dto_name, new String[]{IUpdateEntityProvider.DELETE_BY_ID}
+                , new Object[]{sub_entities, physic_delete==null?false:physic_delete});
+    }
+
+    default IServiceResult removeByIds(String dto_name
+            , List<Serializable> ids
+            , Boolean physic_delete) throws Exception  {
+        return defaultUpdateObject(ids, dto_name, new String[]{IUpdateEntityProvider.DELETE_LIST_BY_IDS}
+                , new Object[]{physic_delete==null?false:physic_delete});
+    }
+
+    default IServiceResult saveEntity(String dto_name
             , Map map
-            , String subEntityName
-            , boolean subEntityRemoveAndInsert
-            , boolean subEntityPhysicDelete) throws Exception {
-        IServiceResult serviceResult = new DefaultServiceResult();
-        ICrudService crudService = getCrudService();
-        Validator validator = getValidator();
-        IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
-        String entityName = FieldUtils.parseClassName(dto_name);
-        EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
-        if (relationInfo == null) {
-            throw new ResourceNotFoundException(dto_name);
-        }
-        ObjectMapper objectMapper = new ObjectMapper();
-        Object o= objectMapper.convertValue(map, relationInfo.getDto());
-
-        BindException errors = new BindException(o, dto_name);
-        if(validator != null) {
-            validator.validate(o, errors);
-        }
-        if(errors.hasErrors()) {
-            serviceResult.addFieldErrorList(errors.getFieldErrors());
-            return serviceResult;
-        }
-
-        UpdateSubEntityStrategy updateStrategy = subEntityRemoveAndInsert?
-                UpdateSubEntityStrategy.DELETE_BEFORE_INSERT : UpdateSubEntityStrategy.INSERT_OR_UPDATE_OR_DELETE;
-        List<String> updateSubEntityList = FieldUtils.parseSubEntityNames(subEntityName);
-
-        crudService.update(relationInfo, id, o
-                , updateSubEntityList, updateStrategy, subEntityPhysicDelete);
-        return serviceResult;
+            , String sub_entities) throws Exception {
+        return defaultUpdateMap(map, dto_name, new String[]{IUpdateEntityProvider.INSERT}, null);
     }
 
-    /*
-     *** 新增、修改或删除多个实体
-     *** physicDelete为true时物理删除
-     */
-    default IServiceResult saveOrUpdateOrDeleteList(
-            String dto_name
+    default IServiceResult updateEntity(String dto_name
+            , Map map
+            , String subEntities
+            , Boolean remove_and_insert
+            , Boolean physic_delete) throws Exception {
+        return defaultUpdateMap(map, dto_name, new String[]{IUpdateEntityProvider.UPDATE}
+                , new Object[]{remove_and_insert? UpdateSubEntityStrategy.DELETE_BEFORE_INSERT:UpdateSubEntityStrategy.INSERT_OR_UPDATE
+                        , physic_delete==null?false:physic_delete});
+    }
+
+    default IServiceResult saveOrUpdateOrDeleteEntities(String dto_name
             , List<Map> mapList
-            , boolean physicDelete) throws Exception {
-        IServiceResult serviceResult = new DefaultServiceResult();
-        ICrudService crudService = getCrudService();
-        Validator validator = getValidator();
+            , Boolean physicDelete) throws Exception {
+        return defaultUpdateMapList(mapList, dto_name, new String[]{IUpdateEntityProvider.SAVE_UPDATE_DELETE_LIST}
+                , new Object[]{physicDelete==null?false:physicDelete});
+    }
+
+    default IServiceResult updateSubEntities(String dto_name
+            , Map map
+            , String subEntities
+            , Boolean remove_and_insert
+            , Boolean physic_delete) throws Exception {
+        return defaultUpdateMap(map, dto_name, new String[]{IUpdateEntityProvider.UPDATE_SUB_ENTITIES}
+                , new Object[]{remove_and_insert? UpdateSubEntityStrategy.DELETE_BEFORE_INSERT:UpdateSubEntityStrategy.INSERT_OR_UPDATE
+                        , physic_delete==null?false:physic_delete});
+    }
+
+    default IServiceResult defaultUpdateMapList(
+            List<Map> mapList, String dto_name, String[] updateNames, Object[] options) throws Exception {
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
         String entityName = FieldUtils.parseClassName(dto_name);
         EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
@@ -409,128 +504,64 @@ public interface IControllerAdapter {
             throw new ResourceNotFoundException(dto_name);
         }
         ObjectMapper objectMapper = new ObjectMapper();
-        List<Object> objectList = new ArrayList<>();
-        List<FieldError> errorInfos = new ArrayList<>();
-        for(Map map : mapList) {
-            Object o = objectMapper.convertValue(map, relationInfo.getDto());
-            BindException errors = new BindException(o, dto_name);
-            if (validator != null) {
-                validator.validate(o, errors);
-            }
-            if (errors.hasErrors()) {
-                serviceResult.addFieldErrorList(errors.getFieldErrors());
-            }
-            objectList.add(o);
-        }
-        if(serviceResult.containValidateErrors()) {
-            return serviceResult;
-        }
+        Object entities = mapList.stream().map(x -> objectMapper.convertValue(x, relationInfo.getDto())).collect(Collectors.toList());
 
-        crudService.saveOrUpdateOrDeleteList(relationInfo, objectList, physicDelete);
-
-        return serviceResult;
+        return defaultUpdateObject(entities, dto_name, relationInfo, updateNames, options);
     }
 
-    /*
-     *** 只更新一个实体（通过id指定）的级联对象
-     *** subEntityName指定更新级联对象
-     *** subEntityRemoveAndInsert为true时级联对象先删除再插入
-     *** subEntityPhysicDelete为true时物理删除
-     */
-    default IServiceResult updateSubEntities(
-            String dto_name
-            , Serializable id
-            , List<Map> mapList
-            , String subEntityName
-            , boolean subEntityRemoveAndInsert
-            , boolean subEntityPhysicDelete) throws Exception {
-        IServiceResult serviceResult = new DefaultServiceResult();
-        ICrudService crudService = getCrudService();
-        Validator validator = getValidator();
+    default IServiceResult defaultUpdateMap(
+            Map map, String dto_name, String[] updateNames, Object[] options) throws Exception {
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
         String entityName = FieldUtils.parseClassName(dto_name);
         EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
         if (relationInfo == null) {
             throw new ResourceNotFoundException(dto_name);
         }
-        List<SubFieldInfo> subDtoList = SubFieldInfo.getSubFieldInfoList(entityDtoServiceRelationMap
-                , relationInfo, Collections.singletonList(subEntityName));
-        if(subDtoList == null || subDtoList.size() == 0) {
-            throw new ResourceNotFoundException(subEntityName);
-        }
-        EntityDtoServiceRelation subFiledRelationInfo = entityDtoServiceRelationMap.getByDtoClass((Class)subDtoList.get(0).getFieldInfo().getActualType());
-        if(subFiledRelationInfo == null) {
-            throw new ResourceNotFoundException(subEntityName);
-        }
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<Object> objectList = new ArrayList<>();
-        for(Map map : mapList) {
-            Object o = objectMapper.convertValue(map, subFiledRelationInfo.getDto());
-            BindException errors = new BindException(o, dto_name);
-            if (validator != null) {
-                validator.validate(o, errors);
-            }
-            if (errors.hasErrors()) {
-                serviceResult.addFieldErrorList(errors.getFieldErrors());
-            }
-            objectList.add(o);
-        }
-        if(serviceResult.containValidateErrors()) {
-            return serviceResult;
-        }
-
-        UpdateSubEntityStrategy updateStrategy = subEntityRemoveAndInsert?
-                UpdateSubEntityStrategy.DELETE_BEFORE_INSERT : UpdateSubEntityStrategy.INSERT_OR_UPDATE_OR_DELETE;
-
-        crudService.updateSubEntityList(relationInfo, id, subFiledRelationInfo
-                , objectList, updateStrategy, subEntityPhysicDelete);
-        return serviceResult;
+        return defaultUpdateMap(map, dto_name,  relationInfo, updateNames, options);
     }
 
-    default IServiceResult businessUpdate(
-             String dto_name
-            , Map map) throws Exception {
+    default IServiceResult defaultUpdateMap(
+            Map map, String dto_name, EntityDtoServiceRelation relationInfo
+            , String[] updateNames, Object[] options) throws Exception {
+
+        Object updateObject = (new ObjectMapper()).convertValue(map, relationInfo.getDto());
+        return defaultUpdateObject(updateObject, dto_name,  relationInfo, updateNames, options);
+    }
+
+    default IServiceResult defaultUpdateObject(
+            Object updateObject, String dto_name, String[] updateNames, Object[] options) throws Exception {
+
+        IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
+        String entityName = FieldUtils.parseClassName(dto_name);
+        EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
+        if (relationInfo == null) {
+            throw new ResourceNotFoundException(dto_name);
+        }
+        return defaultUpdateObject(updateObject, dto_name,  relationInfo, updateNames, options);
+    }
+
+    default IServiceResult defaultUpdateObject(
+            Object updateObject, String dto_name, EntityDtoServiceRelation relationInfo
+            , String[] updateNames, Object[] options) throws Exception {
         IServiceResult serviceResult = new DefaultServiceResult();
-        IUpdateObjectProvider provider = null;
+        BindException errors = null;
         try {
-            IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
-            ApplicationContext applicationContext = getApplicationContext();
             ICrudService crudService = getCrudService();
-            Validator validator = getValidator();
-            String entityName = FieldUtils.parseClassName(dto_name);
-            EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
-            if (relationInfo == null) {
-                throw new ResourceNotFoundException(dto_name);
-            }
-            ObjectMapper objectMapper = new ObjectMapper();
-            Object o= objectMapper.convertValue(map, relationInfo.getDto());
-
-            BindException errors = new BindException(o, dto_name);
-            if(validator != null) {
-                validator.validate(o, errors);
-            }
-            if (errors.hasErrors()) {
-                serviceResult.addFieldErrorList(errors.getFieldErrors());
-                return serviceResult;
-            }
-            provider = applicationContext.getBean(relationInfo.getUpdateObjectProvider());
-            provider.validateBeforeUpdate(o, errors);
-            if (errors.hasErrors()) {
-                serviceResult.addFieldErrorList(errors.getFieldErrors());
-                return serviceResult;
-            }
-
-            List<UpdateEntity> entities = provider.createUpdateEntities(o);
-            crudService.businessUpdate(entities);
-            provider.onSuccess();
+            errors = new BindException(updateObject, dto_name);
+            List<Object> updatedEntities = crudService.updateByProviders(relationInfo
+                    , updateObject, updateNames, options, errors);
+            serviceResult.setData(updatedEntities);
+        } catch (ValidateException ex) {
+            serviceResult.setData(null);
+            serviceResult.setFieldErrorList(errors.getFieldErrors());
         } catch (Exception ex) {
             serviceResult.setData(null);
-            provider.onException(ex);
             throw ex;
         } finally {
-            provider.onEnd();
         }
         return serviceResult;
     }
+
+
+
 }

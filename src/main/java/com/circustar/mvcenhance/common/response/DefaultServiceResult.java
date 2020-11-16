@@ -7,7 +7,6 @@ import java.util.List;
 public class DefaultServiceResult<T> implements IServiceResult<T> {
     private T data;
     private List<FieldError> errorList;
-    private PageInfo pageInfo;
     @Override
     public void setData(T data) {
         this.data = data;
@@ -38,14 +37,4 @@ public class DefaultServiceResult<T> implements IServiceResult<T> {
         }
     }
 
-
-    @Override
-    public void setPageInfo(PageInfo pageInfo) {
-        this.pageInfo = pageInfo;
-    }
-
-    @Override
-    public PageInfo getPageInfo() {
-        return pageInfo;
-    }
 }

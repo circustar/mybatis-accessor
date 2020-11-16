@@ -3,6 +3,9 @@ package com.circustar.mvcenhance.enhance.config;
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import com.circustar.mvcenhance.enhance.mybatisplus.injector.PhysicDeleteSqlInjector;
 import com.circustar.mvcenhance.enhance.service.CrudService;
+import com.circustar.mvcenhance.enhance.service.ISelectService;
+import com.circustar.mvcenhance.enhance.service.SelectService;
+import com.circustar.mvcenhance.enhance.update.*;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,6 +30,7 @@ public class MvcEnhancementConfiguration implements ApplicationContextAware {
     private ConversionService conversionService = null;
     private ScanRelationOnStartup scanRelationOnStartup;
     private ICrudService crudService;
+    private ISelectService selectService;
 
     @Bean
     @ConditionalOnProperty("mybatis-plus.global-config.db-config.logic-delete-field")
@@ -76,8 +80,56 @@ public class MvcEnhancementConfiguration implements ApplicationContextAware {
         return this.crudService;
     }
 
+    @Bean
+    public ISelectService getSelectService() {
+        if(this.selectService == null) {
+            this.selectService = new SelectService(applicationContext, getEnhancedConversionService(), getEntityDtoServiceRelationMap());
+        }
+        return this.selectService;
+    }
+
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
+    }
+
+    @Bean
+    public DefaultDeleteEntityByIdProvider getDefaultDeleteEntityByIdProvider() {
+        return new DefaultDeleteEntityByIdProvider();
+    }
+
+    @Bean
+    public AutoDetectUpdateEntityProvider getAutoDetectUpdateEntityProvider() {
+        return new AutoDetectUpdateEntityProvider();
+    }
+
+    @Bean
+    public DefaultDeleteEntitiesByIdsProvider getDefaultDeleteEntitiesByIdsProvider() {
+        return new DefaultDeleteEntitiesByIdsProvider();
+    }
+
+    @Bean
+    public DefaultInertEntityEntityProvider getDefaultInertEntityProvider() {
+        return new DefaultInertEntityEntityProvider();
+    }
+
+    @Bean
+    public DefaultInertEntitiesEntityProvider getDefaultInertEntitiesProvider() {
+        return new DefaultInertEntitiesEntityProvider();
+    }
+
+    @Bean
+    public DefaultSaveUpdateDeleteEntitiesProvider getDefaultSaveUpdateDeleteEntitiesProvider() {
+        return new DefaultSaveUpdateDeleteEntitiesProvider();
+    }
+
+    @Bean
+    public DefaultUpdateEntityProvider getDefaultUpdateEntityProvider() {
+        return new DefaultUpdateEntityProvider();
+    }
+
+    @Bean
+    public DefaultUpdateSubEntitiesProvider getDefaultUpdateSubEntitiesProvider() {
+        return new DefaultUpdateSubEntitiesProvider();
     }
 }
