@@ -1,12 +1,9 @@
 package com.circustar.mvcenhance.enhance.utils;
 
 import com.circustar.mvcenhance.enhance.update.DeleteField;
-import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class AnnotationUtils {
     public static <T extends Annotation> T[] getClassAnnotations(Class clazz, Class<T> annotationClass) {
@@ -31,4 +28,8 @@ public class AnnotationUtils {
         }
         return null;
     }
+
+//    public static TableJoiner[] getTableJoinerFields(Class clazz) {
+//        TableJoiner df = getClassAnnotations(clazz, TableJoiner.class);
+//    }
 }

@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public interface MybatisPlusMapper<T> extends BaseMapper<T> {
@@ -16,4 +17,6 @@ public interface MybatisPlusMapper<T> extends BaseMapper<T> {
     int physicDelete(@Param("ew") Wrapper<T> wrapper);
 
     int physicDeleteBatchByIds(@Param("coll") Collection<? extends Serializable> idList);
+
+    List<T> selectListWithJoin(@Param("ew") Wrapper<T> queryWrapper);
 }

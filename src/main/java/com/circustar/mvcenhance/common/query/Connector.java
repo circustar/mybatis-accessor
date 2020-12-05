@@ -99,4 +99,5 @@ public enum Connector {
 //        String lowerName = (name == null?null : name.toLowerCase());
         return Arrays.stream(Connector.values()).filter(x -> x.connector.equals(name)).findFirst().orElse(null);
     };
+
 }

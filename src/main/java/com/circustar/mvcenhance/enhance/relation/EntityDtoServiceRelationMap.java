@@ -22,6 +22,16 @@ public class EntityDtoServiceRelationMap implements IEntityDtoServiceRelationMap
         dtoNameMap.put(relation.getDto().getSimpleName(), relation);
     }
 
+    @Override
+    public Class[] getAllDtoClasses() {
+        return dtoMap.keySet().toArray(new Class[0]);
+    }
+
+    @Override
+    public String[] getAllDtoClassNames() {
+        return dtoNameMap.keySet().toArray(new String[0]);
+    }
+
     public void resetMap() {
         dtoMap.clear();
         dtoNameMap.clear();

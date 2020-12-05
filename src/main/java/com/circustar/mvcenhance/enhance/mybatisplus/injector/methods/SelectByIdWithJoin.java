@@ -13,8 +13,11 @@ public class SelectByIdWithJoin extends AbstractMethod {
     }
 
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
-        SqlMethod sqlMethod = SqlMethod.SELECT_BY_ID;
-        SqlSource sqlSource = new RawSqlSource(this.configuration, String.format(sqlMethod.getSql(), this.sqlSelectColumns(tableInfo, false), tableInfo.getTableName(), tableInfo.getKeyColumn(), tableInfo.getKeyProperty(), tableInfo.getLogicDeleteSql(true, true)), Object.class);
-        return this.addSelectMappedStatementForTable(mapperClass, this.getMethod(sqlMethod), sqlSource, tableInfo);
+        CSSqlMethod sqlMethod = CSSqlMethod.SELECT_BY_ID_WITH_JOIN;
+        SqlSource sqlSource = new RawSqlSource(this.configuration
+                , String.format(sqlMethod.getSql(), this.sqlSelectColumns(tableInfo, false) , tableInfo.getTableName(), "${joinerTables}", tableInfo.getKeyColumn(), tableInfo.getKeyProperty(), tableInfo.getLogicDeleteSql(true, true)), Object.class);
+        return this.addSelectMappedStatementForTable(mapperClass
+                , CSSqlMethod.SELECT_BY_ID_WITH_JOIN.getMethod()
+                , sqlSource, tableInfo);
     }
 }

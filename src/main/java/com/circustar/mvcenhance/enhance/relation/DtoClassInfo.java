@@ -63,5 +63,8 @@ public class DtoClassInfo {
         this.fieldInfoList = fieldInfoList;
     }
 
+    public boolean containsSubDtoFields() {
+        return fieldInfoList != null && fieldInfoList.size() > 0;
+    }
 
 }

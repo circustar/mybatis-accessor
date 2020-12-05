@@ -9,6 +9,7 @@ import com.circustar.mvcenhance.common.query.EntityFilter;
 import com.circustar.mvcenhance.common.query.QueryFieldModel;
 import com.circustar.mvcenhance.common.response.PageInfo;
 import com.circustar.mvcenhance.enhance.field.SubFieldInfo;
+import com.circustar.mvcenhance.enhance.mybatisplus.MybatisPlusMapper;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.enhance.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.enhance.utils.EnhancedConversionService;
@@ -132,7 +133,13 @@ public class SelectService implements ISelectService {
         QueryWrapper qw = new QueryWrapper();
         QueryFieldModel.setQueryWrapper(queryFiledModelList, qw);
 
-        List dtoList = converter.convertList(service.list(qw), relationInfo.getDto());
+        List<T> dtoList = null;
+        if (relationInfo.getDtoClassInfo().containsSubDtoFields()) {
+            dtoList = converter.convertList(((MybatisPlusMapper)service.getBaseMapper()).selectListWithJoin(qw), relationInfo.getDto());
+        } else {
+            dtoList = converter.convertList(service.list(qw), relationInfo.getDto());
+        }
+
         return dtoList;
     }
 }

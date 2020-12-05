@@ -2,10 +2,7 @@ package com.circustar.mvcenhance.enhance.mybatisplus.injector;
 
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
-import com.circustar.mvcenhance.enhance.mybatisplus.injector.methods.PhysicDelete;
-import com.circustar.mvcenhance.enhance.mybatisplus.injector.methods.PhysicDeleteBatchByIds;
-import com.circustar.mvcenhance.enhance.mybatisplus.injector.methods.PhysicDeleteById;
-import com.circustar.mvcenhance.enhance.mybatisplus.injector.methods.PhysicDeleteByMap;
+import com.circustar.mvcenhance.enhance.mybatisplus.injector.methods.*;
 
 import java.util.List;
 
@@ -17,6 +14,7 @@ public class PhysicDeleteSqlInjector extends DefaultSqlInjector {
         methodList.add(new PhysicDeleteBatchByIds());
         methodList.add(new PhysicDeleteById());
         methodList.add(new PhysicDeleteByMap());
+        methodList.add(new SelectListWithJoin());
         return methodList;
     }
 }

@@ -7,4 +7,8 @@ public interface IEntityDtoServiceRelationMap {
     EntityDtoServiceRelation getByDtoName(String name);
 
     void addRelation(EntityDtoServiceRelation relation);
+
+    Class[] getAllDtoClasses();
+
+    String[] getAllDtoClassNames();
 }
