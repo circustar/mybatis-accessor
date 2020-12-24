@@ -135,9 +135,11 @@ public class SelectService implements ISelectService {
 
         List<T> dtoList = null;
         if (relationInfo.getDtoClassInfo().containsSubDtoFields()) {
-            dtoList = converter.convertList(((MybatisPlusMapper)service.getBaseMapper()).selectListWithJoin(qw), relationInfo.getDto());
+            List entityList = ((MybatisPlusMapper)service.getBaseMapper()).selectListWithJoin(qw);
+            dtoList = converter.convertList(entityList, relationInfo.getDto());
         } else {
-            dtoList = converter.convertList(service.list(qw), relationInfo.getDto());
+            List entityList = service.list(qw);
+            dtoList = converter.convertList(entityList, relationInfo.getDto());
         }
 
         return dtoList;

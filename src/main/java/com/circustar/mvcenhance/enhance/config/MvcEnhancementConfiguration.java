@@ -1,7 +1,7 @@
 package com.circustar.mvcenhance.enhance.config;
 
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
-import com.circustar.mvcenhance.enhance.mybatisplus.injector.PhysicDeleteSqlInjector;
+import com.circustar.mvcenhance.enhance.mybatisplus.injector.EnhanceSqlInjector;
 import com.circustar.mvcenhance.enhance.service.CrudService;
 import com.circustar.mvcenhance.enhance.service.ISelectService;
 import com.circustar.mvcenhance.enhance.service.SelectService;
@@ -26,7 +26,7 @@ public class MvcEnhancementConfiguration implements ApplicationContextAware {
     private ApplicationContext applicationContext;
     private EnhancedConversionService enhancedConversionService = null;
     private IEntityDtoServiceRelationMap entityDtoServiceRelationMap = null;
-    private PhysicDeleteSqlInjector physicDeleteSqlInjector = null;
+    private EnhanceSqlInjector enhanceSqlInjector = null;
     private ConversionService conversionService = null;
     private ScanRelationOnStartup scanRelationOnStartup;
     private ICrudService crudService;
@@ -34,11 +34,11 @@ public class MvcEnhancementConfiguration implements ApplicationContextAware {
 
     @Bean
     @ConditionalOnProperty("mybatis-plus.global-config.db-config.logic-delete-field")
-    public PhysicDeleteSqlInjector getPhysicDeleteSqlInjector() {
-        if(this.physicDeleteSqlInjector == null) {
-            this.physicDeleteSqlInjector = new PhysicDeleteSqlInjector();
+    public EnhanceSqlInjector getPhysicDeleteSqlInjector() {
+        if(this.enhanceSqlInjector == null) {
+            this.enhanceSqlInjector = new EnhanceSqlInjector();
         }
-        return this.physicDeleteSqlInjector;
+        return this.enhanceSqlInjector;
     }
 
     public ConversionService getConversionService(){

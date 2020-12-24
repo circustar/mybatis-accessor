@@ -1,7 +1,6 @@
 package com.circustar.mvcenhance.common.query;
 
 import com.circustar.mvcenhance.common.query.Connector;
-import com.sun.corba.se.spi.ior.IdentifiableFactory;
 
 import java.lang.annotation.*;
 
