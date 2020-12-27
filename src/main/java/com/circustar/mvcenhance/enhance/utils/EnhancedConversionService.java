@@ -1,5 +1,8 @@
 package com.circustar.mvcenhance.enhance.utils;
 
+import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
+import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelationMap;
+import com.circustar.mvcenhance.enhance.relation.IEntityDtoServiceRelationMap;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
@@ -12,8 +15,11 @@ import java.util.List;
 
 public class EnhancedConversionService {
 
-    public EnhancedConversionService(ConversionService conversionService) {
+    private IEntityDtoServiceRelationMap relationMap;
+
+    public EnhancedConversionService(ConversionService conversionService, IEntityDtoServiceRelationMap relationMap) {
         this.conversionService = conversionService;
+        this.relationMap = relationMap;
     }
     public ConversionService getConversionService() {
         return conversionService;

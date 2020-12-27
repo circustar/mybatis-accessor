@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class ParsedFieldInfo {
+public class FieldTypeInfo {
     private Field field;
 
     public Field getField() {
@@ -45,8 +45,8 @@ public class ParsedFieldInfo {
     private Type actualType = null;
     private Type ownType = null;
 
-    public static ParsedFieldInfo parseField(Class c, Field field) {
-        ParsedFieldInfo fieldInfo = new ParsedFieldInfo();
+    public static FieldTypeInfo parseField(Class c, Field field) {
+        FieldTypeInfo fieldInfo = new FieldTypeInfo();
         fieldInfo.setField(field);
         if(Collection.class.isAssignableFrom(field.getType())
                 && field.getGenericType() instanceof ParameterizedType) {
@@ -60,7 +60,7 @@ public class ParsedFieldInfo {
         return fieldInfo;
     }
 
-    public static ParsedFieldInfo parseFieldByName(Class c, String property_name) {
+    public static FieldTypeInfo parseFieldByName(Class c, String property_name) {
         try {
             Field field = c.getDeclaredField(property_name.substring(0,1).toLowerCase() + property_name.substring(1));
             if(field== null) {
@@ -72,11 +72,11 @@ public class ParsedFieldInfo {
         return null;
     }
 
-    public static ParsedFieldInfo parseFieldByClass(Class c, Class subClass, Boolean findInGenericType) {
+    public static FieldTypeInfo parseFieldByClass(Class c, Class subClass, Boolean findInGenericType) {
         try {
             if(!findInGenericType) {
                 return Arrays.stream(c.getDeclaredFields()).filter(x -> x.getType().getClass() == subClass)
-                        .findFirst().map(x -> ParsedFieldInfo.parseField(c, x)).orElse(null);
+                        .findFirst().map(x -> FieldTypeInfo.parseField(c, x)).orElse(null);
             } else {
                 return Arrays.stream(c.getDeclaredFields())
                         .filter(x -> {
@@ -90,7 +90,7 @@ public class ParsedFieldInfo {
                             Type dtoType = ((ParameterizedType) x.getGenericType()).getActualTypeArguments()[0];
                             return (dtoType == subClass);
                         })
-                        .findFirst().map(x -> ParsedFieldInfo.parseField(c, x)).orElse(null);
+                        .findFirst().map(x -> FieldTypeInfo.parseField(c, x)).orElse(null);
             }
         } catch (Exception e) {
         }

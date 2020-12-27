@@ -8,15 +8,14 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mvcenhance.common.query.EntityFilter;
 import com.circustar.mvcenhance.common.query.QueryFieldModel;
 import com.circustar.mvcenhance.common.response.PageInfo;
-import com.circustar.mvcenhance.enhance.field.SubFieldInfo;
+import com.circustar.mvcenhance.enhance.field.DtoFieldInfo;
+import com.circustar.mvcenhance.enhance.field.DtoFields;
 import com.circustar.mvcenhance.enhance.mybatisplus.MybatisPlusMapper;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.enhance.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.enhance.utils.EnhancedConversionService;
 import com.circustar.mvcenhance.enhance.utils.FieldUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.ApplicationContext;
-import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -70,10 +69,10 @@ public class SelectService implements ISelectService {
                 , tableJoinerMap, noAnnotationInfoList);
 
         String keyColumn = TableInfoHelper.getTableInfo(relationInfo.getEntity()).getKeyColumn();
-        SubFieldInfo.setSubDtoAfterQueryById(applicationContext, converter, entityDtoServiceRelationMap
+        DtoFields.queryAndAssignDtoField(applicationContext, converter, entityDtoServiceRelationMap
                 , relationInfo, result, noAnnotationInfoList, keyColumn, id);
 
-        SubFieldInfo.setSubDtoAfterQueryByTableJoiner(applicationContext, converter
+        DtoFields.queryAndAssignDtoField(applicationContext, converter
                 , entityDtoServiceRelationMap
                 , relationInfo
                 , result
