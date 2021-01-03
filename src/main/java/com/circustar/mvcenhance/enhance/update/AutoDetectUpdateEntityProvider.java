@@ -2,7 +2,8 @@ package com.circustar.mvcenhance.enhance.update;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.mvcenhance.enhance.relation.DtoField;
+import com.circustar.mvcenhance.enhance.field.DtoClassInfoHelper;
+import com.circustar.mvcenhance.enhance.field.DtoField;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.enhance.utils.*;
 import org.springframework.util.StringUtils;
@@ -16,7 +17,9 @@ public class AutoDetectUpdateEntityProvider extends AbstractUpdateEntityProvider
     }
 
     @Override
-    public List<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation, Object object, Object... options) throws Exception {
+    public List<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation
+            , DtoClassInfoHelper dtoClassInfoHelper
+            , Object object, Object... options) throws Exception {
         if(object == null ) {
             return null;
         }
@@ -30,15 +33,16 @@ public class AutoDetectUpdateEntityProvider extends AbstractUpdateEntityProvider
         if(Collection.class.isAssignableFrom(object.getClass())) {
             Collection c = (Collection) object;
             for(Object o : c) {
-                result.add(createUpdateEntity(relation, o, updateSubEntityStrategy, physicDelete, updateTarget, parentDelete));
+                result.add(createUpdateEntity(relation, dtoClassInfoHelper, o, updateSubEntityStrategy, physicDelete, updateTarget, parentDelete));
             }
         } else {
-            result.add(createUpdateEntity(relation, object, updateSubEntityStrategy, physicDelete, updateTarget, parentDelete));
+            result.add(createUpdateEntity(relation, dtoClassInfoHelper, object, updateSubEntityStrategy, physicDelete, updateTarget, parentDelete));
         }
         return result;
     }
 
     protected UpdateEntity createUpdateEntity(EntityDtoServiceRelation relation
+            , DtoClassInfoHelper dtoClassInfoHelper
             , Object object, UpdateSubEntityStrategy updateSubEntityStrategy
             , Boolean physicDelete, Boolean updateTarget, boolean parentDelete) throws Exception {
 
@@ -60,24 +64,26 @@ public class AutoDetectUpdateEntityProvider extends AbstractUpdateEntityProvider
             updateEntity.addObject(entity);
         }
         Object parentKeyValue = FieldUtils.getValueByName(entity, relation.getTableInfo().getKeyProperty());
-        updateEntity.addSubUpdateEntities(this.createSubUpdateEntity(relation, object
+        updateEntity.addSubUpdateEntities(this.createSubUpdateEntity(relation,
+                dtoClassInfoHelper, object
                 , parentKeyValue, updateSubEntityStrategy
                 , isDeleteObject, physicDelete));
         return updateEntity;
     }
 
     protected List<UpdateEntity> createSubUpdateEntity(EntityDtoServiceRelation relation
+            , DtoClassInfoHelper dtoClassInfoHelper
             , Object object, Object parentKeyValue
             , UpdateSubEntityStrategy updateSubEntityStrategy
             , boolean isParentDeleted, boolean physicDelete) throws Exception {
         List<UpdateEntity> updateEntities= new ArrayList<>();
 
-        List<DtoField> dtoFields = relation.getDtoClassInfo().getFieldInfoList();
+        List<DtoField> dtoFields = dtoClassInfoHelper.getDtoClassInfo(relation.getDto()).getDtoFieldList();
         for(DtoField dtoField : dtoFields) {
-            Object subObject = dtoField.getValue(object);
+            Object subObject = FieldUtils.getValue(object, dtoField.getFieldTypeInfo().getField());
             if(subObject == null) {continue;}
             FieldUtils.setFieldByNameWithCollection(subObject, relation.getTableInfo().getKeyProperty(), parentKeyValue);
-            EntityDtoServiceRelation subRelation = getRelationMap().getByDtoClass((Class)dtoField.getActualType());
+            EntityDtoServiceRelation subRelation = getRelationMap().getByDtoClass((Class)dtoField.getFieldTypeInfo().getActualType());
             IService subService = applicationContext.getBean(subRelation.getService());
             if(updateSubEntityStrategy == UpdateSubEntityStrategy.DELETE_BEFORE_INSERT) {
                 UpdateEntity deleteWrapperEntity = new UpdateEntity(subRelation
@@ -92,7 +98,7 @@ public class AutoDetectUpdateEntityProvider extends AbstractUpdateEntityProvider
             Object[] options = new Object[] {
                     updateSubEntityStrategy, physicDelete, true, isParentDeleted
             };
-            updateEntities.addAll(this.createUpdateEntities(subRelation, subObject, options));
+            updateEntities.addAll(this.createUpdateEntities(subRelation, dtoClassInfoHelper, subObject, options));
         }
         return updateEntities;
     }

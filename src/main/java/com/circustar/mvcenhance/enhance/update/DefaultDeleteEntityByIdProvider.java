@@ -1,5 +1,6 @@
 package com.circustar.mvcenhance.enhance.update;
 
+import com.circustar.mvcenhance.enhance.field.DtoClassInfoHelper;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.enhance.service.ISelectService;
 import com.circustar.mvcenhance.enhance.utils.ArrayParamUtils;
@@ -17,7 +18,9 @@ public class DefaultDeleteEntityByIdProvider extends AutoDetectUpdateEntityProvi
     }
 
     @Override
-    public List<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation, Object id, Object... options) throws Exception {
+    public List<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation,
+                                                   DtoClassInfoHelper dtoClassInfoHelper,
+                                                   Object id, Object... options) throws Exception {
 //        if(id == null) {
 //            return null;
 //        }
@@ -68,7 +71,8 @@ public class DefaultDeleteEntityByIdProvider extends AutoDetectUpdateEntityProvi
 //            updateEntity.addSubUpdateEntity(subUpdateEntity);
 //        }
 //        return Collections.singletonList(updateEntity);
-        List<String> defaultFields = relation.getDtoClassInfo().getFieldInfoList()
+
+        List<String> defaultFields = dtoClassInfoHelper.getDtoClassInfo(relation.getDto()).getDtoFieldList()
                 .stream().map(x -> x.getFieldName()).collect(Collectors.toList());
         List<String> subEntities = ArrayParamUtils.parseArray(options, 0, defaultFields);
 
@@ -77,7 +81,8 @@ public class DefaultDeleteEntityByIdProvider extends AutoDetectUpdateEntityProvi
         Object object = selectService.getDtoById(relation, (Serializable) id
                 , subEntities.toArray(new String[subEntities.size()]));
         List<UpdateEntity> result = new ArrayList<>();
-        result.add(super.createUpdateEntity(relation, object
+        result.add(super.createUpdateEntity(relation, dtoClassInfoHelper
+                , object
                 , UpdateSubEntityStrategy.INSERT_OR_UPDATE
                 , physicDelete, true, true));
         return result;

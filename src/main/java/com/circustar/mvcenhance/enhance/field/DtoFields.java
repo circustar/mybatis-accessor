@@ -35,7 +35,6 @@ public class DtoFields {
         List<DtoFieldInfo> result = new ArrayList<DtoFieldInfo>();
         for(String eName : subEntityList) {
             DtoFieldInfo subEntity = getDtoFieldInfo(relationMap, e, eName);
-            //SubDtoInfo subDtoInfo = new SubDtoInfo(e, eName, subEntity.getDto());
             if(subEntity != null) {
                 result.add(subEntity);
             }
@@ -57,10 +56,10 @@ public class DtoFields {
         return null;
     }
 
-    public static void assignDtoField(EnhancedConversionService converter, Object obj, DtoFieldInfo dtoFieldInfo, List<Object> values, Class clazz) throws InstantiationException, IllegalAccessException {
+    public static void assignDtoField(DtoClassInfoHelper dtoClassInfoHelper, Object obj, DtoFieldInfo dtoFieldInfo, List<Object> values, Class clazz) throws InstantiationException, IllegalAccessException {
         if(!dtoFieldInfo.getFieldInfo().getIsCollection()) {
             dtoFieldInfo.getFieldInfo().getField().set(obj, (values == null || values.size() == 0)?
-                    null : (clazz == null? values.get(0) : converter.convert(values.get(0), clazz)));
+                    null : (clazz == null? values.get(0) : dtoClassInfoHelper.convertFromEntity(values.get(0), clazz)));
             return;
         }
         DtoFieldInfo.SupportGenericType supportGenericType = DtoFieldInfo.SupportGenericType.getSupportGenericType((Class) dtoFieldInfo.getFieldInfo().getOwnType());
@@ -73,20 +72,14 @@ public class DtoFields {
                 c.add(var0);
                 continue;
             }
-            c.add(converter.convert(var0, clazz));
+            c.add(dtoClassInfoHelper.convertFromEntity(var0, clazz));
         }
-//        values.stream().map(x -> {
-//            if(clazz == null) {
-//                return x;
-//            }
-//            return converter.convert(x, clazz);
-//        }).forEach(c::add);
         dtoFieldInfo.getFieldInfo().getField().setAccessible(true);
         dtoFieldInfo.getFieldInfo().getField().set(obj, c);
     }
 
     public static void queryAndAssignDtoField(ApplicationContext applicationContext
-            , EnhancedConversionService converter, IEntityDtoServiceRelationMap relationMap
+            , DtoClassInfoHelper dtoClassInfoHelper, IEntityDtoServiceRelationMap relationMap
             , EntityDtoServiceRelation relationInfo, Object dto
             , List<String> subDtoNameList
             , String idName, Serializable idValue) throws IllegalAccessException, InstantiationException {
@@ -100,11 +93,11 @@ public class DtoFields {
             QueryWrapper qw = new QueryWrapper();
             qw.eq(idName, idValue);
             List searchResult = service.list(qw);
-            assignDtoField(converter, dto, x, searchResult, subEntityInfo.getDto());
+            assignDtoField(dtoClassInfoHelper, dto, x, searchResult, subEntityInfo.getDto());
         }
     }
 
-    public static void queryAndAssignDtoField(ApplicationContext applicationContext, EnhancedConversionService converter, IEntityDtoServiceRelationMap relationMap, EntityDtoServiceRelation relationInfo, Object dto
+    public static void queryAndAssignDtoField(ApplicationContext applicationContext, DtoClassInfoHelper dtoClassInfoHelper, IEntityDtoServiceRelationMap relationMap, EntityDtoServiceRelation relationInfo, Object dto
             , Map<String , EntityFilter[]> tableJoinerMap, String groupName) throws IllegalAccessException, InstantiationException {
         StandardEvaluationContext standardEvaluationContext = new StandardEvaluationContext(dto);
         for(String fieldName : tableJoinerMap.keySet()) {
@@ -116,7 +109,6 @@ public class DtoFields {
             EntityDtoServiceRelation subRelation = relationMap.getByDtoClass((Class) dtoFieldInfo.getFieldInfo().getActualType());
             IService service = (IService)applicationContext.getBean(subRelation.getService());
             QueryWrapper qw = new QueryWrapper();
-//            qw.apply("left join teacher th on th.teacher_id = 3");
 
             Arrays.stream(entityFilters)
                     .filter(x -> {
@@ -126,7 +118,7 @@ public class DtoFields {
                     , SPELParser.parseExpression(standardEvaluationContext, Arrays.asList(x.valueExpression()))));
 
             List searchResult = service.list(qw);
-            assignDtoField(converter, dto, dtoFieldInfo, searchResult, subRelation.getDto());
+            assignDtoField(dtoClassInfoHelper, dto, dtoFieldInfo, searchResult, subRelation.getDto());
         }
     }
 

@@ -1,18 +1,8 @@
 package com.circustar.mvcenhance.enhance.field;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.mvcenhance.common.query.EntityFilter;
-import com.circustar.mvcenhance.enhance.utils.SPELParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
-import com.circustar.mvcenhance.enhance.relation.IEntityDtoServiceRelationMap;
-import com.circustar.mvcenhance.enhance.utils.EnhancedConversionService;
-import org.springframework.context.ApplicationContext;
 import org.springframework.util.StringUtils;
 
-import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.*;
 
 public class DtoFieldInfo {
@@ -59,16 +49,12 @@ public class DtoFieldInfo {
         this.dtoClass = dtoClass;
 
         fieldInfo = this.parseField();
-//        if(fieldInfo == null) {
-//            return;
-//        }
     }
 
     private FieldTypeInfo parseField() {
         FieldTypeInfo f = null;
         if(!StringUtils.isEmpty(this.dtoName)) {
             f = FieldTypeInfo.parseFieldByName(relationInfo.getDto(), this.dtoName);
-            //f = PropertyUtils.findFieldByName(entityInfo.getDto(), this.subDtoName);
         }
         if(f != null || this.dtoClass == null) {
             return f;

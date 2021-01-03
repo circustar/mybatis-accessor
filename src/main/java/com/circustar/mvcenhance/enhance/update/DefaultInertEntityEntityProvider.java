@@ -1,5 +1,6 @@
 package com.circustar.mvcenhance.enhance.update;
 
+import com.circustar.mvcenhance.enhance.field.DtoClassInfoHelper;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 
 import java.util.ArrayList;
@@ -12,7 +13,8 @@ public class DefaultInertEntityEntityProvider extends AutoDetectUpdateEntityProv
     }
 
     @Override
-    public List<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation,Object object, Object... options) throws Exception {
+    public List<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation
+            , DtoClassInfoHelper dtoClassInfoHelper, Object object, Object... options) throws Exception {
 //        if(s == null) {
 //            return null;
 //        }
@@ -68,7 +70,7 @@ public class DefaultInertEntityEntityProvider extends AutoDetectUpdateEntityProv
 //        }
 //        return updateEntityList;
         List<UpdateEntity> result = new ArrayList<>();
-        result.add(super.createUpdateEntity(relation, object
+        result.add(super.createUpdateEntity(relation, dtoClassInfoHelper, object
                 , UpdateSubEntityStrategy.INSERT_OR_UPDATE
                 , false, true, false));
         return result;

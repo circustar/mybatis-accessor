@@ -10,7 +10,7 @@ public class EntityDtoServiceRelation {
     private TableInfo tableInfo;
 
     private Class dto;
-    private DtoClassInfo dtoClassInfo;
+//    private DtoClassInfo dtoClassInfo;
 
     private Class<? extends  IService> service;
     private Class<? extends IUpdateEntityProvider>[] updateObjectProviders;
@@ -51,13 +51,13 @@ public class EntityDtoServiceRelation {
         this.tableInfo = tableInfo;
     }
 
-    public DtoClassInfo getDtoClassInfo() {
-        return dtoClassInfo;
-    }
+//    public DtoClassInfo getDtoClassInfo() {
+//        return dtoClassInfo;
+//    }
 
-    public void setDtoClassInfo(DtoClassInfo dtoClassInfo) {
-        this.dtoClassInfo = dtoClassInfo;
-    }
+//    public void setDtoClassInfo(DtoClassInfo dtoClassInfo) {
+//        this.dtoClassInfo = dtoClassInfo;
+//    }
 
     public void setUpdateObjectProviders(Class<? extends IUpdateEntityProvider>[] updateObjectProviders) {
         this.updateObjectProviders = updateObjectProviders;
@@ -73,6 +73,6 @@ public class EntityDtoServiceRelation {
         this.service = service;
         this.updateObjectProviders = updateObjectProviders;
         this.tableInfo = TableInfoHelper.getTableInfo(entity);
-        this.dtoClassInfo = new DtoClassInfo(dto, entity);
+//        this.dtoClassInfo = new DtoClassInfo(dto, entity);
     }
 }

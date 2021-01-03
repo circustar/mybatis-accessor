@@ -1,5 +1,6 @@
 package com.circustar.mvcenhance.enhance.update;
 
+import com.circustar.mvcenhance.enhance.field.DtoClassInfoHelper;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.enhance.utils.ArrayParamUtils;
 import org.springframework.validation.BindingResult;
@@ -15,7 +16,8 @@ public class DefaultDeleteEntitiesByIdsProvider extends AutoDetectUpdateEntityPr
     }
 
     @Override
-    public List<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation, Object ids, Object... options) throws Exception {
+    public List<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation
+            , DtoClassInfoHelper dtoClassInfoHelper, Object ids, Object... options) throws Exception {
         if(ids == null) {
             return null;
         }

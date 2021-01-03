@@ -1,5 +1,6 @@
 package com.circustar.mvcenhance.enhance.update;
 
+import com.circustar.mvcenhance.enhance.field.DtoClassInfoHelper;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.enhance.utils.ArrayParamUtils;
 
@@ -12,7 +13,8 @@ public class DefaultUpdateEntityProvider extends AutoDetectUpdateEntityProvider 
     }
 
     @Override
-    public List<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation, Object object, Object... options) throws Exception {
+    public List<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation
+            , DtoClassInfoHelper dtoClassInfoHelper, Object object, Object... options) throws Exception {
 //        if(updateObject == null) {
 //            return null;
 //        }
@@ -121,7 +123,7 @@ public class DefaultUpdateEntityProvider extends AutoDetectUpdateEntityProvider 
         boolean physicDelete = ArrayParamUtils.parseArray(options, 1, false);
 
         List<UpdateEntity> result = new ArrayList<>();
-        result.add(super.createUpdateEntity(relation
+        result.add(super.createUpdateEntity(relation, dtoClassInfoHelper
                 , object
                 , updateSubEntityStrategy
                 , physicDelete

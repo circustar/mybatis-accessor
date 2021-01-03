@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mvcenhance.common.query.EntityFilter;
 import com.circustar.mvcenhance.common.query.QueryFieldModel;
 import com.circustar.mvcenhance.common.response.PageInfo;
+import com.circustar.mvcenhance.enhance.field.DtoClassInfo;
+import com.circustar.mvcenhance.enhance.field.DtoClassInfoHelper;
 import com.circustar.mvcenhance.enhance.field.DtoFieldInfo;
 import com.circustar.mvcenhance.enhance.field.DtoFields;
 import com.circustar.mvcenhance.enhance.mybatisplus.MybatisPlusMapper;
@@ -23,16 +25,18 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SelectService implements ISelectService {
-    public SelectService(ApplicationContext applicationContext, EnhancedConversionService converter, IEntityDtoServiceRelationMap entityDtoServiceRelationMap) {
+    public SelectService(ApplicationContext applicationContext
+            , IEntityDtoServiceRelationMap entityDtoServiceRelationMap
+            , DtoClassInfoHelper dtoClassInfoHelper) {
         this.applicationContext = applicationContext;
-        this.converter = converter;
         this.entityDtoServiceRelationMap = entityDtoServiceRelationMap;
+        this.dtoClassInfoHelper = dtoClassInfoHelper;
     }
     private ApplicationContext applicationContext;
 
     private IEntityDtoServiceRelationMap entityDtoServiceRelationMap;
 
-    private EnhancedConversionService converter;
+    private DtoClassInfoHelper dtoClassInfoHelper;
 
     @Override
     public Object getDtoById(EntityDtoServiceRelation relationInfo
@@ -51,13 +55,15 @@ public class SelectService implements ISelectService {
         if (oriEntity == null) {
             return null;
         }
-        Object result = converter.convert(oriEntity, relationInfo.getDto());
-        List subEntityList;
+        Object result = this.dtoClassInfoHelper.convertFromEntity(oriEntity, relationInfo.getDto());
+        List<String> subEntityList;
         if(subEntities == null) {
-            subEntityList = relationInfo.getDtoClassInfo().getFieldInfoList()
-                    .stream()
-                    .filter(x -> entityDtoServiceRelationMap.getByDtoClass((Class)x.getActualType()) != null)
-                    .map(x -> x.getFieldName()).collect(Collectors.toList());
+            subEntityList = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto())
+                    .getDtoFieldList().stream().map(x -> x.getFieldName()).collect(Collectors.toList());
+//            subEntityList = relationInfo.getDtoClassInfo().getFieldInfoList()
+//                    .stream()
+//                    .filter(x -> entityDtoServiceRelationMap.getByDtoClass((Class)x.getActualType()) != null)
+//                    .map(x -> x.getFieldName()).collect(Collectors.toList());
         } else {
             subEntityList = Arrays.asList(subEntities);
         }
@@ -69,10 +75,10 @@ public class SelectService implements ISelectService {
                 , tableJoinerMap, noAnnotationInfoList);
 
         String keyColumn = TableInfoHelper.getTableInfo(relationInfo.getEntity()).getKeyColumn();
-        DtoFields.queryAndAssignDtoField(applicationContext, converter, entityDtoServiceRelationMap
+        DtoFields.queryAndAssignDtoField(applicationContext, dtoClassInfoHelper, entityDtoServiceRelationMap
                 , relationInfo, result, noAnnotationInfoList, keyColumn, id);
 
-        DtoFields.queryAndAssignDtoField(applicationContext, converter
+        DtoFields.queryAndAssignDtoField(applicationContext, dtoClassInfoHelper
                 , entityDtoServiceRelationMap
                 , relationInfo
                 , result
@@ -108,7 +114,7 @@ public class SelectService implements ISelectService {
         Page page = new Page(page_index, page_size);
         IPage pageResult = service.page(page, qw);
 
-        List dtoList = converter.convertList(pageResult.getRecords(), relationInfo.getDto());
+        List dtoList = (List) dtoClassInfoHelper.convertFromEntityList(pageResult.getRecords(), relationInfo.getDto());
         pageInfo = new PageInfo(pageResult.getTotal(), pageResult.getSize(), pageResult.getCurrent(), dtoList);
 
         return pageInfo;
@@ -133,13 +139,14 @@ public class SelectService implements ISelectService {
         QueryFieldModel.setQueryWrapper(queryFiledModelList, qw);
 
         List<T> dtoList = null;
-        if (relationInfo.getDtoClassInfo().containsSubDtoFields()) {
-            List entityList = ((MybatisPlusMapper)service.getBaseMapper()).selectListWithJoin(qw);
-            dtoList = converter.convertList(entityList, relationInfo.getDto());
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto());
+        List entityList = null;
+        if (dtoClassInfo.containSubEntity()) {
+            entityList = ((MybatisPlusMapper)service.getBaseMapper()).selectListWithJoin(qw);
         } else {
-            List entityList = service.list(qw);
-            dtoList = converter.convertList(entityList, relationInfo.getDto());
+            entityList = service.list(qw);
         }
+        dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityList, relationInfo.getDto());;
 
         return dtoList;
     }

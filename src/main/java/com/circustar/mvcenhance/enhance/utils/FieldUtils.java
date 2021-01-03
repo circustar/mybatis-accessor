@@ -29,13 +29,18 @@ public class FieldUtils {
 
     }
 
-    public static void setFieldByName(Object obj, String name, Object value) throws NoSuchFieldException, IllegalAccessException, InstantiationException {
+    public static void setField(Object obj, Field field, Object value) throws IllegalAccessException {
+        field.setAccessible(true);
+        field.set(obj, value);
+    }
+
+    public static void setFieldByName(Object obj, String name, Object value) throws NoSuchFieldException, IllegalAccessException {
         Field f = obj.getClass().getDeclaredField(name);
         f.setAccessible(true);
         f.set(obj, value);
     }
 
-    public static void setFieldByNameWithCollection(Object object, String name, Object value) throws NoSuchFieldException, IllegalAccessException, InstantiationException {
+    public static void setFieldByNameWithCollection(Object object, String name, Object value) throws NoSuchFieldException, IllegalAccessException {
         if(object == null) {return;}
         if(Collection.class.isAssignableFrom(object.getClass())) {
             Collection c = (Collection)object;
@@ -63,6 +68,11 @@ public class FieldUtils {
         Field f = obj.getClass().getDeclaredField(name);
         f.setAccessible(true);
         return f.get(obj);
+    }
+
+    public static Object getValue(Object obj, Field field) throws NoSuchFieldException, IllegalAccessException {
+         field.setAccessible(true);
+        return field.get(obj);
     }
 
     public static <T extends Annotation> T[] getFieldAnnotationByName(Object obj, String name, Class<T> clazz) throws NoSuchFieldException {

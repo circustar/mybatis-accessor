@@ -9,6 +9,16 @@ import java.util.Collection;
 public class FieldTypeInfo {
     private Field field;
 
+    public Boolean getPrimitive() {
+        return isPrimitive;
+    }
+
+    public Boolean getCollection() {
+        return isCollection;
+    }
+
+    private Boolean isPrimitive;
+
     public Field getField() {
         return field;
     }
@@ -53,9 +63,11 @@ public class FieldTypeInfo {
             fieldInfo.setIsCollection(true);
             fieldInfo.setActualType(((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]);
             fieldInfo.setOwnType(((ParameterizedType) field.getGenericType()).getRawType());
+            fieldInfo.isPrimitive = false;
         } else {
             fieldInfo.setIsCollection(false);
             fieldInfo.setActualType(field.getType());
+            fieldInfo.isPrimitive = field.getType().isPrimitive();
         }
         return fieldInfo;
     }

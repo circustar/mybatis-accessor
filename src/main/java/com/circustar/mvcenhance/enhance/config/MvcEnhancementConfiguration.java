@@ -1,6 +1,8 @@
 package com.circustar.mvcenhance.enhance.config;
 
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
+import com.circustar.mvcenhance.enhance.field.DtoClassInfoHelper;
+import com.circustar.mvcenhance.enhance.field.EntityClassInfoHelper;
 import com.circustar.mvcenhance.enhance.mybatisplus.injector.EnhanceSqlInjector;
 import com.circustar.mvcenhance.enhance.service.CrudService;
 import com.circustar.mvcenhance.enhance.service.ISelectService;
@@ -25,22 +27,22 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MvcEnhancementConfiguration {
     private ApplicationContext applicationContext;
-    private EnhancedConversionService enhancedConversionService = null;
     private IEntityDtoServiceRelationMap entityDtoServiceRelationMap = null;
     private EnhanceSqlInjector enhanceSqlInjector = null;
-    private ConversionService conversionService = null;
     private ScanRelationOnStartup scanRelationOnStartup;
     private ICrudService crudService;
     private ISelectService selectService;
+    private EntityClassInfoHelper entityClassInfoHelper;
+    private DtoClassInfoHelper dtoClassInfoHelper;
 
-    public MvcEnhancementConfiguration(ApplicationContext applicationContext, ConversionService conversionService) {
+    public MvcEnhancementConfiguration(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         this.enhanceSqlInjector = new EnhanceSqlInjector();
-        this.conversionService = conversionService;
         this.entityDtoServiceRelationMap = new EntityDtoServiceRelationMap();
-        this.enhancedConversionService = new EnhancedConversionService(conversionService, this.entityDtoServiceRelationMap);
-        this.crudService = new CrudService(this.applicationContext, this.enhancedConversionService, this.entityDtoServiceRelationMap);
-        this.selectService = new SelectService(this.applicationContext, this.enhancedConversionService, this.entityDtoServiceRelationMap);
+        this.crudService = new CrudService(this.applicationContext, this.entityDtoServiceRelationMap);
+        this.entityClassInfoHelper = new EntityClassInfoHelper();
+        this.dtoClassInfoHelper = new DtoClassInfoHelper(this.entityDtoServiceRelationMap, this.entityClassInfoHelper);
+        this.selectService = new SelectService(this.applicationContext, this.entityDtoServiceRelationMap, this.dtoClassInfoHelper);
         this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
     }
 
@@ -48,15 +50,6 @@ public class MvcEnhancementConfiguration {
 //    @ConditionalOnProperty("mybatis-plus.global-config.db-config.logic-delete-field")
     public EnhanceSqlInjector getEnhanceSqlInjector() {
         return this.enhanceSqlInjector;
-    }
-
-    public ConversionService getConversionService(){
-        return this.conversionService;
-    }
-
-    @Bean
-    public EnhancedConversionService getEnhancedConversionService() {
-        return enhancedConversionService;
     }
 
     @Bean
@@ -117,5 +110,15 @@ public class MvcEnhancementConfiguration {
     @Bean
     public DefaultUpdateSubEntitiesProvider getDefaultUpdateSubEntitiesProvider() {
         return new DefaultUpdateSubEntitiesProvider();
+    }
+
+    @Bean
+    public DtoClassInfoHelper getDtoClassInfoHelper() {
+        return this.dtoClassInfoHelper;
+    }
+
+    @Bean
+    public EntityClassInfoHelper getEntityClassInfoHelper() {
+        return this.entityClassInfoHelper;
     }
 }

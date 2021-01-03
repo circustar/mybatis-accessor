@@ -1,10 +1,10 @@
 package com.circustar.mvcenhance.enhance.service;
 
 import com.circustar.mvcenhance.common.error.UpdateTargetNotFoundException;
+import com.circustar.mvcenhance.enhance.field.DtoClassInfoHelper;
 import com.circustar.mvcenhance.enhance.update.*;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.enhance.relation.IEntityDtoServiceRelationMap;
-import com.circustar.mvcenhance.enhance.utils.EnhancedConversionService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -13,16 +13,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class CrudService implements ICrudService {
-    public CrudService(ApplicationContext applicationContext, EnhancedConversionService converter, IEntityDtoServiceRelationMap entityDtoServiceRelationMap) {
+    public CrudService(ApplicationContext applicationContext, IEntityDtoServiceRelationMap entityDtoServiceRelationMap) {
         this.applicationContext = applicationContext;
-        this.converter = converter;
+        this.dtoClassInfoHelper = dtoClassInfoHelper;
         this.entityDtoServiceRelationMap = entityDtoServiceRelationMap;
     }
     private ApplicationContext applicationContext;
 
     private IEntityDtoServiceRelationMap entityDtoServiceRelationMap;
 
-    private EnhancedConversionService converter;
+    private DtoClassInfoHelper dtoClassInfoHelper;
 
 //    @Override
 //    @Transactional(rollbackFor = Exception.class)
@@ -333,7 +333,7 @@ public class CrudService implements ICrudService {
                 throw new ValidateException("validate failed");
             }
             try {
-                List<UpdateEntity> objList = provider.createUpdateEntities(relationInfo, object, options);
+                List<UpdateEntity> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper, object, options);
                 for(UpdateEntity o : objList) {
                     boolean result = o.execUpdate();
                     if(!result) {
