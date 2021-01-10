@@ -3,12 +3,16 @@ package com.circustar.mvcenhance.enhance.config;
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import com.circustar.mvcenhance.enhance.field.DtoClassInfoHelper;
 import com.circustar.mvcenhance.enhance.field.EntityClassInfoHelper;
+import com.circustar.mvcenhance.enhance.mybatisplus.enhancer.TableInfoUtils;
 import com.circustar.mvcenhance.enhance.mybatisplus.injector.EnhanceSqlInjector;
 import com.circustar.mvcenhance.enhance.service.CrudService;
 import com.circustar.mvcenhance.enhance.service.ISelectService;
 import com.circustar.mvcenhance.enhance.service.SelectService;
 import com.circustar.mvcenhance.enhance.update.*;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
@@ -22,6 +26,13 @@ import com.circustar.mvcenhance.enhance.service.ICrudService;
 import com.circustar.mvcenhance.enhance.utils.EnhancedConversionService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @AutoConfigureAfter({MybatisPlusAutoConfiguration.class})
 @Configuration
@@ -44,6 +55,15 @@ public class MvcEnhancementConfiguration {
         this.dtoClassInfoHelper = new DtoClassInfoHelper(this.entityDtoServiceRelationMap, this.entityClassInfoHelper);
         this.selectService = new SelectService(this.applicationContext, this.entityDtoServiceRelationMap, this.dtoClassInfoHelper);
         this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
+
+        TableInfoUtils.scanPackages.getAndSet(getMapperScanPackages(this.applicationContext));
+    }
+
+    private List<String> getMapperScanPackages(ApplicationContext applicationContext) {
+        String[] beanNames = applicationContext.getBeanNamesForAnnotation(MapperScan.class);
+        return Arrays.stream(beanNames).map(x -> applicationContext.findAnnotationOnBean(x, MapperScan.class))
+                .map(x -> Stream.concat(Stream.of(x.value()), Stream.of(x.basePackages())))
+                .flatMap(x -> x).collect(Collectors.toList());
     }
 
     @Bean

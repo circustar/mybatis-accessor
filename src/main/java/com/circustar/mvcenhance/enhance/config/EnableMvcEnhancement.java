@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-@Import(MvcEnhancementConfiguration.class)
+@Import(value = {MvcEnhancementConfiguration.class})
 @ConditionalOnWebApplication
 @ConditionalOnClass(MybatisPlusAutoConfiguration.class)
 public @interface EnableMvcEnhancement {

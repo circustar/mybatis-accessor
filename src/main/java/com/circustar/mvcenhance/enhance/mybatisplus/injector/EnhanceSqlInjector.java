@@ -2,14 +2,26 @@ package com.circustar.mvcenhance.enhance.mybatisplus.injector;
 
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
+import com.baomidou.mybatisplus.core.metadata.TableInfo;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
+import com.circustar.mvcenhance.enhance.mybatisplus.enhancer.TableInfoUtils;
 import com.circustar.mvcenhance.enhance.mybatisplus.injector.methods.*;
+import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 
 import java.util.List;
+import java.util.Set;
 
 public class EnhanceSqlInjector extends DefaultSqlInjector {
     private static final Log logger = LogFactory.getLog(EnhanceSqlInjector.class);
+
+    public EnhanceSqlInjector() {
+        super();
+        //TableInfoUtils.initAllTableInfo();
+    }
 
     @Override
     public List<AbstractMethod> getMethodList(Class<?> mapperClass) {
@@ -19,7 +31,14 @@ public class EnhanceSqlInjector extends DefaultSqlInjector {
         methodList.add(new PhysicDeleteById());
         methodList.add(new PhysicDeleteByMap());
         methodList.add(new SelectListWithJoin());
+        methodList.add(new SelectPageWithJoin());
         return methodList;
+    }
+
+    @Override
+    public void inspectInject(MapperBuilderAssistant builderAssistant, Class<?> mapperClass) {
+        TableInfoUtils.initAllTableInfo(builderAssistant.getConfiguration());
+        super.inspectInject(builderAssistant, mapperClass);
     }
 
 //    @Override

@@ -1,16 +1,14 @@
 package com.circustar.mvcenhance.enhance.mybatisplus.enhancer;
 
-import com.baomidou.mybatisplus.annotation.KeySequence;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.circustar.mvcenhance.enhance.field.EntityClassInfo;
 import com.circustar.mvcenhance.enhance.relation.TableJoinInfo;
+import com.circustar.mvcenhance.enhance.utils.ClassUtils;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.mapping.ResultFlag;
 import org.apache.ibatis.mapping.ResultMap;
@@ -24,24 +22,39 @@ import org.apache.ibatis.type.UnknownTypeHandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class TableInfoUtils {
-    public static TableInfo getTableInfo(Class<?> clazz, Configuration configuration, Package scanPackage) {
-        TableInfo tableInfo = TableInfoHelper.getTableInfo(clazz);
-        if (tableInfo != null) {
-            return tableInfo;
+    public static volatile boolean allTableInfoInitialized = false;
+    public static AtomicReference<List<String>> scanPackages = new AtomicReference<>();
+    private static boolean userCamelCase = false;
+    public static synchronized void initAllTableInfo(Configuration configuration) {
+        if(allTableInfoInitialized) {
+            return;
         }
-        if (scanPackage == null) {
-            return null;
+        List<String> pks = scanPackages.get();
+        for (String scanPackage : pks) {
+            initPackageTableInfo(configuration, scanPackage);
+        }
+        userCamelCase = configuration.isMapUnderscoreToCamelCase();
+        allTableInfoInitialized = true;
+    }
+
+    private static void initPackageTableInfo(Configuration configuration, String scanPackage) {
+        if(BaseMapperScanner.packageScanned(scanPackage)) {
+            return;
         }
         try {
             BaseMapperScanner.scan(scanPackage);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        Class<? extends BaseMapper> mapper = BaseMapperScanner.getBaseMapper(clazz);
-        MapperBuilderAssistant mapperBuilderAssistant = new MapperBuilderAssistant(configuration, mapper.getSimpleName());
-        return TableInfoHelper.initTableInfo(mapperBuilderAssistant, clazz);
+        Set<Class<? extends BaseMapper>> baseMapperFromPackage = BaseMapperScanner.getBaseMapperFromPackage(scanPackage);
+        for(Class<? extends BaseMapper> mapper : baseMapperFromPackage) {
+            MapperBuilderAssistant mapperBuilderAssistant = new MapperBuilderAssistant(configuration, mapper.getSimpleName());
+            TableInfoHelper.initTableInfo(mapperBuilderAssistant, (Class)ClassUtils.getFirstTypeArgument(mapper));
+        }
     }
 
     public static ResultMapping getResultMapping(Configuration configuration, TableFieldInfo tableFieldInfo) {
@@ -106,70 +119,11 @@ public class TableInfoUtils {
         configuration.addResultMap(resultMap);
         return id;
     }
-}
 
-//
-//    public static String getDefaultMapperName(String currentNameSpace, Class clazz) {
-//        return currentNameSpace + clazz.getSimpleName();
-//    }
-//
-//    public static String getSchema(Configuration configuration) {
-//        GlobalConfig globalConfig = GlobalConfigUtils.getGlobalConfig(configuration);
-//        if(globalConfig != null && globalConfig.getDbConfig() != null) {
-//            return globalConfig.getDbConfig().getSchema();
-//        }
-//        return null;
-//    }
-//
-//    public static String getTableName(Configuration configuration, Class<?> clazz) {
-//        return getTableName(configuration, clazz, true);
-//    }
-//    public static String getTableName(Configuration configuration, Class<?> clazz, Boolean withSchema) {
-//        GlobalConfig.DbConfig dbConfig = GlobalConfigUtils.getGlobalConfig(configuration).getDbConfig();
-//        TableName table = clazz.getAnnotation(TableName.class);
-//        String tableName = clazz.getSimpleName();
-//        String tablePrefix = dbConfig.getTablePrefix();
-//        String schema = dbConfig.getSchema();
-//        boolean tablePrefixEffect = true;
-//        if (table != null) {
-//            if (StringUtils.isNotBlank(table.value())) {
-//                tableName = table.value();
-//                if (StringUtils.isNotBlank(tablePrefix) && !table.keepGlobalPrefix()) {
-//                    tablePrefixEffect = false;
-//                }
-//            } else {
-//                tableName = initTableNameWithDbConfig(tableName, dbConfig);
-//            }
-//
-//            if (StringUtils.isNotBlank(table.schema())) {
-//                schema = table.schema();
-//            }
-//        } else {
-//            tableName = initTableNameWithDbConfig(tableName, dbConfig);
-//        }
-//
-//        String targetTableName = tableName;
-//        if (StringUtils.isNotBlank(tablePrefix) && tablePrefixEffect) {
-//            targetTableName = tablePrefix + tableName;
-//        }
-//
-//        if (StringUtils.isNotBlank(schema)) {
-//            targetTableName = schema + "." + targetTableName;
-//        }
-//        return withSchema?targetTableName:tableName;
-//    }
-//
-//    private static String initTableNameWithDbConfig(String className, GlobalConfig.DbConfig dbConfig) {
-//        String tableName = className;
-//        if (dbConfig.isTableUnderline()) {
-//            tableName = StringUtils.camelToUnderline(className);
-//        }
-//
-//        if (dbConfig.isCapitalMode()) {
-//            tableName = tableName.toUpperCase();
-//        } else {
-//            tableName = StringUtils.firstToLowerCase(tableName);
-//        }
-//
-//        return tableName;
-//    }
+    public static String getDBObjectName(String entityName) {
+        if(userCamelCase) {
+            return StringUtils.camelToUnderline(entityName);
+        }
+        return entityName;
+    }
+}

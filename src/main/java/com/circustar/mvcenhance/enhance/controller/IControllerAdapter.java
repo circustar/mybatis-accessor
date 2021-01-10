@@ -5,6 +5,8 @@ import com.circustar.mvcenhance.common.query.QueryFieldModel;
 import com.circustar.mvcenhance.common.response.DefaultServiceResult;
 import com.circustar.mvcenhance.common.response.IServiceResult;
 import com.circustar.mvcenhance.common.response.PageInfo;
+import com.circustar.mvcenhance.enhance.field.DtoClassInfo;
+import com.circustar.mvcenhance.enhance.field.DtoClassInfoHelper;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.enhance.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.enhance.service.ICrudService;
@@ -121,6 +123,7 @@ public interface IControllerAdapter {
             throw new ResourceNotFoundException(dto_name);
         }
         ObjectMapper objectMapper = new ObjectMapper();
+        // TODO: 忽略不存在的属性
         Object dto= objectMapper.convertValue(map, relationInfo.getDto());
 
         if(page_index != null && page_size != null) {

@@ -2,6 +2,7 @@ package com.circustar.mvcenhance.enhance.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -10,12 +11,10 @@ import com.circustar.mvcenhance.common.query.QueryFieldModel;
 import com.circustar.mvcenhance.common.response.PageInfo;
 import com.circustar.mvcenhance.enhance.field.DtoClassInfo;
 import com.circustar.mvcenhance.enhance.field.DtoClassInfoHelper;
-import com.circustar.mvcenhance.enhance.field.DtoFieldInfo;
 import com.circustar.mvcenhance.enhance.field.DtoFields;
 import com.circustar.mvcenhance.enhance.mybatisplus.MybatisPlusMapper;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.enhance.relation.IEntityDtoServiceRelationMap;
-import com.circustar.mvcenhance.enhance.utils.EnhancedConversionService;
 import com.circustar.mvcenhance.enhance.utils.FieldUtils;
 import org.springframework.context.ApplicationContext;
 
@@ -59,7 +58,7 @@ public class SelectService implements ISelectService {
         List<String> subEntityList;
         if(subEntities == null) {
             subEntityList = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto())
-                    .getDtoFieldList().stream().map(x -> x.getFieldName()).collect(Collectors.toList());
+                    .getSubDtoFieldList().stream().map(x -> x.getFieldName()).collect(Collectors.toList());
 //            subEntityList = relationInfo.getDtoClassInfo().getFieldInfoList()
 //                    .stream()
 //                    .filter(x -> entityDtoServiceRelationMap.getByDtoClass((Class)x.getActualType()) != null)
@@ -95,7 +94,8 @@ public class SelectService implements ISelectService {
             , Integer page_index
             , Integer page_size
             ) throws Exception {
-        List<QueryFieldModel> queryFiledModelList = QueryFieldModel.getQueryFieldModeFromDto(object, queryGroup);
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto());
+        List<QueryFieldModel> queryFiledModelList = QueryFieldModel.getQueryFieldModeFromDto(dtoClassInfo, object, queryGroup);
 
         return getPagesByQueryFields(relationInfo, queryFiledModelList, page_index, page_size);
     }
@@ -108,13 +108,21 @@ public class SelectService implements ISelectService {
             ) throws Exception {
         IService service = applicationContext.getBean(relationInfo.getService());
         QueryWrapper qw = new QueryWrapper();
-        QueryFieldModel.setQueryWrapper(queryFiledModelList, qw);
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto());
+        TableInfo tableInfo = TableInfoHelper.getTableInfo(dtoClassInfo.getEntityClassInfo().getClazz());
+        QueryFieldModel.setQueryWrapper(tableInfo.getTableName()
+                , queryFiledModelList, qw);
 
         PageInfo pageInfo = null;
         Page page = new Page(page_index, page_size);
-        IPage pageResult = service.page(page, qw);
+        IPage pageResult = null;
 
-        List dtoList = (List) dtoClassInfoHelper.convertFromEntityList(pageResult.getRecords(), relationInfo.getDto());
+        if (dtoClassInfo.containSubEntity()) {
+            pageResult = ((MybatisPlusMapper) service.getBaseMapper()).selectPageWithJoin(page, qw, dtoClassInfo.getJoinTables(), dtoClassInfo.getJointColumns());
+        } else {
+            pageResult = service.page(page, qw);
+        }
+        List<T> dtoList = (List) dtoClassInfoHelper.convertFromEntityList(pageResult.getRecords(), relationInfo.getDto());
         pageInfo = new PageInfo(pageResult.getTotal(), pageResult.getSize(), pageResult.getCurrent(), dtoList);
 
         return pageInfo;
@@ -125,7 +133,8 @@ public class SelectService implements ISelectService {
             , Object object
             , String queryGroup
     ) throws Exception {
-        List<QueryFieldModel> queryFiledModelList = QueryFieldModel.getQueryFieldModeFromDto(object, queryGroup);
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto());
+        List<QueryFieldModel> queryFiledModelList = QueryFieldModel.getQueryFieldModeFromDto(dtoClassInfo, object, queryGroup);
 
         return getListByQueryFields(relationInfo, queryFiledModelList);
     }
@@ -135,14 +144,15 @@ public class SelectService implements ISelectService {
             , List<QueryFieldModel> queryFiledModelList
     ) throws Exception {
         IService service = applicationContext.getBean(relationInfo.getService());
-        QueryWrapper qw = new QueryWrapper();
-        QueryFieldModel.setQueryWrapper(queryFiledModelList, qw);
-
         List<T> dtoList = null;
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto());
+        TableInfo tableInfo = TableInfoHelper.getTableInfo(dtoClassInfo.getEntityClassInfo().getClazz());
+        QueryWrapper qw = new QueryWrapper();
+        QueryFieldModel.setQueryWrapper(tableInfo.getTableName()
+                ,queryFiledModelList, qw);
         List entityList = null;
         if (dtoClassInfo.containSubEntity()) {
-            entityList = ((MybatisPlusMapper)service.getBaseMapper()).selectListWithJoin(qw);
+            entityList = ((MybatisPlusMapper)service.getBaseMapper()).selectListWithJoin(qw, dtoClassInfo.getJoinTables(), dtoClassInfo.getJointColumns());
         } else {
             entityList = service.list(qw);
         }

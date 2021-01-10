@@ -78,7 +78,7 @@ public class AutoDetectUpdateEntityProvider extends AbstractUpdateEntityProvider
             , boolean isParentDeleted, boolean physicDelete) throws Exception {
         List<UpdateEntity> updateEntities= new ArrayList<>();
 
-        List<DtoField> dtoFields = dtoClassInfoHelper.getDtoClassInfo(relation.getDto()).getDtoFieldList();
+        List<DtoField> dtoFields = dtoClassInfoHelper.getDtoClassInfo(relation.getDto()).getSubDtoFieldList();
         for(DtoField dtoField : dtoFields) {
             Object subObject = FieldUtils.getValue(object, dtoField.getFieldTypeInfo().getField());
             if(subObject == null) {continue;}

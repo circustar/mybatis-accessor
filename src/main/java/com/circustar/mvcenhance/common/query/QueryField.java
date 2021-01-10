@@ -9,8 +9,7 @@ public @interface QueryField {
     String[] group() default "";
     String column() default "";
     Connector connector() default Connector.eq;
-    int sortIndex() default 0;
-    String sortOrder() default "";
+    int sortIndex() default Integer.MAX_VALUE;
+    String sortOrder() default "asc";
     String expression() default "";
-    boolean ignoreEmpty() default true;
 }

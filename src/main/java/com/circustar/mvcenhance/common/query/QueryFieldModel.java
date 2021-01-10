@@ -1,17 +1,28 @@
 package com.circustar.mvcenhance.common.query;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.circustar.mvcenhance.enhance.field.DtoClassInfo;
+import com.circustar.mvcenhance.enhance.field.DtoField;
+import com.circustar.mvcenhance.enhance.field.FieldTypeInfo;
+import com.circustar.mvcenhance.enhance.mybatisplus.enhancer.TableInfoUtils;
+import com.circustar.mvcenhance.enhance.utils.FieldUtils;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
 import com.circustar.mvcenhance.enhance.utils.SPELParser;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class QueryFieldModel {
     public static String ORDER_DESC = "desc";
     public static String ORDER_ASC = "asc";
+
+    private String group;
+    private String column;
+    private String connector;
+    private List<Object> values;
+    private String sort_order;
+    private Integer sort_index;
 
     public String getGroup() {
         return group;
@@ -61,22 +72,15 @@ public class QueryFieldModel {
         this.sort_index = sort_index;
     }
 
-    private String group;
-
-    private String column;
-    private String connector;
-    private List<Object> values;
-    private String sort_order;
-    private Integer sort_index;
-
-    public static <T> void setQueryWrapper(List<QueryFieldModel> conditions, QueryWrapper<T> queryWrapper) {
+    public static <T> void setQueryWrapper(String tableName, List<QueryFieldModel> conditions, QueryWrapper<T> queryWrapper) {
         conditions.forEach(x -> {
             Connector c = Connector.getConnectorByName(x.getConnector());
             if(c != null) {
-                c.consume(x.column, queryWrapper, x.getValues());
+                c.consume(tableName + "." + x.column, queryWrapper, x.getValues());
             }
         });
-        conditions.stream().filter(x -> x.sort_order!= null && !StringUtils.isEmpty(x.sort_order)).sorted((x, y) -> {
+        conditions.stream().filter(x -> x.sort_index!= null && x.sort_index != Integer.MAX_VALUE)
+                .sorted((x, y) -> {
             return x.sort_index - y.sort_index;
         }).forEach(x -> {
             if(ORDER_DESC.equals(x.sort_order.toLowerCase())) {
@@ -87,117 +91,90 @@ public class QueryFieldModel {
         });
     }
 
-//    public static List<QueryFieldModel> getUrlConditionList(List<QueryFieldModel> queryFiledModels) {
-//        return queryFiledModels.stream().filter(x -> !StringUtils.isEmpty(x.getColumn()))
-//                .map(x -> {
-//                    QueryFieldModel queryFieldModel = new QueryFieldModel();
-//                    queryFieldModel.setConnector(x.getConnector());
-//                    queryFieldModel.setColumn(x.getColumn());
-//                    queryFieldModel.setValues(x.getValues());
-//                    return queryFieldModel;
-////                    return QueryFieldModel.builder()
-////                        .connector(x.getConnector())
-////                        .column(x.getColumn())
-////                        .values(x.getValues())
-////                        .build();})
-//                }).collect(Collectors.toList());
-//    }
-
-//    public static List<OrderItem> getOrderItemList(List<QueryFieldModel> queryFiledModels) {
-//        return queryFiledModels.stream().filter(x -> !StringUtils.isEmpty(x.sort_order) && x.sort_index!= null)
-//                .sorted((x, y) -> {
-//                    return x.sort_index - y.sort_index;
-//                })
-//                .map(x -> new OrderItem(x.getColumn(), !ORDER_DESC.equals(x.sort_order)))
-//                .collect(Collectors.toList());
-//    }
-
-    public static List<QueryFieldModel> getQueryFieldModeFromDto(Object dto) throws IllegalAccessException {
-        return getQueryFieldModeFromDto(dto, "");
+    public static List<QueryFieldModel> getQueryFieldModeFromDto(DtoClassInfo dtoClassInfo, Object dto) throws NoSuchFieldException, IllegalAccessException {
+        return getQueryFieldModeFromDto(dtoClassInfo, dto, "");
     }
 
-    public static List<QueryFieldModel> getQueryFieldModeFromDto(Object dto, String groupName) throws IllegalAccessException {
-        if(dto == null) {
-            return null;
-        }
+    public static List<QueryFieldModel> getQueryFieldModeFromDto(DtoClassInfo dtoClassInfo, Object dto, String groupName) throws NoSuchFieldException, IllegalAccessException {
         List<QueryFieldModel> result = new ArrayList<>();
-        List<QueryFieldValue> QueryFieldValues = new ArrayList<>();
+        List<QueryFieldImpl> allQueryFields = new ArrayList<>();
         StandardEvaluationContext context = new StandardEvaluationContext(dto);
-//        ExpressionParser ep = new SpelExpressionParser();
-
-        Field[] fields = dto.getClass().getDeclaredFields();
-        for(Field f : fields) {
-            f.setAccessible(true);
-            Object fieldValue = f.get(dto);
-
-            QueryField[] queryFields = f.getAnnotationsByType(QueryField.class);
-            List<QueryFieldValue> fieldValues = Arrays.stream(queryFields)
-                    .filter(x -> ((StringUtils.isEmpty(groupName) && x.group().length == 0)
-                            || Arrays.stream(x.group()).anyMatch(y -> y.equals(groupName)))
-                            && !StringUtils.isEmpty(x.connector())
-                            &&(!x.ignoreEmpty() || !(fieldValue == null && "".equals(fieldValue))))
-                    .map(x -> {
-                        Object expressionValue = null;
-                        if(x.expression() != null && !"".equals(x.expression()) ) {
-//                            Expression expression = ep.parseExpression(x.expression());
-//                            expressionValue = expression.getValue(context);
-                            expressionValue = SPELParser.parseExpression(context, x.expression());
-                        } else {
-                            expressionValue = fieldValue;
-                        }
-                        if(expressionValue != null
-                                && x.connector() == Connector.exists || x.connector() == Connector.notExists) {
-                            expressionValue = expressionValue.toString().replace("'", "");
-                        }
-                        QueryFieldValue queryFieldValue = new QueryFieldValue();
-                        queryFieldValue.setConnector(x.connector());
-                        queryFieldValue.setColumn(StringUtils.isEmpty(x.column())?f.getName():x.column());
-                        queryFieldValue.setGroup(groupName);
-                        queryFieldValue.setSortIndex(x.sortIndex());
-                        queryFieldValue.setSortOrder(x.sortOrder());
-                        queryFieldValue.setValue(expressionValue);
-                        return queryFieldValue;
-//                        return QueryFieldValue.builder()
-//                            .connector(x.connector())
-//                            .column(StringUtils.isEmpty(x.column())?f.getName():x.column())
-//                            .group(groupName)
-//                            .sortIndex(x.sortIndex())
-//                            .sortOrder(x.sortOrder())
-//                            .value(expressionValue)
-//                            .build();
-                    }).collect(Collectors.toList());
-            QueryFieldValues.addAll(fieldValues);
+        for(DtoField dtoField : dtoClassInfo.getNormalFieldList()) {
+            Object fieldValue = FieldUtils.getValue(dto, dtoField.getFieldTypeInfo().getField());
+            Set<QueryField> queryFieldSet = dtoField.getQueryField(groupName);
+            FieldTypeInfo entityField = dtoClassInfo.getEntityClassInfo().getFieldByName(dtoField.getFieldName());
+            String defaultColumnName = null;
+            if(entityField != null) {
+                defaultColumnName = TableInfoUtils.getDBObjectName(entityField.getField().getName());
+            }
+            List<QueryFieldImpl> queryFieldImpls = null;
+            if(queryFieldSet == null  || queryFieldSet.size() == 0) {
+                if(entityField == null) {
+                    continue;
+                }
+                QueryFieldImpl queryFieldImpl = new QueryFieldImpl(defaultColumnName, fieldValue);
+                queryFieldImpls = new ArrayList<>();
+                queryFieldImpls.add(queryFieldImpl);
+            } else {
+                String finalDefaultColumnName = defaultColumnName;
+                queryFieldImpls = dtoField.getQueryField(groupName).stream().map(x -> {
+                    Object expressionValue = null;
+                    if(!StringUtils.isEmpty(x.expression())) {
+                        expressionValue = SPELParser.parseExpression(context, x.expression());
+                    } else {
+                        expressionValue = fieldValue;
+                    }
+                    if(expressionValue != null
+                            && x.connector() == Connector.exists || x.connector() == Connector.notExists) {
+                        expressionValue = expressionValue.toString().replace("'", "");
+                    }
+                    QueryFieldImpl queryFieldImpl = new QueryFieldImpl();
+                    queryFieldImpl.setConnector(x.connector());
+                    queryFieldImpl.setColumn(StringUtils.isEmpty(x.column())? finalDefaultColumnName :x.column());
+                    queryFieldImpl.setGroup(groupName);
+                    queryFieldImpl.setSortIndex(x.sortIndex());
+                    queryFieldImpl.setSortOrder(x.sortOrder());
+                    queryFieldImpl.setValue(expressionValue);
+                    queryFieldImpl.setExpression(x.expression());
+                    return queryFieldImpl;
+                }).collect(Collectors.toList());
+            }
+            allQueryFields.addAll(queryFieldImpls);
         }
-        Map<String, List<QueryFieldValue>> mappedQueryFieldValues = QueryFieldValues.stream().collect(
+        Map<String, List<QueryFieldImpl>> queryFieldByColumn = allQueryFields.stream().collect(
                             Collectors.groupingBy(
-                                    x -> x.column + ":" + x.connector
+                                    x -> x.column
                             )
                     );
-        for(String fieldName : mappedQueryFieldValues.keySet()) {
-            List<QueryFieldValue> var0 = mappedQueryFieldValues.get(fieldName);
-            QueryFieldValue var1 = var0.get(0);
-            List<Object> values = var0.stream()
-                    .map(x -> x.value)
-                    .collect(Collectors.toList());
-            QueryFieldModel queryFieldModel = new QueryFieldModel();
-            queryFieldModel.setConnector(var1.getConnector().name());
-            queryFieldModel.setColumn(var1.getColumn());
-            queryFieldModel.setGroup(var1.getGroup());
-            queryFieldModel.setSort_order(var1.getSortOrder());
-            queryFieldModel.setSort_index(var1.getSortIndex());
-            queryFieldModel.setValues(values);
-            result.add(queryFieldModel);
-//            result.add(QueryFieldModel.builder()
-//                    .connector(var1.connector.name())
-//                    .column(var1.column)
-//                    .group(var1.group)
-//                    .sort_order(var1.sortOrder)
-//                    .sort_index(var1.sortIndex)
-//                    .values(values)
-//                    .build());
+        for(String columnName : queryFieldByColumn.keySet()) {
+            List<QueryFieldImpl> queryFieldList = queryFieldByColumn.get(columnName);
+            Map<Connector, List<QueryFieldImpl>> queryFieldByConnector = queryFieldList.stream().collect(Collectors.groupingBy(x -> x.connector));
+
+            QueryFieldImpl minSortIndexQueryField = queryFieldList.stream().filter(x -> x.sortIndex != Integer.MAX_VALUE)
+                    .min((x, y) -> x.sortIndex - y.sortIndex).orElse(null);
+            QueryFieldImpl minSortOrderQueryField = queryFieldList.stream().filter(x -> !StringUtils.isEmpty(x.column)).findFirst().orElse(null);
+            Integer sortIndex = minSortIndexQueryField == null ? null : minSortIndexQueryField.sortIndex;
+            String sortOrder = minSortOrderQueryField == null ? QueryFieldModel.ORDER_ASC : minSortOrderQueryField.sortOrder;
+
+            int i = 0;
+            for(Connector connector : queryFieldByConnector.keySet()) {
+                List<QueryFieldImpl> queryFieldConnectorList = queryFieldByConnector.get(connector);
+                List<Object> values = queryFieldConnectorList.stream()
+                        .map(x -> x.value)
+                        .collect(Collectors.toList());
+                QueryFieldModel queryFieldModel = new QueryFieldModel();
+                queryFieldModel.setConnector(connector.name());
+                queryFieldModel.setColumn(columnName);
+                queryFieldModel.setGroup(groupName);
+                queryFieldModel.setValues(values);
+                if(i == 0 && sortIndex != null) {
+                    queryFieldModel.setSort_index(sortIndex);
+                    queryFieldModel.setSort_order(sortOrder);
+                }
+                result.add(queryFieldModel);
+                i ++;
+            }
         }
-
         return result;
-
     }
 }

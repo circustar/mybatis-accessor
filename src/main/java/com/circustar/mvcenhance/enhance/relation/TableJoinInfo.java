@@ -1,7 +1,10 @@
 package com.circustar.mvcenhance.enhance.relation;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.circustar.mvcenhance.common.query.JoinColumn;
 import com.circustar.mvcenhance.common.query.JoinTable;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.type.TypeHandler;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -90,7 +93,7 @@ public class TableJoinInfo {
         field.set(target, value);
     }
 
-    public static List<TableJoinInfo> parseTableJoinInfo(Class targetClass) {
+    public static List<TableJoinInfo> parseDtoTableJoinInfo(Class targetClass) {
         List<TableJoinInfo> tableJoinInfos = new ArrayList<>();
         for(Field field : targetClass.getDeclaredFields()) {
             JoinTable[] joinColumns = field.getAnnotationsByType(JoinTable.class);
@@ -115,6 +118,38 @@ public class TableJoinInfo {
             }
 
             tableJoinInfo.setJoinTable(joinTable);
+
+            tableJoinInfos.add(tableJoinInfo);
+        }
+        return tableJoinInfos;
+    }
+
+    public static List<TableJoinInfo> parseEntityTableJoinInfo(Configuration configuration, Class targetClass) {
+        List<TableJoinInfo> tableJoinInfos = new ArrayList<>();
+        for(Field field : targetClass.getDeclaredFields()) {
+            TableField[] tableField = field.getAnnotationsByType(TableField.class);
+            if(tableField == null || tableField.length == 0 || tableField[0].exist()) {
+                continue;
+            }
+            TypeHandler<? extends TableField[]> typeHandler = configuration.getTypeHandlerRegistry().getTypeHandler((Class)field.getType());
+            if(typeHandler != null) {
+                continue;
+            }
+            TableJoinInfo tableJoinInfo = new TableJoinInfo();
+            tableJoinInfo.setField(field);
+            tableJoinInfo.setFieldName(field.getName());
+            tableJoinInfo.setTargetClass(targetClass);
+
+            if(Collection.class.isAssignableFrom(field.getType())) {
+                tableJoinInfo.setCollection(true);
+                Type dtoType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                tableJoinInfo.setActualType(dtoType);
+                tableJoinInfo.setOwnerType(((ParameterizedType) field.getGenericType()).getRawType());
+            } else {
+                tableJoinInfo.setCollection(false);
+                tableJoinInfo.setOwnerType(field.getType());
+                tableJoinInfo.setActualType(field.getType());
+            }
 
             tableJoinInfos.add(tableJoinInfo);
         }

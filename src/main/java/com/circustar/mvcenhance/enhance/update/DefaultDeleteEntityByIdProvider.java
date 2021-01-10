@@ -72,7 +72,7 @@ public class DefaultDeleteEntityByIdProvider extends AutoDetectUpdateEntityProvi
 //        }
 //        return Collections.singletonList(updateEntity);
 
-        List<String> defaultFields = dtoClassInfoHelper.getDtoClassInfo(relation.getDto()).getDtoFieldList()
+        List<String> defaultFields = dtoClassInfoHelper.getDtoClassInfo(relation.getDto()).getSubDtoFieldList()
                 .stream().map(x -> x.getFieldName()).collect(Collectors.toList());
         List<String> subEntities = ArrayParamUtils.parseArray(options, 0, defaultFields);
 

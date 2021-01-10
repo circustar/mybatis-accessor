@@ -1,5 +1,8 @@
 package com.circustar.mvcenhance.enhance.field;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.circustar.mvcenhance.common.query.QueryField;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -8,6 +11,10 @@ import java.util.Collection;
 
 public class FieldTypeInfo {
     private Field field;
+
+    private TableField tableField;
+
+    private QueryField[] queryFields;
 
     public Boolean getPrimitive() {
         return isPrimitive;
@@ -69,6 +76,8 @@ public class FieldTypeInfo {
             fieldInfo.setActualType(field.getType());
             fieldInfo.isPrimitive = field.getType().isPrimitive();
         }
+        fieldInfo.tableField = field.getAnnotation(TableField.class);
+        fieldInfo.queryFields = field.getAnnotationsByType(QueryField.class);
         return fieldInfo;
     }
 
@@ -107,5 +116,13 @@ public class FieldTypeInfo {
         } catch (Exception e) {
         }
         return null;
+    }
+
+    public TableField getTableField() {
+        return tableField;
+    }
+
+    public QueryField[] getQueryFields() {
+        return queryFields;
     }
 }

@@ -2,6 +2,8 @@ package com.circustar.mvcenhance.enhance.mybatisplus;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.circustar.mvcenhance.enhance.mybatisplus.enhancer.MvcEnhanceConstants;
 import org.apache.ibatis.annotations.Param;
 
 import java.io.Serializable;
@@ -18,5 +20,19 @@ public interface MybatisPlusMapper<T> extends BaseMapper<T> {
 
     int physicDeleteBatchByIds(@Param("coll") Collection<? extends Serializable> idList);
 
-    List<T> selectListWithJoin(@Param("ew") Wrapper<T> queryWrapper);
+    List<T> selectListWithJoin(@Param("ew") Wrapper<T> queryWrapper
+            , @Param(MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_TABLE) String joinTable
+            , @Param(MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_COLUMNS) String joinColumns);
+
+    <E extends IPage<T>> E selectPageWithJoin(E page, @Param("ew") Wrapper<T> queryWrapper
+            , @Param(MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_TABLE) String joinTable
+            , @Param(MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_COLUMNS) String joinColumns);
+
+    List<T> selectBatchIdsWithJoin(@Param("coll") Collection<? extends Serializable> idList);
+
+    <E extends IPage<Map<String, Object>>> E selectMapsPageWithJoin(E page, @Param("ew") Wrapper<T> queryWrapper);
+
+    List<Map<String, Object>> selectMapsWithJoin(@Param("ew") Wrapper<T> queryWrapper);
+
+    List<Object> selectObjsWithJoin(@Param("ew") Wrapper<T> queryWrapper);
 }

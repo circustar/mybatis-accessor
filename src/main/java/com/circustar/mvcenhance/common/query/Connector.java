@@ -8,12 +8,15 @@ import java.util.List;
 
 public enum Connector {
     eq("eq", (column, wrapper, values) -> {
-        if(values == null || values.size() == 0 || StringUtils.isEmpty(values.get(0))){return;}
+        if(values == null || values.size() == 0 || StringUtils.isEmpty(values.get(0))){
+            return;
+        }
         wrapper.eq(column, values.get(0));}),
     isNull("isNull", (column, wrapper, values) -> {
-        wrapper.isNull(column);}),
-    isNotNull("isNotNull", (column, wrapper, values) -> {
-        wrapper.isNotNull(column);}),
+        if(values == null || values.size() == 0 || StringUtils.isEmpty(values.get(0))){
+            wrapper.isNull(column);
+        }
+    }),
     like("like", (column, wrapper, values) -> {
         if(values == null || values.size() == 0 || StringUtils.isEmpty(values.get(0))){return;}
         wrapper.like(column, values.get(0));}),
@@ -56,6 +59,9 @@ public enum Connector {
     ne("ne", (column, wrapper, values) -> {
         if(values == null || values.size() == 0 || StringUtils.isEmpty(values.get(0))){return;}
         wrapper.ne(column, values.get(0));}),
+    isNotNull("isNotNull", (column, wrapper, values) -> {
+        if(values == null || values.size() == 0 || StringUtils.isEmpty(values.get(0))){wrapper.isNotNull(column);}
+    }),
     notLike("notLike", (column, wrapper, values) -> {
         if(values == null || values.size() == 0 || StringUtils.isEmpty(values.get(0))){return;}
         wrapper.notLike(column, values.get(0));}),

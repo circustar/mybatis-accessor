@@ -1,8 +1,25 @@
 package com.circustar.mvcenhance.common.query;
 
-class QueryFieldValue {
+class QueryFieldImpl {
+    public QueryFieldImpl() {
+    }
+    public QueryFieldImpl(String column, Object value) {
+        this.group = "";
+        this.column = column;
+        this.connector = Connector.eq;
+        this.sortIndex = Integer.MAX_VALUE;
+        this.value = value;
+        this.sortOrder = QueryFieldModel.ORDER_ASC;
+        this.expression = "";
+    }
     String group;
     String column;
+    Connector connector;
+    int sortIndex;
+    String sortOrder;
+    Object value;
+    String expression;
+    boolean ignoreEmpty;
 
     public String getGroup() {
         return group;
@@ -52,8 +69,11 @@ class QueryFieldValue {
         this.value = value;
     }
 
-    Connector connector;
-    int sortIndex;
-    String sortOrder;
-    Object value;
+    public String getExpression() {
+        return expression;
+    }
+
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }
 }

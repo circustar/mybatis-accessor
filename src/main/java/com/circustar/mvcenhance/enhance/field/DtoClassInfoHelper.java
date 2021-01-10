@@ -4,7 +4,6 @@ import com.circustar.mvcenhance.enhance.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.enhance.utils.FieldUtils;
 import org.springframework.beans.BeanUtils;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -58,7 +57,7 @@ public class DtoClassInfoHelper {
 
             Object entity = targetClass.newInstance();
             BeanUtils.copyProperties(object, entity);
-            for(DtoField dtoField : dtoClassInfo.getDtoFieldList()) {
+            for(DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
                 FieldTypeInfo entityFieldTypeInfo = entityClassInfo.getFieldByClass(dtoField.getEntityDtoServiceRelation().getEntity());
                 if(entityFieldTypeInfo == null) {
                     continue;
@@ -100,7 +99,7 @@ public class DtoClassInfoHelper {
                 subEntityList.add(subEntity);
             }
             if(dtoClass == null) {return (T)subEntityList;}
-            for(DtoField dtoField : dtoClassInfo.getDtoFieldList()) {
+            for(DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
                 FieldTypeInfo entityFieldTypeInfo = entityClassInfo.getFieldByClass(dtoField.getEntityDtoServiceRelation().getEntity());
                 if(entityFieldTypeInfo == null && !entityFieldTypeInfo.getIsCollection()) {
                     continue;
@@ -140,7 +139,7 @@ public class DtoClassInfoHelper {
 
             T object = targetClass.newInstance();
             BeanUtils.copyProperties(entity, object);
-            for(DtoField dtoField : dtoClassInfo.getDtoFieldList()) {
+            for(DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
                 if(!dtoField.getHasEntityClass()) {
                     continue;
                 }
@@ -175,7 +174,7 @@ public class DtoClassInfoHelper {
                 BeanUtils.copyProperties(entity, object);
                 objectList.add(object);
             }
-            for(DtoField dtoField : dtoClassInfo.getDtoFieldList()) {
+            for(DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
                 if(!dtoField.getHasEntityClass()) {
                     continue;
                 }
