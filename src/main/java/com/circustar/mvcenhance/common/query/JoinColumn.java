@@ -11,6 +11,6 @@ public @interface JoinColumn {
     //String alias();
     String masterTableColumn() default "";
     Connector connector() default Connector.eq;
-    String[] valueExpression() default "";
+    String[] value() default "";
     //String directSql() default "";
 }

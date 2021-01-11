@@ -2,7 +2,7 @@ package com.circustar.mvcenhance.enhance.field;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.mvcenhance.common.query.EntityFilter;
+import com.circustar.mvcenhance.common.query.Selector;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.enhance.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.enhance.utils.SPELParser;
@@ -96,11 +96,11 @@ public class DtoFields {
     }
 
     public static void queryAndAssignDtoField(ApplicationContext applicationContext, DtoClassInfoHelper dtoClassInfoHelper, IEntityDtoServiceRelationMap relationMap, EntityDtoServiceRelation relationInfo, Object dto
-            , Map<String , EntityFilter[]> tableJoinerMap, String groupName) throws IllegalAccessException, InstantiationException {
+            , Map<String , Selector[]> tableJoinerMap, String groupName) throws IllegalAccessException, InstantiationException {
         StandardEvaluationContext standardEvaluationContext = new StandardEvaluationContext(dto);
         for(String fieldName : tableJoinerMap.keySet()) {
-            EntityFilter[] entityFilters = tableJoinerMap.get(fieldName);
-            if(entityFilters == null) {
+            Selector[] selectors = tableJoinerMap.get(fieldName);
+            if(selectors == null) {
                 continue;
             }
             DtoFieldInfo dtoFieldInfo = DtoFields.getDtoFieldInfo(relationMap, relationInfo, fieldName);
@@ -108,7 +108,7 @@ public class DtoFields {
             IService service = (IService)applicationContext.getBean(subRelation.getService());
             QueryWrapper qw = new QueryWrapper();
 
-            Arrays.stream(entityFilters).forEach(x -> x.connector().consume(x.masterTableColumn(), qw
+            Arrays.stream(selectors).forEach(x -> x.connector().consume(x.masterTableColumn(), qw
                     , SPELParser.parseExpression(standardEvaluationContext, Arrays.asList(x.valueExpression()))));
 
             List searchResult = service.list(qw);

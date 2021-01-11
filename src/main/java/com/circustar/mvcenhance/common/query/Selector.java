@@ -4,8 +4,8 @@ import java.lang.annotation.*;
 
 @Target(value = {ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(MultiEntityFilter.class)
-public @interface EntityFilter {
+@Repeatable(MultiSelector.class)
+public @interface Selector {
     String masterTableColumn() default "";
     Connector connector() default Connector.eq;
     String[] valueExpression() default "";

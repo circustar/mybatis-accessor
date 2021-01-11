@@ -1,12 +1,11 @@
 package com.circustar.mvcenhance.enhance.field;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.circustar.mvcenhance.common.query.EntityFilter;
+import com.circustar.mvcenhance.common.query.Selector;
 import com.circustar.mvcenhance.common.query.QueryField;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class DtoField {
     private String fieldName;
@@ -15,7 +14,7 @@ public class DtoField {
     private DtoClassInfo dtoClassInfo;
     private List<QueryField> queryFields;
     private Map<String, Set<QueryField>> queryFieldsByGroup = new HashMap<>();
-    private List<EntityFilter> entityFilters;
+    private List<Selector> selectors;
     private Class relatedEntityClass = null;
     private Boolean hasEntityClass = null;
 
@@ -27,8 +26,8 @@ public class DtoField {
 
         QueryField[] queryFields = fieldTypeInfo.getField().getAnnotationsByType(QueryField.class);
         this.queryFields = Arrays.asList(queryFields);
-        EntityFilter[] entityFilters = fieldTypeInfo.getField().getAnnotationsByType(EntityFilter.class);
-        this.entityFilters = Arrays.asList(entityFilters);
+        Selector[] selectors = fieldTypeInfo.getField().getAnnotationsByType(Selector.class);
+        this.selectors = Arrays.asList(selectors);
 
         for(QueryField queryField : queryFields) {
             Set<QueryField> defaultQueryFieldSet = null;
@@ -79,8 +78,8 @@ public class DtoField {
         return null;
     }
 
-    public List<EntityFilter> getEntityFilters() {
-        return entityFilters;
+    public List<Selector> getSelectors() {
+        return selectors;
     }
 
     public Boolean getHasEntityClass() {

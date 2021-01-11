@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 
 @Target(value = {ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface MultiEntityFilter {
-    EntityFilter[] value();
+public @interface MultiSelector {
+    Selector[] value();
 }

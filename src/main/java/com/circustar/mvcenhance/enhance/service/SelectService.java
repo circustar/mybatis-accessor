@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.mvcenhance.common.query.EntityFilter;
+import com.circustar.mvcenhance.common.query.Selector;
 import com.circustar.mvcenhance.common.query.QueryFieldModel;
 import com.circustar.mvcenhance.common.response.PageInfo;
 import com.circustar.mvcenhance.enhance.field.DtoClassInfo;
@@ -68,9 +68,9 @@ public class SelectService implements ISelectService {
         }
         List<Field> subFields = FieldUtils.getExistFields(result, subEntityList, false);
 
-        Map<String, EntityFilter[]> tableJoinerMap = new HashMap<>();
+        Map<String, Selector[]> tableJoinerMap = new HashMap<>();
         List<String> noAnnotationInfoList = new ArrayList<>();
-        FieldUtils.parseFieldAnnotationToMap(subFields, EntityFilter.class
+        FieldUtils.parseFieldAnnotationToMap(subFields, Selector.class
                 , tableJoinerMap, noAnnotationInfoList);
 
         String keyColumn = TableInfoHelper.getTableInfo(relationInfo.getEntity()).getKeyColumn();
