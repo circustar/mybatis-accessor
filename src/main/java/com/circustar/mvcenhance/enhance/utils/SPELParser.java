@@ -22,7 +22,7 @@ public class SPELParser {
         return expression.getValue(context);
     }
 
-    public static List<Object> parseExpression(StandardEvaluationContext context, List<String> expressionStrings) {
-        return expressionStrings.stream().map(x -> parseExpression(context, x)).collect(Collectors.toList());
+    public static Object[] parseExpression(StandardEvaluationContext context, List<String> expressionStrings) {
+        return expressionStrings.stream().map(x -> parseExpression(context, x)).toArray();
     }
 }

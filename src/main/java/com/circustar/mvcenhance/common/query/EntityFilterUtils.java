@@ -13,16 +13,16 @@ public class EntityFilterUtils {
 //        return Arrays.stream(t).filter(x -> x.group().equals(groupName)).collect(Collectors.toList());
 //    }
 
-    public static void filterGroup(Object obj, String fieldName, EntityFilter[] t, String groupName, QueryWrapper qw) throws NoSuchFieldException {
-        StandardEvaluationContext context = new StandardEvaluationContext(obj);
-
-        Arrays.stream(t).filter(x -> Arrays.stream(x.group()).anyMatch(y -> y.equals(groupName)))
-                .forEach(x -> {
-                    Object value = null;
-                    if(!StringUtils.isEmpty(x.valueExpression())) {
-                        value = SPELParser.parseExpression(context, Arrays.asList(x.valueExpression()));
-                    }
-                    x.connector().consume(x.column(), qw, Collections.singletonList(value));
-                });
-    }
+//    public static void filterGroup(Object obj, String fieldName, EntityFilter[] t, String groupName, QueryWrapper qw) throws NoSuchFieldException {
+//        StandardEvaluationContext context = new StandardEvaluationContext(obj);
+//
+//        Arrays.stream(t).filter(x -> Arrays.stream(x.group()).anyMatch(y -> y.equals(groupName)))
+//                .forEach(x -> {
+//                    Object value = null;
+//                    if(!StringUtils.isEmpty(x.valueExpression())) {
+//                        value = SPELParser.parseExpression(context, Arrays.asList(x.valueExpression()));
+//                    }
+//                    x.connector().consume(x.column(), qw, Collections.singletonList(value));
+//                });
+//    }
 }

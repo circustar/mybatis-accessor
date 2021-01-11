@@ -20,7 +20,7 @@ public class QueryFieldModel {
     private String group;
     private String column;
     private String connector;
-    private List<Object> values;
+    private Object[] values;
     private String sort_order;
     private Integer sort_index;
 
@@ -48,11 +48,11 @@ public class QueryFieldModel {
         this.connector = connector;
     }
 
-    public List<Object> getValues() {
+    public Object[] getValues() {
         return values;
     }
 
-    public void setValues(List<Object> values) {
+    public void setValues(Object[] values) {
         this.values = values;
     }
 
@@ -159,9 +159,8 @@ public class QueryFieldModel {
             int i = 0;
             for(Connector connector : queryFieldByConnector.keySet()) {
                 List<QueryFieldImpl> queryFieldConnectorList = queryFieldByConnector.get(connector);
-                List<Object> values = queryFieldConnectorList.stream()
-                        .map(x -> x.value)
-                        .collect(Collectors.toList());
+                Object[] values = queryFieldConnectorList.stream()
+                        .map(x -> x.value).toArray();
                 QueryFieldModel queryFieldModel = new QueryFieldModel();
                 queryFieldModel.setConnector(connector.name());
                 queryFieldModel.setColumn(columnName);

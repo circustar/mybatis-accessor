@@ -5,11 +5,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mvcenhance.common.query.EntityFilter;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.enhance.relation.IEntityDtoServiceRelationMap;
-import com.circustar.mvcenhance.enhance.utils.EnhancedConversionService;
 import com.circustar.mvcenhance.enhance.utils.SPELParser;
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -110,11 +108,7 @@ public class DtoFields {
             IService service = (IService)applicationContext.getBean(subRelation.getService());
             QueryWrapper qw = new QueryWrapper();
 
-            Arrays.stream(entityFilters)
-                    .filter(x -> {
-                        return (x.group().length == 0 && StringUtils.isEmpty(groupName))
-                                || (Arrays.stream(x.group()).anyMatch(y -> y.equals(groupName)));
-                    }).forEach(x -> x.connector().consume(x.column(), qw
+            Arrays.stream(entityFilters).forEach(x -> x.connector().consume(x.masterTableColumn(), qw
                     , SPELParser.parseExpression(standardEvaluationContext, Arrays.asList(x.valueExpression()))));
 
             List searchResult = service.list(qw);

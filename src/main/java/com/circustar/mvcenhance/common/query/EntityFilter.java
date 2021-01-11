@@ -6,8 +6,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Repeatable(MultiEntityFilter.class)
 public @interface EntityFilter {
-    String[] group() default "";
-    String column() default "";
+    String masterTableColumn() default "";
     Connector connector() default Connector.eq;
     String[] valueExpression() default "";
+    //String directSql() default "";
 }

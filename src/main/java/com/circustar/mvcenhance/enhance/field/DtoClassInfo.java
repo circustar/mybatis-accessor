@@ -64,7 +64,7 @@ public class DtoClassInfo {
             String strAlias = tableJoinInfo.getJoinTable().alias();
                     joinTableList.add("left join " + joinTableInfo.getTableName() + " " + strAlias);
             String joinColumnStr = Arrays.stream(tableJoinInfo.getJoinTable().joinColumns())
-                    .map(x -> StringUtils.isBlank(x.directSql()) ? x.connector().convert((StringUtils.isBlank(masterTableName) ? "" : (masterTableName + ".")) + x.masterColumn(), x.values()) : x.directSql() )
+                    .map(x -> x.connector().convert((StringUtils.isBlank(masterTableName) ? "" : (masterTableName + ".")) + x.masterTableColumn(), x.valueExpression()))
                     .collect(Collectors.joining(" and "));
                     joinTableList.add("on " + joinColumnStr);
 

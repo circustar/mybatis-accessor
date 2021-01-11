@@ -9,8 +9,8 @@ import java.lang.annotation.*;
 @Target(value = {ElementType.FIELD})
 public @interface JoinColumn {
     //String alias();
-    String masterColumn() default "";
-    JoinConnector connector() default JoinConnector.eq;
-    String[] values();
-    String directSql() default "";
+    String masterTableColumn() default "";
+    Connector connector() default Connector.eq;
+    String[] valueExpression() default "";
+    //String directSql() default "";
 }
