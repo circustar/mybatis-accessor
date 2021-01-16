@@ -1,10 +1,9 @@
-package com.circustar.mvcenhance.enhance.update;
+package com.circustar.mvcenhance.enhance.field;
 
 import java.lang.annotation.*;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = {ElementType.TYPE})
+@Target(value = {ElementType.FIELD})
 @Inherited
 public @interface DeleteField {
-    String value();
 }

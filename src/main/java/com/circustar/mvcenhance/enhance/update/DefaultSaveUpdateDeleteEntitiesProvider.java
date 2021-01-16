@@ -1,10 +1,12 @@
 package com.circustar.mvcenhance.enhance.update;
 
 import com.circustar.mvcenhance.enhance.field.DtoClassInfoHelper;
+import com.circustar.mvcenhance.enhance.mybatisplus.enhancer.MvcEnhanceConstants;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
-import com.circustar.mvcenhance.enhance.utils.ArrayParamUtils;
+import com.circustar.mvcenhance.enhance.utils.MapOptionUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DefaultSaveUpdateDeleteEntitiesProvider extends AutoDetectUpdateEntityProvider {
     @Override
@@ -14,43 +16,10 @@ public class DefaultSaveUpdateDeleteEntitiesProvider extends AutoDetectUpdateEnt
 
     @Override
     public List<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation
-            , DtoClassInfoHelper dtoClassInfoHelper, Object object, Object... options) throws Exception {
-//        if(s == null || !Collection.class.isAssignableFrom(s.getClass())) {
-//            return null;
-//        }
-//        boolean isPhysic = false;
-//        if(options != null && options.length > 0) {
-//            isPhysic = (boolean) options[0];
-//        }
-//        UpdateEntity updateEntity = new UpdateEntity(relation, UpdateCommand.SAVE_OR_UPDATE
-//                , applicationContext.getBean(relation.getService()));
-//        UpdateEntity deleteEntity = new UpdateEntity(relation
-//                , isPhysic?UpdateCommand.PHYSIC_DELETE_ID : UpdateCommand.DELETE_ID
-//                , applicationContext.getBean(relation.getService()));
-//
-//        String deleteFieldName = AnnotationUtils.getDeleteFieldAnnotationValue(relation.getDto());
-//        for(Object o : (Collection) s) {
-//            Object entity = getConversionService().convert(o, relation.getEntity());
-//            if(!StringUtils.isEmpty(deleteFieldName)) {
-//                Object deleteValue = FieldUtils.getValueByName(o, deleteFieldName);
-//                if(Objects.nonNull(deleteValue)) {
-//                    deleteEntity.addObject(entity);
-//                    continue;
-//                }
-//            }
-//            updateEntity.addObject(entity);
-//        }
-//        List<UpdateEntity> updateEntities = new ArrayList<>();
-//        if(deleteEntity.getObjList() != null) {
-//            updateEntities.add(deleteEntity);
-//        }
-//        if(updateEntity.getObjList() != null) {
-//            updateEntities.add(updateEntity);
-//        }
-//        return updateEntities;
+            , DtoClassInfoHelper dtoClassInfoHelper, Object object, Map options) throws Exception {
 
-        UpdateSubEntityStrategy updateSubEntityStrategy = ArrayParamUtils.parseArray(options, 0, UpdateSubEntityStrategy.DELETE_BEFORE_INSERT);
-        boolean physicDelete = ArrayParamUtils.parseArray(options, 1, false);
+        UpdateSubEntityStrategy updateSubEntityStrategy = MapOptionUtils.getValue(options, UpdateSubEntityStrategy.class, UpdateSubEntityStrategy.DELETE_BEFORE_INSERT);
+        Boolean physicDelete = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, true);
 
         List<UpdateEntity> result = new ArrayList<>();
         Collection c = (Collection) object;
@@ -59,6 +28,11 @@ public class DefaultSaveUpdateDeleteEntitiesProvider extends AutoDetectUpdateEnt
                     , updateSubEntityStrategy
                     , physicDelete, true, false));
         }
+        // TODO: Batch Save Or Update
+//        Map<Boolean, List<UpdateEntity>> collect = result.stream().collect(Collectors.partitioningBy(x -> x.getWrapper() == null
+//                && (Objects.isNull(x.getObjList()) || x.getObjList().size() == 0)));
+//        Map<UpdateCommand, List<UpdateEntity>> collect1 = collect.get(true).stream().collect(Collectors.groupingBy(x -> x.getUpdateCommand()));
+
         return result;
     }
 

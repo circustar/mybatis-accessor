@@ -9,12 +9,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.Validator;
 
+import java.util.Map;
+
 public abstract class AbstractUpdateEntityProvider implements IUpdateEntityProvider, ApplicationContextAware {
     protected ApplicationContext applicationContext;
 
-    public EnhancedConversionService getConversionService() {
-        return applicationContext.getBean(EnhancedConversionService.class);
-    };
     public IEntityDtoServiceRelationMap getRelationMap(){
         return applicationContext.getBean(IEntityDtoServiceRelationMap.class);
     };
@@ -31,7 +30,7 @@ public abstract class AbstractUpdateEntityProvider implements IUpdateEntityProvi
         this.applicationContext = applicationContext;
     }
     @Override
-    public void validateAndSet(Object s, BindingResult bindingResult, Object... options){
+    public void validateAndSet(Object s, BindingResult bindingResult, Map options){
         if(s == null) {
             return;
         }

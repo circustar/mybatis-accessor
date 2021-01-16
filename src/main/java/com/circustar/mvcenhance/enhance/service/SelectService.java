@@ -59,10 +59,6 @@ public class SelectService implements ISelectService {
         if(subEntities == null) {
             subEntityList = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto())
                     .getSubDtoFieldList().stream().map(x -> x.getFieldName()).collect(Collectors.toList());
-//            subEntityList = relationInfo.getDtoClassInfo().getFieldInfoList()
-//                    .stream()
-//                    .filter(x -> entityDtoServiceRelationMap.getByDtoClass((Class)x.getActualType()) != null)
-//                    .map(x -> x.getFieldName()).collect(Collectors.toList());
         } else {
             subEntityList = Arrays.asList(subEntities);
         }
@@ -73,9 +69,8 @@ public class SelectService implements ISelectService {
         FieldUtils.parseFieldAnnotationToMap(subFields, Selector.class
                 , tableJoinerMap, noAnnotationInfoList);
 
-        String keyColumn = TableInfoHelper.getTableInfo(relationInfo.getEntity()).getKeyColumn();
         DtoFields.queryAndAssignDtoField(applicationContext, dtoClassInfoHelper, entityDtoServiceRelationMap
-                , relationInfo, result, noAnnotationInfoList, keyColumn, id);
+                , relationInfo, noAnnotationInfoList, result, id);
 
         DtoFields.queryAndAssignDtoField(applicationContext, dtoClassInfoHelper
                 , entityDtoServiceRelationMap

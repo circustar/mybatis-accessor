@@ -7,9 +7,7 @@ import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.enhance.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.enhance.relation.TableJoinInfo;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DtoClassInfo {
@@ -18,6 +16,8 @@ public class DtoClassInfo {
     private EntityDtoServiceRelation entityDtoServiceRelation;
     private List<DtoField> subDtoFieldList;
     private List<DtoField> normalFieldList;
+    private Map<String, DtoField> dtoFieldMap;
+    private FieldTypeInfo deleteFieldTypeInfo;
     private EntityClassInfo entityClassInfo;
     private String joinTables;
     private String jointColumns;
@@ -28,14 +28,23 @@ public class DtoClassInfo {
         this.entityClassInfo = entityClassInfo;
         this.subDtoFieldList = new ArrayList<>();
         this.normalFieldList = new ArrayList<>();
+        this.dtoFieldMap = new HashMap<>();
 
         Arrays.stream(clazz.getDeclaredFields()).forEach(x -> {
             FieldTypeInfo fieldTypeInfo = FieldTypeInfo.parseField(this.clazz, x);
             EntityDtoServiceRelation relation = relationMap.getByDtoClass((Class)fieldTypeInfo.getActualType());
+            DtoField dtoField = null;
             if(relation != null) {
-                subDtoFieldList.add(new DtoField(x.getName(), fieldTypeInfo, this, relation));
+                dtoField = new DtoField(x.getName(), fieldTypeInfo, this, relation);
+                subDtoFieldList.add(dtoField);
             } else {
-                normalFieldList.add(new DtoField(x.getName(), fieldTypeInfo, this, null));
+                dtoField = new DtoField(x.getName(), fieldTypeInfo, this, null);
+                normalFieldList.add(dtoField);
+            }
+            this.dtoFieldMap.put(x.getName(), dtoField);
+            DeleteField deleteField = x.getAnnotation(DeleteField.class);
+            if(deleteField != null) {
+                this.deleteFieldTypeInfo = fieldTypeInfo;
             }
         });
 
@@ -115,5 +124,16 @@ public class DtoClassInfo {
 
     public String getJointColumns() {
         return jointColumns;
+    }
+
+    public FieldTypeInfo getDeleteFieldTypeInfo() {
+        return deleteFieldTypeInfo;
+    }
+
+    public DtoField getDtoField(String name) {
+        if(dtoFieldMap.containsKey(name)) {
+            return dtoFieldMap.get(name);
+        }
+        return null;
     }
 }

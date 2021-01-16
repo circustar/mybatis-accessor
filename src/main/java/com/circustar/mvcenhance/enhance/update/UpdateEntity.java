@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class UpdateEntity {
-    private static int DELETE_BATCH_LIMIT = 5;
+    public static int DEFAULT_BATCH_LIMIT = 5;
     public UpdateEntity(EntityDtoServiceRelation relation
             , UpdateCommand updateCommand
             , IService service) {
@@ -109,11 +109,11 @@ public class UpdateEntity {
         this.wrapper = wrapper;
     }
 
-    public boolean execUpdate() throws Exception {
+    public boolean execUpdate(int BATCH_LIMIT) throws Exception {
         boolean result = true;
         if(subEntityUpdatePrior && subUpdateEntities != null) {
             for(UpdateEntity updateEntity : subUpdateEntities) {
-                result = updateEntity.execUpdate();
+                result = updateEntity.execUpdate(BATCH_LIMIT);
                 if(!result) {
                     return false;
                 }
@@ -132,7 +132,7 @@ public class UpdateEntity {
                 result = service.update(objList.get(0), (Wrapper) wrapper);
                 updatedEntityList.add(objList.get(0));
             } else if (updateCommand == UpdateCommand.DELETE_ID) {
-                if (objList.size() < DELETE_BATCH_LIMIT) {
+                if (objList.size() < BATCH_LIMIT) {
                     for (Object obj : objList) {
                         result = service.removeById((Serializable) obj);
                         if (!result) {
@@ -143,7 +143,7 @@ public class UpdateEntity {
                 }
                 service.removeByIds(objList);
             } else if (updateCommand == UpdateCommand.PHYSIC_DELETE_ID) {
-                if (objList.size() < DELETE_BATCH_LIMIT) {
+                if (objList.size() < BATCH_LIMIT) {
                     for (Object obj : objList) {
                         result = MybatisPlusUtils.deleteById(service, (Serializable) obj, true);
                         if (!result) {
@@ -156,7 +156,13 @@ public class UpdateEntity {
                                 .map(x -> (Serializable) x).collect(Collectors.toList())
                         , true);
             } else if (updateCommand == UpdateCommand.SAVE_OR_UPDATE) {
-                result = service.saveOrUpdateBatch(objList);
+                if (objList.size() < BATCH_LIMIT) {
+                    for(Object obj : objList) {
+                        result = service.saveOrUpdate(obj);
+                    }
+                } else {
+                    result = service.saveOrUpdateBatch(objList);
+                }
                 updatedEntityList.addAll(objList);
             }
         }
@@ -180,7 +186,7 @@ public class UpdateEntity {
                         }
                     }
                 }
-                result = subUpdateEntity.execUpdate();
+                result = subUpdateEntity.execUpdate(UpdateEntity.DEFAULT_BATCH_LIMIT);
                 if(!result) {
                     return false;
                 }

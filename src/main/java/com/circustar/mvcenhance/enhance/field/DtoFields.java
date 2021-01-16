@@ -1,10 +1,12 @@
 package com.circustar.mvcenhance.enhance.field;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mvcenhance.common.query.Selector;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.enhance.relation.IEntityDtoServiceRelationMap;
+import com.circustar.mvcenhance.enhance.utils.FieldUtils;
 import com.circustar.mvcenhance.enhance.utils.SPELParser;
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -56,7 +58,7 @@ public class DtoFields {
 
     public static void assignDtoField(DtoClassInfoHelper dtoClassInfoHelper, Object obj, DtoFieldInfo dtoFieldInfo, List<Object> values, Class clazz) throws InstantiationException, IllegalAccessException {
         if(!dtoFieldInfo.getFieldInfo().getIsCollection()) {
-            dtoFieldInfo.getFieldInfo().getField().set(obj, (values == null || values.size() == 0)?
+            FieldUtils.setField(obj, dtoFieldInfo.getFieldInfo().getField(), (values == null || values.size() == 0)?
                     null : (clazz == null? values.get(0) : dtoClassInfoHelper.convertFromEntity(values.get(0), clazz)));
             return;
         }
@@ -78,20 +80,35 @@ public class DtoFields {
 
     public static void queryAndAssignDtoField(ApplicationContext applicationContext
             , DtoClassInfoHelper dtoClassInfoHelper, IEntityDtoServiceRelationMap relationMap
-            , EntityDtoServiceRelation relationInfo, Object dto
+            , EntityDtoServiceRelation relationInfo
             , List<String> subDtoNameList
-            , String idName, Serializable idValue) throws IllegalAccessException, InstantiationException {
+            , Object dto
+            , Serializable dtoId) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
         List<DtoFieldInfo> dtoFieldInfoList = DtoFields.getDtoFieldInfoList(relationMap, relationInfo, subDtoNameList);
-        for(DtoFieldInfo x : dtoFieldInfoList) {
-            EntityDtoServiceRelation subEntityInfo = relationMap.getByDtoClass((Class)x.getFieldInfo().getActualType());
+        DtoClassInfo masterDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto());
+        for(DtoFieldInfo dtoFieldInfo : dtoFieldInfoList) {
+            EntityDtoServiceRelation subEntityInfo = relationMap.getByDtoClass((Class)dtoFieldInfo.getFieldInfo().getActualType());
             if(subEntityInfo == null) {
                 continue;
             }
-            IService service = (IService)applicationContext.getBean(subEntityInfo.getService());
-            QueryWrapper qw = new QueryWrapper();
-            qw.eq(idName, idValue);
+            DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(subEntityInfo.getDto());
+            DtoField subDtoClassInfoDtoField = subDtoClassInfo.getDtoField(masterDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyProperty());
+            DtoField masterDtoClassInfoDtoField = masterDtoClassInfo.getDtoField(subDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyProperty());
+            if(subDtoClassInfoDtoField == null && masterDtoClassInfoDtoField == null) {
+                continue;
+            }
+            QueryWrapper qw = null;
+            if(subDtoClassInfoDtoField != null) {
+                qw = new QueryWrapper();
+                qw.eq(masterDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), dtoId);
+            } else if(masterDtoClassInfoDtoField != null) {
+                qw = new QueryWrapper();
+                Object subDtoId = FieldUtils.getValue(dto, masterDtoClassInfoDtoField.getFieldTypeInfo().getField());
+                qw.eq(subDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), subDtoId);
+            }
+            IService service = applicationContext.getBean(subEntityInfo.getService());
             List searchResult = service.list(qw);
-            assignDtoField(dtoClassInfoHelper, dto, x, searchResult, subEntityInfo.getDto());
+            assignDtoField(dtoClassInfoHelper, dto, dtoFieldInfo, searchResult, subEntityInfo.getDto());
         }
     }
 

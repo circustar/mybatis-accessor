@@ -1,6 +1,9 @@
 package com.circustar.mvcenhance.enhance.field;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.core.metadata.TableInfo;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.circustar.mvcenhance.enhance.mybatisplus.enhancer.TableInfoUtils;
 
@@ -12,7 +15,7 @@ public class EntityClassInfo {
     private List<FieldTypeInfo> fieldList;
     private Map<Class<?>, FieldTypeInfo> entityFieldInfoMap;
     private Map<String, FieldTypeInfo> fieldMap;
-    private TableName tableName;
+    private TableInfo tableInfo;
 
     public EntityClassInfo(Class<?> clazz) {
         this.clazz = clazz;
@@ -28,7 +31,7 @@ public class EntityClassInfo {
             this.entityFieldInfoMap.put((Class)x.getActualType(), x);
         });
         this.fieldMap = this.fieldList.stream().collect(Collectors.toMap(x -> x.getField().getName(), x -> x));
-        this.tableName = clazz.getAnnotation(TableName.class);
+        this.tableInfo = TableInfoHelper.getTableInfo(this.clazz);
     }
 
     public Class<?> getClazz() {
@@ -53,7 +56,7 @@ public class EntityClassInfo {
         return null;
     }
 
-    public TableName getTableName() {
-        return tableName;
+    public TableInfo getTableInfo() {
+        return tableInfo;
     }
 }

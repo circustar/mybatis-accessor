@@ -18,6 +18,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.convert.ConversionService;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.enhance.relation.IEntityDtoServiceRelationMap;
@@ -50,9 +51,9 @@ public class MvcEnhancementConfiguration {
         this.applicationContext = applicationContext;
         this.enhanceSqlInjector = new EnhanceSqlInjector();
         this.entityDtoServiceRelationMap = new EntityDtoServiceRelationMap();
-        this.crudService = new CrudService(this.applicationContext, this.entityDtoServiceRelationMap);
         this.entityClassInfoHelper = new EntityClassInfoHelper();
         this.dtoClassInfoHelper = new DtoClassInfoHelper(this.entityDtoServiceRelationMap, this.entityClassInfoHelper);
+        this.crudService = new CrudService(this.applicationContext, this.dtoClassInfoHelper, this.entityDtoServiceRelationMap);
         this.selectService = new SelectService(this.applicationContext, this.entityDtoServiceRelationMap, this.dtoClassInfoHelper);
         this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
 
@@ -98,6 +99,7 @@ public class MvcEnhancementConfiguration {
     }
 
     @Bean
+    @Primary
     public AutoDetectUpdateEntityProvider getAutoDetectUpdateEntityProvider() {
         return new AutoDetectUpdateEntityProvider();
     }
