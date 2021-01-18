@@ -57,8 +57,9 @@ public class SelectService implements ISelectService {
         Object result = this.dtoClassInfoHelper.convertFromEntity(oriEntity, relationInfo.getDto());
         List<String> subEntityList;
         if(subEntities == null) {
-            subEntityList = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto())
-                    .getSubDtoFieldList().stream().map(x -> x.getFieldName()).collect(Collectors.toList());
+//            subEntityList = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto())
+//                    .getSubDtoFieldList().stream().map(x -> x.getFieldName()).collect(Collectors.toList());
+            subEntityList = Collections.emptyList();
         } else {
             subEntityList = Arrays.asList(subEntities);
         }

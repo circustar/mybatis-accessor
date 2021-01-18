@@ -1,52 +1,44 @@
 package com.circustar.mvcenhance.enhance.update;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.TableInfo;
-import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.circustar.mvcenhance.enhance.field.EntityClassInfo;
+import com.circustar.mvcenhance.enhance.field.FieldTypeInfo;
+import com.circustar.mvcenhance.enhance.update.command.IUpdateCommand;
 import com.circustar.mvcenhance.enhance.utils.FieldUtils;
-import com.circustar.mvcenhance.enhance.utils.MybatisPlusUtils;
-import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class UpdateEntity {
-    public static int DEFAULT_BATCH_LIMIT = 5;
-    public UpdateEntity(EntityDtoServiceRelation relation
-            , UpdateCommand updateCommand
-            , IService service) {
-        this(relation, updateCommand, service, true);
+    public UpdateEntity(IService service
+            , IUpdateCommand updateCommand
+            , Object option
+            , EntityClassInfo entityClassInfo
+            , Collection updateEntities) {
+        this(service, updateCommand, option, entityClassInfo, updateEntities,false, true);
     }
-    public UpdateEntity(EntityDtoServiceRelation relation
-            , UpdateCommand updateCommand
-            , IService service
-            , Boolean subEntityUpdatePrior) {
-        this.relation = relation;
+    public UpdateEntity(IService service
+            , IUpdateCommand updateCommand
+            , Object option
+            , EntityClassInfo entityClassInfo
+            , Collection updateEntities
+            , Boolean updateSubEntityFirst
+            , boolean updateChildrenOnly) {
+        this.option = option;
         this.updateCommand = updateCommand;
         this.service = service;
-        this.tableInfo = TableInfoHelper.getTableInfo(relation.getEntity());
-        this.subEntityUpdatePrior = subEntityUpdatePrior;
+        this.updateEntities = updateEntities;
+        this.updateSubEntityFirst = updateSubEntityFirst;
+        this.entityClassInfo = entityClassInfo;
+        this.updateChildrenOnly = updateChildrenOnly;
     }
-    private EntityDtoServiceRelation relation;
-    private UpdateCommand updateCommand;
+    private Object option;
+    private IUpdateCommand updateCommand;
     private IService service;
-    private TableInfo tableInfo;
-    private Boolean subEntityUpdatePrior;
-
-    private List<Object> objList;
-    private QueryWrapper wrapper;
+    private Boolean updateSubEntityFirst;
+    private Collection updateEntities;
     private List<UpdateEntity> subUpdateEntities;
-
-    public UpdateEntity addObject(Object obj) {
-        if(objList == null) {objList = new ArrayList<>();};
-        objList.add(obj);
-        return this;
-    }
-
+    private EntityClassInfo entityClassInfo;
+    private boolean updateChildrenOnly;
 
     public void addSubUpdateEntity(UpdateEntity subUpdateEntity) {
         if(this.subUpdateEntities == null) {
@@ -54,149 +46,66 @@ public class UpdateEntity {
         }
         this.subUpdateEntities.add(subUpdateEntity);
     }
-    public void addSubUpdateEntities(List<UpdateEntity> subUpdateEntities) {
+    public void addSubUpdateEntities(Collection<UpdateEntity> subUpdateEntities) {
         if(this.subUpdateEntities == null) {
             this.subUpdateEntities = new ArrayList<>();
         }
         this.subUpdateEntities.addAll(subUpdateEntities);
     }
     public List<UpdateEntity> getSubUpdateEntities() {
-
         return subUpdateEntities;
     }
 
-    public void setSubUpdateEntities(List<UpdateEntity> subUpdateEntities) {
-        this.subUpdateEntities = subUpdateEntities;
+    public Collection getUpdateEntities() {
+        return updateEntities;
     }
 
-    public IService getService() {
-        return service;
+    public boolean execUpdate() throws Exception {
+        return execUpdate(new HashMap<String, Object>());
     }
 
-    public void setService(IService service) {
-        this.service = service;
-    }
-
-    public UpdateCommand getUpdateCommand() {
-        return updateCommand;
-    }
-
-    public void setUpdateCommand(UpdateCommand updateCommand) {
-        this.updateCommand = updateCommand;
-    }
-
-    public List<Object> getObjList() {
-        return objList;
-    }
-
-    public void setObjList(List<Object> objList) {
-        this.objList = objList;
-    }
-
-    public EntityDtoServiceRelation getRelation() {
-        return relation;
-    }
-
-    public void setRelation(EntityDtoServiceRelation relation) {
-        this.relation = relation;
-    }
-
-    public QueryWrapper getWrapper() {
-        return wrapper;
-    }
-
-    public void setWrapper(QueryWrapper wrapper) {
-        this.wrapper = wrapper;
-    }
-
-    public boolean execUpdate(int BATCH_LIMIT) throws Exception {
+    protected boolean execUpdate(Map<String, Object> keyMap) throws Exception {
         boolean result = true;
-        if(subEntityUpdatePrior && subUpdateEntities != null) {
-            for(UpdateEntity updateEntity : subUpdateEntities) {
-                result = updateEntity.execUpdate(BATCH_LIMIT);
+        if(updateSubEntityFirst && subUpdateEntities != null) {
+            for(UpdateEntity subUpdateEntity : subUpdateEntities) {
+                result = subUpdateEntity.execUpdate(keyMap);
                 if(!result) {
                     return false;
                 }
             }
         }
+        for(String keyProperty : keyMap.keySet()) {
+            FieldTypeInfo fieldTypeInfo = entityClassInfo.getFieldByName(keyProperty);
+            if(fieldTypeInfo == null) {
+                continue;
+            }
+            Object keyValue = keyMap.get(keyProperty);
+            for (Object updateEntity : updateEntities) {
+                FieldUtils.setField(updateEntity, fieldTypeInfo.getField(), keyValue);
+            }
+        }
+        if(!updateChildrenOnly) {
+            result = this.updateCommand.update(this.service, this.updateEntities, option);
+            if (!result) return false;
+        }
 
-        updatedEntityList = new ArrayList<>();
-        if(objList != null && objList.size() > 0) {
-            if (updateCommand == UpdateCommand.INSERT) {
-                result = service.saveBatch(objList);
-                updatedEntityList.addAll(objList);
-            } else if (updateCommand == UpdateCommand.UPDATE_ID) {
-                result = service.updateBatchById(objList);
-                updatedEntityList.addAll(objList);
-            } else if (updateCommand == UpdateCommand.UPDATE_WRAPPER && wrapper != null) {
-                result = service.update(objList.get(0), (Wrapper) wrapper);
-                updatedEntityList.add(objList.get(0));
-            } else if (updateCommand == UpdateCommand.DELETE_ID) {
-                if (objList.size() < BATCH_LIMIT) {
-                    for (Object obj : objList) {
-                        result = service.removeById((Serializable) obj);
-                        if (!result) {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-                service.removeByIds(objList);
-            } else if (updateCommand == UpdateCommand.PHYSIC_DELETE_ID) {
-                if (objList.size() < BATCH_LIMIT) {
-                    for (Object obj : objList) {
-                        result = MybatisPlusUtils.deleteById(service, (Serializable) obj, true);
-                        if (!result) {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-                MybatisPlusUtils.deleteBatchIds(service, objList.stream()
-                                .map(x -> (Serializable) x).collect(Collectors.toList())
-                        , true);
-            } else if (updateCommand == UpdateCommand.SAVE_OR_UPDATE) {
-                if (objList.size() < BATCH_LIMIT) {
-                    for(Object obj : objList) {
-                        result = service.saveOrUpdate(obj);
-                    }
-                } else {
-                    result = service.saveOrUpdateBatch(objList);
-                }
-                updatedEntityList.addAll(objList);
+        Optional firstEntity = updateEntities.stream().findFirst();
+        if(firstEntity.isPresent()) {
+            String keyProperty = entityClassInfo.getTableInfo().getKeyProperty();
+            Object masterKeyValue = FieldUtils.getValueByName(firstEntity.get(), keyProperty);
+            if(!keyMap.containsKey(keyProperty)) {
+                keyMap.put(keyProperty, masterKeyValue);
             }
         }
 
-        if(wrapper != null) {
-            if (updateCommand == UpdateCommand.DELETE_WRAPPER) {
-                result = service.remove(wrapper);
-            } else if (updateCommand == UpdateCommand.PHYSIC_DELETE_WRAPPER) {
-                result = MybatisPlusUtils.delete(service, wrapper, true);
-            }
-        }
-
-        if((!subEntityUpdatePrior) && subUpdateEntities != null) {
+        if((!updateSubEntityFirst) && subUpdateEntities != null) {
             for(UpdateEntity subUpdateEntity : subUpdateEntities) {
-                if(objList != null && objList.size() > 0) {
-                    if(subUpdateEntity.getObjList() != null) {
-                        for(Object x : subUpdateEntity.getObjList()) {
-                            String keyProperty = tableInfo.getKeyProperty();
-                            Object masterKey = FieldUtils.getValueByName(objList.get(0), keyProperty);
-                            FieldUtils.setFieldByName(x, keyProperty, masterKey);
-                        }
-                    }
-                }
-                result = subUpdateEntity.execUpdate(UpdateEntity.DEFAULT_BATCH_LIMIT);
+                result = subUpdateEntity.execUpdate(keyMap);
                 if(!result) {
                     return false;
                 }
             }
         }
         return result;
-    }
-
-    private List<Object> updatedEntityList;
-    public List<Object> getUpdatedEntityList() {
-        return updatedEntityList;
     }
 }

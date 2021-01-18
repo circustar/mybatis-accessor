@@ -14,9 +14,5 @@ public @interface DtoEntityRelation {
     Class entityClass() default Void.class;
     Class<? extends IService> service() default IService.class;
     Class<? extends IUpdateEntityProvider>[] updateObjectProviders() default {
-            AutoDetectUpdateEntityProvider.class, DefaultDeleteEntitiesByIdsProvider.class
-        , DefaultDeleteEntityByIdProvider.class, DefaultInertEntitiesEntityProvider.class
-        , DefaultInertEntityEntityProvider.class, DefaultUpdateEntityProvider.class
-        , DefaultSaveUpdateDeleteEntitiesProvider.class, DefaultUpdateSubEntitiesProvider.class
     };
 }

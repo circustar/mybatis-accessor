@@ -1,15 +1,18 @@
 package com.circustar.mvcenhance.enhance.update;
 
 import com.circustar.mvcenhance.enhance.relation.IEntityDtoServiceRelationMap;
-import com.circustar.mvcenhance.enhance.utils.EnhancedConversionService;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.Validator;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public abstract class AbstractUpdateEntityProvider implements IUpdateEntityProvider, ApplicationContextAware {
     protected ApplicationContext applicationContext;
@@ -39,4 +42,12 @@ public abstract class AbstractUpdateEntityProvider implements IUpdateEntityProvi
             v.validate(s, bindingResult);
         }
     };
+
+    protected String[] getSubEntities(String[] entities, String prefix, String delimeter) {
+        List<String> entityList = Arrays.stream(entities)
+                .filter(x -> !StringUtils.isEmpty(x) && x.startsWith(prefix + delimeter))
+                .map(x -> x.substring((prefix + delimeter).length()))
+                .collect(Collectors.toList());
+        return entityList.toArray(new String[entityList.size()]);
+    }
 }

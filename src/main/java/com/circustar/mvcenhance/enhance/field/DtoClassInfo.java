@@ -17,7 +17,6 @@ public class DtoClassInfo {
     private List<DtoField> subDtoFieldList;
     private List<DtoField> normalFieldList;
     private Map<String, DtoField> dtoFieldMap;
-    private FieldTypeInfo deleteFieldTypeInfo;
     private EntityClassInfo entityClassInfo;
     private String joinTables;
     private String jointColumns;
@@ -42,10 +41,6 @@ public class DtoClassInfo {
                 normalFieldList.add(dtoField);
             }
             this.dtoFieldMap.put(x.getName(), dtoField);
-            DeleteField deleteField = x.getAnnotation(DeleteField.class);
-            if(deleteField != null) {
-                this.deleteFieldTypeInfo = fieldTypeInfo;
-            }
         });
 
         this.subDtoFieldList.forEach(x -> {
@@ -124,10 +119,6 @@ public class DtoClassInfo {
 
     public String getJointColumns() {
         return jointColumns;
-    }
-
-    public FieldTypeInfo getDeleteFieldTypeInfo() {
-        return deleteFieldTypeInfo;
     }
 
     public DtoField getDtoField(String name) {

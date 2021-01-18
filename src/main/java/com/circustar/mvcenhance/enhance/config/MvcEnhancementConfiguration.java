@@ -94,44 +94,18 @@ public class MvcEnhancementConfiguration {
     }
 
     @Bean
-    public DefaultDeleteEntityByIdProvider getDefaultDeleteEntityByIdProvider() {
-        return new DefaultDeleteEntityByIdProvider();
+    public DefaultDeleteEntitiesProvider getDefaultDeleteEntitiesProvider() {
+        return DefaultDeleteEntitiesProvider.getInstance();
     }
 
     @Bean
-    @Primary
-    public AutoDetectUpdateEntityProvider getAutoDetectUpdateEntityProvider() {
-        return new AutoDetectUpdateEntityProvider();
-    }
-
-    @Bean
-    public DefaultDeleteEntitiesByIdsProvider getDefaultDeleteEntitiesByIdsProvider() {
-        return new DefaultDeleteEntitiesByIdsProvider();
-    }
-
-    @Bean
-    public DefaultInertEntityEntityProvider getDefaultInertEntityProvider() {
-        return new DefaultInertEntityEntityProvider();
-    }
-
-    @Bean
-    public DefaultInertEntitiesEntityProvider getDefaultInertEntitiesProvider() {
-        return new DefaultInertEntitiesEntityProvider();
-    }
-
-    @Bean
-    public DefaultSaveUpdateDeleteEntitiesProvider getDefaultSaveUpdateDeleteEntitiesProvider() {
-        return new DefaultSaveUpdateDeleteEntitiesProvider();
+    public DefaultInsertEntitiesEntityProvider getDefaultInsertEntitiesEntityProvider() {
+        return DefaultInsertEntitiesEntityProvider.getInstance();
     }
 
     @Bean
     public DefaultUpdateEntityProvider getDefaultUpdateEntityProvider() {
-        return new DefaultUpdateEntityProvider();
-    }
-
-    @Bean
-    public DefaultUpdateSubEntitiesProvider getDefaultUpdateSubEntitiesProvider() {
-        return new DefaultUpdateSubEntitiesProvider();
+        return DefaultUpdateEntityProvider.getInstance();
     }
 
     @Bean

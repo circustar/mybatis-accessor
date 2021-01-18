@@ -26,25 +26,21 @@ public class CrudService implements ICrudService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Collection<Object> updateByProviders(EntityDtoServiceRelation relationInfo, Object object, String[] updateNames, Map options, BindingResult bindingResult) throws Exception {
+    public Collection<Object> updateByProviders(EntityDtoServiceRelation relationInfo, Object object, IUpdateEntityProvider[] updateEntityProviders, Map options, BindingResult bindingResult) throws Exception {
         List<Object> updatedObjects = new ArrayList<>();
-        List<? extends IUpdateEntityProvider> providers = Arrays.stream(relationInfo.getUpdateObjectProviders())
-                .map(x -> this.applicationContext.getBean(x))
-                .filter(x -> x.match(updateNames))
-                .collect(Collectors.toList());
-        for(IUpdateEntityProvider provider : providers) {
+        for(IUpdateEntityProvider provider : updateEntityProviders) {
             provider.validateAndSet(object, bindingResult, options);
             if(bindingResult.hasErrors()) {
                 throw new ValidateException("validate failed");
             }
             try {
-                List<UpdateEntity> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper, object, options);
+                Collection<UpdateEntity> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper, object, options);
                 for(UpdateEntity o : objList) {
-                    boolean result = o.execUpdate(UpdateEntity.DEFAULT_BATCH_LIMIT);
+                    boolean result = o.execUpdate();
                     if(!result) {
                         throw new UpdateTargetNotFoundException("update failed");
                     }
-                    updatedObjects.addAll(o.getUpdatedEntityList());
+                    updatedObjects.addAll(o.getUpdateEntities());
                 }
                 provider.onSuccess();
             } catch (Exception ex) {
