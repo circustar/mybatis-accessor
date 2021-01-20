@@ -8,6 +8,7 @@ import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.enhance.service.ISelectService;
 import com.circustar.mvcenhance.enhance.update.command.DeleteByIdBatchCommand;
 import com.circustar.mvcenhance.enhance.update.command.DeleteByIdCommand;
+import com.circustar.mvcenhance.enhance.utils.CommonCollectionUtils;
 import com.circustar.mvcenhance.enhance.utils.FieldUtils;
 import com.circustar.mvcenhance.enhance.utils.MapOptionUtils;
 import org.springframework.validation.BindingResult;
@@ -24,62 +25,59 @@ public class DefaultDeleteEntitiesProvider extends AbstractUpdateEntityProvider 
     public Collection<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation,
                                                    DtoClassInfoHelper dtoClassInfoHelper,
                                                    Object ids, Map options) throws Exception {
+        List<UpdateEntity> result = Collections.emptyList();
+        Collection values = CommonCollectionUtils.convertToCollection(ids);
+        if(values.size() == 0) {return result;}
+
         String[] subEntities = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, new String[]{});
         boolean updateChildrenOnly = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
         boolean physicDelete = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, false);
 
-        boolean batchUpdate = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_BATCH_FLAG, false);
-
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDto());
-        Collection values;
-        if(Collection.class.isAssignableFrom(ids.getClass())) {
-            values = (Collection) ids;
-        } else {
-            values = Collections.singleton(ids);
-        }
-
-        List<UpdateEntity> updateEntityCollection = new ArrayList<>();
         ISelectService selectService = applicationContext.getBean(ISelectService.class);
 
-        for(Object id : values) {
-            UpdateEntity updateEntity = new UpdateEntity(applicationContext.getBean(relation.getService())
-                    , batchUpdate? DeleteByIdBatchCommand.getInstance() :DeleteByIdCommand.getInstance()
-                    , physicDelete
-                    , dtoClassInfo.getEntityClassInfo()
-                    , Collections.singleton(id)
-                    , true
-                    , updateChildrenOnly);
-
-            Object object = selectService.getDtoById(relation, (Serializable) id
-                    , subEntities);
-            for (DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
-                Object subEntity = FieldUtils.getValue(object, dtoField.getFieldTypeInfo().getField());
-                if (subEntity == null) {
-                    continue;
-                }
-                String keyProperty = dtoField.getDtoClassInfo().getEntityClassInfo().getTableInfo().getKeyProperty();
-                List<Object> subIds = new ArrayList<>();
-                if (Collection.class.isAssignableFrom(subEntity.getClass())) {
-                    for (Object obj : (Collection) subEntity) {
+        String[] topEntities = this.getTopEntities(subEntities, ".");
+        if(topEntities.length > 0) {
+            for (Object id : values) {
+                Object object = selectService.getDtoById(relation, (Serializable) id
+                        , topEntities);
+                for (String entityName : topEntities) {
+                    DtoField dtoField = dtoClassInfo.getDtoField(entityName);
+                    Object entity = FieldUtils.getValue(object, dtoField.getFieldTypeInfo().getField());
+                    if (entity == null) {
+                        continue;
+                    }
+                    String keyProperty = dtoField.getDtoClassInfo().getEntityClassInfo().getTableInfo().getKeyProperty();
+                    List<Object> subIds = new ArrayList<>();
+                    Collection entityList = CommonCollectionUtils.convertToCollection(entity);
+                    if(entityList.size() == 0) {continue;}
+                    for (Object obj : entityList) {
                         subIds.add(FieldUtils.getValueByName(obj, keyProperty));
                     }
-                } else {
-                    subIds.add(FieldUtils.getValueByName(subEntity, keyProperty));
+                    Map newOptions = new HashMap(options);
+                    newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
+                    newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, this.getSubEntities(subEntities
+                            , entityName, "."));
+                    result.addAll(this.createUpdateEntities(
+                            dtoField.getEntityDtoServiceRelation()
+                            , dtoClassInfoHelper
+                            , subIds
+                            , newOptions
+                    ));
                 }
-                Map newOptions = new HashMap(options);
-                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, true);
-                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, this.getSubEntities(subEntities
-                        , dtoField.getFieldName(), "."));
-                updateEntityCollection.addAll(this.createUpdateEntities(
-                        dtoField.getEntityDtoServiceRelation()
-                        , dtoClassInfoHelper
-                        , subIds
-                        , newOptions
-                ));
             }
-            updateEntityCollection.add(updateEntity);
         }
-        return updateEntityCollection;
+
+        if(!updateChildrenOnly) {
+            result.add(new UpdateEntity(applicationContext.getBean(relation.getService())
+                    , DeleteByIdBatchCommand.getInstance()
+                    , physicDelete
+                    , dtoClassInfo.getEntityClassInfo()
+                    , values
+                    , true
+                    , false));
+        }
+        return result;
     }
 
     @Override

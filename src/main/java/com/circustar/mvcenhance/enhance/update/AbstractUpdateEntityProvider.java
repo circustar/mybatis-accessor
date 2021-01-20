@@ -50,4 +50,11 @@ public abstract class AbstractUpdateEntityProvider implements IUpdateEntityProvi
                 .collect(Collectors.toList());
         return entityList.toArray(new String[entityList.size()]);
     }
+
+    protected String[] getTopEntities(String[] entities, String delimeter) {
+        List<String> entityList = Arrays.stream(entities)
+                .filter(x -> !StringUtils.isEmpty(x) && !x.contains(delimeter))
+                .collect(Collectors.toList());
+        return entityList.toArray(new String[entityList.size()]);
+    }
 }

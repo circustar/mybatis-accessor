@@ -13,21 +13,14 @@ public class UpdateEntity {
             , IUpdateCommand updateCommand
             , Object option
             , EntityClassInfo entityClassInfo
-            , Collection updateEntities) {
-        this(service, updateCommand, option, entityClassInfo, updateEntities,false, true);
-    }
-    public UpdateEntity(IService service
-            , IUpdateCommand updateCommand
-            , Object option
-            , EntityClassInfo entityClassInfo
             , Collection updateEntities
-            , Boolean updateSubEntityFirst
+            , Boolean updateChildrenFirst
             , boolean updateChildrenOnly) {
         this.option = option;
         this.updateCommand = updateCommand;
         this.service = service;
         this.updateEntities = updateEntities;
-        this.updateSubEntityFirst = updateSubEntityFirst;
+        this.updateSubEntityFirst = updateChildrenFirst;
         this.entityClassInfo = entityClassInfo;
         this.updateChildrenOnly = updateChildrenOnly;
     }

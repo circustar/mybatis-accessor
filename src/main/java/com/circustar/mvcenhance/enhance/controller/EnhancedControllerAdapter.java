@@ -161,7 +161,7 @@ public interface EnhancedControllerAdapter {
             , boolean updateChildrenOnly) throws Exception {
         Map options = new HashMap();
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        return defaultUpdateMap(map, dto_name, new IUpdateEntityProvider[]{DefaultInsertEntitiesEntityProvider.getInstance()}
+        return defaultUpdateMap(map, dto_name, new IUpdateEntityProvider[]{DefaultInsertEntitiesProvider.getInstance()}
                 , options);
     }
 
@@ -170,7 +170,7 @@ public interface EnhancedControllerAdapter {
             , boolean updateChildrenOnly) throws Exception {
         Map options = new HashMap();
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        return defaultUpdateMapList(mapList, dto_name, new IUpdateEntityProvider[]{DefaultInsertEntitiesEntityProvider.getInstance()}
+        return defaultUpdateMapList(mapList, dto_name, new IUpdateEntityProvider[]{DefaultInsertEntitiesProvider.getInstance()}
                 , options);
     }
 

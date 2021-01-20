@@ -7,6 +7,7 @@ import com.circustar.mvcenhance.enhance.field.DtoField;
 import com.circustar.mvcenhance.enhance.mybatisplus.enhancer.MvcEnhanceConstants;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.enhance.update.command.*;
+import com.circustar.mvcenhance.enhance.utils.CommonCollectionUtils;
 import com.circustar.mvcenhance.enhance.utils.FieldUtils;
 import com.circustar.mvcenhance.enhance.utils.MapOptionUtils;
 
@@ -21,30 +22,28 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
     public Collection<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation,
                                                          DtoClassInfoHelper dtoClassInfoHelper,
                                                          Object entity, Map options) throws Exception {
+        List<UpdateEntity> result = Collections.emptyList();
+        Collection values = CommonCollectionUtils.convertToCollection(entity);
+        if(values.size() == 0) {return result;}
+
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDto());
+
         String[] subEntities = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, new String[]{});
         boolean updateChildrenOnly = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
         boolean deleteBeforeUpdate = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_BEFORE_UPDATE, false);
         boolean physicDelete = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, false);
 
-        boolean batchUpdate = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_BATCH_FLAG, false);
-
-        DefaultInsertEntitiesEntityProvider inertEntitiesEntityProvider = DefaultInsertEntitiesEntityProvider.getInstance();
-
-        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDto());
-        Collection values;
-        if(Collection.class.isAssignableFrom(entity.getClass())) {
-            values = (Collection) entity;
-        } else {
-            values = Collections.singleton(entity);
-        }
-
+        DefaultInsertEntitiesProvider inertEntitiesEntityProvider = DefaultInsertEntitiesProvider.getInstance();
         List<UpdateEntity> updateEntityCollection = new ArrayList<>();
         String keyColumn = dtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn();
         String keyProperty = dtoClassInfo.getEntityClassInfo().getTableInfo().getKeyProperty();
 
+        String[] topEntities = this.getTopEntities(subEntities, ".");
+        boolean containSubEntities = false;
+
         for(Object object : values) {
             UpdateEntity updateEntity = new UpdateEntity(applicationContext.getBean(relation.getService())
-                    , batchUpdate? UpdateByIdBatchCommand.getInstance() : UpdateByIdCommand.getInstance()
+                    , UpdateByIdCommand.getInstance()
                     , null
                     , dtoClassInfo.getEntityClassInfo()
                     , Collections.singleton(object)
@@ -52,9 +51,9 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                     , updateChildrenOnly);
             Object keyValue = FieldUtils.getValueByName(object, keyProperty);
 
-            for (String subFieldName : subEntities) {
-                Object subEntity = FieldUtils.getValueByName(object, subFieldName);
-                DtoField subDtoField = dtoClassInfo.getDtoField(subFieldName);
+            for(String entityName : topEntities) {
+                Object subEntity = FieldUtils.getValueByName(object, entityName);
+                DtoField subDtoField = dtoClassInfo.getDtoField(entityName);
                 if(deleteBeforeUpdate) {
                     QueryWrapper qw = new QueryWrapper();
                     qw.eq(keyColumn, keyValue);
@@ -62,32 +61,48 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                             , DeleteWrapperCommand.getInstance()
                             , physicDelete
                             , subDtoField.getDtoClassInfo().getEntityClassInfo()
-                            , Collections.singleton(qw)));
+                            , Collections.singleton(qw)
+                            , true
+                            , false));
+                    containSubEntities = true;
                 }
-                if (subEntity == null) {
-                    continue;
-                }
-
+                Collection subEntityList = CommonCollectionUtils.convertToCollection(subEntity);
+                if(subEntityList.size() == 0) {continue;}
+                containSubEntities = true;
                 Map newOptions = new HashMap(options);
-                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, true);
+                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
                 newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, this.getSubEntities(subEntities
-                        , subFieldName, "."));
+                        , entityName, "."));
                 if(keyValue != null) {
                     updateEntity.addSubUpdateEntities(this.createUpdateEntities(
                             subDtoField.getEntityDtoServiceRelation()
                             , dtoClassInfoHelper
-                            , subEntity
+                            , subEntityList
                             , newOptions
                     ));
                 } else {
                     updateEntity.addSubUpdateEntities(inertEntitiesEntityProvider.createUpdateEntities(subDtoField.getEntityDtoServiceRelation()
                             , dtoClassInfoHelper
-                            , subEntity
+                            , subEntityList
                             , newOptions
                     ));
                 };
             }
             updateEntityCollection.add(updateEntity);
+        }
+        if(!containSubEntities) {
+            if (updateChildrenOnly) {
+                return Collections.emptyList();
+            } else {
+                UpdateEntity updateEntity = new UpdateEntity(applicationContext.getBean(relation.getService())
+                        , UpdateByIdBatchCommand.getInstance()
+                        , null
+                        , dtoClassInfo.getEntityClassInfo()
+                        , values
+                        , false
+                        , false);
+                return Collections.singletonList(updateEntity);
+            }
         }
         return updateEntityCollection;
     }

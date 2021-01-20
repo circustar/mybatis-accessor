@@ -21,14 +21,11 @@ public class DeleteByIdBatchCommand extends DeleteByIdCommand {
     public <T extends Collection> boolean update(IService service, T obj, Object option) throws Exception {
         List physicDeleteCollection = new ArrayList();
         List deleteCollection = new ArrayList();
-        for(Object var1 : obj) {
-            boolean physicDelete = (boolean) option;
-            Serializable id = (Serializable) var1;
-            if(physicDelete) {
-                physicDeleteCollection.add(id);
-            } else {
-                deleteCollection.add(id);
-            }
+        boolean physicDelete = (boolean) option;
+        if(physicDelete) {
+            physicDeleteCollection.addAll(obj);
+        } else {
+            deleteCollection.addAll(obj);
         }
 
         if(physicDeleteCollection.size() > 0) {

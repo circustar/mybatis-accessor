@@ -3,7 +3,6 @@ package com.circustar.mvcenhance.enhance.update.command;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.Collection;
-import java.util.Map;
 
 public class InsertCommand implements IUpdateCommand {
 

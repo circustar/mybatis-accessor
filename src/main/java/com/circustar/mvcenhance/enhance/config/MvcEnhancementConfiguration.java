@@ -9,29 +9,18 @@ import com.circustar.mvcenhance.enhance.service.CrudService;
 import com.circustar.mvcenhance.enhance.service.ISelectService;
 import com.circustar.mvcenhance.enhance.service.SelectService;
 import com.circustar.mvcenhance.enhance.update.*;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Primary;
-import org.springframework.core.convert.ConversionService;
 import com.circustar.mvcenhance.enhance.relation.EntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.enhance.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.enhance.relation.ScanRelationOnStartup;
 import com.circustar.mvcenhance.enhance.service.ICrudService;
-import com.circustar.mvcenhance.enhance.utils.EnhancedConversionService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -99,8 +88,8 @@ public class MvcEnhancementConfiguration {
     }
 
     @Bean
-    public DefaultInsertEntitiesEntityProvider getDefaultInsertEntitiesEntityProvider() {
-        return DefaultInsertEntitiesEntityProvider.getInstance();
+    public DefaultInsertEntitiesProvider getDefaultInsertEntitiesEntityProvider() {
+        return DefaultInsertEntitiesProvider.getInstance();
     }
 
     @Bean
