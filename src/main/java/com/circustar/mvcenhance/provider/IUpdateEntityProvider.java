@@ -1,6 +1,6 @@
 package com.circustar.mvcenhance.provider;
 
-import com.circustar.mvcenhance.field.DtoClassInfoHelper;
+import com.circustar.mvcenhance.classInfo.DtoClassInfoHelper;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import org.springframework.validation.BindingResult;
 

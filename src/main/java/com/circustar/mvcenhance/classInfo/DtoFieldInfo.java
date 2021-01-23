@@ -1,4 +1,4 @@
-package com.circustar.mvcenhance.field;
+package com.circustar.mvcenhance.classInfo;
 
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import org.springframework.util.StringUtils;

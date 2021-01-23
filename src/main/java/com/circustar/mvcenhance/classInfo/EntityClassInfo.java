@@ -1,4 +1,4 @@
-package com.circustar.mvcenhance.field;
+package com.circustar.mvcenhance.classInfo;
 
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;

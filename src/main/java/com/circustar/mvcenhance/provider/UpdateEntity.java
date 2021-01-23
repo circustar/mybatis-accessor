@@ -1,8 +1,8 @@
 package com.circustar.mvcenhance.provider;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.mvcenhance.field.EntityClassInfo;
-import com.circustar.mvcenhance.field.FieldTypeInfo;
+import com.circustar.mvcenhance.classInfo.EntityClassInfo;
+import com.circustar.mvcenhance.classInfo.FieldTypeInfo;
 import com.circustar.mvcenhance.provider.command.IUpdateCommand;
 import com.circustar.mvcenhance.utils.FieldUtils;
 

@@ -1,8 +1,8 @@
 package com.circustar.mvcenhance.config;
 
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
-import com.circustar.mvcenhance.field.DtoClassInfoHelper;
-import com.circustar.mvcenhance.field.EntityClassInfoHelper;
+import com.circustar.mvcenhance.classInfo.DtoClassInfoHelper;
+import com.circustar.mvcenhance.classInfo.EntityClassInfoHelper;
 import com.circustar.mvcenhance.utils.TableInfoUtils;
 import com.circustar.mvcenhance.injector.EnhanceSqlInjector;
 import com.circustar.mvcenhance.service.CrudService;

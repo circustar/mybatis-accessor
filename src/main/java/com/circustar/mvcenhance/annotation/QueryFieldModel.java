@@ -1,9 +1,9 @@
 package com.circustar.mvcenhance.annotation;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.circustar.mvcenhance.field.DtoClassInfo;
-import com.circustar.mvcenhance.field.DtoField;
-import com.circustar.mvcenhance.field.FieldTypeInfo;
+import com.circustar.mvcenhance.classInfo.DtoClassInfo;
+import com.circustar.mvcenhance.classInfo.DtoField;
+import com.circustar.mvcenhance.classInfo.FieldTypeInfo;
 import com.circustar.mvcenhance.utils.TableInfoUtils;
 import com.circustar.mvcenhance.utils.FieldUtils;
 import org.springframework.expression.spel.support.StandardEvaluationContext;

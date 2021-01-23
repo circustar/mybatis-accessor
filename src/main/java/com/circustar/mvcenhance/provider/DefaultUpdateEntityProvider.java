@@ -1,9 +1,9 @@
 package com.circustar.mvcenhance.provider;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.circustar.mvcenhance.field.DtoClassInfo;
-import com.circustar.mvcenhance.field.DtoClassInfoHelper;
-import com.circustar.mvcenhance.field.DtoField;
+import com.circustar.mvcenhance.classInfo.DtoClassInfo;
+import com.circustar.mvcenhance.classInfo.DtoClassInfoHelper;
+import com.circustar.mvcenhance.classInfo.DtoField;
 import com.circustar.mvcenhance.utils.MvcEnhanceConstants;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.provider.command.*;

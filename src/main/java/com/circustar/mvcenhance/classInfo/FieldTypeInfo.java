@@ -1,4 +1,4 @@
-package com.circustar.mvcenhance.field;
+package com.circustar.mvcenhance.classInfo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.circustar.mvcenhance.annotation.QueryField;

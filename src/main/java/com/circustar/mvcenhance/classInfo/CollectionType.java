@@ -1,4 +1,4 @@
-package com.circustar.mvcenhance.field;
+package com.circustar.mvcenhance.classInfo;
 
 import java.util.*;
 

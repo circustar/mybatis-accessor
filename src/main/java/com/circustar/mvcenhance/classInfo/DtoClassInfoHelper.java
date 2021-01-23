@@ -1,4 +1,4 @@
-package com.circustar.mvcenhance.field;
+package com.circustar.mvcenhance.classInfo;
 
 import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.utils.FieldUtils;

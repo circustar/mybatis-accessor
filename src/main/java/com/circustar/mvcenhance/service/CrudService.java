@@ -1,7 +1,7 @@
 package com.circustar.mvcenhance.service;
 
 import com.circustar.mvcenhance.error.UpdateTargetNotFoundException;
-import com.circustar.mvcenhance.field.DtoClassInfoHelper;
+import com.circustar.mvcenhance.classInfo.DtoClassInfoHelper;
 import com.circustar.mvcenhance.provider.*;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;

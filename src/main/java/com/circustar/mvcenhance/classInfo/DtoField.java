@@ -1,4 +1,4 @@
-package com.circustar.mvcenhance.field;
+package com.circustar.mvcenhance.classInfo;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.circustar.mvcenhance.annotation.Selector;
