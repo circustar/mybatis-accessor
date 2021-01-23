@@ -6,7 +6,7 @@ import com.circustar.mvcenhance.classInfo.DtoField;
 import com.circustar.mvcenhance.utils.MvcEnhanceConstants;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.provider.command.InsertCommand;
-import com.circustar.mvcenhance.utils.CommonCollectionUtils;
+import com.circustar.mvcenhance.utils.CollectionUtils;
 import com.circustar.mvcenhance.utils.FieldUtils;
 import com.circustar.mvcenhance.utils.MapOptionUtils;
 
@@ -21,15 +21,15 @@ public class DefaultInsertEntitiesProvider extends AbstractUpdateEntityProvider 
     @Override
     public Collection<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object object, Map options) throws Exception {
-        List<UpdateEntity> result = Collections.emptyList();
-        Collection values = CommonCollectionUtils.convertToCollection(object);
+        List<UpdateEntity> result = new ArrayList<>();
+        Collection values = CollectionUtils.convertToCollection(object);
         if(values.size() == 0) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDto());
         boolean insertAllEntities = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_INSERT_ALL_SUB_ENTITIES, false);
         String[] subEntities;
         if(insertAllEntities) {
-            subEntities = CommonCollectionUtils.convertStreamToStringArray(dtoClassInfo.getSubDtoFieldList().stream().map(x -> x.getFieldName()));
+            subEntities = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getSubDtoFieldList().stream().map(x -> x.getFieldName()));
         } else {
             subEntities = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, new String[]{});
         }
@@ -38,25 +38,34 @@ public class DefaultInsertEntitiesProvider extends AbstractUpdateEntityProvider 
         String[] topEntities = this.getTopEntities(subEntities, ".");
         boolean containSubEntities = false;
 
+        List<Object> updateTargetList = new ArrayList<>();
         for(Object value : values) {
+            if(dtoClassInfo.getVersionField() != null) {
+                FieldUtils.setField(value
+                        , dtoClassInfo.getVersionField().getFieldTypeInfo().getField()
+                        , dtoClassInfo.getVersionDefaultValue());
+            }
+            Object updateTarget = dtoClassInfoHelper.convertToEntity(value);
+            updateTargetList.add(updateTarget);
             UpdateEntity updateEntity = new UpdateEntity(applicationContext.getBean(relation.getService())
                     , InsertCommand.getInstance()
                     , null
                     , dtoClassInfo.getEntityClassInfo()
-                    , Collections.singleton(value)
+                    , Collections.singleton(updateTarget)
                     , false
                     , updateChildrenOnly);
             for(String entityName : topEntities) {
                 DtoField dtoField = dtoClassInfo.getDtoField(entityName);
                 Object subValue = FieldUtils.getValue(value, dtoField.getFieldTypeInfo().getField());
-                Collection subEntityList = CommonCollectionUtils.convertToCollection(subValue);
+                Collection subEntityList = CollectionUtils.convertToCollection(subValue);
                 if(subEntityList.size() == 0) {continue;}
                 containSubEntities = true;
                 Map newOptions = new HashMap(options);
                 newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
                 newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, this.getSubEntities(subEntities
                         , entityName, "."));
-                updateEntity.addSubUpdateEntities(this.createUpdateEntities(dtoField.getDtoClassInfo().getEntityDtoServiceRelation()
+                updateEntity.addSubUpdateEntities(this.createUpdateEntities(
+                        dtoField.getEntityDtoServiceRelation()
                         , dtoClassInfoHelper, subEntityList, newOptions));
             }
             result.add(updateEntity);
@@ -70,7 +79,7 @@ public class DefaultInsertEntitiesProvider extends AbstractUpdateEntityProvider 
                         , InsertCommand.getInstance()
                         , null
                         , dtoClassInfo.getEntityClassInfo()
-                        , values
+                        , updateTargetList
                         , false
                         , false);
                 return Collections.singletonList(updateEntity);

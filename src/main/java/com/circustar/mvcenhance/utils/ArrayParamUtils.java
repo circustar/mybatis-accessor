@@ -11,11 +11,16 @@ public class ArrayParamUtils {
         }
         return (T)array[position];
     }
+    public static String[] convertStringToArray(String str) {
+        return convertStringToArray(str, DELIMITER_COMMA);
+    }
     public static String[] convertStringToArray(String str, String delimiter) {
         if(StringUtils.isEmpty(str)) {
             return null;
         }
-        str = str.replace(" ", "");
+        if(!" ".equals(delimiter)) {
+            str = str.replace(" ", "");
+        }
         return str.split(delimiter);
     }
 }

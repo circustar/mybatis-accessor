@@ -5,6 +5,8 @@ import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -51,32 +53,15 @@ public class FieldUtils {
         }
     }
 
-//    public static void setFieldByName(Object obj, String name, Object value, EnhancedConversionService conversionService) throws NoSuchFieldException, IllegalAccessException, InstantiationException {
-//        Field f = obj.getClass().getDeclaredField(name);
-//        f.setAccessible(true);
-//        Object finalValue = value;
-//        if(finalValue != null) {
-//            if(f.getType() != finalValue.getClass()) {
-//                finalValue = conversionService.convert(finalValue, f.getType());
-//            }
-//        }
-//        f.set(obj, finalValue);
-//    }
-
     public static Object getValueByName(Object obj, String name) throws NoSuchFieldException, IllegalAccessException {
         Field f = obj.getClass().getDeclaredField(name);
         f.setAccessible(true);
         return f.get(obj);
     }
 
-    public static Object getValue(Object obj, Field field) throws NoSuchFieldException, IllegalAccessException {
+    public static Object getValue(Object obj, Field field) throws IllegalAccessException {
          field.setAccessible(true);
         return field.get(obj);
-    }
-
-    public static <T extends Annotation> T[] getFieldAnnotationByName(Object obj, String name, Class<T> clazz) throws NoSuchFieldException {
-        Field f = obj.getClass().getDeclaredField(name);
-        return f.getAnnotationsByType(clazz);
     }
 
     public static List<Field> getExistFields(Object obj, List<String> names, boolean throwable) throws NoSuchFieldException {
@@ -93,25 +78,5 @@ public class FieldUtils {
         }
         return fields;
     }
-    public static <T extends Annotation> void parseFieldAnnotationToMap(List<Field> fields
-            , Class<T> clazz, Map<String, T[]> existMap, List<String> noAnnotationInfoList) {
-        for(Field f : fields) {
-            T[] annotations = f.getAnnotationsByType(clazz);
-            if(annotations != null && annotations.length > 0) {
-                existMap.put(f.getName(), annotations);
-            } else {
-                noAnnotationInfoList.add(f.getName());
-            }
-        }
-    }
 
-    public static <T extends Annotation> T[] getFieldAnnotationsByType(Class clazz, String fieldName
-            , Class<T> annotationClass) throws NoSuchFieldException {
-        Field f = clazz.getDeclaredField(fieldName);
-        return f.getAnnotationsByType(annotationClass);
-    }
-
-    public static void copyProperties(Object source, Object target) {
-        BeanUtils.copyProperties(source, target);
-    }
 }

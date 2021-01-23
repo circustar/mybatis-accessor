@@ -1,6 +1,7 @@
 package com.circustar.mvcenhance.utils;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.*;
 
 public class AnnotationUtils {
@@ -19,7 +20,27 @@ public class AnnotationUtils {
         return null;
     }
 
-//    public static TableJoiner[] getTableJoinerFields(Class clazz) {
-//        TableJoiner df = getClassAnnotations(clazz, TableJoiner.class);
-//    }
+
+    public static <T extends Annotation> T[] getFieldAnnotationByName(Object obj, String name, Class<T> clazz) throws NoSuchFieldException {
+        Field f = obj.getClass().getDeclaredField(name);
+        return f.getAnnotationsByType(clazz);
+    }
+
+    public static <T extends Annotation> void parseFieldAnnotationToMap(List<Field> fields
+            , Class<T> clazz, Map<String, T[]> existMap, List<String> noAnnotationInfoList) {
+        for(Field f : fields) {
+            T[] annotations = f.getAnnotationsByType(clazz);
+            if(annotations != null && annotations.length > 0) {
+                existMap.put(f.getName(), annotations);
+            } else {
+                noAnnotationInfoList.add(f.getName());
+            }
+        }
+    }
+
+    public static <T extends Annotation> T[] getFieldAnnotationsByType(Class clazz, String fieldName
+            , Class<T> annotationClass) throws NoSuchFieldException {
+        Field f = clazz.getDeclaredField(fieldName);
+        return f.getAnnotationsByType(annotationClass);
+    }
 }

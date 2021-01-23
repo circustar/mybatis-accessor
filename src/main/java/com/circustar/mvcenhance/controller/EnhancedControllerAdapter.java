@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.ApplicationContext;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -159,80 +160,84 @@ public interface EnhancedControllerAdapter {
 
     default IServiceResult saveEntity(String dto_name
             , Map map
-            , String[] subEntities
+            , String subEntities
             , boolean updateChildrenOnly) throws Exception {
         Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, subEntities);
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, ArrayParamUtils.convertStringToArray(subEntities));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         return defaultUpdateMap(map, dto_name, new IUpdateEntityProvider[]{DefaultInsertEntitiesProvider.getInstance()}
-                , options);
+                , options, true);
     }
 
     default IServiceResult saveEntities(String dto_name
             , List<Map> mapList
-            , String[] subEntities
-            , boolean updateChildrenOnly) throws Exception {
+            , String subEntities
+            , boolean updateChildrenOnly
+            , boolean returnUpdateResult) throws Exception {
         Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, subEntities);
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, ArrayParamUtils.convertStringToArray(subEntities));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         return defaultUpdateMapList(mapList, dto_name, new IUpdateEntityProvider[]{DefaultInsertEntitiesProvider.getInstance()}
-                , options);
+                , options, returnUpdateResult);
     }
 
     default IServiceResult updateEntity(String dtoName
-            , String[] children
+            , String subEntities
             , Map map
             , boolean updateChildrenOnly
             , boolean remove_and_insert
             , boolean physicDelete) throws Exception {
         Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, children);
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, ArrayParamUtils.convertStringToArray(subEntities));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_BEFORE_UPDATE, remove_and_insert);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
         return defaultUpdateMap(map, dtoName, new IUpdateEntityProvider[]{DefaultUpdateEntityProvider.getInstance()}
-                , options);
+                , options, true);
     }
 
-    default IServiceResult updateEntities(String dto_name, String[] children
+    default IServiceResult updateEntities(String dto_name, String subEntities
             , List<Map> mapList
             , boolean updateChildrenOnly
             , boolean remove_and_insert
-            , boolean physicDelete) throws Exception {
+            , boolean physicDelete
+            , boolean returnUpdateResult) throws Exception {
         Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, children);
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, ArrayParamUtils.convertStringToArray(subEntities));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_BEFORE_UPDATE, remove_and_insert);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
         return defaultUpdateMapList(mapList, dto_name, new IUpdateEntityProvider[]{DefaultUpdateEntityProvider.getInstance()}
-                , options);
+                , options, returnUpdateResult);
     }
 
-    default IServiceResult deleteById(String dto_name, String[] children
+    default IServiceResult deleteById(String dto_name, String subEntities
             , Serializable id
             , boolean updateChildrenOnly
-            , Boolean physicDelete) throws Exception  {
-        return deleteByIds(dto_name, children, Collections.singleton(id), updateChildrenOnly, physicDelete);
+            , boolean physicDelete) throws Exception  {
+        return deleteByIds(dto_name, ArrayParamUtils.convertStringToArray(subEntities), Collections.singleton(id)
+                , updateChildrenOnly, physicDelete);
     }
 
     default IServiceResult deleteByIds(String dto_name
-            , String[] children
+            , String[] subEntities
             , Set<Serializable> ids
             , boolean updateChildrenOnly
-            , Boolean physicDelete) throws Exception  {
+            , boolean physicDelete) throws Exception  {
         Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, children);
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, subEntities);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
 
         return defaultUpdateObject(ids, dto_name, new IUpdateEntityProvider[]{DefaultDeleteEntitiesProvider.getInstance()}
-                , options);
+                , options, false);
     }
 
     default IServiceResult defaultUpdateMapList(
-            List<Map> mapList, String dto_name, IUpdateEntityProvider[] updateEntityProviders, Map options) throws Exception {
+            List<Map> mapList, String dto_name, IUpdateEntityProvider[] updateEntityProviders, Map options
+            , boolean returnUpdateResult) throws Exception {
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
         String entityName = FieldUtils.parseClassName(dto_name);
         EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
@@ -242,42 +247,47 @@ public interface EnhancedControllerAdapter {
         ObjectMapper objectMapper = new ObjectMapper();
         Object entities = mapList.stream().map(x -> objectMapper.convertValue(x, relationInfo.getDto())).collect(Collectors.toList());
 
-        return defaultUpdateObject(entities, dto_name, relationInfo, updateEntityProviders, options);
+        return defaultUpdateObject(entities, dto_name, relationInfo, updateEntityProviders, options, returnUpdateResult);
     }
 
     default IServiceResult defaultUpdateMap(
-            Map map, String dto_name, String[] updateProvidersNames, Map options) throws Exception {
+            Map map, String dto_name, String[] updateProvidersNames, Map options
+            , boolean returnUpdateResult) throws Exception {
         List<IUpdateEntityProvider> updateEntityProviders = Arrays.stream(updateProvidersNames).map(x -> (IUpdateEntityProvider)getApplicationContext().getBean(x))
                 .collect(Collectors.toList());
         if(updateEntityProviders == null || updateEntityProviders.size() == 0) {
             throw new ResourceNotFoundException("update provider not found");
         }
         IUpdateEntityProvider[] iUpdateEntityProviders = updateEntityProviders.toArray(new IUpdateEntityProvider[updateEntityProviders.size()]);
-        return defaultUpdateMap(map, dto_name, iUpdateEntityProviders, options);
+        return defaultUpdateMap(map, dto_name, iUpdateEntityProviders, options, returnUpdateResult);
     }
 
     default IServiceResult defaultUpdateMap(
-            Map map, String dto_name, IUpdateEntityProvider[] updateEntityProviders, Map options) throws Exception {
+            Map map, String dto_name, IUpdateEntityProvider[] updateEntityProviders, Map options
+            , boolean returnUpdateResult) throws Exception {
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
         String entityName = FieldUtils.parseClassName(dto_name);
         EntityDtoServiceRelation relationInfo = entityDtoServiceRelationMap.getByDtoName(entityName);
         if (relationInfo == null) {
             throw new ResourceNotFoundException(dto_name);
         }
-        return defaultUpdateMap(map, dto_name,  relationInfo, updateEntityProviders, options);
+        return defaultUpdateMap(map, dto_name,  relationInfo, updateEntityProviders, options, returnUpdateResult);
     }
 
     default IServiceResult defaultUpdateMap(
             Map map, String dto_name, EntityDtoServiceRelation relationInfo
-            , IUpdateEntityProvider[] updateEntityProviders, Map options) throws Exception {
+            , IUpdateEntityProvider[] updateEntityProviders, Map options
+            , boolean returnUpdateResult) throws Exception {
 
         Object updateObject = (new ObjectMapper()).convertValue(map, relationInfo.getDto());
-        return defaultUpdateObject(updateObject, dto_name,  relationInfo, updateEntityProviders, options);
+        return defaultUpdateObject(updateObject, dto_name,  relationInfo, updateEntityProviders, options
+                , returnUpdateResult);
     }
 
     default IServiceResult defaultUpdateObject(
             Object updateObject, String dto_name
-            , IUpdateEntityProvider[] updateEntityProviders, Map options) throws Exception {
+            , IUpdateEntityProvider[] updateEntityProviders, Map options
+            , boolean returnUpdateResult) throws Exception {
 
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
         String entityName = FieldUtils.parseClassName(dto_name);
@@ -285,19 +295,20 @@ public interface EnhancedControllerAdapter {
         if (relationInfo == null) {
             throw new ResourceNotFoundException(dto_name);
         }
-        return defaultUpdateObject(updateObject, dto_name,  relationInfo, updateEntityProviders, options);
+        return defaultUpdateObject(updateObject, dto_name,  relationInfo, updateEntityProviders
+                , options, returnUpdateResult);
     }
 
     default IServiceResult defaultUpdateObject(
             Object updateObject, String dto_name, EntityDtoServiceRelation relationInfo
-            , IUpdateEntityProvider[] updateEntityProviders, Map options) throws Exception {
+            , IUpdateEntityProvider[] updateEntityProviders, Map options, boolean returnUpdateResult) throws Exception {
         IServiceResult serviceResult = new DefaultServiceResult();
         BindException errors = null;
         try {
             ICrudService crudService = getCrudService();
             errors = new BindException(updateObject, dto_name);
             Collection<Object> updatedEntities = crudService.updateByProviders(relationInfo
-                    , updateObject, updateEntityProviders, options, errors);
+                    , updateObject, updateEntityProviders, options, returnUpdateResult, errors);
             serviceResult.setData(updatedEntities);
         } catch (ValidateException ex) {
             serviceResult.setData(null);

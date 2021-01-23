@@ -7,7 +7,7 @@ import com.circustar.mvcenhance.utils.MvcEnhanceConstants;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.service.ISelectService;
 import com.circustar.mvcenhance.provider.command.DeleteByIdBatchCommand;
-import com.circustar.mvcenhance.utils.CommonCollectionUtils;
+import com.circustar.mvcenhance.utils.CollectionUtils;
 import com.circustar.mvcenhance.utils.FieldUtils;
 import com.circustar.mvcenhance.utils.MapOptionUtils;
 import org.springframework.validation.BindingResult;
@@ -24,8 +24,8 @@ public class DefaultDeleteEntitiesProvider extends AbstractUpdateEntityProvider 
     public Collection<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation,
                                                    DtoClassInfoHelper dtoClassInfoHelper,
                                                    Object ids, Map options) throws Exception {
-        List<UpdateEntity> result = Collections.emptyList();
-        Collection values = CommonCollectionUtils.convertToCollection(ids);
+        List<UpdateEntity> result = new ArrayList<>();
+        Collection values = CollectionUtils.convertToCollection(ids);
         if(values.size() == 0) {return result;}
 
         String[] subEntities = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, new String[]{});
@@ -48,7 +48,7 @@ public class DefaultDeleteEntitiesProvider extends AbstractUpdateEntityProvider 
                     }
                     String keyProperty = dtoField.getDtoClassInfo().getEntityClassInfo().getTableInfo().getKeyProperty();
                     List<Object> subIds = new ArrayList<>();
-                    Collection entityList = CommonCollectionUtils.convertToCollection(entity);
+                    Collection entityList = CollectionUtils.convertToCollection(entity);
                     if(entityList.size() == 0) {continue;}
                     for (Object obj : entityList) {
                         subIds.add(FieldUtils.getValueByName(obj, keyProperty));

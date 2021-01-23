@@ -9,5 +9,4 @@ public @interface Selector {
     String masterTableColumn() default "";
     Connector connector() default Connector.eq;
     String[] valueExpression() default "";
-    //String directSql() default "";
 }

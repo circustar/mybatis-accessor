@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,6 +21,8 @@ public class DtoClassInfo {
     private EntityClassInfo entityClassInfo;
     private String joinTables;
     private String jointColumns;
+    private DtoField versionField;
+    private Object versionDefaultValue;
     public DtoClassInfo(IEntityDtoServiceRelationMap relationMap, Class<?> clazz, EntityClassInfo entityClassInfo) {
         this.clazz = clazz;
         this.relationMap = relationMap;
@@ -28,6 +32,7 @@ public class DtoClassInfo {
         this.normalFieldList = new ArrayList<>();
         this.dtoFieldMap = new HashMap<>();
 
+        String versionPropertyName = entityClassInfo.getTableInfo().getVersionFieldInfo().getProperty();
         Arrays.stream(clazz.getDeclaredFields()).forEach(x -> {
             FieldTypeInfo fieldTypeInfo = FieldTypeInfo.parseField(this.clazz, x);
             EntityDtoServiceRelation relation = relationMap.getByDtoClass((Class)fieldTypeInfo.getActualType());
@@ -38,6 +43,10 @@ public class DtoClassInfo {
             } else {
                 dtoField = new DtoField(x.getName(), fieldTypeInfo, this, null);
                 normalFieldList.add(dtoField);
+                if(versionPropertyName.equals(x.getName())) {
+                    this.versionField = dtoField;
+                    this.versionDefaultValue = getDefaultVersionByType(fieldTypeInfo.getField().getType());
+                }
             }
             this.dtoFieldMap.put(x.getName(), dtoField);
         });
@@ -123,6 +132,33 @@ public class DtoClassInfo {
     public DtoField getDtoField(String name) {
         if(dtoFieldMap.containsKey(name)) {
             return dtoFieldMap.get(name);
+        }
+        return null;
+    }
+
+    public DtoField getVersionField() {
+        return versionField;
+    }
+
+    public Object getVersionDefaultValue() {
+        return versionDefaultValue;
+    }
+
+    private Object getDefaultVersionByType(Class<?> clazz) {
+        if(clazz == int.class) {
+            return 1;
+        } else if(clazz == Integer.class) {
+            return 1;
+        } else if(clazz == long.class) {
+            return 1l;
+        } else if(clazz == Long.class) {
+            return 1l;
+        } else if(clazz == Date.class) {
+            return new Date();
+        } else if(clazz == Timestamp.class) {
+            return Timestamp.valueOf(LocalDateTime.now());
+        } else if(clazz == LocalDateTime.class) {
+            return LocalDateTime.now();
         }
         return null;
     }

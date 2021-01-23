@@ -15,6 +15,7 @@ import com.circustar.mvcenhance.classInfo.DtoFields;
 import com.circustar.mvcenhance.mapper.MybatisPlusMapper;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;
+import com.circustar.mvcenhance.utils.AnnotationUtils;
 import com.circustar.mvcenhance.utils.FieldUtils;
 import org.springframework.context.ApplicationContext;
 
@@ -66,7 +67,7 @@ public class SelectService implements ISelectService {
 
         Map<String, Selector[]> tableJoinerMap = new HashMap<>();
         List<String> noAnnotationInfoList = new ArrayList<>();
-        FieldUtils.parseFieldAnnotationToMap(subFields, Selector.class
+        AnnotationUtils.parseFieldAnnotationToMap(subFields, Selector.class
                 , tableJoinerMap, noAnnotationInfoList);
 
         DtoFields.queryAndAssignDtoField(applicationContext, dtoClassInfoHelper, entityDtoServiceRelationMap

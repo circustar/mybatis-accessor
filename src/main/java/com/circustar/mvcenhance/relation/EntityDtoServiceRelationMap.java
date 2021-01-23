@@ -7,9 +7,9 @@ import java.util.Map;
 
 public class EntityDtoServiceRelationMap implements IEntityDtoServiceRelationMap {
     private List<EntityDtoServiceRelation> entityDtoServiceRelationList = new ArrayList<>();
-//    private Map<Class, EntityDtoServiceRelation> entityMap = new HashMap<>();
+
     private Map<Class, EntityDtoServiceRelation> dtoMap = new HashMap<>();
-//    private Map<String, EntityDtoServiceRelation> entityNameMap = new HashMap<>();
+
     private Map<String, EntityDtoServiceRelation> dtoNameMap = new HashMap<>();
 
     public EntityDtoServiceRelationMap(){
@@ -18,7 +18,6 @@ public class EntityDtoServiceRelationMap implements IEntityDtoServiceRelationMap
     public void addRelation(EntityDtoServiceRelation relation) {
         entityDtoServiceRelationList.add(relation);
         dtoMap.put(relation.getDto(), relation);
-//            entityNameMap.put(x.getEntity().getSimpleName(), x);
         dtoNameMap.put(relation.getDto().getSimpleName(), relation);
     }
 
@@ -36,23 +35,10 @@ public class EntityDtoServiceRelationMap implements IEntityDtoServiceRelationMap
         dtoMap.clear();
         dtoNameMap.clear();
         entityDtoServiceRelationList.stream().forEach(x -> {
-//            entityMap.put(x.getEntity(), x);
             dtoMap.put(x.getDto(), x);
-//            entityNameMap.put(x.getEntity().getSimpleName(), x);
             dtoNameMap.put(x.getDto().getSimpleName(), x);
         });
     };
-
-//    @Override
-//    public EntityDtoServiceRelation getByEntityClass(Class entityClass) {
-//
-//        return entityMap.get(entityClass);
-//    }
-//
-//    @Override
-//    public EntityDtoServiceRelation getByEntityName(String entityName) {
-//        return entityNameMap.get(entityName);
-//    }
 
     @Override
     public EntityDtoServiceRelation getByDtoClass(Class entityClass) {

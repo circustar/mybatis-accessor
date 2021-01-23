@@ -7,7 +7,7 @@ import com.circustar.mvcenhance.classInfo.DtoField;
 import com.circustar.mvcenhance.utils.MvcEnhanceConstants;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.provider.command.*;
-import com.circustar.mvcenhance.utils.CommonCollectionUtils;
+import com.circustar.mvcenhance.utils.CollectionUtils;
 import com.circustar.mvcenhance.utils.FieldUtils;
 import com.circustar.mvcenhance.utils.MapOptionUtils;
 
@@ -22,8 +22,8 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
     public Collection<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation,
                                                          DtoClassInfoHelper dtoClassInfoHelper,
                                                          Object entity, Map options) throws Exception {
-        List<UpdateEntity> result = Collections.emptyList();
-        Collection values = CommonCollectionUtils.convertToCollection(entity);
+        List<UpdateEntity> result = new ArrayList<>();
+        Collection values = CollectionUtils.convertToCollection(entity);
         if(values.size() == 0) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDto());
@@ -60,13 +60,13 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                     updateEntity.addSubUpdateEntity(new UpdateEntity(applicationContext.getBean(subDtoField.getEntityDtoServiceRelation().getService())
                             , DeleteWrapperCommand.getInstance()
                             , physicDelete
-                            , subDtoField.getDtoClassInfo().getEntityClassInfo()
+                            , dtoClassInfoHelper.getDtoClassInfo(subDtoField.getEntityDtoServiceRelation().getDto()).getEntityClassInfo()
                             , Collections.singleton(qw)
                             , true
                             , false));
                     containSubEntities = true;
                 }
-                Collection subEntityList = CommonCollectionUtils.convertToCollection(subEntity);
+                Collection subEntityList = CollectionUtils.convertToCollection(subEntity);
                 if(subEntityList.size() == 0) {continue;}
                 containSubEntities = true;
                 Map newOptions = new HashMap(options);

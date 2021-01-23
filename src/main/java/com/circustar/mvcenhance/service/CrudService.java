@@ -26,7 +26,7 @@ public class CrudService implements ICrudService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Collection<Object> updateByProviders(EntityDtoServiceRelation relationInfo, Object object, IUpdateEntityProvider[] updateEntityProviders, Map options, BindingResult bindingResult) throws Exception {
+    public Collection<Object> updateByProviders(EntityDtoServiceRelation relationInfo, Object object, IUpdateEntityProvider[] updateEntityProviders, Map options, boolean returnUpdateResult, BindingResult bindingResult) throws Exception {
         List<Object> updatedObjects = new ArrayList<>();
         for(IUpdateEntityProvider provider : updateEntityProviders) {
             provider.validateAndSet(object, bindingResult, options);
@@ -52,6 +52,9 @@ public class CrudService implements ICrudService {
                 } catch (Exception ex) {
                 }
             }
+        }
+        if(!returnUpdateResult) {
+            return null;
         }
 
         return dtoClassInfoHelper.convertFromEntityList(updatedObjects, relationInfo.getDto());

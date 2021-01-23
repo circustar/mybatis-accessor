@@ -6,7 +6,6 @@ public enum CollectionType {
     collection(Collection.class, ArrayList.class),
     abstractCollection(AbstractCollection.class, ArrayList.class),
     list(List.class, ArrayList.class),
-    //enumSet(EnumSet.class),
     abstractList(AbstractList.class, ArrayList.class),
     set(Set.class, HashSet.class),
     sortedSet(SortedSet.class, TreeSet.class),

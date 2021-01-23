@@ -5,14 +5,14 @@ import java.util.Map;
 
 public class MapOptionUtils {
     public static <T> T getValue(Map map, Object key, T defaultValue) {
-        if(map == null) {
+        if(map == null  || key == null) {
             return defaultValue;
         }
         if(map.containsKey(key)) {
             T res = (T) map.get(key);
             return res == null? defaultValue : res;
         }
-        return null;
+        return defaultValue;
     }
     public static Map copy(Map map) {
         if(map == null) {
