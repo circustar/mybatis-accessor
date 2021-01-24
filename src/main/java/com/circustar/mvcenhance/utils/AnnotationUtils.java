@@ -21,9 +21,22 @@ public class AnnotationUtils {
     }
 
 
-    public static <T extends Annotation> T[] getFieldAnnotationByName(Object obj, String name, Class<T> clazz) throws NoSuchFieldException {
-        Field f = obj.getClass().getDeclaredField(name);
-        return f.getAnnotationsByType(clazz);
+    public static <T extends Annotation> T[] getFieldAnnotationsByName(Object obj, String name, Class<T> clazz) throws NoSuchFieldException {
+        Field field = obj.getClass().getDeclaredField(name);
+        return getFieldAnnotationsByName(field, clazz);
+    }
+
+    public static <T extends Annotation> T[] getFieldAnnotationsByName(Field field, Class<T> clazz) { ;
+        return field.getAnnotationsByType(clazz);
+    }
+
+    public static <T extends Annotation> T getFieldAnnotation(Object obj, String name, Class<T> clazz) throws NoSuchFieldException {
+        Field field = obj.getClass().getDeclaredField(name);
+        return getFieldAnnotation(field, clazz);
+    }
+
+    public static <T extends Annotation> T getFieldAnnotation(Field field, Class<T> clazz) {
+        return field.getAnnotation(clazz);
     }
 
     public static <T extends Annotation> void parseFieldAnnotationToMap(List<Field> fields

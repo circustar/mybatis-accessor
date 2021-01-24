@@ -93,8 +93,8 @@ public class MvcEnhancementConfiguration {
     }
 
     @Bean
-    public DefaultUpdateEntityProvider getDefaultUpdateEntityProvider() {
-        return DefaultUpdateEntityProvider.getInstance();
+    public DefaultUpdateEntitiesProvider getDefaultUpdateEntityProvider() {
+        return DefaultUpdateEntitiesProvider.getInstance();
     }
 
     @Bean

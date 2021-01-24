@@ -153,8 +153,8 @@ public class TestController implements IControllerAdapter {
     public IServiceResult testDeleteById(@PathVariable("dto_name") String dto_name
             , @PathVariable("id") String id
             , @RequestParam(value = "sub_entities", required = false) String sub_entities
-            , @RequestParam(value = "physic_delete", required = false) Boolean physic_delete) throws Exception {
-        return deleteById( dto_name ,id, sub_entities, physic_delete== null?false:physic_delete);
+            , @RequestParam(value = "physic_delete", required = false) Boolean physicDelete) throws Exception {
+        return deleteById( dto_name ,id, sub_entities, physicDelete== null?false:physicDelete);
     }
 
     /*
@@ -165,8 +165,8 @@ public class TestController implements IControllerAdapter {
     public IServiceResult removeByIds(@PathVariable("dto_name") String dto_name
             , @RequestBody List<Serializable> ids
             , @RequestParam(value = "sub_entities", required = false) String sub_entities
-            , @RequestParam(value = "physic_delete", required = false) Boolean physic_delete) throws Exception  {
-        return deleteByIds( dto_name ,ids, sub_entities, physic_delete== null?false:physic_delete);
+            , @RequestParam(value = "physic_delete", required = false) Boolean physicDelete) throws Exception  {
+        return deleteByIds( dto_name ,ids, sub_entities, physicDelete== null?false:physicDelete);
     }
 
     /*
@@ -188,11 +188,11 @@ public class TestController implements IControllerAdapter {
             , @PathVariable("id") Serializable id
             , @RequestBody Map map
             , @RequestParam(value = "sub_entities", required = false)String children
-            , @RequestParam(value = "remove_and_insert", required = false) Boolean remove_and_insert
-            , @RequestParam(value = "physic_delete", required = false) Boolean physic_delete) throws Exception {
+            , @RequestParam(value = "remove_and_insert_new_child", required = false) Boolean removeAndInsertNewChild
+            , @RequestParam(value = "physic_delete", required = false) Boolean physicDelete) throws Exception {
         return update(dto_name , id, map, children
-                , remove_and_insert == null?false:remove_and_insert
-                , physic_delete== null?false:physic_delete);
+                , removeAndInsertNewChild == null?false:removeAndInsertNewChild
+                , physicDelete== null?false:physicDelete);
     }
 
     /*
@@ -219,14 +219,14 @@ public class TestController implements IControllerAdapter {
             , @PathVariable("id") Serializable id
             , @RequestBody List<Map> mapList
             , @RequestParam(value = "child", required = false)String child
-            , @RequestParam(value = "remove_and_insert", required = false) Boolean remove_and_insert
-            , @RequestParam(value = "physic_delete", required = false) Boolean physic_delete) throws Exception {
+            , @RequestParam(value = "remove_and_insert_new_child", required = false) Boolean removeAndInsertNewChild
+            , @RequestParam(value = "physic_delete", required = false) Boolean physicDelete) throws Exception {
         return updatechildren(dto_name
                 , id
                 , mapList
                 , child
-                , remove_and_insert
-                , physic_delete);
+                , removeAndInsertNewChild
+                , physicDelete);
     }
 
     /*

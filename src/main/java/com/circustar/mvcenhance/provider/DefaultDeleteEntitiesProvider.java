@@ -28,7 +28,7 @@ public class DefaultDeleteEntitiesProvider extends AbstractUpdateEntityProvider 
         Collection values = CollectionUtils.convertToCollection(ids);
         if(values.size() == 0) {return result;}
 
-        String[] children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, new String[]{});
+        String[] children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, new String[]{});
         boolean updateChildrenOnly = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
         boolean physicDelete = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, false);
 
@@ -55,7 +55,7 @@ public class DefaultDeleteEntitiesProvider extends AbstractUpdateEntityProvider 
                     }
                     Map newOptions = new HashMap(options);
                     newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
-                    newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, this.getChildren(children
+                    newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, this.getChildren(children
                             , entityName, "."));
                     result.addAll(this.createUpdateEntities(
                             dtoField.getEntityDtoServiceRelation()
@@ -69,7 +69,7 @@ public class DefaultDeleteEntitiesProvider extends AbstractUpdateEntityProvider 
             result.add(new UpdateEntity(applicationContext.getBean(relation.getService())
                     , DeleteByIdBatchCommand.getInstance()
                     , physicDelete
-                    , dtoClassInfo.getEntityClassInfo()
+                    , null //dtoClassInfo.getEntityClassInfo()
                     , values
                     , true
                     , false));

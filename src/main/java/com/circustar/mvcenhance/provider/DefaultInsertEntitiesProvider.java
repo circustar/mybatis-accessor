@@ -20,18 +20,18 @@ public class DefaultInsertEntitiesProvider extends AbstractUpdateEntityProvider 
 
     @Override
     public Collection<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation
-            , DtoClassInfoHelper dtoClassInfoHelper, Object object, Map options) throws Exception {
+            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options) throws Exception {
         List<UpdateEntity> result = new ArrayList<>();
-        Collection values = CollectionUtils.convertToCollection(object);
+        Collection values = CollectionUtils.convertToCollection(dto);
         if(values.size() == 0) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDto());
-        boolean insertAllEntities = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_INSERT_ALL_SUB_ENTITIES, false);
+        boolean insertAllEntities = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_INSERT_ALL_CHILDREN, false);
         String[] children;
         if(insertAllEntities) {
             children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getSubDtoFieldList().stream().map(x -> x.getFieldName()));
         } else {
-            children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, new String[]{});
+            children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, new String[]{});
         }
         boolean updateChildrenOnly = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
 
@@ -62,7 +62,7 @@ public class DefaultInsertEntitiesProvider extends AbstractUpdateEntityProvider 
                 hasChildren = true;
                 Map newOptions = new HashMap(options);
                 newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
-                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, this.getChildren(children
+                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, this.getChildren(children
                         , entityName, "."));
                 updateEntity.addSubUpdateEntities(this.createUpdateEntities(
                         dtoField.getEntityDtoServiceRelation()

@@ -3,8 +3,10 @@ package com.circustar.mvcenhance.classInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.circustar.mvcenhance.annotation.DeleteFlag;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;
+import com.circustar.mvcenhance.utils.AnnotationUtils;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -23,6 +25,8 @@ public class DtoClassInfo {
     private String jointColumns;
     private DtoField versionField;
     private Object versionDefaultValue;
+    private DtoField keyField;
+    private DtoField deleteFlagField;
     public DtoClassInfo(IEntityDtoServiceRelationMap relationMap, Class<?> clazz, EntityClassInfo entityClassInfo) {
         this.clazz = clazz;
         this.relationMap = relationMap;
@@ -33,6 +37,7 @@ public class DtoClassInfo {
         this.dtoFieldMap = new HashMap<>();
 
         String versionPropertyName = entityClassInfo.getTableInfo().getVersionFieldInfo().getProperty();
+        String keyProperty = entityClassInfo.getTableInfo().getKeyProperty();
         Arrays.stream(clazz.getDeclaredFields()).forEach(x -> {
             FieldTypeInfo fieldTypeInfo = FieldTypeInfo.parseField(this.clazz, x);
             EntityDtoServiceRelation relation = relationMap.getByDtoClass((Class)fieldTypeInfo.getActualType());
@@ -47,6 +52,13 @@ public class DtoClassInfo {
                     this.versionField = dtoField;
                     this.versionDefaultValue = getDefaultVersionByType(fieldTypeInfo.getField().getType());
                 }
+            }
+            if(x.getName().equals(keyProperty)) {
+                this.keyField = dtoField;
+            }
+            DeleteFlag deleteFlagAnnotation = AnnotationUtils.getFieldAnnotation(fieldTypeInfo.getField(), DeleteFlag.class);
+            if(deleteFlagAnnotation != null) {
+                this.deleteFlagField = dtoField;
             }
             this.dtoFieldMap.put(x.getName(), dtoField);
         });
@@ -161,5 +173,13 @@ public class DtoClassInfo {
             return LocalDateTime.now();
         }
         return null;
+    }
+
+    public DtoField getKeyField() {
+        return keyField;
+    }
+
+    public DtoField getDeleteFlagField() {
+        return deleteFlagField;
     }
 }

@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.ApplicationContext;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -163,7 +162,7 @@ public interface EnhancedControllerAdapter {
             , String children
             , boolean updateChildrenOnly) throws Exception {
         Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, ArrayParamUtils.convertStringToArray(children));
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         return defaultUpdateMap(map, dto_name, new IUpdateEntityProvider[]{DefaultInsertEntitiesProvider.getInstance()}
                 , options, true);
@@ -175,7 +174,7 @@ public interface EnhancedControllerAdapter {
             , boolean updateChildrenOnly
             , boolean returnUpdateResult) throws Exception {
         Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, ArrayParamUtils.convertStringToArray(children));
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         return defaultUpdateMapList(mapList, dto_name, new IUpdateEntityProvider[]{DefaultInsertEntitiesProvider.getInstance()}
                 , options, returnUpdateResult);
@@ -185,31 +184,31 @@ public interface EnhancedControllerAdapter {
             , String children
             , Map map
             , boolean updateChildrenOnly
-            , boolean remove_and_insert
+            , boolean removeAndInsertNewChild
             , boolean physicDelete) throws Exception {
         Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, ArrayParamUtils.convertStringToArray(children));
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_BEFORE_UPDATE, remove_and_insert);
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_AND_INSERT, removeAndInsertNewChild);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
-        return defaultUpdateMap(map, dtoName, new IUpdateEntityProvider[]{DefaultUpdateEntityProvider.getInstance()}
+        return defaultUpdateMap(map, dtoName, new IUpdateEntityProvider[]{DefaultUpdateEntitiesProvider.getInstance()}
                 , options, true);
     }
 
     default IServiceResult updateEntities(String dto_name, String children
             , List<Map> mapList
             , boolean updateChildrenOnly
-            , boolean remove_and_insert
+            , boolean removeAndInsertNewChild
             , boolean physicDelete
             , boolean returnUpdateResult) throws Exception {
         Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, ArrayParamUtils.convertStringToArray(children));
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_BEFORE_UPDATE, remove_and_insert);
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_AND_INSERT, removeAndInsertNewChild);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
-        return defaultUpdateMapList(mapList, dto_name, new IUpdateEntityProvider[]{DefaultUpdateEntityProvider.getInstance()}
+        return defaultUpdateMapList(mapList, dto_name, new IUpdateEntityProvider[]{DefaultUpdateEntitiesProvider.getInstance()}
                 , options, returnUpdateResult);
     }
 
@@ -227,7 +226,7 @@ public interface EnhancedControllerAdapter {
             , boolean updateChildrenOnly
             , boolean physicDelete) throws Exception  {
         Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, children);
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, children);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
 
