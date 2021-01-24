@@ -7,10 +7,11 @@ import com.baomidou.mybatisplus.core.toolkit.sql.SqlScriptUtils;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlSource;
 
-public class PhysicDeleteBatchByIds extends AbstractMethod {
+public class PhysicDeleteBatchByIds extends PhysicDelete {
     public PhysicDeleteBatchByIds() {
     }
 
+    @Override
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
         String method = "physicDeleteBatchByIds";
         SqlSource sqlSource;

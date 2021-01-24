@@ -43,7 +43,7 @@ public abstract class AbstractUpdateEntityProvider implements IUpdateEntityProvi
         }
     };
 
-    protected String[] getSubEntities(String[] entities, String prefix, String delimeter) {
+    protected String[] getChildren(String[] entities, String prefix, String delimeter) {
         List<String> entityList = Arrays.stream(entities)
                 .filter(x -> !StringUtils.isEmpty(x) && x.startsWith(prefix + delimeter))
                 .map(x -> x.substring((prefix + delimeter).length()))

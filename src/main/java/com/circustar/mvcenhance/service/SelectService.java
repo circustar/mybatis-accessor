@@ -40,14 +40,14 @@ public class SelectService implements ISelectService {
     @Override
     public Object getDtoById(EntityDtoServiceRelation relationInfo
             , Serializable id
-            , String[] subEntities) throws Exception {
-        return getDtoById(relationInfo, id, subEntities, "");
+            , String[] children) throws Exception {
+        return getDtoById(relationInfo, id, children, "");
     }
 
     @Override
     public Object getDtoById(EntityDtoServiceRelation relationInfo
             , Serializable id
-            , String[] subEntities
+            , String[] children
             , String queryGroup) throws Exception {
         IService s = applicationContext.getBean(relationInfo.getService());
         Object oriEntity = s.getById(id);
@@ -55,15 +55,15 @@ public class SelectService implements ISelectService {
             return null;
         }
         Object result = this.dtoClassInfoHelper.convertFromEntity(oriEntity, relationInfo.getDto());
-        List<String> subEntityList;
-        if(subEntities == null) {
-//            subEntityList = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto())
+        List<String> childList;
+        if(children == null) {
+//            childList = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto())
 //                    .getSubDtoFieldList().stream().map(x -> x.getFieldName()).collect(Collectors.toList());
-            subEntityList = Collections.emptyList();
+            childList = Collections.emptyList();
         } else {
-            subEntityList = Arrays.asList(subEntities);
+            childList = Arrays.asList(children);
         }
-        List<Field> subFields = FieldUtils.getExistFields(result, subEntityList, false);
+        List<Field> subFields = FieldUtils.getExistFields(result, childList, false);
 
         Map<String, Selector[]> tableJoinerMap = new HashMap<>();
         List<String> noAnnotationInfoList = new ArrayList<>();
@@ -113,7 +113,7 @@ public class SelectService implements ISelectService {
         Page page = new Page(page_index, page_size);
         IPage pageResult = null;
 
-        if (dtoClassInfo.containSubEntity()) {
+        if (dtoClassInfo.containchild()) {
             pageResult = ((MybatisPlusMapper) service.getBaseMapper()).selectPageWithJoin(page, qw, dtoClassInfo.getJoinTables(), dtoClassInfo.getJointColumns());
         } else {
             pageResult = service.page(page, qw);
@@ -147,7 +147,7 @@ public class SelectService implements ISelectService {
         QueryFieldModel.setQueryWrapper(tableInfo.getTableName()
                 ,queryFiledModelList, qw);
         List entityList = null;
-        if (dtoClassInfo.containSubEntity()) {
+        if (dtoClassInfo.containchild()) {
             entityList = ((MybatisPlusMapper)service.getBaseMapper()).selectListWithJoin(qw, dtoClassInfo.getJoinTables(), dtoClassInfo.getJointColumns());
         } else {
             entityList = service.list(qw);

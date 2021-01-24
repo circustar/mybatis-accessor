@@ -10,11 +10,11 @@ import java.util.List;
 public interface ISelectService {
     Object getDtoById(EntityDtoServiceRelation relationInfo
             , Serializable id
-            , String[] subEntities) throws Exception;
+            , String[] children) throws Exception;
 
     Object getDtoById(EntityDtoServiceRelation relationInfo
             , Serializable id
-            , String[] subEntities
+            , String[] children
             , String queryGroup) throws Exception;
 
     <T> PageInfo<T> getPagesByDtoAnnotation(EntityDtoServiceRelation relationInfo

@@ -17,7 +17,7 @@ public class FieldUtils {
                 .collect(Collectors.joining());
     }
 
-    public static List<String> parseSubEntityNames(String names) {
+    public static List<String> parsechildNames(String names) {
         return Arrays.stream(names.replace(" ", "").split(","))
                 .map(x -> unCap(x)).collect(Collectors.toList());
     }

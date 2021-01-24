@@ -27,16 +27,16 @@ public class DefaultInsertEntitiesProvider extends AbstractUpdateEntityProvider 
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDto());
         boolean insertAllEntities = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_INSERT_ALL_SUB_ENTITIES, false);
-        String[] subEntities;
+        String[] children;
         if(insertAllEntities) {
-            subEntities = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getSubDtoFieldList().stream().map(x -> x.getFieldName()));
+            children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getSubDtoFieldList().stream().map(x -> x.getFieldName()));
         } else {
-            subEntities = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, new String[]{});
+            children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, new String[]{});
         }
         boolean updateChildrenOnly = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
 
-        String[] topEntities = this.getTopEntities(subEntities, ".");
-        boolean containSubEntities = false;
+        String[] topEntities = this.getTopEntities(children, ".");
+        boolean hasChildren = false;
 
         List<Object> updateTargetList = new ArrayList<>();
         for(Object value : values) {
@@ -57,21 +57,21 @@ public class DefaultInsertEntitiesProvider extends AbstractUpdateEntityProvider 
             for(String entityName : topEntities) {
                 DtoField dtoField = dtoClassInfo.getDtoField(entityName);
                 Object subValue = FieldUtils.getValue(value, dtoField.getFieldTypeInfo().getField());
-                Collection subEntityList = CollectionUtils.convertToCollection(subValue);
-                if(subEntityList.size() == 0) {continue;}
-                containSubEntities = true;
+                Collection childList = CollectionUtils.convertToCollection(subValue);
+                if(childList.size() == 0) {continue;}
+                hasChildren = true;
                 Map newOptions = new HashMap(options);
                 newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
-                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, this.getSubEntities(subEntities
+                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, this.getChildren(children
                         , entityName, "."));
                 updateEntity.addSubUpdateEntities(this.createUpdateEntities(
                         dtoField.getEntityDtoServiceRelation()
-                        , dtoClassInfoHelper, subEntityList, newOptions));
+                        , dtoClassInfoHelper, childList, newOptions));
             }
             result.add(updateEntity);
         }
 
-        if(!containSubEntities) {
+        if(!hasChildren) {
             if(updateChildrenOnly) {
                 return Collections.emptyList();
             } else {

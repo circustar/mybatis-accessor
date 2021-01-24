@@ -21,21 +21,21 @@ public class DefaultDeleteEntitiesProvider extends AbstractUpdateEntityProvider 
         return instance;
     }
     @Override
-    public Collection<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation,
-                                                   DtoClassInfoHelper dtoClassInfoHelper,
-                                                   Object ids, Map options) throws Exception {
+    public Collection<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation
+            ,DtoClassInfoHelper dtoClassInfoHelper,Object ids, Map options)
+            throws Exception {
         List<UpdateEntity> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(ids);
         if(values.size() == 0) {return result;}
 
-        String[] subEntities = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, new String[]{});
+        String[] children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, new String[]{});
         boolean updateChildrenOnly = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
         boolean physicDelete = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, false);
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDto());
         ISelectService selectService = applicationContext.getBean(ISelectService.class);
 
-        String[] topEntities = this.getTopEntities(subEntities, ".");
+        String[] topEntities = this.getTopEntities(children, ".");
         if(topEntities.length > 0) {
             for (Object id : values) {
                 Object object = selectService.getDtoById(relation, (Serializable) id
@@ -55,13 +55,11 @@ public class DefaultDeleteEntitiesProvider extends AbstractUpdateEntityProvider 
                     }
                     Map newOptions = new HashMap(options);
                     newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
-                    newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, this.getSubEntities(subEntities
+                    newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_SUB_ENTITY_LIST, this.getChildren(children
                             , entityName, "."));
                     result.addAll(this.createUpdateEntities(
                             dtoField.getEntityDtoServiceRelation()
-                            , dtoClassInfoHelper
-                            , subIds
-                            , newOptions
+                            , dtoClassInfoHelper, subIds, newOptions
                     ));
                 }
             }

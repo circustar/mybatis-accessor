@@ -9,10 +9,11 @@ import org.apache.ibatis.mapping.SqlSource;
 
 import java.util.Map;
 
-public class PhysicDeleteByMap extends AbstractMethod {
+public class PhysicDeleteByMap extends PhysicDelete {
     public PhysicDeleteByMap() {
     }
 
+    @Override
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
         String method = "physicDeleteByMap";
         SqlSource sqlSource;

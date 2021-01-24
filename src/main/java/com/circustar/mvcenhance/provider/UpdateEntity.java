@@ -20,14 +20,14 @@ public class UpdateEntity {
         this.updateCommand = updateCommand;
         this.service = service;
         this.updateEntities = updateEntities;
-        this.updateSubEntityFirst = updateChildrenFirst;
+        this.updatechildFirst = updateChildrenFirst;
         this.entityClassInfo = entityClassInfo;
         this.updateChildrenOnly = updateChildrenOnly;
     }
     private Object option;
     private IUpdateCommand updateCommand;
     private IService service;
-    private Boolean updateSubEntityFirst;
+    private Boolean updatechildFirst;
     private Collection updateEntities;
     private List<UpdateEntity> subUpdateEntities;
     private EntityClassInfo entityClassInfo;
@@ -59,7 +59,7 @@ public class UpdateEntity {
 
     protected boolean execUpdate(Map<String, Object> keyMap) throws Exception {
         boolean result = true;
-        if(updateSubEntityFirst && subUpdateEntities != null) {
+        if(updatechildFirst && subUpdateEntities != null) {
             for(UpdateEntity subUpdateEntity : subUpdateEntities) {
                 result = subUpdateEntity.execUpdate(keyMap);
                 if(!result) {
@@ -67,14 +67,16 @@ public class UpdateEntity {
                 }
             }
         }
-        for(String keyProperty : keyMap.keySet()) {
-            FieldTypeInfo fieldTypeInfo = entityClassInfo.getFieldByName(keyProperty);
-            if(fieldTypeInfo == null) {
-                continue;
-            }
-            Object keyValue = keyMap.get(keyProperty);
-            for (Object updateEntity : updateEntities) {
-                FieldUtils.setField(updateEntity, fieldTypeInfo.getField(), keyValue);
+        if(entityClassInfo != null) {
+            for (String keyProperty : keyMap.keySet()) {
+                FieldTypeInfo fieldTypeInfo = entityClassInfo.getFieldByName(keyProperty);
+                if (fieldTypeInfo == null) {
+                    continue;
+                }
+                Object keyValue = keyMap.get(keyProperty);
+                for (Object updateEntity : updateEntities) {
+                    FieldUtils.setField(updateEntity, fieldTypeInfo.getField(), keyValue);
+                }
             }
         }
         if(!updateChildrenOnly) {
@@ -82,16 +84,18 @@ public class UpdateEntity {
             if (!result) return false;
         }
 
-        Optional firstEntity = updateEntities.stream().findFirst();
-        if(firstEntity.isPresent()) {
-            String keyProperty = entityClassInfo.getTableInfo().getKeyProperty();
-            Object masterKeyValue = FieldUtils.getValueByName(firstEntity.get(), keyProperty);
-            if(!keyMap.containsKey(keyProperty)) {
-                keyMap.put(keyProperty, masterKeyValue);
+        if(entityClassInfo != null) {
+            Optional firstEntity = updateEntities.stream().findFirst();
+            if (firstEntity.isPresent()) {
+                String keyProperty = entityClassInfo.getTableInfo().getKeyProperty();
+                Object masterKeyValue = FieldUtils.getValueByName(firstEntity.get(), keyProperty);
+                if (!keyMap.containsKey(keyProperty)) {
+                    keyMap.put(keyProperty, masterKeyValue);
+                }
             }
         }
 
-        if((!updateSubEntityFirst) && subUpdateEntities != null) {
+        if((!updatechildFirst) && subUpdateEntities != null) {
             for(UpdateEntity subUpdateEntity : subUpdateEntities) {
                 result = subUpdateEntity.execUpdate(keyMap);
                 if(!result) {

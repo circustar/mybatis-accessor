@@ -187,10 +187,10 @@ public class TestController implements IControllerAdapter {
     public IServiceResult testUpdate(@PathVariable("dto_name") String dto_name
             , @PathVariable("id") Serializable id
             , @RequestBody Map map
-            , @RequestParam(value = "sub_entities", required = false)String subEntities
+            , @RequestParam(value = "sub_entities", required = false)String children
             , @RequestParam(value = "remove_and_insert", required = false) Boolean remove_and_insert
             , @RequestParam(value = "physic_delete", required = false) Boolean physic_delete) throws Exception {
-        return update(dto_name , id, map, subEntities
+        return update(dto_name , id, map, children
                 , remove_and_insert == null?false:remove_and_insert
                 , physic_delete== null?false:physic_delete);
     }
@@ -209,22 +209,22 @@ public class TestController implements IControllerAdapter {
     }
 
     /*
-     *** 只更新一个实体（通过id指定）的级联对象updateSubEntityList
-     *** subEntityName指定更新级联对象
-     *** subEntityRemoveAndInsert为true时级联对象先删除再插入
-     *** subEntityPhysicDelete为true时物理删除
+     *** 只更新一个实体（通过id指定）的级联对象updatechildList
+     *** childName指定更新级联对象
+     *** childRemoveAndInsert为true时级联对象先删除再插入
+     *** childPhysicDelete为true时物理删除
      */
-    @PostMapping("/entity/{dto_name}/{id}/subentity")
-    public IServiceResult testuUdateSubEntities(@PathVariable("dto_name") String dto_name
+    @PostMapping("/entity/{dto_name}/{id}/child")
+    public IServiceResult testuUdatechildren(@PathVariable("dto_name") String dto_name
             , @PathVariable("id") Serializable id
             , @RequestBody List<Map> mapList
-            , @RequestParam(value = "subEntity", required = false)String subEntity
+            , @RequestParam(value = "child", required = false)String child
             , @RequestParam(value = "remove_and_insert", required = false) Boolean remove_and_insert
             , @RequestParam(value = "physic_delete", required = false) Boolean physic_delete) throws Exception {
-        return updateSubEntities(dto_name
+        return updatechildren(dto_name
                 , id
                 , mapList
-                , subEntity
+                , child
                 , remove_and_insert
                 , physic_delete);
     }

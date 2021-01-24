@@ -30,24 +30,24 @@ public class DtoFields {
         return result;
     }
 
-    public static List<DtoFieldInfo> getDtoFieldInfoList(IEntityDtoServiceRelationMap relationMap, EntityDtoServiceRelation e, List<String> subEntityList) {
+    public static List<DtoFieldInfo> getDtoFieldInfoList(IEntityDtoServiceRelationMap relationMap, EntityDtoServiceRelation e, List<String> childList) {
         List<DtoFieldInfo> result = new ArrayList<DtoFieldInfo>();
-        for(String eName : subEntityList) {
-            DtoFieldInfo subEntity = getDtoFieldInfo(relationMap, e, eName);
-            if(subEntity != null) {
-                result.add(subEntity);
+        for(String eName : childList) {
+            DtoFieldInfo child = getDtoFieldInfo(relationMap, e, eName);
+            if(child != null) {
+                result.add(child);
             }
         }
         return result;
     }
 
     public static DtoFieldInfo getDtoFieldInfo(IEntityDtoServiceRelationMap relationMap, EntityDtoServiceRelation e, String eName) {
-        EntityDtoServiceRelation subEntity = relationMap.getByDtoName(eName);
+        EntityDtoServiceRelation child = relationMap.getByDtoName(eName);
         DtoFieldInfo dtoFieldInfo = null;
-        if(subEntity == null) {
+        if(child == null) {
             dtoFieldInfo = new DtoFieldInfo(e, eName, null);
         } else {
-            dtoFieldInfo = new DtoFieldInfo(e, eName, subEntity.getDto());
+            dtoFieldInfo = new DtoFieldInfo(e, eName, child.getDto());
         }
         if(dtoFieldInfo.getFieldInfo() != null) {
             return dtoFieldInfo;
@@ -86,11 +86,11 @@ public class DtoFields {
         List<DtoFieldInfo> dtoFieldInfoList = DtoFields.getDtoFieldInfoList(relationMap, relationInfo, subDtoNameList);
         DtoClassInfo masterDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto());
         for(DtoFieldInfo dtoFieldInfo : dtoFieldInfoList) {
-            EntityDtoServiceRelation subEntityInfo = relationMap.getByDtoClass((Class)dtoFieldInfo.getFieldInfo().getActualType());
-            if(subEntityInfo == null) {
+            EntityDtoServiceRelation childInfo = relationMap.getByDtoClass((Class)dtoFieldInfo.getFieldInfo().getActualType());
+            if(childInfo == null) {
                 continue;
             }
-            DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(subEntityInfo.getDto());
+            DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(childInfo.getDto());
             DtoField subDtoClassInfoDtoField = subDtoClassInfo.getDtoField(masterDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyProperty());
             DtoField masterDtoClassInfoDtoField = masterDtoClassInfo.getDtoField(subDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyProperty());
             if(subDtoClassInfoDtoField == null && masterDtoClassInfoDtoField == null) {
@@ -105,9 +105,9 @@ public class DtoFields {
                 Object subDtoId = FieldUtils.getValue(dto, masterDtoClassInfoDtoField.getFieldTypeInfo().getField());
                 qw.eq(subDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), subDtoId);
             }
-            IService service = applicationContext.getBean(subEntityInfo.getService());
+            IService service = applicationContext.getBean(childInfo.getService());
             List searchResult = service.list(qw);
-            assignDtoField(dtoClassInfoHelper, dto, dtoFieldInfo, searchResult, subEntityInfo.getDto());
+            assignDtoField(dtoClassInfoHelper, dto, dtoFieldInfo, searchResult, childInfo.getDto());
         }
     }
 

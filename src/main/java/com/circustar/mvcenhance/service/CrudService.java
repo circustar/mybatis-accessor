@@ -26,15 +26,20 @@ public class CrudService implements ICrudService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Collection<Object> updateByProviders(EntityDtoServiceRelation relationInfo, Object object, IUpdateEntityProvider[] updateEntityProviders, Map options, boolean returnUpdateResult, BindingResult bindingResult) throws Exception {
+    public Collection<Object> updateByProviders(EntityDtoServiceRelation relationInfo
+            , Object object, IUpdateEntityProvider[] updateEntityProviders
+            , Map options, boolean returnUpdateResult, BindingResult bindingResult) throws Exception {
         List<Object> updatedObjects = new ArrayList<>();
         for(IUpdateEntityProvider provider : updateEntityProviders) {
             provider.validateAndSet(object, bindingResult, options);
-            if(bindingResult.hasErrors()) {
+            if (bindingResult.hasErrors()) {
                 throw new ValidateException("validate failed");
             }
+        }
+        for(IUpdateEntityProvider provider : updateEntityProviders) {
             try {
-                Collection<UpdateEntity> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper, object, options);
+                Collection<UpdateEntity> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper
+                        , object, options);
                 for(UpdateEntity o : objList) {
                     boolean result = o.execUpdate();
                     if(!result) {

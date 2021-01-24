@@ -113,7 +113,7 @@ public class DtoClassInfo {
         return this.subDtoFieldList.size() > 0;
     }
 
-    public boolean containSubEntity() {
+    public boolean containchild() {
         return this.subDtoFieldList.stream().filter(x -> x.getHasEntityClass()).count() > 0;
     }
 
