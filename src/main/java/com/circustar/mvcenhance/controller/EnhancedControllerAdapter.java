@@ -164,7 +164,7 @@ public interface EnhancedControllerAdapter {
         Map options = new HashMap();
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        return defaultUpdateMap(map, dto_name, new IUpdateEntityProvider[]{DefaultInsertEntitiesProvider.getInstance()}
+        return defaultUpdateMap(map, dto_name, new IUpdateTreeProvider[]{DefaultInsertTreeProvider.getInstance()}
                 , options, true);
     }
 
@@ -176,7 +176,7 @@ public interface EnhancedControllerAdapter {
         Map options = new HashMap();
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        return defaultUpdateMapList(mapList, dto_name, new IUpdateEntityProvider[]{DefaultInsertEntitiesProvider.getInstance()}
+        return defaultUpdateMapList(mapList, dto_name, new IUpdateTreeProvider[]{DefaultInsertTreeProvider.getInstance()}
                 , options, returnUpdateResult);
     }
 
@@ -192,7 +192,7 @@ public interface EnhancedControllerAdapter {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
-        return defaultUpdateMap(map, dtoName, new IUpdateEntityProvider[]{DefaultUpdateEntitiesProvider.getInstance()}
+        return defaultUpdateMap(map, dtoName, new IUpdateTreeProvider[]{DefaultUpdateTreeProvider.getInstance()}
                 , options, true);
     }
 
@@ -208,7 +208,7 @@ public interface EnhancedControllerAdapter {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
-        return defaultUpdateMapList(mapList, dto_name, new IUpdateEntityProvider[]{DefaultUpdateEntitiesProvider.getInstance()}
+        return defaultUpdateMapList(mapList, dto_name, new IUpdateTreeProvider[]{DefaultUpdateTreeProvider.getInstance()}
                 , options, returnUpdateResult);
     }
 
@@ -230,12 +230,12 @@ public interface EnhancedControllerAdapter {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
 
-        return defaultUpdateObject(ids, dto_name, new IUpdateEntityProvider[]{DefaultDeleteEntitiesProvider.getInstance()}
+        return defaultUpdateObject(ids, dto_name, new IUpdateTreeProvider[]{DefaultDeleteTreeProvider.getInstance()}
                 , options, false);
     }
 
     default IServiceResult defaultUpdateMapList(
-            List<Map> mapList, String dto_name, IUpdateEntityProvider[] updateEntityProviders, Map options
+            List<Map> mapList, String dto_name, IUpdateTreeProvider[] updateEntityProviders, Map options
             , boolean returnUpdateResult) throws Exception {
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
         String entityName = FieldUtils.parseClassName(dto_name);
@@ -252,17 +252,17 @@ public interface EnhancedControllerAdapter {
     default IServiceResult defaultUpdateMap(
             Map map, String dto_name, String[] updateProvidersNames, Map options
             , boolean returnUpdateResult) throws Exception {
-        List<IUpdateEntityProvider> updateEntityProviders = Arrays.stream(updateProvidersNames).map(x -> (IUpdateEntityProvider)getApplicationContext().getBean(x))
+        List<IUpdateTreeProvider> updateEntityProviders = Arrays.stream(updateProvidersNames).map(x -> (IUpdateTreeProvider)getApplicationContext().getBean(x))
                 .collect(Collectors.toList());
         if(updateEntityProviders == null || updateEntityProviders.size() == 0) {
             throw new ResourceNotFoundException("update provider not found");
         }
-        IUpdateEntityProvider[] iUpdateEntityProviders = updateEntityProviders.toArray(new IUpdateEntityProvider[updateEntityProviders.size()]);
-        return defaultUpdateMap(map, dto_name, iUpdateEntityProviders, options, returnUpdateResult);
+        IUpdateTreeProvider[] iUpdateTreeProviders = updateEntityProviders.toArray(new IUpdateTreeProvider[updateEntityProviders.size()]);
+        return defaultUpdateMap(map, dto_name, iUpdateTreeProviders, options, returnUpdateResult);
     }
 
     default IServiceResult defaultUpdateMap(
-            Map map, String dto_name, IUpdateEntityProvider[] updateEntityProviders, Map options
+            Map map, String dto_name, IUpdateTreeProvider[] updateEntityProviders, Map options
             , boolean returnUpdateResult) throws Exception {
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
         String entityName = FieldUtils.parseClassName(dto_name);
@@ -275,7 +275,7 @@ public interface EnhancedControllerAdapter {
 
     default IServiceResult defaultUpdateMap(
             Map map, String dto_name, EntityDtoServiceRelation relationInfo
-            , IUpdateEntityProvider[] updateEntityProviders, Map options
+            , IUpdateTreeProvider[] updateEntityProviders, Map options
             , boolean returnUpdateResult) throws Exception {
 
         Object updateObject = (new ObjectMapper()).convertValue(map, relationInfo.getDto());
@@ -285,7 +285,7 @@ public interface EnhancedControllerAdapter {
 
     default IServiceResult defaultUpdateObject(
             Object updateObject, String dto_name
-            , IUpdateEntityProvider[] updateEntityProviders, Map options
+            , IUpdateTreeProvider[] updateEntityProviders, Map options
             , boolean returnUpdateResult) throws Exception {
 
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
@@ -300,7 +300,7 @@ public interface EnhancedControllerAdapter {
 
     default IServiceResult defaultUpdateObject(
             Object updateObject, String dto_name, EntityDtoServiceRelation relationInfo
-            , IUpdateEntityProvider[] updateEntityProviders, Map options, boolean returnUpdateResult) throws Exception {
+            , IUpdateTreeProvider[] updateEntityProviders, Map options, boolean returnUpdateResult) throws Exception {
         IServiceResult serviceResult = new DefaultServiceResult();
         BindException errors = null;
         try {

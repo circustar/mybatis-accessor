@@ -7,12 +7,12 @@ import java.lang.annotation.*;
 
 @Target(value = {ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(DtpEntityRelations.class)
+@Repeatable(DtoEntityRelations.class)
 @Inherited
 public @interface DtoEntityRelation {
     Class dtoClass() default Void.class;
     Class entityClass() default Void.class;
     Class<? extends IService> service() default IService.class;
-    Class<? extends IUpdateEntityProvider>[] updateObjectProviders() default {
+    Class<? extends IUpdateTreeProvider>[] updateObjectProviders() default {
     };
 }

@@ -57,7 +57,7 @@ public class ScanRelationOnStartup implements ApplicationRunner {
     protected void scanForRelationMap(List<String> packageNameList) throws ClassNotFoundException {
         ClassPathScanningCandidateComponentProvider p = new ClassPathScanningCandidateComponentProvider(false);
         p.addIncludeFilter(new AnnotationTypeFilter(DtoEntityRelation.class));
-        p.addIncludeFilter(new AnnotationTypeFilter(DtpEntityRelations.class));
+        p.addIncludeFilter(new AnnotationTypeFilter(DtoEntityRelations.class));
         for(String packageName : packageNameList) {
             Set<BeanDefinition> definitionSet = p.findCandidateComponents(packageName);
             for(BeanDefinition bd: definitionSet) {

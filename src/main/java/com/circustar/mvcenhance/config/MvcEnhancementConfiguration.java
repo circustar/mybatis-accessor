@@ -83,18 +83,18 @@ public class MvcEnhancementConfiguration {
     }
 
     @Bean
-    public DefaultDeleteEntitiesProvider getDefaultDeleteEntitiesProvider() {
-        return DefaultDeleteEntitiesProvider.getInstance();
+    public DefaultDeleteTreeProvider getDefaultDeleteEntitiesProvider() {
+        return DefaultDeleteTreeProvider.getInstance();
     }
 
     @Bean
-    public DefaultInsertEntitiesProvider getDefaultInsertEntitiesEntityProvider() {
-        return DefaultInsertEntitiesProvider.getInstance();
+    public DefaultInsertTreeProvider getDefaultInsertEntitiesEntityProvider() {
+        return DefaultInsertTreeProvider.getInstance();
     }
 
     @Bean
-    public DefaultUpdateEntitiesProvider getDefaultUpdateEntityProvider() {
-        return DefaultUpdateEntitiesProvider.getInstance();
+    public DefaultUpdateTreeProvider getDefaultUpdateEntityProvider() {
+        return DefaultUpdateTreeProvider.getInstance();
     }
 
     @Bean

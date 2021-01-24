@@ -7,8 +7,8 @@ import org.springframework.validation.BindingResult;
 import java.util.Collection;
 import java.util.Map;
 
-public interface IUpdateEntityProvider {
-    Collection<UpdateEntity> createUpdateEntities(EntityDtoServiceRelation relation
+public interface IUpdateTreeProvider {
+    Collection<UpdateTree> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object obj, Map options) throws Exception;
     default <S> void validateAndSet(Object obj, BindingResult bindingResult, Map options){};
     default void onSuccess() {};

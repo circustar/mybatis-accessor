@@ -5,6 +5,6 @@ import java.lang.annotation.*;
 @Target(value = {ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-public @interface DtpEntityRelations {
+public @interface DtoEntityRelations {
     DtoEntityRelation[] value();
 }

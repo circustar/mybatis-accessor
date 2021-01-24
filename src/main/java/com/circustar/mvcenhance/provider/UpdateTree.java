@@ -8,8 +8,8 @@ import com.circustar.mvcenhance.utils.FieldUtils;
 
 import java.util.*;
 
-public class UpdateEntity {
-    public UpdateEntity(IService service
+public class UpdateTree {
+    public UpdateTree(IService service
             , IUpdateCommand updateCommand
             , Object option
             , EntityClassInfo entityClassInfo
@@ -29,23 +29,23 @@ public class UpdateEntity {
     private IService service;
     private Boolean updatechildFirst;
     private Collection updateEntities;
-    private List<UpdateEntity> subUpdateEntities;
+    private List<UpdateTree> subUpdateEntities;
     private EntityClassInfo entityClassInfo;
     private boolean updateChildrenOnly;
 
-    public void addSubUpdateEntity(UpdateEntity subUpdateEntity) {
+    public void addSubUpdateEntity(UpdateTree subUpdateTree) {
         if(this.subUpdateEntities == null) {
             this.subUpdateEntities = new ArrayList<>();
         }
-        this.subUpdateEntities.add(subUpdateEntity);
+        this.subUpdateEntities.add(subUpdateTree);
     }
-    public void addSubUpdateEntities(Collection<UpdateEntity> subUpdateEntities) {
+    public void addSubUpdateEntities(Collection<UpdateTree> subUpdateEntities) {
         if(this.subUpdateEntities == null) {
             this.subUpdateEntities = new ArrayList<>();
         }
         this.subUpdateEntities.addAll(subUpdateEntities);
     }
-    public List<UpdateEntity> getSubUpdateEntities() {
+    public List<UpdateTree> getSubUpdateEntities() {
         return subUpdateEntities;
     }
 
@@ -60,8 +60,8 @@ public class UpdateEntity {
     protected boolean execUpdate(Map<String, Object> keyMap) throws Exception {
         boolean result = true;
         if(updatechildFirst && subUpdateEntities != null) {
-            for(UpdateEntity subUpdateEntity : subUpdateEntities) {
-                result = subUpdateEntity.execUpdate(keyMap);
+            for(UpdateTree subUpdateTree : subUpdateEntities) {
+                result = subUpdateTree.execUpdate(keyMap);
                 if(!result) {
                     return false;
                 }
@@ -96,8 +96,8 @@ public class UpdateEntity {
         }
 
         if((!updatechildFirst) && subUpdateEntities != null) {
-            for(UpdateEntity subUpdateEntity : subUpdateEntities) {
-                result = subUpdateEntity.execUpdate(keyMap);
+            for(UpdateTree subUpdateTree : subUpdateEntities) {
+                result = subUpdateTree.execUpdate(keyMap);
                 if(!result) {
                     return false;
                 }

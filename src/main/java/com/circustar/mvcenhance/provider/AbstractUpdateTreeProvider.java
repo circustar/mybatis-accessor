@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class AbstractUpdateEntityProvider implements IUpdateEntityProvider, ApplicationContextAware {
+public abstract class AbstractUpdateTreeProvider implements IUpdateTreeProvider, ApplicationContextAware {
     protected ApplicationContext applicationContext;
 
     public IEntityDtoServiceRelationMap getRelationMap(){
