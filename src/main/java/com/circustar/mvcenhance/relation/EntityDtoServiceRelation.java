@@ -3,48 +3,57 @@ package com.circustar.mvcenhance.relation;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.context.ApplicationContext;
 
 public class EntityDtoServiceRelation {
-    private Class entity;
+    private Class entityClass;
     private TableInfo tableInfo;
 
-    private Class dto;
+    private Class dtoClass;
 
-    private Class<? extends  IService> service;
+    private Class<? extends  IService> serviceClass;
 
-    public Class getEntity() {
-        return entity;
+    private IService service = null;
+
+    public Class getEntityClass() {
+        return entityClass;
     }
 
-    public void setEntity(Class entity) {
-        this.entity = entity;
+    public void setEntityClass(Class entityClass) {
+        this.entityClass = entityClass;
     }
 
-    public Class getDto() {
-        return dto;
+    public Class getDtoClass() {
+        return dtoClass;
     }
 
-    public void setDto(Class dto) {
-        this.dto = dto;
+    public void setDtoClass(Class dtoClass) {
+        this.dtoClass = dtoClass;
     }
 
-    public Class<? extends IService> getService() {
-        return service;
+    public Class<? extends IService> getServiceClass() {
+        return serviceClass;
     }
 
-    public void setService(Class<? extends IService> service) {
-        this.service = service;
+    public void setServiceClass(Class<? extends IService> serviceClass) {
+        this.serviceClass = serviceClass;
     }
 
     public TableInfo getTableInfo() {
         return tableInfo;
     }
 
-    public EntityDtoServiceRelation(Class dto, Class entity, Class<? extends  IService> service) {
-        this.entity = entity;
-        this.dto = dto;
-        this.service = service;
-        this.tableInfo = TableInfoHelper.getTableInfo(entity);
-//        this.dtoClassInfo = new DtoClassInfo(dto, entity);
+    public EntityDtoServiceRelation(Class dtoClass, Class entityClass, Class<? extends  IService> serviceClass) {
+        this.entityClass = entityClass;
+        this.dtoClass = dtoClass;
+        this.serviceClass = serviceClass;
+        this.tableInfo = TableInfoHelper.getTableInfo(entityClass);
+    }
+
+    public IService getServiceBean(ApplicationContext applicationContext) {
+        if(this.service == null) {
+            this.service = applicationContext.getBean(serviceClass);
+        }
+        return this.service;
     }
 }

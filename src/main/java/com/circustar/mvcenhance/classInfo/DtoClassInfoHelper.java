@@ -24,7 +24,7 @@ public class DtoClassInfoHelper {
         if(dtoClassInfoMap.containsKey(clazz)) {
             return dtoClassInfoMap.get(clazz);
         }
-        EntityClassInfo entityClassInfo = entityClassInfoHelper.getEntityClassInfo(entityDtoServiceRelationMap.getByDtoClass(clazz).getEntity());
+        EntityClassInfo entityClassInfo = entityClassInfoHelper.getEntityClassInfo(entityDtoServiceRelationMap.getByDtoClass(clazz).getEntityClass());
         DtoClassInfo dtoClassInfo = new DtoClassInfo(entityDtoServiceRelationMap, clazz, entityClassInfo);
         return tryPut(clazz, dtoClassInfo);
     }
@@ -52,13 +52,13 @@ public class DtoClassInfoHelper {
     public Object convertToSingleObject(Object object) {
         try {
             DtoClassInfo dtoClassInfo = this.getDtoClassInfo(object.getClass());
-            Class targetClass = dtoClassInfo.getEntityDtoServiceRelation().getEntity();
+            Class targetClass = dtoClassInfo.getEntityDtoServiceRelation().getEntityClass();
             EntityClassInfo entityClassInfo = entityClassInfoHelper.getEntityClassInfo(targetClass);
 
             Object entity = targetClass.newInstance();
             BeanUtils.copyProperties(object, entity);
             for(DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
-                FieldTypeInfo entityFieldTypeInfo = entityClassInfo.getFieldByClass(dtoField.getEntityDtoServiceRelation().getEntity());
+                FieldTypeInfo entityFieldTypeInfo = entityClassInfo.getFieldByClass(dtoField.getEntityDtoServiceRelation().getEntityClass());
                 if(entityFieldTypeInfo == null) {
                     continue;
                 }
@@ -91,7 +91,7 @@ public class DtoClassInfoHelper {
                 if(dtoClass == null) {
                     dtoClass = object.getClass();
                     dtoClassInfo = this.getDtoClassInfo(dtoClass);
-                    targetClass = dtoClassInfo.getEntityDtoServiceRelation().getEntity();
+                    targetClass = dtoClassInfo.getEntityDtoServiceRelation().getEntityClass();
                     entityClassInfo = entityClassInfoHelper.getEntityClassInfo(targetClass);
                 }
                 Object child = entityClassInfo.getClazz().newInstance();
@@ -100,7 +100,7 @@ public class DtoClassInfoHelper {
             }
             if(dtoClass == null) {return (T)childList;}
             for(DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
-                FieldTypeInfo entityFieldTypeInfo = entityClassInfo.getFieldByClass(dtoField.getEntityDtoServiceRelation().getEntity());
+                FieldTypeInfo entityFieldTypeInfo = entityClassInfo.getFieldByClass(dtoField.getEntityDtoServiceRelation().getEntityClass());
                 if(entityFieldTypeInfo == null && !entityFieldTypeInfo.getIsCollection()) {
                     continue;
                 }

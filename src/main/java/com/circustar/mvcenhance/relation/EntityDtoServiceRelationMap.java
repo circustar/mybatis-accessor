@@ -17,8 +17,8 @@ public class EntityDtoServiceRelationMap implements IEntityDtoServiceRelationMap
 
     public void addRelation(EntityDtoServiceRelation relation) {
         entityDtoServiceRelationList.add(relation);
-        dtoMap.put(relation.getDto(), relation);
-        dtoNameMap.put(relation.getDto().getSimpleName(), relation);
+        dtoMap.put(relation.getDtoClass(), relation);
+        dtoNameMap.put(relation.getDtoClass().getSimpleName(), relation);
     }
 
     @Override
@@ -35,8 +35,8 @@ public class EntityDtoServiceRelationMap implements IEntityDtoServiceRelationMap
         dtoMap.clear();
         dtoNameMap.clear();
         entityDtoServiceRelationList.stream().forEach(x -> {
-            dtoMap.put(x.getDto(), x);
-            dtoNameMap.put(x.getDto().getSimpleName(), x);
+            dtoMap.put(x.getDtoClass(), x);
+            dtoNameMap.put(x.getDtoClass().getSimpleName(), x);
         });
     };
 

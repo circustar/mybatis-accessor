@@ -3,6 +3,7 @@ package com.circustar.mvcenhance.config;
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import com.circustar.mvcenhance.classInfo.DtoClassInfoHelper;
 import com.circustar.mvcenhance.classInfo.EntityClassInfoHelper;
+import com.circustar.mvcenhance.controller.ControllerSupport;
 import com.circustar.mvcenhance.utils.TableInfoUtils;
 import com.circustar.mvcenhance.injector.EnhanceSqlInjector;
 import com.circustar.mvcenhance.service.CrudService;
@@ -35,6 +36,7 @@ public class MvcEnhancementConfiguration {
     private ISelectService selectService;
     private EntityClassInfoHelper entityClassInfoHelper;
     private DtoClassInfoHelper dtoClassInfoHelper;
+    private ControllerSupport controllerSupport;
 
     public MvcEnhancementConfiguration(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -45,7 +47,7 @@ public class MvcEnhancementConfiguration {
         this.crudService = new CrudService(this.applicationContext, this.dtoClassInfoHelper, this.entityDtoServiceRelationMap);
         this.selectService = new SelectService(this.applicationContext, this.entityDtoServiceRelationMap, this.dtoClassInfoHelper);
         this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
-
+        this.controllerSupport = new ControllerSupport();
         TableInfoUtils.scanPackages.getAndSet(getMapperScanPackages(this.applicationContext));
     }
 
@@ -105,5 +107,10 @@ public class MvcEnhancementConfiguration {
     @Bean
     public EntityClassInfoHelper getEntityClassInfoHelper() {
         return this.entityClassInfoHelper;
+    }
+
+    @Bean
+    public ControllerSupport getControllerSupport() {
+        return this.controllerSupport;
     }
 }

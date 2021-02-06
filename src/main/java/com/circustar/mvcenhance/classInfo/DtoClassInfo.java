@@ -66,7 +66,7 @@ public class DtoClassInfo {
         this.subDtoFieldList.forEach(x -> {
             if (x.getHasEntityClass() == null) {
                 EntityDtoServiceRelation relation = relationMap.getByDtoClass((Class) x.getFieldTypeInfo().getActualType());
-                FieldTypeInfo fieldTypeInfo = this.entityClassInfo.getFieldByClass(relation.getEntity());
+                FieldTypeInfo fieldTypeInfo = this.entityClassInfo.getFieldByClass(relation.getEntityClass());
                 if(fieldTypeInfo != null && fieldTypeInfo.getIsCollection() == x.getFieldTypeInfo().getIsCollection()) {
                     x.setHasEntityClass(true);
                     x.setRelatedEntityClass((Class) fieldTypeInfo.getActualType());
@@ -84,7 +84,7 @@ public class DtoClassInfo {
                 .forEach(tableJoinInfo -> {
             Class joinClazz = (Class) tableJoinInfo.getActualType();
 
-            TableInfo joinTableInfo = TableInfoHelper.getTableInfo(relationMap.getByDtoClass(joinClazz).getEntity());
+            TableInfo joinTableInfo = TableInfoHelper.getTableInfo(relationMap.getByDtoClass(joinClazz).getEntityClass());
             String strAlias = tableJoinInfo.getJoinTable().alias();
                     joinTableList.add("left join " + joinTableInfo.getTableName() + " " + strAlias);
             String joinColumnStr = Arrays.stream(tableJoinInfo.getJoinTable().joinColumns())

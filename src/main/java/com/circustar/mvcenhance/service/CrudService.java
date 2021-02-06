@@ -52,9 +52,11 @@ public class CrudService implements ICrudService {
             try {
                 provider.onEnd();
             } catch (Exception ex) {
+                provider.onException(ex);
+                throw ex;
             }
         }
 
-        return dtoClassInfoHelper.convertFromEntityList(updatedObjects, relationInfo.getDto());
+        return dtoClassInfoHelper.convertFromEntityList(updatedObjects, relationInfo.getDtoClass());
     }
 }

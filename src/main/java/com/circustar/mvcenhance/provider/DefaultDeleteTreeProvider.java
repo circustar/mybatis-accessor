@@ -32,8 +32,8 @@ public class DefaultDeleteTreeProvider extends AbstractUpdateTreeProvider {
         boolean updateChildrenOnly = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
         boolean physicDelete = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, false);
 
-        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDto());
-        ISelectService selectService = applicationContext.getBean(ISelectService.class);
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
+        ISelectService selectService = this.getSelectService();
 
         String[] topEntities = this.getTopEntities(children, ".");
         if(topEntities.length > 0) {
@@ -66,7 +66,7 @@ public class DefaultDeleteTreeProvider extends AbstractUpdateTreeProvider {
         }
 
         if(!updateChildrenOnly) {
-            result.add(new UpdateTree(applicationContext.getBean(relation.getService())
+            result.add(new UpdateTree(relation.getServiceBean(applicationContext)
                     , DeleteByIdBatchCommand.getInstance()
                     , physicDelete
                     , null //dtoClassInfo.getEntityClassInfo()

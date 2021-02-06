@@ -1,6 +1,7 @@
 package com.circustar.mvcenhance.provider;
 
 import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;
+import com.circustar.mvcenhance.service.ISelectService;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -17,9 +18,15 @@ import java.util.stream.Collectors;
 public abstract class AbstractUpdateTreeProvider implements IUpdateTreeProvider, ApplicationContextAware {
     protected ApplicationContext applicationContext;
     protected Validator validator = null;
+    protected ISelectService selectService = null;
+    protected IEntityDtoServiceRelationMap relationMap = null;
 
     public IEntityDtoServiceRelationMap getRelationMap(){
-        return applicationContext.getBean(IEntityDtoServiceRelationMap.class);
+        if(this.relationMap != null) {
+            return  this.relationMap;
+        }
+        this.relationMap = applicationContext.getBean(IEntityDtoServiceRelationMap.class);
+        return this.relationMap;
     };
     public Validator getValidator(){
         if(this.validator != null) {
@@ -30,6 +37,13 @@ public abstract class AbstractUpdateTreeProvider implements IUpdateTreeProvider,
         } catch (Exception ex) {
         }
         return this.validator;
+    };
+    public ISelectService getSelectService(){
+        if(this.selectService != null) {
+            return  this.selectService;
+        }
+        this.selectService = applicationContext.getBean(ISelectService.class);
+        return this.selectService;
     };
 
     @Override

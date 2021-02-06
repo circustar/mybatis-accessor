@@ -25,7 +25,7 @@ public class DefaultInsertTreeProvider extends AbstractUpdateTreeProvider {
         Collection values = CollectionUtils.convertToCollection(dto);
         if(values.size() == 0) {return result;}
 
-        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDto());
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
         boolean insertAllEntities = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_INSERT_ALL_CHILDREN, false);
         String[] children;
         if(insertAllEntities) {
@@ -47,7 +47,7 @@ public class DefaultInsertTreeProvider extends AbstractUpdateTreeProvider {
             }
             Object updateTarget = dtoClassInfoHelper.convertToEntity(value);
             updateTargetList.add(updateTarget);
-            UpdateTree updateTree = new UpdateTree(applicationContext.getBean(relation.getService())
+            UpdateTree updateTree = new UpdateTree(relation.getServiceBean(applicationContext)
                     , InsertCommand.getInstance()
                     , null
                     , dtoClassInfo.getEntityClassInfo()
@@ -75,7 +75,7 @@ public class DefaultInsertTreeProvider extends AbstractUpdateTreeProvider {
             if(updateChildrenOnly) {
                 return Collections.emptyList();
             } else {
-                UpdateTree updateTree = new UpdateTree(applicationContext.getBean(relation.getService())
+                UpdateTree updateTree = new UpdateTree(relation.getServiceBean(applicationContext)
                         , InsertCommand.getInstance()
                         , null
                         , dtoClassInfo.getEntityClassInfo()

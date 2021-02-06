@@ -49,12 +49,12 @@ public class SelectService implements ISelectService {
             , Serializable id
             , String[] children
             , String queryGroup) throws Exception {
-        IService s = applicationContext.getBean(relationInfo.getService());
+        IService s = relationInfo.getServiceBean(applicationContext);
         Object oriEntity = s.getById(id);
         if (oriEntity == null) {
             return null;
         }
-        Object result = this.dtoClassInfoHelper.convertFromEntity(oriEntity, relationInfo.getDto());
+        Object result = this.dtoClassInfoHelper.convertFromEntity(oriEntity, relationInfo.getDtoClass());
         List<String> childList;
         if(children == null) {
 //            childList = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto())
@@ -90,7 +90,7 @@ public class SelectService implements ISelectService {
             , Integer page_index
             , Integer page_size
             ) throws Exception {
-        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto());
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         List<QueryFieldModel> queryFiledModelList = QueryFieldModel.getQueryFieldModeFromDto(dtoClassInfo, object, queryGroup);
 
         return getPagesByQueryFields(relationInfo, queryFiledModelList, page_index, page_size);
@@ -102,9 +102,9 @@ public class SelectService implements ISelectService {
             , Integer page_index
             , Integer page_size
             ) throws Exception {
-        IService service = applicationContext.getBean(relationInfo.getService());
+        IService service = relationInfo.getServiceBean(applicationContext);
         QueryWrapper qw = new QueryWrapper();
-        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto());
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         TableInfo tableInfo = TableInfoHelper.getTableInfo(dtoClassInfo.getEntityClassInfo().getClazz());
         QueryFieldModel.setQueryWrapper(tableInfo.getTableName()
                 , queryFiledModelList, qw);
@@ -118,7 +118,7 @@ public class SelectService implements ISelectService {
         } else {
             pageResult = service.page(page, qw);
         }
-        List<T> dtoList = (List) dtoClassInfoHelper.convertFromEntityList(pageResult.getRecords(), relationInfo.getDto());
+        List<T> dtoList = (List) dtoClassInfoHelper.convertFromEntityList(pageResult.getRecords(), relationInfo.getDtoClass());
         pageInfo = new PageInfo(pageResult.getTotal(), pageResult.getSize(), pageResult.getCurrent(), dtoList);
 
         return pageInfo;
@@ -129,7 +129,7 @@ public class SelectService implements ISelectService {
             , Object object
             , String queryGroup
     ) throws Exception {
-        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto());
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         List<QueryFieldModel> queryFiledModelList = QueryFieldModel.getQueryFieldModeFromDto(dtoClassInfo, object, queryGroup);
 
         return getListByQueryFields(relationInfo, queryFiledModelList);
@@ -139,9 +139,9 @@ public class SelectService implements ISelectService {
     public <T> List<T> getListByQueryFields(EntityDtoServiceRelation relationInfo
             , List<QueryFieldModel> queryFiledModelList
     ) throws Exception {
-        IService service = applicationContext.getBean(relationInfo.getService());
+        IService service = relationInfo.getServiceBean(applicationContext);
         List<T> dtoList = null;
-        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto());
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         TableInfo tableInfo = TableInfoHelper.getTableInfo(dtoClassInfo.getEntityClassInfo().getClazz());
         QueryWrapper qw = new QueryWrapper();
         QueryFieldModel.setQueryWrapper(tableInfo.getTableName()
@@ -152,7 +152,7 @@ public class SelectService implements ISelectService {
         } else {
             entityList = service.list(qw);
         }
-        dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityList, relationInfo.getDto());;
+        dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityList, relationInfo.getDtoClass());;
 
         return dtoList;
     }

@@ -54,12 +54,12 @@ public class DtoFieldInfo {
     private FieldTypeInfo parseField() {
         FieldTypeInfo f = null;
         if(!StringUtils.isEmpty(this.dtoName)) {
-            f = FieldTypeInfo.parseFieldByName(relationInfo.getDto(), this.dtoName);
+            f = FieldTypeInfo.parseFieldByName(relationInfo.getDtoClass(), this.dtoName);
         }
         if(f != null || this.dtoClass == null) {
             return f;
         }
-        return FieldTypeInfo.parseFieldByClass(relationInfo.getDto(), this.getDtoClass(), true);
+        return FieldTypeInfo.parseFieldByClass(relationInfo.getDtoClass(), this.getDtoClass(), true);
     }
 
     enum SupportGenericType{
