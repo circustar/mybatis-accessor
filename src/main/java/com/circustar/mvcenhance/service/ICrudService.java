@@ -10,8 +10,7 @@ import java.util.Map;
 public interface ICrudService {
     Collection<Object> updateByProviders(EntityDtoServiceRelation relationInfo
             , Object object
-            , IUpdateTreeProvider[] updateEntityProviders
+            , IUpdateTreeProvider updateEntityProviders
             , Map options
-            , boolean returnUpdateResult
             , BindingResult bindingResult) throws Exception;
 }

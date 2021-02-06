@@ -27,39 +27,32 @@ public class CrudService implements ICrudService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Collection<Object> updateByProviders(EntityDtoServiceRelation relationInfo
-            , Object object, IUpdateTreeProvider[] updateEntityProviders
-            , Map options, boolean returnUpdateResult, BindingResult bindingResult) throws Exception {
+            , Object object, IUpdateTreeProvider provider
+            , Map options, BindingResult bindingResult) throws Exception {
         List<Object> updatedObjects = new ArrayList<>();
-        for(IUpdateTreeProvider provider : updateEntityProviders) {
-            provider.validateAndSet(object, bindingResult, options);
-            if (bindingResult.hasErrors()) {
-                throw new ValidateException("validate failed");
-            }
+        provider.validateAndSet(object, bindingResult, options);
+        if (bindingResult.hasErrors()) {
+            throw new ValidateException("validate failed");
         }
-        for(IUpdateTreeProvider provider : updateEntityProviders) {
+        try {
+            Collection<UpdateTree> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper
+                    , object, options);
+            for(UpdateTree o : objList) {
+                boolean result = o.execUpdate();
+                if(!result) {
+                    throw new UpdateTargetNotFoundException("update failed");
+                }
+                updatedObjects.addAll(o.getUpdateEntities());
+            }
+            provider.onSuccess(object, updatedObjects);
+        } catch (Exception ex) {
+            provider.onException(ex);
+            throw ex;
+        } finally {
             try {
-                Collection<UpdateTree> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper
-                        , object, options);
-                for(UpdateTree o : objList) {
-                    boolean result = o.execUpdate();
-                    if(!result) {
-                        throw new UpdateTargetNotFoundException("update failed");
-                    }
-                    updatedObjects.addAll(o.getUpdateEntities());
-                }
-                provider.onSuccess();
+                provider.onEnd();
             } catch (Exception ex) {
-                provider.onException(ex);
-                throw ex;
-            } finally {
-                try {
-                    provider.onEnd();
-                } catch (Exception ex) {
-                }
             }
-        }
-        if(!returnUpdateResult) {
-            return null;
         }
 
         return dtoClassInfoHelper.convertFromEntityList(updatedObjects, relationInfo.getDto());

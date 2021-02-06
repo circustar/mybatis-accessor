@@ -164,7 +164,7 @@ public interface EnhancedControllerAdapter {
         Map options = new HashMap();
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        return defaultUpdateMap(map, dto_name, new IUpdateTreeProvider[]{DefaultInsertTreeProvider.getInstance()}
+        return defaultUpdateMap(map, dto_name, DefaultInsertTreeProvider.getInstance()
                 , options, true);
     }
 
@@ -176,7 +176,7 @@ public interface EnhancedControllerAdapter {
         Map options = new HashMap();
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        return defaultUpdateMapList(mapList, dto_name, new IUpdateTreeProvider[]{DefaultInsertTreeProvider.getInstance()}
+        return defaultUpdateMapList(mapList, dto_name, DefaultInsertTreeProvider.getInstance()
                 , options, returnUpdateResult);
     }
 
@@ -192,7 +192,7 @@ public interface EnhancedControllerAdapter {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
-        return defaultUpdateMap(map, dtoName, new IUpdateTreeProvider[]{DefaultUpdateTreeProvider.getInstance()}
+        return defaultUpdateMap(map, dtoName, DefaultUpdateTreeProvider.getInstance()
                 , options, true);
     }
 
@@ -208,7 +208,7 @@ public interface EnhancedControllerAdapter {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
-        return defaultUpdateMapList(mapList, dto_name, new IUpdateTreeProvider[]{DefaultUpdateTreeProvider.getInstance()}
+        return defaultUpdateMapList(mapList, dto_name, DefaultUpdateTreeProvider.getInstance()
                 , options, returnUpdateResult);
     }
 
@@ -230,12 +230,12 @@ public interface EnhancedControllerAdapter {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
 
-        return defaultUpdateObject(ids, dto_name, new IUpdateTreeProvider[]{DefaultDeleteTreeProvider.getInstance()}
+        return defaultUpdateObject(ids, dto_name, DefaultDeleteTreeProvider.getInstance()
                 , options, false);
     }
 
     default IServiceResult defaultUpdateMapList(
-            List<Map> mapList, String dto_name, IUpdateTreeProvider[] updateEntityProviders, Map options
+            List<Map> mapList, String dto_name, IUpdateTreeProvider updateEntityProvider, Map options
             , boolean returnUpdateResult) throws Exception {
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
         String entityName = FieldUtils.parseClassName(dto_name);
@@ -246,23 +246,21 @@ public interface EnhancedControllerAdapter {
         ObjectMapper objectMapper = new ObjectMapper();
         Object entities = mapList.stream().map(x -> objectMapper.convertValue(x, relationInfo.getDto())).collect(Collectors.toList());
 
-        return defaultUpdateObject(entities, dto_name, relationInfo, updateEntityProviders, options, returnUpdateResult);
+        return defaultUpdateObject(entities, dto_name, relationInfo, updateEntityProvider, options, returnUpdateResult);
     }
 
     default IServiceResult defaultUpdateMap(
-            Map map, String dto_name, String[] updateProvidersNames, Map options
+            Map map, String dto_name, String updateProvidersName, Map options
             , boolean returnUpdateResult) throws Exception {
-        List<IUpdateTreeProvider> updateEntityProviders = Arrays.stream(updateProvidersNames).map(x -> (IUpdateTreeProvider)getApplicationContext().getBean(x))
-                .collect(Collectors.toList());
-        if(updateEntityProviders == null || updateEntityProviders.size() == 0) {
+        IUpdateTreeProvider updateEntityProvider = (IUpdateTreeProvider)getApplicationContext().getBean(updateProvidersName);
+        if(updateEntityProvider == null) {
             throw new ResourceNotFoundException("update provider not found");
         }
-        IUpdateTreeProvider[] iUpdateTreeProviders = updateEntityProviders.toArray(new IUpdateTreeProvider[updateEntityProviders.size()]);
-        return defaultUpdateMap(map, dto_name, iUpdateTreeProviders, options, returnUpdateResult);
+        return defaultUpdateMap(map, dto_name, updateEntityProvider, options, returnUpdateResult);
     }
 
     default IServiceResult defaultUpdateMap(
-            Map map, String dto_name, IUpdateTreeProvider[] updateEntityProviders, Map options
+            Map map, String dto_name, IUpdateTreeProvider updateEntityProvider, Map options
             , boolean returnUpdateResult) throws Exception {
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
         String entityName = FieldUtils.parseClassName(dto_name);
@@ -270,22 +268,23 @@ public interface EnhancedControllerAdapter {
         if (relationInfo == null) {
             throw new ResourceNotFoundException(dto_name);
         }
-        return defaultUpdateMap(map, dto_name,  relationInfo, updateEntityProviders, options, returnUpdateResult);
+        return defaultUpdateMap(map, dto_name,  relationInfo, updateEntityProvider, options, returnUpdateResult);
     }
 
     default IServiceResult defaultUpdateMap(
             Map map, String dto_name, EntityDtoServiceRelation relationInfo
-            , IUpdateTreeProvider[] updateEntityProviders, Map options
+            , IUpdateTreeProvider updateEntityProvider, Map options
             , boolean returnUpdateResult) throws Exception {
 
         Object updateObject = (new ObjectMapper()).convertValue(map, relationInfo.getDto());
-        return defaultUpdateObject(updateObject, dto_name,  relationInfo, updateEntityProviders, options
+        return defaultUpdateObject(updateObject, dto_name,  relationInfo, updateEntityProvider, options
                 , returnUpdateResult);
     }
 
     default IServiceResult defaultUpdateObject(
             Object updateObject, String dto_name
-            , IUpdateTreeProvider[] updateEntityProviders, Map options
+            , IUpdateTreeProvider updateEntityProvider
+            , Map options
             , boolean returnUpdateResult) throws Exception {
 
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
@@ -294,23 +293,26 @@ public interface EnhancedControllerAdapter {
         if (relationInfo == null) {
             throw new ResourceNotFoundException(dto_name);
         }
-        return defaultUpdateObject(updateObject, dto_name,  relationInfo, updateEntityProviders
+        return defaultUpdateObject(updateObject, dto_name,  relationInfo, updateEntityProvider
                 , options, returnUpdateResult);
     }
 
     default IServiceResult defaultUpdateObject(
             Object updateObject, String dto_name, EntityDtoServiceRelation relationInfo
-            , IUpdateTreeProvider[] updateEntityProviders, Map options, boolean returnUpdateResult) throws Exception {
+            , IUpdateTreeProvider updateEntityProvider, Map options, boolean returnUpdateResult) throws Exception {
         IServiceResult serviceResult = new DefaultServiceResult();
         BindException errors = null;
         try {
             ICrudService crudService = getCrudService();
             errors = new BindException(updateObject, dto_name);
             Collection<Object> updatedEntities = crudService.updateByProviders(relationInfo
-                    , updateObject, updateEntityProviders, options, returnUpdateResult, errors);
-            serviceResult.setData(updatedEntities);
+                    , updateObject, updateEntityProvider, options, errors);
+            if(returnUpdateResult) {
+                serviceResult.setData(updatedEntities);
+            }
         } catch (ValidateException ex) {
             serviceResult.setData(null);
+            serviceResult.setGlobalErrorList(errors.getGlobalErrors());
             serviceResult.setFieldErrorList(errors.getFieldErrors());
         } catch (Exception ex) {
             serviceResult.setData(null);

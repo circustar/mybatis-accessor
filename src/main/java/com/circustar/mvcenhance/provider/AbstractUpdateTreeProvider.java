@@ -16,16 +16,20 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractUpdateTreeProvider implements IUpdateTreeProvider, ApplicationContextAware {
     protected ApplicationContext applicationContext;
+    protected Validator validator = null;
 
     public IEntityDtoServiceRelationMap getRelationMap(){
         return applicationContext.getBean(IEntityDtoServiceRelationMap.class);
     };
     public Validator getValidator(){
+        if(this.validator != null) {
+            return  this.validator;
+        }
         try {
-            return applicationContext.getBean(SmartValidator.class);
+            this.validator = applicationContext.getBean(SmartValidator.class);
         } catch (Exception ex) {
         }
-        return null;
+        return this.validator;
     };
 
     @Override
