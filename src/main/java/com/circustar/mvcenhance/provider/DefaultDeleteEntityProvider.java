@@ -15,16 +15,16 @@ import org.springframework.validation.BindingResult;
 import java.io.Serializable;
 import java.util.*;
 
-public class DefaultDeleteTreeProvider extends AbstractUpdateTreeProvider {
-    private static DefaultDeleteTreeProvider instance = new DefaultDeleteTreeProvider();
-    public static DefaultDeleteTreeProvider getInstance() {
+public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
+    private static DefaultDeleteEntityProvider instance = new DefaultDeleteEntityProvider();
+    public static DefaultDeleteEntityProvider getInstance() {
         return instance;
     }
     @Override
-    public Collection<UpdateTree> createUpdateEntities(EntityDtoServiceRelation relation
+    public Collection<DefaultEntityCollectionUpdater> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object ids, Map options)
             throws Exception {
-        List<UpdateTree> result = new ArrayList<>();
+        List<DefaultEntityCollectionUpdater> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(ids);
         if(values.size() == 0) {return result;}
 
@@ -66,7 +66,7 @@ public class DefaultDeleteTreeProvider extends AbstractUpdateTreeProvider {
         }
 
         if(!updateChildrenOnly) {
-            result.add(new UpdateTree(relation.getServiceBean(applicationContext)
+            result.add(new DefaultEntityCollectionUpdater(relation.getServiceBean(applicationContext)
                     , DeleteByIdBatchCommand.getInstance()
                     , physicDelete
                     , null //dtoClassInfo.getEntityClassInfo()

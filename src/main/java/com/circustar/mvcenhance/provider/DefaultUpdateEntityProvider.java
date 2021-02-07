@@ -13,15 +13,15 @@ import com.circustar.mvcenhance.utils.MapOptionUtils;
 
 import java.util.*;
 
-public class DefaultUpdateTreeProvider extends AbstractUpdateTreeProvider {
-    private static DefaultUpdateTreeProvider instance = new DefaultUpdateTreeProvider();
-    public static DefaultUpdateTreeProvider getInstance() {
+public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
+    private static DefaultUpdateEntityProvider instance = new DefaultUpdateEntityProvider();
+    public static DefaultUpdateEntityProvider getInstance() {
         return instance;
     }
     @Override
-    public Collection<UpdateTree> createUpdateEntities(EntityDtoServiceRelation relation
+    public Collection<DefaultEntityCollectionUpdater> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options) throws Exception {
-        List<UpdateTree> result = new ArrayList<>();
+        List<DefaultEntityCollectionUpdater> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(dto);
         if(values.size() == 0) {return result;}
 
@@ -32,9 +32,9 @@ public class DefaultUpdateTreeProvider extends AbstractUpdateTreeProvider {
         boolean deleteBeforeUpdate = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_AND_INSERT, false);
         boolean physicDelete = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, false);
 
-        DefaultDeleteTreeProvider defaultDeleteTreeProvider =  DefaultDeleteTreeProvider.getInstance();
-        DefaultInsertTreeProvider inertEntitiesEntityProvider = DefaultInsertTreeProvider.getInstance();
-        List<UpdateTree> updateTreeCollection = new ArrayList<>();
+        DefaultDeleteEntityProvider defaultDeleteTreeProvider =  DefaultDeleteEntityProvider.getInstance();
+        DefaultInsertEntityProvider inertEntitiesEntityProvider = DefaultInsertEntityProvider.getInstance();
+        List<DefaultEntityCollectionUpdater> defaultEntityCollectionUpdaterCollection = new ArrayList<>();
         String keyColumn = dtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn();
 
         String[] topEntities = this.getTopEntities(childNameList, ".");
@@ -44,7 +44,7 @@ public class DefaultUpdateTreeProvider extends AbstractUpdateTreeProvider {
             Object updateTarget = dtoClassInfoHelper.convertToEntity(value);
             updateTargetList.add(updateTarget);
 
-            UpdateTree updateTree = new UpdateTree(relation.getServiceBean(applicationContext)
+            DefaultEntityCollectionUpdater defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdater(relation.getServiceBean(applicationContext)
                     , UpdateByIdCommand.getInstance()
                     , null
                     , dtoClassInfo.getEntityClassInfo()
@@ -59,7 +59,7 @@ public class DefaultUpdateTreeProvider extends AbstractUpdateTreeProvider {
                 if(deleteBeforeUpdate) {
                     QueryWrapper qw = new QueryWrapper();
                     qw.eq(keyColumn, keyValue);
-                    updateTree.addSubUpdateEntity(new UpdateTree(subDtoField.getEntityDtoServiceRelation().getServiceBean(applicationContext)
+                    defaultEntityCollectionUpdater.addSubUpdateEntity(new DefaultEntityCollectionUpdater(subDtoField.getEntityDtoServiceRelation().getServiceBean(applicationContext)
                             , DeleteWrapperCommand.getInstance()
                             , physicDelete
                             , null
@@ -82,24 +82,24 @@ public class DefaultUpdateTreeProvider extends AbstractUpdateTreeProvider {
                             deleteFlagValue = FieldUtils.getValue(child, subDtoClassInfo.getDeleteFlagField().getFieldTypeInfo().getField());
                         }
                         if(deleteFlagValue != null) {
-                            updateTree.addSubUpdateEntities(defaultDeleteTreeProvider.createUpdateEntities(
+                            defaultEntityCollectionUpdater.addSubUpdateEntities(defaultDeleteTreeProvider.createUpdateEntities(
                                     subDtoField.getEntityDtoServiceRelation(), dtoClassInfoHelper
                                     , subEntityKeyValue, newOptions
                             ));
                         } else {
-                            updateTree.addSubUpdateEntities(this.createUpdateEntities(
+                            defaultEntityCollectionUpdater.addSubUpdateEntities(this.createUpdateEntities(
                                     subDtoField.getEntityDtoServiceRelation(), dtoClassInfoHelper
                                     , child, newOptions
                             ));
                         }
                     } else {
-                        updateTree.addSubUpdateEntities(inertEntitiesEntityProvider.createUpdateEntities(subDtoField.getEntityDtoServiceRelation()
+                        defaultEntityCollectionUpdater.addSubUpdateEntities(inertEntitiesEntityProvider.createUpdateEntities(subDtoField.getEntityDtoServiceRelation()
                                 , dtoClassInfoHelper, child, newOptions));
                     }
                 }
             }
-            updateTreeCollection.add(updateTree);
+            defaultEntityCollectionUpdaterCollection.add(defaultEntityCollectionUpdater);
         }
-        return updateTreeCollection;
+        return defaultEntityCollectionUpdaterCollection;
     }
 }

@@ -27,7 +27,7 @@ public class CrudService implements ICrudService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Collection<Object> updateByProviders(EntityDtoServiceRelation relationInfo
-            , Object object, IUpdateTreeProvider provider
+            , Object object, IUpdateEntityProvider provider
             , Map options, BindingResult bindingResult) throws Exception {
         List<Object> updatedObjects = new ArrayList<>();
         provider.validateAndSet(object, bindingResult, options);
@@ -35,9 +35,9 @@ public class CrudService implements ICrudService {
             throw new ValidateException("validate failed");
         }
         try {
-            Collection<UpdateTree> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper
+            Collection<DefaultEntityCollectionUpdater> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper
                     , object, options);
-            for(UpdateTree o : objList) {
+            for(DefaultEntityCollectionUpdater o : objList) {
                 boolean result = o.execUpdate();
                 if(!result) {
                     throw new UpdateTargetNotFoundException("update failed");

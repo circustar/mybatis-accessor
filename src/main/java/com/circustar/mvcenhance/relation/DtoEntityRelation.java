@@ -13,6 +13,6 @@ public @interface DtoEntityRelation {
     Class dtoClass() default Void.class;
     Class entityClass() default Void.class;
     Class<? extends IService> service() default IService.class;
-    Class<? extends IUpdateTreeProvider>[] updateObjectProviders() default {
+    Class<? extends IUpdateEntityProvider>[] updateObjectProviders() default {
     };
 }

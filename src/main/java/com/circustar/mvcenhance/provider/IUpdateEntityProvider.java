@@ -8,9 +8,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public interface IUpdateTreeProvider {
-    Collection<UpdateTree> createUpdateEntities(EntityDtoServiceRelation relation
-            , DtoClassInfoHelper dtoClassInfoHelper, Object obj, Map options) throws Exception;
+public interface IUpdateEntityProvider {
+    Collection<DefaultEntityCollectionUpdater> createUpdateEntities(EntityDtoServiceRelation relation
+            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options) throws Exception;
     default <S> void validateAndSet(Object obj, BindingResult bindingResult, Map options){};
     default void onSuccess(Object dto, List<Object> updateEntities) {};
     default void onException(Exception ex) {}

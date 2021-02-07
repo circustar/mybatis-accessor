@@ -8,8 +8,8 @@ import com.circustar.mvcenhance.utils.FieldUtils;
 
 import java.util.*;
 
-public class UpdateTree {
-    public UpdateTree(IService service
+public class DefaultEntityCollectionUpdater implements IEntityUpdater<Collection> {
+    public DefaultEntityCollectionUpdater(IService service
             , IUpdateCommand updateCommand
             , Object option
             , EntityClassInfo entityClassInfo
@@ -29,23 +29,23 @@ public class UpdateTree {
     private IService service;
     private Boolean updatechildFirst;
     private Collection updateEntities;
-    private List<UpdateTree> subUpdateEntities;
+    private List<DefaultEntityCollectionUpdater> subUpdateEntities;
     private EntityClassInfo entityClassInfo;
     private boolean updateChildrenOnly;
 
-    public void addSubUpdateEntity(UpdateTree subUpdateTree) {
+    public void addSubUpdateEntity(DefaultEntityCollectionUpdater subDefaultEntityCollectionUpdater) {
         if(this.subUpdateEntities == null) {
             this.subUpdateEntities = new ArrayList<>();
         }
-        this.subUpdateEntities.add(subUpdateTree);
+        this.subUpdateEntities.add(subDefaultEntityCollectionUpdater);
     }
-    public void addSubUpdateEntities(Collection<UpdateTree> subUpdateEntities) {
+    public void addSubUpdateEntities(Collection<DefaultEntityCollectionUpdater> subUpdateEntities) {
         if(this.subUpdateEntities == null) {
             this.subUpdateEntities = new ArrayList<>();
         }
         this.subUpdateEntities.addAll(subUpdateEntities);
     }
-    public List<UpdateTree> getSubUpdateEntities() {
+    public List<DefaultEntityCollectionUpdater> getSubUpdateEntities() {
         return subUpdateEntities;
     }
 
@@ -53,15 +53,17 @@ public class UpdateTree {
         return updateEntities;
     }
 
+    @Override
     public boolean execUpdate() throws Exception {
         return execUpdate(new HashMap<String, Object>());
     }
 
-    protected boolean execUpdate(Map<String, Object> keyMap) throws Exception {
+    @Override
+    public boolean execUpdate(Map<String, Object> keyMap) throws Exception {
         boolean result = true;
         if(updatechildFirst && subUpdateEntities != null) {
-            for(UpdateTree subUpdateTree : subUpdateEntities) {
-                result = subUpdateTree.execUpdate(keyMap);
+            for(DefaultEntityCollectionUpdater subDefaultEntityCollectionUpdater : subUpdateEntities) {
+                result = subDefaultEntityCollectionUpdater.execUpdate(keyMap);
                 if(!result) {
                     return false;
                 }
@@ -96,8 +98,8 @@ public class UpdateTree {
         }
 
         if((!updatechildFirst) && subUpdateEntities != null) {
-            for(UpdateTree subUpdateTree : subUpdateEntities) {
-                result = subUpdateTree.execUpdate(keyMap);
+            for(DefaultEntityCollectionUpdater subDefaultEntityCollectionUpdater : subUpdateEntities) {
+                result = subDefaultEntityCollectionUpdater.execUpdate(keyMap);
                 if(!result) {
                     return false;
                 }

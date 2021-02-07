@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class AbstractUpdateTreeProvider implements IUpdateTreeProvider, ApplicationContextAware {
+public abstract class AbstractUpdateEntityProvider implements IUpdateEntityProvider, ApplicationContextAware {
     protected ApplicationContext applicationContext;
     protected Validator validator = null;
     protected ISelectService selectService = null;

@@ -1,4 +1,4 @@
-package com.circustar.mvcenhance.controller;
+package com.circustar.mvcenhance.support;
 
 import com.circustar.mvcenhance.error.ResourceNotFoundException;
 import com.circustar.mvcenhance.annotation.QueryFieldModel;
@@ -24,11 +24,11 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ControllerSupport implements ApplicationContextAware {
+public class DtoProcessor implements ApplicationContextAware {
     protected ApplicationContext applicationContext;
     protected ICrudService crudService = null;
     protected ISelectService selectService = null;
-    protected Map<String, IUpdateTreeProvider> providerMap = new HashMap<>();
+    protected Map<String, IUpdateEntityProvider> providerMap = new HashMap<>();
 
     protected IEntityDtoServiceRelationMap getEntityDtoServiceRelationMap() {
         return this.applicationContext.getBean(IEntityDtoServiceRelationMap.class);
@@ -48,13 +48,13 @@ public class ControllerSupport implements ApplicationContextAware {
         return this.selectService;
     };
 
-    protected IUpdateTreeProvider getProviderByName(String updateProvidersName) {
+    protected IUpdateEntityProvider getProviderByName(String updateProvidersName) {
         if(providerMap.containsKey(updateProvidersName)) {
             return providerMap.get(updateProvidersName);
         }
-        IUpdateTreeProvider provider = null;
+        IUpdateEntityProvider provider = null;
         if(applicationContext.containsBean(updateProvidersName)) {
-            provider =  (IUpdateTreeProvider)applicationContext.getBean(updateProvidersName);
+            provider =  (IUpdateEntityProvider)applicationContext.getBean(updateProvidersName);
         }
         providerMap.put(updateProvidersName, provider);
         return provider;
@@ -188,7 +188,7 @@ public class ControllerSupport implements ApplicationContextAware {
         Map options = new HashMap();
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        return defaultUpdateMap(map, dto_name, DefaultInsertTreeProvider.getInstance()
+        return defaultUpdateMap(map, dto_name, DefaultInsertEntityProvider.getInstance()
                 , options, true);
     }
 
@@ -200,7 +200,7 @@ public class ControllerSupport implements ApplicationContextAware {
         Map options = new HashMap();
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        return defaultUpdateMapList(mapList, dto_name, DefaultInsertTreeProvider.getInstance()
+        return defaultUpdateMapList(mapList, dto_name, DefaultInsertEntityProvider.getInstance()
                 , options, returnUpdateResult);
     }
 
@@ -216,7 +216,7 @@ public class ControllerSupport implements ApplicationContextAware {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
-        return defaultUpdateMap(map, dtoName, DefaultUpdateTreeProvider.getInstance()
+        return defaultUpdateMap(map, dtoName, DefaultUpdateEntityProvider.getInstance()
                 , options, true);
     }
 
@@ -232,7 +232,7 @@ public class ControllerSupport implements ApplicationContextAware {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
-        return defaultUpdateMapList(mapList, dto_name, DefaultUpdateTreeProvider.getInstance()
+        return defaultUpdateMapList(mapList, dto_name, DefaultUpdateEntityProvider.getInstance()
                 , options, returnUpdateResult);
     }
 
@@ -254,12 +254,12 @@ public class ControllerSupport implements ApplicationContextAware {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
 
-        return defaultUpdateObject(ids, dto_name, DefaultDeleteTreeProvider.getInstance()
+        return defaultUpdateObject(ids, dto_name, DefaultDeleteEntityProvider.getInstance()
                 , options, false);
     }
 
     public IServiceResult defaultUpdateMapList(
-            List<Map> mapList, String dto_name, IUpdateTreeProvider updateEntityProvider, Map options
+            List<Map> mapList, String dto_name, IUpdateEntityProvider updateEntityProvider, Map options
             , boolean returnUpdateResult) throws Exception {
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
         String entityName = FieldUtils.parseClassName(dto_name);
@@ -276,7 +276,7 @@ public class ControllerSupport implements ApplicationContextAware {
     public IServiceResult defaultUpdateMap(
             Map map, String dto_name, String updateProvidersName, Map options
             , boolean returnUpdateResult) throws Exception {
-        IUpdateTreeProvider updateEntityProvider = this.getProviderByName(updateProvidersName);
+        IUpdateEntityProvider updateEntityProvider = this.getProviderByName(updateProvidersName);
         if(updateEntityProvider == null) {
             throw new ResourceNotFoundException("update provider not found");
         }
@@ -284,7 +284,7 @@ public class ControllerSupport implements ApplicationContextAware {
     }
 
     public IServiceResult defaultUpdateMap(
-            Map map, String dto_name, IUpdateTreeProvider updateEntityProvider, Map options
+            Map map, String dto_name, IUpdateEntityProvider updateEntityProvider, Map options
             , boolean returnUpdateResult) throws Exception {
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
         String entityName = FieldUtils.parseClassName(dto_name);
@@ -297,7 +297,7 @@ public class ControllerSupport implements ApplicationContextAware {
 
     public IServiceResult defaultUpdateMap(
             Map map, String dto_name, EntityDtoServiceRelation relationInfo
-            , IUpdateTreeProvider updateEntityProvider, Map options
+            , IUpdateEntityProvider updateEntityProvider, Map options
             , boolean returnUpdateResult) throws Exception {
 
         Object updateObject = (new ObjectMapper()).convertValue(map, relationInfo.getDtoClass());
@@ -307,7 +307,7 @@ public class ControllerSupport implements ApplicationContextAware {
 
     public IServiceResult defaultUpdateObject(
             Object updateObject, String dto_name
-            , IUpdateTreeProvider updateEntityProvider
+            , IUpdateEntityProvider updateEntityProvider
             , Map options
             , boolean returnUpdateResult) throws Exception {
 
@@ -323,7 +323,7 @@ public class ControllerSupport implements ApplicationContextAware {
 
     public IServiceResult defaultUpdateObject(
             Object updateObject, String dto_name, EntityDtoServiceRelation relationInfo
-            , IUpdateTreeProvider updateEntityProvider, Map options, boolean returnUpdateResult) throws Exception {
+            , IUpdateEntityProvider updateEntityProvider, Map options, boolean returnUpdateResult) throws Exception {
         IServiceResult serviceResult = new DefaultServiceResult();
         BindException errors = null;
         try {

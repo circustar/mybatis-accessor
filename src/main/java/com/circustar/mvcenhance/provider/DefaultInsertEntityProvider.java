@@ -12,16 +12,16 @@ import com.circustar.mvcenhance.utils.MapOptionUtils;
 
 import java.util.*;
 
-public class DefaultInsertTreeProvider extends AbstractUpdateTreeProvider {
-    private static DefaultInsertTreeProvider instance = new DefaultInsertTreeProvider();
-    public static DefaultInsertTreeProvider getInstance() {
+public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
+    private static DefaultInsertEntityProvider instance = new DefaultInsertEntityProvider();
+    public static DefaultInsertEntityProvider getInstance() {
         return instance;
     }
 
     @Override
-    public Collection<UpdateTree> createUpdateEntities(EntityDtoServiceRelation relation
+    public Collection<DefaultEntityCollectionUpdater> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options) throws Exception {
-        List<UpdateTree> result = new ArrayList<>();
+        List<DefaultEntityCollectionUpdater> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(dto);
         if(values.size() == 0) {return result;}
 
@@ -47,7 +47,7 @@ public class DefaultInsertTreeProvider extends AbstractUpdateTreeProvider {
             }
             Object updateTarget = dtoClassInfoHelper.convertToEntity(value);
             updateTargetList.add(updateTarget);
-            UpdateTree updateTree = new UpdateTree(relation.getServiceBean(applicationContext)
+            DefaultEntityCollectionUpdater defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdater(relation.getServiceBean(applicationContext)
                     , InsertCommand.getInstance()
                     , null
                     , dtoClassInfo.getEntityClassInfo()
@@ -64,25 +64,25 @@ public class DefaultInsertTreeProvider extends AbstractUpdateTreeProvider {
                 newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
                 newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, this.getChildren(children
                         , entityName, "."));
-                updateTree.addSubUpdateEntities(this.createUpdateEntities(
+                defaultEntityCollectionUpdater.addSubUpdateEntities(this.createUpdateEntities(
                         dtoField.getEntityDtoServiceRelation()
                         , dtoClassInfoHelper, childList, newOptions));
             }
-            result.add(updateTree);
+            result.add(defaultEntityCollectionUpdater);
         }
 
         if(!hasChildren) {
             if(updateChildrenOnly) {
                 return Collections.emptyList();
             } else {
-                UpdateTree updateTree = new UpdateTree(relation.getServiceBean(applicationContext)
+                DefaultEntityCollectionUpdater defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdater(relation.getServiceBean(applicationContext)
                         , InsertCommand.getInstance()
                         , null
                         , dtoClassInfo.getEntityClassInfo()
                         , updateTargetList
                         , false
                         , false);
-                return Collections.singletonList(updateTree);
+                return Collections.singletonList(defaultEntityCollectionUpdater);
             }
         }
 

@@ -14,8 +14,6 @@ public class DeleteWrapperCommand extends DeleteByIdCommand {
         return batchCommand;
     }
 
-    public static final String PHYSIC_DELETE_FLAG = "PHYSIC_DELETE_FLAG";
-
     @Override
     public <T extends Collection> boolean update(IService service, T collection, Object option) throws Exception {
         List<Wrapper> physicDeleteCollection = new ArrayList();

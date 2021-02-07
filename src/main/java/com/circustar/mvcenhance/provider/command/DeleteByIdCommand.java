@@ -14,9 +14,6 @@ public class DeleteByIdCommand implements IUpdateCommand {
         return batchCommand;
     }
 
-    public static final String ID_FIELD_NAME = "id";
-    public static final String PHYSIC_DELETE_FIELD_NAME = "PHYSIC_DELETE_FIELD_NAME";
-
     @Override
     public <T extends Collection> boolean update(IService service, T collection, Object option) throws Exception {
         for(Object var1 : collection) {
