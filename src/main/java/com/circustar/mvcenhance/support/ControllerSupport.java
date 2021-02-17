@@ -25,7 +25,6 @@ import org.springframework.context.ApplicationContext;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 // TODO:bug fix
 // 相同列名
@@ -100,6 +99,14 @@ public class ControllerSupport implements ApplicationContextAware {
             throw new ResourceNotFoundException(dtoName);
         }
         return relationInfo;
+    }
+
+    protected List<Object> convertFromMapList(List<Object> mapList, Class clazz) {
+        List<Object> result = new ArrayList<>();
+        for(Object map : mapList) {
+            result.add(objectMapper.convertValue(map, clazz));
+        }
+        return result;
     }
 
     /*
@@ -207,7 +214,7 @@ public class ControllerSupport implements ApplicationContextAware {
         List<Object> objects = mapList;
         if(Map.class.isAssignableFrom(actualClass)) {
 //            ObjectMapper objectMapper = new ObjectMapper();
-            objects = mapList.stream().map(x -> objectMapper.convertValue(x, relationInfo.getDtoClass())).collect(Collectors.toList());
+            objects = convertFromMapList(mapList, relationInfo.getDtoClass());
         }
         return saveEntities(dtoName, objects, relationInfo, children, updateChildrenOnly, returnUpdateResult);
     }
@@ -271,7 +278,7 @@ public class ControllerSupport implements ApplicationContextAware {
         List<Object> objects = mapList;
         if(Map.class.isAssignableFrom(actualClass)) {
 //            ObjectMapper objectMapper = new ObjectMapper();
-            objects = mapList.stream().map(x -> objectMapper.convertValue(x, relationInfo.getDtoClass())).collect(Collectors.toList());
+            objects = convertFromMapList(mapList, relationInfo.getDtoClass());
         }
 
         return updateEntities(dtoName, objects, relationInfo, children
