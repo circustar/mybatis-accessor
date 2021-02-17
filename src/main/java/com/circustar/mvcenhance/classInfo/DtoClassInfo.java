@@ -86,7 +86,8 @@ public class DtoClassInfo {
 
             TableInfo joinTableInfo = TableInfoHelper.getTableInfo(relationMap.getByDtoClass(joinClazz).getEntityClass());
             String strAlias = tableJoinInfo.getJoinTable().alias();
-            joinTableList.add("left join " + joinTableInfo.getTableName() + " " + strAlias);
+            joinTableList.add(tableJoinInfo.getJoinTable().joinType().getJoinString()
+                    + " " + joinTableInfo.getTableName() + " " + strAlias);
             String joinColumnStr = Arrays.stream(tableJoinInfo.getJoinTable().joinColumns())
                     .map(x -> x.connector().convert((StringUtils.isBlank(masterTableName) ? "" : (masterTableName + ".")) + x.masterTableColumn(), x.value()))
                     .collect(Collectors.joining(" and "));
