@@ -12,13 +12,8 @@ public interface ISelectService {
             , Serializable id
             , String[] children) throws Exception;
 
-    Object getDtoById(EntityDtoServiceRelation relationInfo
-            , Serializable id
-            , String[] children
-            , String queryGroup) throws Exception;
-
     <T> PageInfo<T> getPagesByDtoAnnotation(EntityDtoServiceRelation relationInfo
-            , Object object, String queryGroup
+            , Object object
             , Integer page_index
             , Integer page_size
             ) throws Exception;
@@ -31,7 +26,6 @@ public interface ISelectService {
 
     List getListByDtoAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
-            , String queryGroup
     ) throws Exception;
 
     <T> List<T> getListByQueryFields(EntityDtoServiceRelation relationInfo

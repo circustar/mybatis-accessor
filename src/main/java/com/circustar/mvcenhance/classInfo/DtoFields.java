@@ -113,7 +113,7 @@ public class DtoFields {
     }
 
     public static void queryAndAssignDtoField(ApplicationContext applicationContext, DtoClassInfoHelper dtoClassInfoHelper, IEntityDtoServiceRelationMap relationMap, EntityDtoServiceRelation relationInfo, Object dto
-            , Map<String , Selector[]> tableJoinerMap, String groupName) throws IllegalAccessException, InstantiationException {
+            , Map<String , Selector[]> tableJoinerMap) throws IllegalAccessException, InstantiationException {
         StandardEvaluationContext standardEvaluationContext = new StandardEvaluationContext(dto);
         for(String fieldName : tableJoinerMap.keySet()) {
             Selector[] selectors = tableJoinerMap.get(fieldName);

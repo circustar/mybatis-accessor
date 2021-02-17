@@ -17,20 +17,11 @@ public class QueryFieldModel {
     public static String ORDER_DESC = "desc";
     public static String ORDER_ASC = "asc";
 
-    private String group;
     private String column;
     private String connector;
     private Object[] values;
     private String sort_order;
     private Integer sort_index;
-
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
-    }
 
     public String getColumn() {
         return column;
@@ -92,23 +83,18 @@ public class QueryFieldModel {
     }
 
     public static List<QueryFieldModel> getQueryFieldModeFromDto(DtoClassInfo dtoClassInfo, Object dto) throws NoSuchFieldException, IllegalAccessException {
-        return getQueryFieldModeFromDto(dtoClassInfo, dto, "");
-    }
-
-    public static List<QueryFieldModel> getQueryFieldModeFromDto(DtoClassInfo dtoClassInfo, Object dto, String groupName) throws NoSuchFieldException, IllegalAccessException {
         List<QueryFieldModel> result = new ArrayList<>();
         List<QueryFieldImpl> allQueryFields = new ArrayList<>();
-        StandardEvaluationContext context = new StandardEvaluationContext(dto);
         for(DtoField dtoField : dtoClassInfo.getNormalFieldList()) {
             Object fieldValue = FieldUtils.getValue(dto, dtoField.getFieldTypeInfo().getField());
-            Set<QueryField> queryFieldSet = dtoField.getQueryField(groupName);
+            List<QueryField> queryFields = dtoField.getQueryFields();
             FieldTypeInfo entityField = dtoClassInfo.getEntityClassInfo().getFieldByName(dtoField.getFieldName());
             String defaultColumnName = null;
             if(entityField != null) {
                 defaultColumnName = TableInfoUtils.getDBObjectName(entityField.getField().getName());
             }
             List<QueryFieldImpl> queryFieldImpls = null;
-            if(queryFieldSet == null  || queryFieldSet.size() == 0) {
+            if(queryFields == null  || queryFields.size() == 0) {
                 if(entityField == null) {
                     continue;
                 }
@@ -117,13 +103,8 @@ public class QueryFieldModel {
                 queryFieldImpls.add(queryFieldImpl);
             } else {
                 String finalDefaultColumnName = defaultColumnName;
-                queryFieldImpls = dtoField.getQueryField(groupName).stream().map(x -> {
-                    Object expressionValue = null;
-                    if(!StringUtils.isEmpty(x.expression())) {
-                        expressionValue = SPELParser.parseExpression(context, x.expression());
-                    } else {
-                        expressionValue = fieldValue;
-                    }
+                queryFieldImpls = queryFields.stream().map(x -> {
+                    Object expressionValue = fieldValue;
                     if(expressionValue != null
                             && x.connector() == Connector.exists || x.connector() == Connector.notExists) {
                         expressionValue = expressionValue.toString().replace("'", "");
@@ -131,11 +112,9 @@ public class QueryFieldModel {
                     QueryFieldImpl queryFieldImpl = new QueryFieldImpl();
                     queryFieldImpl.setConnector(x.connector());
                     queryFieldImpl.setColumn(StringUtils.isEmpty(x.column())? finalDefaultColumnName :x.column());
-                    queryFieldImpl.setGroup(groupName);
                     queryFieldImpl.setSortIndex(x.sortIndex());
                     queryFieldImpl.setSortOrder(x.sortOrder());
                     queryFieldImpl.setValue(expressionValue);
-                    queryFieldImpl.setExpression(x.expression());
                     return queryFieldImpl;
                 }).collect(Collectors.toList());
             }
@@ -164,7 +143,6 @@ public class QueryFieldModel {
                 QueryFieldModel queryFieldModel = new QueryFieldModel();
                 queryFieldModel.setConnector(connector.name());
                 queryFieldModel.setColumn(columnName);
-                queryFieldModel.setGroup(groupName);
                 queryFieldModel.setValues(values);
                 if(i == 0 && sortIndex != null) {
                     queryFieldModel.setSort_index(sortIndex);

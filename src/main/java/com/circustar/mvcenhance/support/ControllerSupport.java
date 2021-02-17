@@ -77,30 +77,14 @@ public class ControllerSupport implements ApplicationContextAware {
     /*
      *** 通过ID获取实体类，转换成dto后返回
      *** 指定sub_entities参数可返回关联的子项
-     *** GroupName默认为空
-     */
-    public IServiceResult getById(String dto_name
-            , Serializable id
-            , String sub_entities) throws Exception {
-        return getById(dto_name, id, sub_entities, "");
-    }
-
-    /*
-     *** 通过ID获取实体类，转换成dto后返回
-     *** 指定sub_entities参数可返回关联的子项
      *** 检索子项时使用与groupName相匹配的EntityFilter的条件
      *** 子项中不存在EntityFilter注解时，默认使用主类ID作为检索条件
      */
     public IServiceResult getById(String dto_name
             , Serializable id
-            , String sub_entities
-            , String groupName) throws Exception {
+            , String sub_entities) throws Exception {
 
         IServiceResult serviceResult = new DefaultServiceResult();
-        if (groupName == null) {
-            groupName = "";
-        }
-
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
 
         String entityName = FieldUtils.parseClassName(dto_name);
@@ -109,8 +93,7 @@ public class ControllerSupport implements ApplicationContextAware {
             throw new ResourceNotFoundException(dto_name);
         }
         Object data = getSelectService().getDtoById(relationInfo, id
-                , ArrayParamUtils.convertStringToArray(sub_entities, ArrayParamUtils.DELIMITER_COMMA)
-                , groupName);
+                , ArrayParamUtils.convertStringToArray(sub_entities, ArrayParamUtils.DELIMITER_COMMA));
         serviceResult.setData(data);
         return serviceResult;
     }
@@ -124,23 +107,7 @@ public class ControllerSupport implements ApplicationContextAware {
             , Integer page_index
             , Integer page_size
             , Map map) throws Exception {
-        return getPagesByDtoAnnotation(dto_name, page_index, page_size, map, "");
-    }
-
-    /*
-     *** 读取dto中QueryField注解信息，组装成查询条件后查询实体列表，转化dto列表后返回
-     *** page_index、page_size指定分页信息
-     */
-    public IServiceResult getPagesByDtoAnnotation(
-            String dto_name
-            , Integer page_index
-            , Integer page_size
-            , Map map
-            , String queryGroup) throws Exception {
         IServiceResult serviceResult = new DefaultServiceResult();
-        if(queryGroup == null) {
-            queryGroup = "";
-        }
 
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
         String entityName = FieldUtils.parseClassName(dto_name);
@@ -154,11 +121,11 @@ public class ControllerSupport implements ApplicationContextAware {
 
         if(page_index != null && page_size != null) {
             PageInfo pageInfo = getSelectService().getPagesByDtoAnnotation(relationInfo, dto
-                    , queryGroup, page_index, page_size);
+                    , page_index, page_size);
 
             serviceResult.setData(pageInfo);
         } else {
-            List dataList = getSelectService().getListByDtoAnnotation(relationInfo, dto, queryGroup);
+            List dataList = getSelectService().getListByDtoAnnotation(relationInfo, dto);
             serviceResult.setData(dataList);
         }
 

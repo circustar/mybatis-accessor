@@ -41,14 +41,6 @@ public class SelectService implements ISelectService {
     public Object getDtoById(EntityDtoServiceRelation relationInfo
             , Serializable id
             , String[] children) throws Exception {
-        return getDtoById(relationInfo, id, children, "");
-    }
-
-    @Override
-    public Object getDtoById(EntityDtoServiceRelation relationInfo
-            , Serializable id
-            , String[] children
-            , String queryGroup) throws Exception {
         IService s = relationInfo.getServiceBean(applicationContext);
         Object oriEntity = s.getById(id);
         if (oriEntity == null) {
@@ -77,8 +69,7 @@ public class SelectService implements ISelectService {
                 , entityDtoServiceRelationMap
                 , relationInfo
                 , result
-                , tableJoinerMap
-                , queryGroup);
+                , tableJoinerMap);
 
         return result;
     }
@@ -86,12 +77,11 @@ public class SelectService implements ISelectService {
     @Override
     public <T> PageInfo<T> getPagesByDtoAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
-            , String queryGroup
             , Integer page_index
             , Integer page_size
             ) throws Exception {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
-        List<QueryFieldModel> queryFiledModelList = QueryFieldModel.getQueryFieldModeFromDto(dtoClassInfo, object, queryGroup);
+        List<QueryFieldModel> queryFiledModelList = QueryFieldModel.getQueryFieldModeFromDto(dtoClassInfo, object);
 
         return getPagesByQueryFields(relationInfo, queryFiledModelList, page_index, page_size);
     }
@@ -127,10 +117,9 @@ public class SelectService implements ISelectService {
     @Override
     public List getListByDtoAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
-            , String queryGroup
     ) throws Exception {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
-        List<QueryFieldModel> queryFiledModelList = QueryFieldModel.getQueryFieldModeFromDto(dtoClassInfo, object, queryGroup);
+        List<QueryFieldModel> queryFiledModelList = QueryFieldModel.getQueryFieldModeFromDto(dtoClassInfo, object);
 
         return getListByQueryFields(relationInfo, queryFiledModelList);
     }
