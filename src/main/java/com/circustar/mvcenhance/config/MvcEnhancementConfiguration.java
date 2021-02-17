@@ -3,20 +3,25 @@ package com.circustar.mvcenhance.config;
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import com.circustar.mvcenhance.classInfo.DtoClassInfoHelper;
 import com.circustar.mvcenhance.classInfo.EntityClassInfoHelper;
-import com.circustar.mvcenhance.support.DtoProcessor;
+import com.circustar.mvcenhance.relation.ScanValidatorOnStartup;
+import com.circustar.mvcenhance.support.ControllerSupport;
 import com.circustar.mvcenhance.utils.TableInfoUtils;
 import com.circustar.mvcenhance.injector.EnhanceSqlInjector;
-import com.circustar.mvcenhance.service.CrudService;
+import com.circustar.mvcenhance.service.UpdateService;
 import com.circustar.mvcenhance.service.ISelectService;
 import com.circustar.mvcenhance.service.SelectService;
 import com.circustar.mvcenhance.provider.*;
+import com.circustar.mvcenhance.validator.DefaultDeleteValidator;
+import com.circustar.mvcenhance.validator.DefaultInsertValidator;
+import com.circustar.mvcenhance.validator.DefaultUpdateValidator;
+import com.circustar.mvcenhance.validator.DtoValidatorManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.ApplicationContext;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.relation.ScanRelationOnStartup;
-import com.circustar.mvcenhance.service.ICrudService;
+import com.circustar.mvcenhance.service.IUpdateService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -32,11 +37,13 @@ public class MvcEnhancementConfiguration {
     private IEntityDtoServiceRelationMap entityDtoServiceRelationMap = null;
     private EnhanceSqlInjector enhanceSqlInjector = null;
     private ScanRelationOnStartup scanRelationOnStartup;
-    private ICrudService crudService;
+    private IUpdateService crudService;
     private ISelectService selectService;
     private EntityClassInfoHelper entityClassInfoHelper;
     private DtoClassInfoHelper dtoClassInfoHelper;
-    private DtoProcessor dtoProcessor;
+    private ControllerSupport controllerSupport;
+    private DtoValidatorManager dtoValidatorManager;
+    private ScanValidatorOnStartup scanValidatorOnStartup;
 
     public MvcEnhancementConfiguration(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -44,11 +51,16 @@ public class MvcEnhancementConfiguration {
         this.entityDtoServiceRelationMap = new EntityDtoServiceRelationMap();
         this.entityClassInfoHelper = new EntityClassInfoHelper();
         this.dtoClassInfoHelper = new DtoClassInfoHelper(this.entityDtoServiceRelationMap, this.entityClassInfoHelper);
-        this.crudService = new CrudService(this.applicationContext, this.dtoClassInfoHelper, this.entityDtoServiceRelationMap);
+        this.crudService = new UpdateService(this.applicationContext, this.dtoClassInfoHelper, this.entityDtoServiceRelationMap);
         this.selectService = new SelectService(this.applicationContext, this.entityDtoServiceRelationMap, this.dtoClassInfoHelper);
         this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
-        this.dtoProcessor = new DtoProcessor();
+        this.controllerSupport = new ControllerSupport();
         TableInfoUtils.scanPackages.getAndSet(getMapperScanPackages(this.applicationContext));
+        this.dtoValidatorManager = new DtoValidatorManager(this.applicationContext
+                , DefaultInsertEntityProvider.getInstance()
+                , DefaultUpdateEntityProvider.getInstance()
+                , DefaultDeleteEntityProvider.getInstance());
+        this.scanValidatorOnStartup = new ScanValidatorOnStartup(this.dtoValidatorManager);
     }
 
     private List<String> getMapperScanPackages(ApplicationContext applicationContext) {
@@ -59,7 +71,6 @@ public class MvcEnhancementConfiguration {
     }
 
     @Bean
-//    @ConditionalOnProperty("mybatis-plus.global-config.db-config.logic-delete-field")
     public EnhanceSqlInjector getEnhanceSqlInjector() {
         return this.enhanceSqlInjector;
     }
@@ -75,7 +86,7 @@ public class MvcEnhancementConfiguration {
     }
 
     @Bean
-    public ICrudService getCrudService() {
+    public IUpdateService getCrudService() {
         return this.crudService;
     }
 
@@ -110,7 +121,17 @@ public class MvcEnhancementConfiguration {
     }
 
     @Bean
-    public DtoProcessor getDtoProcessor() {
-        return this.dtoProcessor;
+    public ControllerSupport getControllerSupport() {
+        return this.controllerSupport;
+    }
+
+    @Bean
+    public DtoValidatorManager getDtoValidatorManager() {
+        return this.dtoValidatorManager;
+    }
+
+    @Bean
+    public ScanValidatorOnStartup getScanValidatorOnStartup() {
+        return this.scanValidatorOnStartup;
     }
 }

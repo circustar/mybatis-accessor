@@ -1,4 +1,4 @@
-package com.circustar.mvcenhance.provider;
+package com.circustar.mvcenhance.updateProcessor;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mvcenhance.classInfo.EntityClassInfo;
@@ -8,8 +8,8 @@ import com.circustar.mvcenhance.utils.FieldUtils;
 
 import java.util.*;
 
-public class DefaultEntityCollectionUpdater implements IEntityUpdater<Collection> {
-    public DefaultEntityCollectionUpdater(IService service
+public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProcessor<Collection> {
+    public DefaultEntityCollectionUpdateProcessor(IService service
             , IUpdateCommand updateCommand
             , Object option
             , EntityClassInfo entityClassInfo
@@ -29,23 +29,23 @@ public class DefaultEntityCollectionUpdater implements IEntityUpdater<Collection
     private IService service;
     private Boolean updatechildFirst;
     private Collection updateEntities;
-    private List<DefaultEntityCollectionUpdater> subUpdateEntities;
+    private List<DefaultEntityCollectionUpdateProcessor> subUpdateEntities;
     private EntityClassInfo entityClassInfo;
     private boolean updateChildrenOnly;
 
-    public void addSubUpdateEntity(DefaultEntityCollectionUpdater subDefaultEntityCollectionUpdater) {
+    public void addSubUpdateEntity(DefaultEntityCollectionUpdateProcessor subDefaultEntityCollectionUpdater) {
         if(this.subUpdateEntities == null) {
             this.subUpdateEntities = new ArrayList<>();
         }
         this.subUpdateEntities.add(subDefaultEntityCollectionUpdater);
     }
-    public void addSubUpdateEntities(Collection<DefaultEntityCollectionUpdater> subUpdateEntities) {
+    public void addSubUpdateEntities(Collection<DefaultEntityCollectionUpdateProcessor> subUpdateEntities) {
         if(this.subUpdateEntities == null) {
             this.subUpdateEntities = new ArrayList<>();
         }
         this.subUpdateEntities.addAll(subUpdateEntities);
     }
-    public List<DefaultEntityCollectionUpdater> getSubUpdateEntities() {
+    public List<DefaultEntityCollectionUpdateProcessor> getSubUpdateEntities() {
         return subUpdateEntities;
     }
 
@@ -62,7 +62,7 @@ public class DefaultEntityCollectionUpdater implements IEntityUpdater<Collection
     public boolean execUpdate(Map<String, Object> keyMap) throws Exception {
         boolean result = true;
         if(updatechildFirst && subUpdateEntities != null) {
-            for(DefaultEntityCollectionUpdater subDefaultEntityCollectionUpdater : subUpdateEntities) {
+            for(DefaultEntityCollectionUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
                 result = subDefaultEntityCollectionUpdater.execUpdate(keyMap);
                 if(!result) {
                     return false;
@@ -98,7 +98,7 @@ public class DefaultEntityCollectionUpdater implements IEntityUpdater<Collection
         }
 
         if((!updatechildFirst) && subUpdateEntities != null) {
-            for(DefaultEntityCollectionUpdater subDefaultEntityCollectionUpdater : subUpdateEntities) {
+            for(DefaultEntityCollectionUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
                 result = subDefaultEntityCollectionUpdater.execUpdate(keyMap);
                 if(!result) {
                     return false;

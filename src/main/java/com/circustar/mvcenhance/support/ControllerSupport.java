@@ -9,11 +9,12 @@ import com.circustar.mvcenhance.response.PageInfo;
 import com.circustar.mvcenhance.utils.MvcEnhanceConstants;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;
-import com.circustar.mvcenhance.service.ICrudService;
+import com.circustar.mvcenhance.service.IUpdateService;
 import com.circustar.mvcenhance.service.ISelectService;
 import com.circustar.mvcenhance.provider.*;
 import com.circustar.mvcenhance.utils.ArrayParamUtils;
 import com.circustar.mvcenhance.utils.FieldUtils;
+import com.circustar.mvcenhance.validator.DtoValidatorManager;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.validation.*;
@@ -24,21 +25,26 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class DtoProcessor implements ApplicationContextAware {
+public class ControllerSupport implements ApplicationContextAware {
+    protected IEntityDtoServiceRelationMap entityDtoServiceRelationMap = null;
     protected ApplicationContext applicationContext;
-    protected ICrudService crudService = null;
+    protected IUpdateService updateService = null;
     protected ISelectService selectService = null;
     protected Map<String, IUpdateEntityProvider> providerMap = new HashMap<>();
+    protected DtoValidatorManager dtoValidatorManager = null;
 
     protected IEntityDtoServiceRelationMap getEntityDtoServiceRelationMap() {
-        return this.applicationContext.getBean(IEntityDtoServiceRelationMap.class);
+        if(this.entityDtoServiceRelationMap == null) {
+            this.entityDtoServiceRelationMap = this.applicationContext.getBean(IEntityDtoServiceRelationMap.class);
+        }
+        return this.entityDtoServiceRelationMap;
     };
 
-    protected ICrudService getCrudService() {
-        if(this.crudService == null) {
-            this.crudService = applicationContext.getBean(ICrudService.class);
+    protected IUpdateService getUpdateService() {
+        if(this.updateService == null) {
+            this.updateService = applicationContext.getBean(IUpdateService.class);
         }
-        return this.crudService;
+        return this.updateService;
     }
 
     protected ISelectService getSelectService() {
@@ -46,6 +52,13 @@ public class DtoProcessor implements ApplicationContextAware {
             this.selectService = applicationContext.getBean(ISelectService.class);
         }
         return this.selectService;
+    };
+
+    protected DtoValidatorManager getDtoValidatorManager() {
+        if(this.dtoValidatorManager == null) {
+            this.dtoValidatorManager = applicationContext.getBean(DtoValidatorManager.class);
+        }
+        return this.dtoValidatorManager;
     };
 
     protected IUpdateEntityProvider getProviderByName(String updateProvidersName) {
@@ -188,7 +201,7 @@ public class DtoProcessor implements ApplicationContextAware {
         Map options = new HashMap();
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        return defaultUpdateMap(map, dto_name, DefaultInsertEntityProvider.getInstance()
+        return updateMap(map, dto_name, DefaultInsertEntityProvider.getInstance()
                 , options, true);
     }
 
@@ -200,7 +213,7 @@ public class DtoProcessor implements ApplicationContextAware {
         Map options = new HashMap();
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        return defaultUpdateMapList(mapList, dto_name, DefaultInsertEntityProvider.getInstance()
+        return updateMapList(mapList, dto_name, DefaultInsertEntityProvider.getInstance()
                 , options, returnUpdateResult);
     }
 
@@ -216,7 +229,7 @@ public class DtoProcessor implements ApplicationContextAware {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
-        return defaultUpdateMap(map, dtoName, DefaultUpdateEntityProvider.getInstance()
+        return updateMap(map, dtoName, DefaultUpdateEntityProvider.getInstance()
                 , options, true);
     }
 
@@ -232,7 +245,7 @@ public class DtoProcessor implements ApplicationContextAware {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
-        return defaultUpdateMapList(mapList, dto_name, DefaultUpdateEntityProvider.getInstance()
+        return updateMapList(mapList, dto_name, DefaultUpdateEntityProvider.getInstance()
                 , options, returnUpdateResult);
     }
 
@@ -254,11 +267,11 @@ public class DtoProcessor implements ApplicationContextAware {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
 
-        return defaultUpdateObject(ids, dto_name, DefaultDeleteEntityProvider.getInstance()
+        return updateDto(ids, dto_name, DefaultDeleteEntityProvider.getInstance()
                 , options, false);
     }
 
-    public IServiceResult defaultUpdateMapList(
+    public IServiceResult updateMapList(
             List<Map> mapList, String dto_name, IUpdateEntityProvider updateEntityProvider, Map options
             , boolean returnUpdateResult) throws Exception {
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
@@ -270,20 +283,20 @@ public class DtoProcessor implements ApplicationContextAware {
         ObjectMapper objectMapper = new ObjectMapper();
         Object entities = mapList.stream().map(x -> objectMapper.convertValue(x, relationInfo.getDtoClass())).collect(Collectors.toList());
 
-        return defaultUpdateObject(entities, dto_name, relationInfo, updateEntityProvider, options, returnUpdateResult);
+        return updateDto(entities, dto_name, relationInfo, updateEntityProvider, options, returnUpdateResult);
     }
 
-    public IServiceResult defaultUpdateMap(
+    public IServiceResult updateMap(
             Map map, String dto_name, String updateProvidersName, Map options
             , boolean returnUpdateResult) throws Exception {
         IUpdateEntityProvider updateEntityProvider = this.getProviderByName(updateProvidersName);
         if(updateEntityProvider == null) {
             throw new ResourceNotFoundException("update provider not found");
         }
-        return defaultUpdateMap(map, dto_name, updateEntityProvider, options, returnUpdateResult);
+        return updateMap(map, dto_name, updateEntityProvider, options, returnUpdateResult);
     }
 
-    public IServiceResult defaultUpdateMap(
+    public IServiceResult updateMap(
             Map map, String dto_name, IUpdateEntityProvider updateEntityProvider, Map options
             , boolean returnUpdateResult) throws Exception {
         IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
@@ -292,20 +305,20 @@ public class DtoProcessor implements ApplicationContextAware {
         if (relationInfo == null) {
             throw new ResourceNotFoundException(dto_name);
         }
-        return defaultUpdateMap(map, dto_name,  relationInfo, updateEntityProvider, options, returnUpdateResult);
+        return updateMap(map, dto_name,  relationInfo, updateEntityProvider, options, returnUpdateResult);
     }
 
-    public IServiceResult defaultUpdateMap(
+    public IServiceResult updateMap(
             Map map, String dto_name, EntityDtoServiceRelation relationInfo
             , IUpdateEntityProvider updateEntityProvider, Map options
             , boolean returnUpdateResult) throws Exception {
 
         Object updateObject = (new ObjectMapper()).convertValue(map, relationInfo.getDtoClass());
-        return defaultUpdateObject(updateObject, dto_name,  relationInfo, updateEntityProvider, options
+        return updateDto(updateObject, dto_name,  relationInfo, updateEntityProvider, options
                 , returnUpdateResult);
     }
 
-    public IServiceResult defaultUpdateObject(
+    public IServiceResult updateDto(
             Object updateObject, String dto_name
             , IUpdateEntityProvider updateEntityProvider
             , Map options
@@ -317,20 +330,25 @@ public class DtoProcessor implements ApplicationContextAware {
         if (relationInfo == null) {
             throw new ResourceNotFoundException(dto_name);
         }
-        return defaultUpdateObject(updateObject, dto_name,  relationInfo, updateEntityProvider
+        return updateDto(updateObject, dto_name,  relationInfo, updateEntityProvider
                 , options, returnUpdateResult);
     }
 
-    public IServiceResult defaultUpdateObject(
+    public IServiceResult updateDto(
             Object updateObject, String dto_name, EntityDtoServiceRelation relationInfo
             , IUpdateEntityProvider updateEntityProvider, Map options, boolean returnUpdateResult) throws Exception {
         IServiceResult serviceResult = new DefaultServiceResult();
         BindException errors = null;
         try {
-            ICrudService crudService = getCrudService();
+            IUpdateService crudService = getUpdateService();
+            DtoValidatorManager dtoValidatorManager = this.getDtoValidatorManager();
             errors = new BindException(updateObject, dto_name);
+            dtoValidatorManager.validate(updateObject, updateEntityProvider, errors);
+            if(errors.hasErrors()) {
+                throw new ValidateException("validate failed");
+            }
             Collection<Object> updatedEntities = crudService.updateByProviders(relationInfo
-                    , updateObject, updateEntityProvider, options, errors);
+                    , updateObject, updateEntityProvider, options);
             if(returnUpdateResult) {
                 serviceResult.setData(updatedEntities);
             }

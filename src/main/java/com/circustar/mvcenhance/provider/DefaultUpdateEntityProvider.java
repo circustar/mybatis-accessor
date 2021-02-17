@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.circustar.mvcenhance.classInfo.DtoClassInfo;
 import com.circustar.mvcenhance.classInfo.DtoClassInfoHelper;
 import com.circustar.mvcenhance.classInfo.DtoField;
+import com.circustar.mvcenhance.updateProcessor.DefaultEntityCollectionUpdateProcessor;
 import com.circustar.mvcenhance.utils.MvcEnhanceConstants;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.provider.command.*;
@@ -19,9 +20,9 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
         return instance;
     }
     @Override
-    public Collection<DefaultEntityCollectionUpdater> createUpdateEntities(EntityDtoServiceRelation relation
+    public Collection<DefaultEntityCollectionUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options) throws Exception {
-        List<DefaultEntityCollectionUpdater> result = new ArrayList<>();
+        List<DefaultEntityCollectionUpdateProcessor> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(dto);
         if(values.size() == 0) {return result;}
 
@@ -34,7 +35,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
 
         DefaultDeleteEntityProvider defaultDeleteTreeProvider =  DefaultDeleteEntityProvider.getInstance();
         DefaultInsertEntityProvider inertEntitiesEntityProvider = DefaultInsertEntityProvider.getInstance();
-        List<DefaultEntityCollectionUpdater> defaultEntityCollectionUpdaterCollection = new ArrayList<>();
+        List<DefaultEntityCollectionUpdateProcessor> defaultEntityCollectionUpdaterCollection = new ArrayList<>();
         String keyColumn = dtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn();
 
         String[] topEntities = this.getTopEntities(childNameList, ".");
@@ -44,7 +45,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
             Object updateTarget = dtoClassInfoHelper.convertToEntity(value);
             updateTargetList.add(updateTarget);
 
-            DefaultEntityCollectionUpdater defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdater(relation.getServiceBean(applicationContext)
+            DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , UpdateByIdCommand.getInstance()
                     , null
                     , dtoClassInfo.getEntityClassInfo()
@@ -59,7 +60,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                 if(deleteBeforeUpdate) {
                     QueryWrapper qw = new QueryWrapper();
                     qw.eq(keyColumn, keyValue);
-                    defaultEntityCollectionUpdater.addSubUpdateEntity(new DefaultEntityCollectionUpdater(subDtoField.getEntityDtoServiceRelation().getServiceBean(applicationContext)
+                    defaultEntityCollectionUpdater.addSubUpdateEntity(new DefaultEntityCollectionUpdateProcessor(subDtoField.getEntityDtoServiceRelation().getServiceBean(applicationContext)
                             , DeleteWrapperCommand.getInstance()
                             , physicDelete
                             , null

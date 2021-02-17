@@ -3,6 +3,7 @@ package com.circustar.mvcenhance.provider;
 import com.circustar.mvcenhance.classInfo.DtoClassInfo;
 import com.circustar.mvcenhance.classInfo.DtoClassInfoHelper;
 import com.circustar.mvcenhance.classInfo.DtoField;
+import com.circustar.mvcenhance.updateProcessor.DefaultEntityCollectionUpdateProcessor;
 import com.circustar.mvcenhance.utils.MvcEnhanceConstants;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.provider.command.InsertCommand;
@@ -19,9 +20,9 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
     }
 
     @Override
-    public Collection<DefaultEntityCollectionUpdater> createUpdateEntities(EntityDtoServiceRelation relation
+    public Collection<DefaultEntityCollectionUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options) throws Exception {
-        List<DefaultEntityCollectionUpdater> result = new ArrayList<>();
+        List<DefaultEntityCollectionUpdateProcessor> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(dto);
         if(values.size() == 0) {return result;}
 
@@ -47,7 +48,7 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
             }
             Object updateTarget = dtoClassInfoHelper.convertToEntity(value);
             updateTargetList.add(updateTarget);
-            DefaultEntityCollectionUpdater defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdater(relation.getServiceBean(applicationContext)
+            DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , InsertCommand.getInstance()
                     , null
                     , dtoClassInfo.getEntityClassInfo()
@@ -75,7 +76,7 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
             if(updateChildrenOnly) {
                 return Collections.emptyList();
             } else {
-                DefaultEntityCollectionUpdater defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdater(relation.getServiceBean(applicationContext)
+                DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                         , InsertCommand.getInstance()
                         , null
                         , dtoClassInfo.getEntityClassInfo()

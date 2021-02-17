@@ -6,14 +6,15 @@ import com.circustar.mvcenhance.provider.*;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.error.ValidateException;
+import com.circustar.mvcenhance.updateProcessor.DefaultEntityCollectionUpdateProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
 import java.util.*;
 
-public class CrudService implements ICrudService {
-    public CrudService(ApplicationContext applicationContext, DtoClassInfoHelper dtoClassInfoHelper, IEntityDtoServiceRelationMap entityDtoServiceRelationMap) {
+public class UpdateService implements IUpdateService {
+    public UpdateService(ApplicationContext applicationContext, DtoClassInfoHelper dtoClassInfoHelper, IEntityDtoServiceRelationMap entityDtoServiceRelationMap) {
         this.applicationContext = applicationContext;
         this.dtoClassInfoHelper = dtoClassInfoHelper;
         this.entityDtoServiceRelationMap = entityDtoServiceRelationMap;
@@ -28,16 +29,12 @@ public class CrudService implements ICrudService {
     @Transactional(rollbackFor = Exception.class)
     public Collection<Object> updateByProviders(EntityDtoServiceRelation relationInfo
             , Object object, IUpdateEntityProvider provider
-            , Map options, BindingResult bindingResult) throws Exception {
+            , Map options) throws Exception {
         List<Object> updatedObjects = new ArrayList<>();
-        provider.validateAndSet(object, bindingResult, options);
-        if (bindingResult.hasErrors()) {
-            throw new ValidateException("validate failed");
-        }
         try {
-            Collection<DefaultEntityCollectionUpdater> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper
+            Collection<DefaultEntityCollectionUpdateProcessor> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper
                     , object, options);
-            for(DefaultEntityCollectionUpdater o : objList) {
+            for(DefaultEntityCollectionUpdateProcessor o : objList) {
                 boolean result = o.execUpdate();
                 if(!result) {
                     throw new UpdateTargetNotFoundException("update failed");

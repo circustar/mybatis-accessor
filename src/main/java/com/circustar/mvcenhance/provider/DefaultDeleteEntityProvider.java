@@ -3,6 +3,7 @@ package com.circustar.mvcenhance.provider;
 import com.circustar.mvcenhance.classInfo.DtoClassInfo;
 import com.circustar.mvcenhance.classInfo.DtoClassInfoHelper;
 import com.circustar.mvcenhance.classInfo.DtoField;
+import com.circustar.mvcenhance.updateProcessor.DefaultEntityCollectionUpdateProcessor;
 import com.circustar.mvcenhance.utils.MvcEnhanceConstants;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.service.ISelectService;
@@ -21,10 +22,10 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
         return instance;
     }
     @Override
-    public Collection<DefaultEntityCollectionUpdater> createUpdateEntities(EntityDtoServiceRelation relation
+    public Collection<DefaultEntityCollectionUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object ids, Map options)
             throws Exception {
-        List<DefaultEntityCollectionUpdater> result = new ArrayList<>();
+        List<DefaultEntityCollectionUpdateProcessor> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(ids);
         if(values.size() == 0) {return result;}
 
@@ -66,7 +67,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
         }
 
         if(!updateChildrenOnly) {
-            result.add(new DefaultEntityCollectionUpdater(relation.getServiceBean(applicationContext)
+            result.add(new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , DeleteByIdBatchCommand.getInstance()
                     , physicDelete
                     , null //dtoClassInfo.getEntityClassInfo()
@@ -76,8 +77,4 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
         }
         return result;
     }
-
-    @Override
-    public void validateAndSet(Object s, BindingResult bindingResult, Map options){
-    };
 }
