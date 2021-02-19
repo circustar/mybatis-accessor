@@ -10,7 +10,9 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TableJoinInfo {
     private String fieldName;
@@ -94,11 +96,10 @@ public class TableJoinInfo {
     public static List<TableJoinInfo> parseDtoTableJoinInfo(Class targetClass) {
         List<TableJoinInfo> tableJoinInfos = new ArrayList<>();
         for(Field field : targetClass.getDeclaredFields()) {
-            JoinTable[] joinColumns = field.getAnnotationsByType(JoinTable.class);
-            if(joinColumns == null || joinColumns.length == 0) {
+            JoinTable joinTable = field.getAnnotation(JoinTable.class);
+            if(joinTable == null) {
                 continue;
             }
-            JoinTable joinTable = joinColumns[0];
             TableJoinInfo tableJoinInfo = new TableJoinInfo();
             tableJoinInfo.setField(field);
             tableJoinInfo.setFieldName(field.getName());
@@ -119,7 +120,8 @@ public class TableJoinInfo {
 
             tableJoinInfos.add(tableJoinInfo);
         }
-        return tableJoinInfos;
+        return tableJoinInfos.stream().sorted(Comparator.comparingInt(x -> x.getJoinTable().order()))
+                .collect(Collectors.toList());
     }
 
     public static List<TableJoinInfo> parseEntityTableJoinInfo(Configuration configuration, Class targetClass) {
