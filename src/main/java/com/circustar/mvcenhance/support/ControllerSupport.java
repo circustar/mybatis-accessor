@@ -1,7 +1,7 @@
 package com.circustar.mvcenhance.support;
 
-import com.circustar.mvcenhance.annotation.SimpleWrapperPiece;
-import com.circustar.mvcenhance.annotation.WrapperPiece;
+import com.circustar.mvcenhance.wrapper.SimpleWrapperPiece;
+import com.circustar.mvcenhance.wrapper.WrapperPiece;
 import com.circustar.mvcenhance.error.ValidateException;
 import com.circustar.mvcenhance.response.DefaultServiceResult;
 import com.circustar.mvcenhance.response.IServiceResult;

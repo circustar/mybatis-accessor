@@ -1,4 +1,6 @@
-package com.circustar.mvcenhance.annotation;
+package com.circustar.mvcenhance.wrapper;
+
+import com.circustar.mvcenhance.annotation.OrderField;
 
 public class OrderFieldModel {
     private String orderExpression;

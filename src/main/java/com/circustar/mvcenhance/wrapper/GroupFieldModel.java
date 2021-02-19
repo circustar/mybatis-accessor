@@ -1,4 +1,6 @@
-package com.circustar.mvcenhance.annotation;
+package com.circustar.mvcenhance.wrapper;
+
+import com.circustar.mvcenhance.annotation.GroupField;
 
 public class GroupFieldModel {
     private String selectExpression;

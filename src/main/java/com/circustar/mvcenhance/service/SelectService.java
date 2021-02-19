@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mvcenhance.annotation.Selector;
-import com.circustar.mvcenhance.annotation.WrapperPiece;
+import com.circustar.mvcenhance.wrapper.WrapperPiece;
 import com.circustar.mvcenhance.response.PageInfo;
 import com.circustar.mvcenhance.classInfo.DtoClassInfo;
 import com.circustar.mvcenhance.classInfo.DtoClassInfoHelper;

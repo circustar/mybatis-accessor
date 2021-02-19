@@ -1,4 +1,7 @@
-package com.circustar.mvcenhance.annotation;
+package com.circustar.mvcenhance.wrapper;
+
+import com.circustar.mvcenhance.annotation.Connector;
+import com.circustar.mvcenhance.annotation.QueryField;
 
 class QueryFieldModel {
     public QueryFieldModel(String queryExpression, Connector connector) {

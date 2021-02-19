@@ -1,5 +1,6 @@
-package com.circustar.mvcenhance.annotation;
+package com.circustar.mvcenhance.wrapper;
 
+import com.circustar.mvcenhance.annotation.Connector;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import org.springframework.util.StringUtils;
 

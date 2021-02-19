@@ -1,6 +1,6 @@
 package com.circustar.mvcenhance.service;
 
-import com.circustar.mvcenhance.annotation.WrapperPiece;
+import com.circustar.mvcenhance.wrapper.WrapperPiece;
 import com.circustar.mvcenhance.response.PageInfo;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 
