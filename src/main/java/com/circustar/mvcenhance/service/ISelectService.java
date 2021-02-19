@@ -1,6 +1,6 @@
 package com.circustar.mvcenhance.service;
 
-import com.circustar.mvcenhance.annotation.QueryFieldModel;
+import com.circustar.mvcenhance.annotation.WrapperPiece;
 import com.circustar.mvcenhance.response.PageInfo;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 
@@ -19,7 +19,7 @@ public interface ISelectService {
             ) throws Exception;
 
     <T> PageInfo<T> getPagesByQueryFields(EntityDtoServiceRelation relationInfo
-            , List<QueryFieldModel> queryFiledModelList
+            , List<WrapperPiece> queryFiledModelList
             , Integer page_index
             , Integer page_size
             ) throws Exception;
@@ -29,7 +29,7 @@ public interface ISelectService {
     ) throws Exception;
 
     <T> List<T> getListByQueryFields(EntityDtoServiceRelation relationInfo
-            , List<QueryFieldModel> queryFiledModelList
+            , List<WrapperPiece> queryFiledModelList
     ) throws Exception;
 
 }

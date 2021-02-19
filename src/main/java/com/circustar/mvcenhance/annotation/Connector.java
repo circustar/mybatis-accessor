@@ -212,6 +212,10 @@ public enum Connector {
         consumer.accept(column, wrapper, values);
     }
 
+    public <T> void consume(String column, QueryWrapper wrapper, T value) {
+        consumer.accept(column, wrapper, Arrays.asList(value).toArray());
+    }
+
     public String convert(String column, String[] values) {
         return func.apply(column, values);
     }

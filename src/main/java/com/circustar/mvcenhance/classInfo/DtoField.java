@@ -1,9 +1,12 @@
 package com.circustar.mvcenhance.classInfo;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.circustar.mvcenhance.annotation.GroupField;
+import com.circustar.mvcenhance.annotation.OrderField;
 import com.circustar.mvcenhance.annotation.Selector;
 import com.circustar.mvcenhance.annotation.QueryField;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
+import org.springframework.core.annotation.Order;
 
 import java.util.*;
 
@@ -12,8 +15,10 @@ public class DtoField {
     private FieldTypeInfo fieldTypeInfo;
     private EntityDtoServiceRelation entityDtoServiceRelation;
     private DtoClassInfo dtoClassInfo;
-    private List<QueryField> queryFields;
-    private List<Selector> selectors;
+    private QueryField queryField;
+    private Selector selector;
+    private OrderField orderField;
+    private GroupField groupField;
     private Class relatedEntityClass = null;
     private Boolean hasEntityClass = null;
 
@@ -23,10 +28,10 @@ public class DtoField {
         this.dtoClassInfo = dtoClassInfo;
         this.entityDtoServiceRelation = entityDtoServiceRelation;
 
-        QueryField[] queryFields = fieldTypeInfo.getField().getAnnotationsByType(QueryField.class);
-        this.queryFields = Arrays.asList(queryFields);
-        Selector[] selectors = fieldTypeInfo.getField().getAnnotationsByType(Selector.class);
-        this.selectors = Arrays.asList(selectors);
+        this.queryField = fieldTypeInfo.getField().getAnnotation(QueryField.class);
+        this.selector = fieldTypeInfo.getField().getAnnotation(Selector.class);
+        this.orderField = fieldTypeInfo.getField().getAnnotation(OrderField.class);
+        this.groupField = fieldTypeInfo.getField().getAnnotation(GroupField.class);
     }
 
     public String getFieldName() {
@@ -45,12 +50,20 @@ public class DtoField {
         return dtoClassInfo;
     }
 
-    public List<QueryField> getQueryFields() {
-        return queryFields;
+    public QueryField getQueryField() {
+        return queryField;
     }
 
-    public List<Selector> getSelectors() {
-        return selectors;
+    public Selector getSelector() {
+        return selector;
+    }
+
+    public OrderField getOrderField() {
+        return orderField;
+    }
+
+    public GroupField getGroupField() {
+        return groupField;
     }
 
     public Boolean getHasEntityClass() {

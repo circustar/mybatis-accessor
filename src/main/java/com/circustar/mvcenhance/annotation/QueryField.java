@@ -4,10 +4,8 @@ import java.lang.annotation.*;
 
 @Target(value = {ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(MultiQueryField.class)
+//@Repeatable(MultiQueryField.class)
 public @interface QueryField {
-    String column() default "";
+    String queryExpression() default "";
     Connector connector() default Connector.eq;
-    int sortIndex() default Integer.MAX_VALUE;
-    String sortOrder() default "asc";
 }

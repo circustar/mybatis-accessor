@@ -1,7 +1,7 @@
 package com.circustar.mvcenhance.support;
 
 import com.circustar.mvcenhance.error.ResourceNotFoundException;
-import com.circustar.mvcenhance.annotation.QueryFieldModel;
+import com.circustar.mvcenhance.annotation.WrapperPiece;
 import com.circustar.mvcenhance.error.ValidateException;
 import com.circustar.mvcenhance.response.DefaultServiceResult;
 import com.circustar.mvcenhance.response.IServiceResult;
@@ -164,7 +164,7 @@ public class ControllerSupport implements ApplicationContextAware {
              String dtoName
             , Integer page_index
             , Integer page_size
-            , List<QueryFieldModel> queryFiledModelList) throws Exception {
+            , List<WrapperPiece> queryFiledModelList) throws Exception {
         IServiceResult serviceResult = new DefaultServiceResult();
 
         EntityDtoServiceRelation relationInfo = parseEntityDtoServiceRelation(dtoName);
