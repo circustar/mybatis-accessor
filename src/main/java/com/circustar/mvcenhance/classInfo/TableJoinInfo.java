@@ -1,6 +1,7 @@
 package com.circustar.mvcenhance.classInfo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
 import com.circustar.mvcenhance.annotation.JoinTable;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeHandler;
@@ -131,7 +132,11 @@ public class TableJoinInfo {
             if(tableField == null || tableField.length == 0 || tableField[0].exist()) {
                 continue;
             }
-            TypeHandler<? extends TableField[]> typeHandler = configuration.getTypeHandlerRegistry().getTypeHandler((Class)field.getType());
+            Class clazz = field.getType();
+            if(clazz == null || ReflectionKit.isPrimitiveOrWrapper(clazz) || clazz == String.class || clazz.isInterface()) {
+                continue;
+            }
+            TypeHandler<? extends TableField[]> typeHandler = configuration.getTypeHandlerRegistry().getTypeHandler(clazz);
             if(typeHandler != null) {
                 continue;
             }
