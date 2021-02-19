@@ -11,7 +11,6 @@ import com.circustar.mvcenhance.provider.command.DeleteByIdBatchCommand;
 import com.circustar.mvcenhance.utils.CollectionUtils;
 import com.circustar.mvcenhance.utils.FieldUtils;
 import com.circustar.mvcenhance.utils.MapOptionUtils;
-import org.springframework.validation.BindingResult;
 
 import java.io.Serializable;
 import java.util.*;
@@ -39,7 +38,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
         String[] topEntities = this.getTopEntities(children, ".");
         if(topEntities.length > 0) {
             for (Object id : values) {
-                Object object = selectService.getDtoById(relation, (Serializable) id
+                Object object = selectService.getById(relation, (Serializable) id
                         , topEntities);
                 for (String entityName : topEntities) {
                     DtoField dtoField = dtoClassInfo.getDtoField(entityName);

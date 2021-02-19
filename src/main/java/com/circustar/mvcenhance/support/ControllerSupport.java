@@ -1,112 +1,25 @@
 package com.circustar.mvcenhance.support;
 
-import com.circustar.mvcenhance.error.ResourceNotFoundException;
+import com.circustar.mvcenhance.annotation.SimpleWrapperPiece;
 import com.circustar.mvcenhance.annotation.WrapperPiece;
 import com.circustar.mvcenhance.error.ValidateException;
 import com.circustar.mvcenhance.response.DefaultServiceResult;
 import com.circustar.mvcenhance.response.IServiceResult;
 import com.circustar.mvcenhance.response.PageInfo;
-import com.circustar.mvcenhance.utils.ClassUtils;
 import com.circustar.mvcenhance.utils.MvcEnhanceConstants;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
-import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;
-import com.circustar.mvcenhance.service.IUpdateService;
-import com.circustar.mvcenhance.service.ISelectService;
 import com.circustar.mvcenhance.provider.*;
 import com.circustar.mvcenhance.utils.ArrayParamUtils;
-import com.circustar.mvcenhance.utils.FieldUtils;
-import com.circustar.mvcenhance.validator.DtoValidatorManager;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.validation.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.context.ApplicationContext;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
-// TODO:bug fix
-// 相同列名
-// group
+public class ControllerSupport {
+    private ServiceSupport serviceSupport;
 
-
-public class ControllerSupport implements ApplicationContextAware {
-    protected IEntityDtoServiceRelationMap entityDtoServiceRelationMap = null;
-    protected ApplicationContext applicationContext;
-    protected IUpdateService updateService = null;
-    protected ISelectService selectService = null;
-    protected Map<String, IUpdateEntityProvider> providerMap = new ConcurrentHashMap<>();
-    protected DtoValidatorManager dtoValidatorManager = null;
-    protected ObjectMapper objectMapper = new ObjectMapper();
-    protected Map<String, EntityDtoServiceRelation> dtoNameMap = new ConcurrentHashMap<>();
-
-    protected IEntityDtoServiceRelationMap getEntityDtoServiceRelationMap() {
-        if(this.entityDtoServiceRelationMap == null) {
-            this.entityDtoServiceRelationMap = this.applicationContext.getBean(IEntityDtoServiceRelationMap.class);
-        }
-        return this.entityDtoServiceRelationMap;
-    };
-
-    protected IUpdateService getUpdateService() {
-        if(this.updateService == null) {
-            this.updateService = applicationContext.getBean(IUpdateService.class);
-        }
-        return this.updateService;
-    }
-
-    protected ISelectService getSelectService() {
-        if(this.selectService == null) {
-            this.selectService = applicationContext.getBean(ISelectService.class);
-        }
-        return this.selectService;
-    };
-
-    protected DtoValidatorManager getDtoValidatorManager() {
-        if(this.dtoValidatorManager == null) {
-            this.dtoValidatorManager = applicationContext.getBean(DtoValidatorManager.class);
-        }
-        return this.dtoValidatorManager;
-    };
-
-    protected IUpdateEntityProvider parseProviderByName(String updateProviderName) throws ResourceNotFoundException {
-        IUpdateEntityProvider provider = null;
-        if(providerMap.containsKey(updateProviderName)) {
-            provider = providerMap.get(updateProviderName);
-        } else {
-            if (applicationContext.containsBean(updateProviderName)) {
-                provider = (IUpdateEntityProvider) applicationContext.getBean(updateProviderName);
-            }
-            providerMap.put(updateProviderName, provider);
-        }
-        if(provider == null) {
-            throw new ResourceNotFoundException(updateProviderName);
-        }
-        return provider;
-    }
-
-    protected EntityDtoServiceRelation parseEntityDtoServiceRelation(String dtoName) throws ResourceNotFoundException {
-        EntityDtoServiceRelation relationInfo = null;
-        if(dtoNameMap.containsKey(dtoName)) {
-            relationInfo = dtoNameMap.get(dtoName);
-        } else {
-            IEntityDtoServiceRelationMap entityDtoServiceRelationMap = getEntityDtoServiceRelationMap();
-            String dtoClassName = FieldUtils.parseClassName(dtoName);
-            relationInfo = entityDtoServiceRelationMap.getByDtoName(dtoClassName);
-            dtoNameMap.put(dtoName, relationInfo);
-        }
-        if (relationInfo == null) {
-            throw new ResourceNotFoundException(dtoName);
-        }
-        return relationInfo;
-    }
-
-    protected List<Object> convertFromMapList(List<Object> mapList, Class clazz) {
-        List<Object> result = new ArrayList<>();
-        for(Object map : mapList) {
-            result.add(objectMapper.convertValue(map, clazz));
-        }
-        return result;
+    public ControllerSupport(ServiceSupport serviceSupport) {
+        this.serviceSupport = serviceSupport;
     }
 
     /*
@@ -120,8 +33,8 @@ public class ControllerSupport implements ApplicationContextAware {
             , String sub_entities) throws Exception {
 
         IServiceResult serviceResult = new DefaultServiceResult();
-        EntityDtoServiceRelation relationInfo = parseEntityDtoServiceRelation(dtoName);
-        Object data = getSelectService().getDtoById(relationInfo, id
+        EntityDtoServiceRelation relationInfo = serviceSupport.parseEntityDtoServiceRelation(dtoName);
+        Object data = serviceSupport.getById(relationInfo, id
                 , ArrayParamUtils.convertStringToArray(sub_entities, ArrayParamUtils.DELIMITER_COMMA));
         serviceResult.setData(data);
         return serviceResult;
@@ -138,18 +51,16 @@ public class ControllerSupport implements ApplicationContextAware {
             , Map map) throws Exception {
         IServiceResult serviceResult = new DefaultServiceResult();
 
-        EntityDtoServiceRelation relationInfo = parseEntityDtoServiceRelation(dtoName);
-//        ObjectMapper objectMapper = new ObjectMapper();
-        // TODO: 忽略不存在的属性
-        Object dto = objectMapper.convertValue(map, relationInfo.getDtoClass());
+        EntityDtoServiceRelation relationInfo = serviceSupport.parseEntityDtoServiceRelation(dtoName);
+        Object dto = serviceSupport.convertFromMap(map, relationInfo.getDtoClass());
 
         if(page_index != null && page_size != null) {
-            PageInfo pageInfo = getSelectService().getPagesByDtoAnnotation(relationInfo, dto
+            PageInfo pageInfo = serviceSupport.getPagesByAnnotation(relationInfo, dto
                     , page_index, page_size);
 
             serviceResult.setData(pageInfo);
         } else {
-            List dataList = getSelectService().getListByDtoAnnotation(relationInfo, dto);
+            List dataList = serviceSupport.getListByAnnotation(relationInfo, dto);
             serviceResult.setData(dataList);
         }
 
@@ -160,6 +71,29 @@ public class ControllerSupport implements ApplicationContextAware {
      *** QueryFieldModel设置查询条件后可查询实体列表，转化dto列表后返回
      *** page_index、page_size指定分页信息
      */
+    public IServiceResult getPagesBySimpleQueryFields(
+            String dtoName
+            , Integer page_index
+            , Integer page_size
+            , List<SimpleWrapperPiece> simpleWrapperPieces) throws Exception {
+        IServiceResult serviceResult = new DefaultServiceResult();
+
+        EntityDtoServiceRelation relationInfo = serviceSupport.parseEntityDtoServiceRelation(dtoName);
+        List<WrapperPiece> queryFiledModelList = simpleWrapperPieces.stream()
+                .map(x -> x.convertToWrapperPiece(relationInfo))
+                .collect(Collectors.toList());
+        if(page_index != null && page_size != null) {
+            PageInfo pageInfo = serviceSupport.getPagesByWrapper(relationInfo
+                    , queryFiledModelList, page_index, page_size);
+            serviceResult.setData(pageInfo);
+        } else {
+            List dataList = serviceSupport.getListByWrapper(relationInfo, queryFiledModelList);
+            serviceResult.setData(dataList);
+        }
+
+        return serviceResult;
+    }
+
     public IServiceResult getPagesByQueryFields(
              String dtoName
             , Integer page_index
@@ -167,13 +101,13 @@ public class ControllerSupport implements ApplicationContextAware {
             , List<WrapperPiece> queryFiledModelList) throws Exception {
         IServiceResult serviceResult = new DefaultServiceResult();
 
-        EntityDtoServiceRelation relationInfo = parseEntityDtoServiceRelation(dtoName);
+        EntityDtoServiceRelation relationInfo = serviceSupport.parseEntityDtoServiceRelation(dtoName);
         if(page_index != null && page_size != null) {
-            PageInfo pageInfo = getSelectService().getPagesByQueryFields(relationInfo
+            PageInfo pageInfo = serviceSupport.getPagesByWrapper(relationInfo
                     , queryFiledModelList, page_index, page_size);
             serviceResult.setData(pageInfo);
         } else {
-            List dataList = getSelectService().getListByQueryFields(relationInfo, queryFiledModelList);
+            List dataList = serviceSupport.getListByWrapper(relationInfo, queryFiledModelList);
             serviceResult.setData(dataList);
         }
 
@@ -184,12 +118,8 @@ public class ControllerSupport implements ApplicationContextAware {
             , Object updateObject
             , String children
             , boolean updateChildrenOnly) throws Exception {
-        EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        Object dto = updateObject;
-        if(updateObject instanceof Map) {
-//            ObjectMapper objectMapper = new ObjectMapper();
-            dto = objectMapper.convertValue(updateObject, relationInfo.getDtoClass());
-        }
+        EntityDtoServiceRelation relationInfo = serviceSupport.parseEntityDtoServiceRelation(dtoName);
+        Object dto = serviceSupport.convertFromMap(updateObject, relationInfo.getDtoClass());
         return saveEntity(dtoName, dto,  relationInfo, children, updateChildrenOnly);
     }
 
@@ -209,13 +139,8 @@ public class ControllerSupport implements ApplicationContextAware {
             , String children
             , boolean updateChildrenOnly
             , boolean returnUpdateResult) throws Exception {
-        EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        Class actualClass = (Class)ClassUtils.getFirstTypeArgument(mapList.getClass());
-        List<Object> objects = mapList;
-        if(Map.class.isAssignableFrom(actualClass)) {
-//            ObjectMapper objectMapper = new ObjectMapper();
-            objects = convertFromMapList(mapList, relationInfo.getDtoClass());
-        }
+        EntityDtoServiceRelation relationInfo = serviceSupport.parseEntityDtoServiceRelation(dtoName);
+        List<Object> objects = serviceSupport.convertFromMapList(mapList, relationInfo.getDtoClass());
         return saveEntities(dtoName, objects, relationInfo, children, updateChildrenOnly, returnUpdateResult);
     }
 
@@ -239,12 +164,8 @@ public class ControllerSupport implements ApplicationContextAware {
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild
             , boolean physicDelete) throws Exception {
-        EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        Object dto = updateObject;
-        if(updateObject instanceof Map) {
-//            ObjectMapper objectMapper = new ObjectMapper();
-            dto = objectMapper.convertValue(updateObject, relationInfo.getDtoClass());
-        }
+        EntityDtoServiceRelation relationInfo = serviceSupport.parseEntityDtoServiceRelation(dtoName);
+        Object dto = serviceSupport.convertFromMap(updateObject, relationInfo.getDtoClass());
 
         return updateEntity(dtoName, dto, relationInfo
                 , children, updateChildrenOnly, removeAndInsertNewChild, physicDelete);
@@ -273,14 +194,8 @@ public class ControllerSupport implements ApplicationContextAware {
             , boolean removeAndInsertNewChild
             , boolean physicDelete
             , boolean returnUpdateResult) throws Exception {
-        EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        Class actualClass = (Class)ClassUtils.getFirstTypeArgument(mapList.getClass());
-        List<Object> objects = mapList;
-        if(Map.class.isAssignableFrom(actualClass)) {
-//            ObjectMapper objectMapper = new ObjectMapper();
-            objects = convertFromMapList(mapList, relationInfo.getDtoClass());
-        }
-
+        EntityDtoServiceRelation relationInfo = serviceSupport.parseEntityDtoServiceRelation(dtoName);
+        List<Object> objects = serviceSupport.convertFromMapList(mapList, relationInfo.getDtoClass());
         return updateEntities(dtoName, objects, relationInfo, children
                 , updateChildrenOnly, removeAndInsertNewChild, physicDelete, returnUpdateResult);
     }
@@ -316,7 +231,7 @@ public class ControllerSupport implements ApplicationContextAware {
             , Set<Serializable> ids
             , boolean updateChildrenOnly
             , boolean physicDelete) throws Exception  {
-        EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
+        EntityDtoServiceRelation relationInfo = serviceSupport.parseEntityDtoServiceRelation(dtoName);
 
         Map options = new HashMap();
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, children);
@@ -330,15 +245,15 @@ public class ControllerSupport implements ApplicationContextAware {
     public IServiceResult updateDto(
             String dtoName, Object dtoObject
             , String updateEntityProviderName, Map options, boolean returnUpdateResult) throws Exception {
-        EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        IUpdateEntityProvider updateEntityProvider = parseProviderByName(updateEntityProviderName);
+        EntityDtoServiceRelation relationInfo = serviceSupport.parseEntityDtoServiceRelation(dtoName);
+        IUpdateEntityProvider updateEntityProvider = serviceSupport.parseProviderByName(updateEntityProviderName);
         return updateDto(dtoName, relationInfo, updateEntityProvider, options, returnUpdateResult);
     }
 
     public IServiceResult updateDto(
             String dtoName, Object dtoObject
             , IUpdateEntityProvider updateEntityProvider, Map options, boolean returnUpdateResult) throws Exception {
-        EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
+        EntityDtoServiceRelation relationInfo = serviceSupport.parseEntityDtoServiceRelation(dtoName);
         return updateDto(dtoName, relationInfo, updateEntityProvider, options, returnUpdateResult);
     }
 
@@ -347,34 +262,21 @@ public class ControllerSupport implements ApplicationContextAware {
             , IUpdateEntityProvider updateEntityProvider, Map options, boolean returnUpdateResult) throws Exception {
 
         IServiceResult serviceResult = new DefaultServiceResult();
-        BindException errors = null;
         try {
-            IUpdateService crudService = getUpdateService();
-            DtoValidatorManager dtoValidatorManager = this.getDtoValidatorManager();
-            errors = new BindException(dtoObject, dtoName);
-            dtoValidatorManager.validate(dtoObject, updateEntityProvider, errors);
-            if(errors.hasErrors()) {
-                throw new ValidateException("validate failed");
-            }
-            Collection<Object> updatedEntities = crudService.updateByProviders(relationInfo
-                    , dtoObject, updateEntityProvider, options);
+            Collection<Object> updatedEntities = serviceSupport.updateObject(dtoName, dtoObject
+                    , relationInfo, updateEntityProvider, options);
             if(returnUpdateResult) {
                 serviceResult.setData(updatedEntities);
             }
         } catch (ValidateException ex) {
             serviceResult.setData(null);
-            serviceResult.setGlobalErrorList(errors.getGlobalErrors());
-            serviceResult.setFieldErrorList(errors.getFieldErrors());
+            serviceResult.setGlobalErrorList(ex.getBindingResult().getGlobalErrors());
+            serviceResult.setFieldErrorList(ex.getBindingResult().getFieldErrors());
         } catch (Exception ex) {
             serviceResult.setData(null);
             throw ex;
         } finally {
         }
         return serviceResult;
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 }

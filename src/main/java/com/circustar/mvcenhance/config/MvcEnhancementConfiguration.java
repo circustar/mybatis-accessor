@@ -5,6 +5,7 @@ import com.circustar.mvcenhance.classInfo.DtoClassInfoHelper;
 import com.circustar.mvcenhance.classInfo.EntityClassInfoHelper;
 import com.circustar.mvcenhance.relation.ScanValidatorOnStartup;
 import com.circustar.mvcenhance.support.ControllerSupport;
+import com.circustar.mvcenhance.support.ServiceSupport;
 import com.circustar.mvcenhance.utils.TableInfoUtils;
 import com.circustar.mvcenhance.injector.EnhanceSqlInjector;
 import com.circustar.mvcenhance.service.UpdateService;
@@ -39,6 +40,7 @@ public class MvcEnhancementConfiguration {
     private EntityClassInfoHelper entityClassInfoHelper;
     private DtoClassInfoHelper dtoClassInfoHelper;
     private ControllerSupport controllerSupport;
+    private ServiceSupport serviceSupport;
     private DtoValidatorManager dtoValidatorManager;
     private ScanValidatorOnStartup scanValidatorOnStartup;
 
@@ -51,7 +53,8 @@ public class MvcEnhancementConfiguration {
         this.crudService = new UpdateService(this.applicationContext, this.dtoClassInfoHelper, this.entityDtoServiceRelationMap);
         this.selectService = new SelectService(this.applicationContext, this.entityDtoServiceRelationMap, this.dtoClassInfoHelper);
         this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
-        this.controllerSupport = new ControllerSupport();
+        this.serviceSupport = new ServiceSupport(this.applicationContext);
+        this.controllerSupport = new ControllerSupport(this.serviceSupport);
         TableInfoUtils.scanPackages.getAndSet(getMapperScanPackages(this.applicationContext));
         this.dtoValidatorManager = new DtoValidatorManager(this.applicationContext
                 , DefaultInsertEntityProvider.getInstance()
@@ -120,6 +123,11 @@ public class MvcEnhancementConfiguration {
     @Bean
     public ControllerSupport getControllerSupport() {
         return this.controllerSupport;
+    }
+
+    @Bean
+    public ServiceSupport getServiceSupport() {
+        return this.serviceSupport;
     }
 
     @Bean

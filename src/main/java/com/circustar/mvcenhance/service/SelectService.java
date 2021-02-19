@@ -2,8 +2,6 @@ package com.circustar.mvcenhance.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.metadata.TableInfo;
-import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mvcenhance.annotation.Selector;
@@ -39,7 +37,7 @@ public class SelectService implements ISelectService {
     private DtoClassInfoHelper dtoClassInfoHelper;
 
     @Override
-    public Object getDtoById(EntityDtoServiceRelation relationInfo
+    public Object getById(EntityDtoServiceRelation relationInfo
             , Serializable id
             , String[] children) throws Exception {
         IService s = relationInfo.getServiceBean(applicationContext);
@@ -76,7 +74,7 @@ public class SelectService implements ISelectService {
     }
 
     @Override
-    public <T> PageInfo<T> getPagesByDtoAnnotation(EntityDtoServiceRelation relationInfo
+    public <T> PageInfo<T> getPagesByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
             , Integer page_index
             , Integer page_size
@@ -84,11 +82,11 @@ public class SelectService implements ISelectService {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         List<WrapperPiece> queryWrapper = WrapperPiece.getQueryWrapperFromDto(dtoClassInfo, object);
 
-        return getPagesByQueryFields(relationInfo, queryWrapper, page_index, page_size);
+        return getPagesByWrapper(relationInfo, queryWrapper, page_index, page_size);
     }
 
     @Override
-    public <T> PageInfo<T> getPagesByQueryFields(EntityDtoServiceRelation relationInfo
+    public <T> PageInfo<T> getPagesByWrapper(EntityDtoServiceRelation relationInfo
             , List<WrapperPiece> queryFiledModelList
             , Integer page_index
             , Integer page_size
@@ -113,17 +111,17 @@ public class SelectService implements ISelectService {
     }
 
     @Override
-    public List getListByDtoAnnotation(EntityDtoServiceRelation relationInfo
+    public List getListByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
     ) throws Exception {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         List<WrapperPiece> queryFiledModelList = WrapperPiece.getQueryWrapperFromDto(dtoClassInfo, object);
 
-        return getListByQueryFields(relationInfo, queryFiledModelList);
+        return getListByWrapper(relationInfo, queryFiledModelList);
     }
 
     @Override
-    public <T> List<T> getListByQueryFields(EntityDtoServiceRelation relationInfo
+    public <T> List<T> getListByWrapper(EntityDtoServiceRelation relationInfo
             , List<WrapperPiece> queryFiledModelList
     ) throws Exception {
         IService service = relationInfo.getServiceBean(applicationContext);
