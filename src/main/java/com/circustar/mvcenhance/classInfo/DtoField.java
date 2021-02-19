@@ -1,10 +1,7 @@
 package com.circustar.mvcenhance.classInfo;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.circustar.mvcenhance.annotation.GroupField;
-import com.circustar.mvcenhance.annotation.OrderField;
-import com.circustar.mvcenhance.annotation.Selector;
-import com.circustar.mvcenhance.annotation.QueryField;
+import com.circustar.mvcenhance.annotation.*;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import org.springframework.core.annotation.Order;
 
@@ -21,6 +18,7 @@ public class DtoField {
     private GroupField groupField;
     private Class relatedEntityClass = null;
     private Boolean hasEntityClass = null;
+    private JoinTable joinTable;
 
     public DtoField(String fieldName,FieldTypeInfo fieldTypeInfo, DtoClassInfo dtoClassInfo, EntityDtoServiceRelation entityDtoServiceRelation) {
         this.fieldName = fieldName;
@@ -32,6 +30,7 @@ public class DtoField {
         this.selector = fieldTypeInfo.getField().getAnnotation(Selector.class);
         this.orderField = fieldTypeInfo.getField().getAnnotation(OrderField.class);
         this.groupField = fieldTypeInfo.getField().getAnnotation(GroupField.class);
+        this.joinTable = fieldTypeInfo.getField().getAnnotation(JoinTable.class);
     }
 
     public String getFieldName() {
@@ -80,5 +79,9 @@ public class DtoField {
 
     public void setRelatedEntityClass(Class relatedEntityClass) {
         this.relatedEntityClass = relatedEntityClass;
+    }
+
+    public JoinTable getJoinTable() {
+        return joinTable;
     }
 }

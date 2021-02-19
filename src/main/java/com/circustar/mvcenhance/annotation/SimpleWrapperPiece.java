@@ -1,5 +1,6 @@
 package com.circustar.mvcenhance.annotation;
 
+import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import org.springframework.util.StringUtils;
 
 public class SimpleWrapperPiece {
@@ -49,7 +50,7 @@ public class SimpleWrapperPiece {
         this.sortOrder = sortOrder;
     }
 
-    public WrapperPiece convertToWrapperPiece() {
+    public WrapperPiece convertToWrapperPiece(EntityDtoServiceRelation relation) {
         assert(columnName != null);
         QueryFieldModel queryFieldModel = null;
         if(!StringUtils.isEmpty(connectorString)) {
@@ -61,7 +62,7 @@ public class SimpleWrapperPiece {
             orderFieldModel = new OrderFieldModel(columnName, sortIndex, sortOrder);
         }
 
-        return new WrapperPiece(queryFieldModel, orderFieldModel, null, columnName, value);
+        return new WrapperPiece(queryFieldModel, orderFieldModel, null, relation.getTableInfo().getTableName(), columnName, value);
     }
 
 }

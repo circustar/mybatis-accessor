@@ -18,6 +18,7 @@ import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.utils.AnnotationUtils;
 import com.circustar.mvcenhance.utils.FieldUtils;
 import org.springframework.context.ApplicationContext;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -100,7 +101,7 @@ public class SelectService implements ISelectService {
         Page page = new Page(page_index, page_size);
         IPage pageResult = null;
 
-        if (dtoClassInfo.containchild()) {
+        if (!StringUtils.isEmpty(dtoClassInfo.getJoinTables())) {
             pageResult = ((MybatisPlusMapper) service.getBaseMapper()).selectPageWithJoin(page, qw, dtoClassInfo.getJoinTables(), dtoClassInfo.getJointColumns());
         } else {
             pageResult = service.page(page, qw);
@@ -128,10 +129,9 @@ public class SelectService implements ISelectService {
         IService service = relationInfo.getServiceBean(applicationContext);
         List<T> dtoList = null;
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
-        TableInfo tableInfo = TableInfoHelper.getTableInfo(dtoClassInfo.getEntityClassInfo().getClazz());
         QueryWrapper qw = WrapperPiece.createQueryWrapper(queryFiledModelList);
         List entityList = null;
-        if (dtoClassInfo.containchild()) {
+        if (!StringUtils.isEmpty(dtoClassInfo.getJoinTables())) {
             entityList = ((MybatisPlusMapper)service.getBaseMapper()).selectListWithJoin(qw, dtoClassInfo.getJoinTables(), dtoClassInfo.getJointColumns());
         } else {
             entityList = service.list(qw);

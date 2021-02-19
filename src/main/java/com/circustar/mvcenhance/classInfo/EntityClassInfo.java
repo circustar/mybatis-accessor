@@ -1,7 +1,9 @@
 package com.circustar.mvcenhance.classInfo;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,6 +30,12 @@ public class EntityClassInfo {
         });
         this.fieldMap = this.fieldList.stream().collect(Collectors.toMap(x -> x.getField().getName(), x -> x));
         this.tableInfo = TableInfoHelper.getTableInfo(this.clazz);
+        if(this.tableInfo == null) {
+            TableName tableName = this.clazz.getAnnotation(TableName.class);
+            if(tableName != null && !StringUtils.isEmpty(tableName.value())) {
+                this.tableInfo = TableInfoHelper.getTableInfo(tableName.value());
+            }
+        }
     }
 
     public Class<?> getClazz() {

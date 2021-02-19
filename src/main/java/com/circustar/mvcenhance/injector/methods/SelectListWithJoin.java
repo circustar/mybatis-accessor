@@ -28,15 +28,10 @@ public class SelectListWithJoin extends AbstractMethod {
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
         /* mapper 接口方法名一致 */
         List<TableJoinInfo> tableJoinInfoList = TableJoinInfo.parseEntityTableJoinInfo(this.configuration, modelClass);
-        if(tableJoinInfoList == null || tableJoinInfoList.size() == 0) {
-            return null;
-        }
         String joinTable = " ${" + MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_TABLE + "} ";
-        String joinColumn = " ${" + MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_COLUMNS + "} ";
 
-        String allColumns = this.sqlSelectColumns(tableInfo, true) + joinColumn;
         CSSqlMethod sqlMethod = this.getSqlMethod();
-        String sql = String.format(sqlMethod.getSql(), this.sqlFirst(), allColumns, tableInfo.getTableName(), joinTable, this.sqlWhereEntityWrapper(true, tableInfo), this.sqlComment());
+        String sql = String.format(sqlMethod.getSql(), this.sqlFirst(), this.sqlSelectColumns(tableInfo, true), tableInfo.getTableName(), joinTable, this.sqlWhereEntityWrapper(true, tableInfo), this.sqlComment());
         SqlSource sqlSource = this.languageDriver.createSqlSource(this.configuration, sql, modelClass);
         this.resultMap = TableInfoUtils.registerResultMapping(configuration, tableInfo, tableJoinInfoList);
         MappedStatement ms = this.addSelectMappedStatementForTable(mapperClass
@@ -74,7 +69,13 @@ public class SelectListWithJoin extends AbstractMethod {
 
     @Override
     protected String sqlSelectColumns(TableInfo table, boolean queryWrapper) {
-        return Arrays.stream(table.getAllSqlSelect().split(",")).map(x -> table.getTableName() + "." + x).collect(Collectors.joining(","));
+        String selectColumns = "*";
+        if (table.getResultMap() == null || table.isAutoInitResultMap()) {
+            selectColumns = table.getAllSqlSelect() +  "${" + MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_TABLE + "} ";
+        }
+
+        return !queryWrapper ? selectColumns : SqlScriptUtils.convertChoose(String.format("%s != null and %s != null", "ew", "ew.sqlSelect"), SqlScriptUtils.unSafeParam("ew.sqlSelect"), selectColumns);
+//        return Arrays.stream(table.getAllSqlSelect().split(",")).map(x -> table.getTableName() + "." + x).collect(Collectors.joining(","));
     }
 
     @Override

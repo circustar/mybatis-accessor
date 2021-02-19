@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class WrapperPiece {
+    private String tableName;
     private String columnName;
     private QueryFieldModel queryField;
     private OrderFieldModel orderField;
@@ -20,24 +21,33 @@ public class WrapperPiece {
     private Object value;
 
     public WrapperPiece(QueryField queryField, OrderField orderField
-            , GroupField groupField, String columnName, Object value) {
-        this(new QueryFieldModel(queryField), new OrderFieldModel(orderField),
-                new GroupFieldModel(groupField), columnName, value);
+            , GroupField groupField, String tableName, String columnName, Object value) {
+        this(queryField == null ? new QueryFieldModel(columnName) :new QueryFieldModel(queryField)
+                , orderField == null ? null : new OrderFieldModel(orderField)
+                , groupField == null ? null : new GroupFieldModel(groupField)
+                , tableName, columnName, value);
     }
 
     public WrapperPiece(QueryFieldModel queryField, OrderFieldModel orderField
-            , GroupFieldModel groupField, String columnName, Object value) {
+            , GroupFieldModel groupField, String tableName, String columnName, Object value) {
         this.queryField = queryField;
         this.orderField = orderField;
         this.groupField = groupField;
         this.columnName = columnName;
-        if(StringUtils.isEmpty(this.queryField.queryExpression)) {
-            this.queryField.setQueryExpression(this.columnName);
-        }
-        if(StringUtils.isEmpty(this.orderField.getOrderExpression())) {
-            this.orderField.setOrderExpression(this.columnName);
-        }
+        this.tableName = tableName;
         this.value = value;
+
+        if(StringUtils.isEmpty(this.queryField.queryExpression)) {
+            this.queryField.setQueryExpression(this.tableName + "." + this.columnName);
+        }
+        if(this.orderField != null && StringUtils.isEmpty(this.orderField.getOrderExpression())) {
+            this.orderField.setOrderExpression(this.tableName + "." + this.columnName);
+        }
+        if(this.groupField != null
+                && StringUtils.isEmpty(this.groupField.getSelectExpression())
+                && StringUtils.isEmpty(this.groupField.getGroupByExpression())) {
+            this.groupField.setGroupByExpression(this.tableName + "." +this.columnName);
+        }
     }
 
     public QueryFieldModel getQueryField() {
@@ -89,6 +99,7 @@ public class WrapperPiece {
             wrapperPiece.queryField.getConnector().consume(wrapperPiece.queryField.queryExpression, qw, wrapperPiece.value);
         }
 
+        List<String> selectColumns = new ArrayList<>();
         for(WrapperPiece wrapperPiece : wrapperPieces) {
             if(wrapperPiece.groupField == null) {
                 continue;
@@ -96,16 +107,19 @@ public class WrapperPiece {
             if(!StringUtils.isEmpty(wrapperPiece.groupField.getGroupByExpression())) {
                 qw.groupBy(wrapperPiece.groupField.getGroupByExpression());
                 if(StringUtils.isEmpty(wrapperPiece.groupField.getSelectExpression())) {
-                    qw.select(wrapperPiece.groupField.getGroupByExpression() + " as  " + wrapperPiece.getColumnName());
+                    selectColumns.add(wrapperPiece.groupField.getGroupByExpression() + " as  " + wrapperPiece.getColumnName());
                 }
             } else if(!StringUtils.isEmpty(wrapperPiece.groupField.getSelectExpression())) {
-                qw.select(wrapperPiece.groupField.getSelectExpression() + " as  " + wrapperPiece.getColumnName());
+                selectColumns.add(wrapperPiece.groupField.getSelectExpression() + " as  " + wrapperPiece.getColumnName());
+            } else {
+                selectColumns.add(wrapperPiece.groupField.getGroupByExpression() + " as  " + wrapperPiece.getColumnName());
             }
 
             if(!StringUtils.isEmpty(wrapperPiece.groupField.getHavingExpression())) {
                 qw.having(wrapperPiece.groupField.getHavingExpression());
             }
         }
+        qw.select(selectColumns.toArray(new String[selectColumns.size()]));
 
         wrapperPieces.stream().filter(x -> x.getOrderField() != null)
                 .map(x -> x.getOrderField())
@@ -125,12 +139,13 @@ public class WrapperPiece {
         for(DtoField dtoField : dtoClassInfo.getNormalFieldList()) {
             Object fieldValue = FieldUtils.getValue(dto, dtoField.getFieldTypeInfo().getField());
             FieldTypeInfo entityField = dtoClassInfo.getEntityClassInfo().getFieldByName(dtoField.getFieldName());
+            String tableName = dtoClassInfo.getEntityClassInfo().getTableInfo().getTableName();
             String defaultColumnName = null;
             if(entityField != null) {
                 defaultColumnName = TableInfoUtils.getDBObjectName(entityField.getField().getName());
             }
             WrapperPiece wp = new WrapperPiece(dtoField.getQueryField(), dtoField.getOrderField()
-                    , dtoField.getGroupField(), defaultColumnName, fieldValue);
+                    , dtoField.getGroupField(), tableName, defaultColumnName, fieldValue);
             wrapperPieces.add(wp);
         }
         return wrapperPieces;

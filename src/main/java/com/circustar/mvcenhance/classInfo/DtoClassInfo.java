@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.circustar.mvcenhance.annotation.DeleteFlag;
+import com.circustar.mvcenhance.annotation.JoinTable;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.utils.AnnotationUtils;
@@ -36,7 +37,10 @@ public class DtoClassInfo {
         this.normalFieldList = new ArrayList<>();
         this.dtoFieldMap = new HashMap<>();
 
-        String versionPropertyName = entityClassInfo.getTableInfo().getVersionFieldInfo().getProperty();
+        String versionPropertyName = null;
+        if(entityClassInfo.getTableInfo().getVersionFieldInfo() != null) {
+            entityClassInfo.getTableInfo().getVersionFieldInfo().getProperty();
+        }
         String keyProperty = entityClassInfo.getTableInfo().getKeyProperty();
         Arrays.stream(clazz.getDeclaredFields()).forEach(x -> {
             FieldTypeInfo fieldTypeInfo = FieldTypeInfo.parseField(this.clazz, x);
@@ -48,7 +52,7 @@ public class DtoClassInfo {
             } else {
                 dtoField = new DtoField(x.getName(), fieldTypeInfo, this, null);
                 normalFieldList.add(dtoField);
-                if(versionPropertyName.equals(x.getName())) {
+                if(x.getName().equals(versionPropertyName)) {
                     this.versionField = dtoField;
                     this.versionDefaultValue = getDefaultVersionByType(fieldTypeInfo.getField().getType());
                 }
@@ -76,11 +80,12 @@ public class DtoClassInfo {
             }
         });
 
-        String masterTableName = TableInfoHelper.getTableInfo(entityClassInfo.getClazz()).getTableName();
+//        String masterTableName = TableInfoHelper.getTableInfo(entityClassInfo.getClazz()).getTableName();
+        String masterTableName = entityClassInfo.getTableInfo().getTableName();
         List<String> joinTableList = new ArrayList<>();
         List<String> joinColumnList = new ArrayList<>();
         List<TableJoinInfo> tableJoinInfoList = TableJoinInfo.parseDtoTableJoinInfo(clazz);
-        tableJoinInfoList.stream().sorted((x, y) -> x.getJoinTable().order() - y.getJoinTable().order())
+        tableJoinInfoList.stream().sorted(Comparator.comparingInt(x -> x.getJoinTable().order()))
                 .forEach(tableJoinInfo -> {
             Class joinClazz = (Class) tableJoinInfo.getActualType();
 
@@ -97,7 +102,7 @@ public class DtoClassInfo {
                     .map(x -> strAlias + "." + x ).collect(Collectors.joining(","));
             joinColumnList.add(joinColumn);
         });
-        this.joinTables = " " + joinTableList.stream().collect(Collectors.joining(" "));
+        this.joinTables = joinTableList.stream().collect(Collectors.joining(" "));
         this.jointColumns = joinColumnList.stream().collect(Collectors.joining(",")).trim();
         this.jointColumns = (StringUtils.isBlank(this.jointColumns) ? "" : ",") + this.jointColumns;
     }
@@ -124,14 +129,6 @@ public class DtoClassInfo {
 
     public boolean containSubDto() {
         return this.subDtoFieldList.size() > 0;
-    }
-
-    public boolean containchild() {
-        return this.subDtoFieldList.stream().filter(x -> x.getHasEntityClass()).count() > 0;
-    }
-
-    public boolean containJoinTables() {
-        return this.subDtoFieldList.stream().filter(x -> x.getHasEntityClass()).count() > 0;
     }
 
     public String getJoinTables() {

@@ -26,4 +26,16 @@ public class GroupFieldModel {
     public String getHavingExpression() {
         return havingExpression;
     }
+
+    public void setSelectExpression(String selectExpression) {
+        this.selectExpression = selectExpression;
+    }
+
+    public void setGroupByExpression(String groupByExpression) {
+        this.groupByExpression = groupByExpression;
+    }
+
+    public void setHavingExpression(String havingExpression) {
+        this.havingExpression = havingExpression;
+    }
 }
