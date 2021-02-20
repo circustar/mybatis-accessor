@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mvcenhance.annotation.Selector;
+import com.circustar.mvcenhance.classInfo.DtoField;
 import com.circustar.mvcenhance.wrapper.WrapperPiece;
 import com.circustar.mvcenhance.response.PageInfo;
 import com.circustar.mvcenhance.classInfo.DtoClassInfo;
@@ -21,6 +22,7 @@ import org.springframework.util.StringUtils;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SelectService implements ISelectService {
     public SelectService(ApplicationContext applicationContext
@@ -46,29 +48,26 @@ public class SelectService implements ISelectService {
             return null;
         }
         Object result = this.dtoClassInfoHelper.convertFromEntity(oriEntity, relationInfo.getDtoClass());
-        List<String> childList;
+        Set<String> childList;
         if(children == null) {
-//            childList = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDto())
-//                    .getSubDtoFieldList().stream().map(x -> x.getFieldName()).collect(Collectors.toList());
-            childList = Collections.emptyList();
+            childList = Collections.emptySet();
         } else {
-            childList = Arrays.asList(children);
+            childList = new HashSet<>(Arrays.asList(children));
         }
-        List<Field> subFields = FieldUtils.getExistFields(result, childList, false);
+        List<DtoField> subFields = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass())
+                .getSubDtoFieldList().stream().filter(x -> childList.contains(x)).collect(Collectors.toList());
 
-        Map<String, Selector[]> tableJoinerMap = new HashMap<>();
-        List<String> noAnnotationInfoList = new ArrayList<>();
-        AnnotationUtils.parseFieldAnnotationToMap(subFields, Selector.class
-                , tableJoinerMap, noAnnotationInfoList);
+        Map<Boolean, List<DtoField>> dtoFieldMap = subFields.stream()
+                .collect(Collectors.partitioningBy(x -> x.getSelectors() == null));
 
-        DtoFields.queryAndAssignDtoField(applicationContext, dtoClassInfoHelper, entityDtoServiceRelationMap
-                , relationInfo, noAnnotationInfoList, result, id);
+        DtoFields.queryAndAssignDtoFieldById(applicationContext, dtoClassInfoHelper, entityDtoServiceRelationMap
+                , relationInfo, dtoFieldMap.get(true), result, id);
 
-        DtoFields.queryAndAssignDtoField(applicationContext, dtoClassInfoHelper
+        DtoFields.queryAndAssignDtoFieldBySelector(applicationContext, dtoClassInfoHelper
                 , entityDtoServiceRelationMap
                 , relationInfo
                 , result
-                , tableJoinerMap);
+                , dtoFieldMap.get(false));
 
         return result;
     }

@@ -33,12 +33,13 @@ public class ServiceSupport {
     protected Map<String, EntityDtoServiceRelation> dtoNameMap = new ConcurrentHashMap<>();
     protected Map<String, IUpdateEntityProvider> providerMap = new ConcurrentHashMap<>();
 
-    public ServiceSupport(ApplicationContext applicationContext) {
+    public ServiceSupport(ApplicationContext applicationContext, IEntityDtoServiceRelationMap entityDtoServiceRelationMap
+            , ISelectService selectService, IUpdateService updateService, DtoValidatorManager dtoValidatorManager) {
         this.applicationContext = applicationContext;
-        this.updateService = applicationContext.getBean(IUpdateService.class);
-        this.selectService = applicationContext.getBean(ISelectService.class);
-        this.dtoValidatorManager = applicationContext.getBean(DtoValidatorManager.class);
-        this.entityDtoServiceRelationMap = this.applicationContext.getBean(IEntityDtoServiceRelationMap.class);
+        this.updateService = updateService;
+        this.selectService = selectService;
+        this.dtoValidatorManager = dtoValidatorManager;
+        this.entityDtoServiceRelationMap = entityDtoServiceRelationMap;
     }
 
     public List<Object> convertFromMapList(List<Object> mapList, Class clazz) {

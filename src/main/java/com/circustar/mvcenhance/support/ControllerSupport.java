@@ -131,7 +131,7 @@ public class ControllerSupport {
         Map options = new HashMap();
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        return updateDto(dtoName, updateObject, relation, DefaultInsertEntityProvider.getInstance(), options, true);
+        return update(dtoName, updateObject, relation, DefaultInsertEntityProvider.getInstance(), options, true);
     }
 
     public IServiceResult saveEntities(String dtoName
@@ -154,7 +154,7 @@ public class ControllerSupport {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
 
-        return updateDto(dtoName, objects, relation, DefaultInsertEntityProvider.getInstance()
+        return update(dtoName, objects, relation, DefaultInsertEntityProvider.getInstance()
                 , options, returnUpdateResult);
     }
 
@@ -184,7 +184,7 @@ public class ControllerSupport {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
-        return updateDto(dtoName, updateObject, relation, DefaultUpdateEntityProvider.getInstance(), options, true);
+        return update(dtoName, updateObject, relation, DefaultUpdateEntityProvider.getInstance(), options, true);
     }
 
     public IServiceResult updateEntities(String dtoName
@@ -214,7 +214,7 @@ public class ControllerSupport {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
-        return updateDto(dtoName, objects, relation, DefaultUpdateEntityProvider.getInstance()
+        return update(dtoName, objects, relation, DefaultUpdateEntityProvider.getInstance()
                 , options, returnUpdateResult);
     }
 
@@ -238,26 +238,26 @@ public class ControllerSupport {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
 
-        return updateDto(dtoName, ids, relationInfo, DefaultDeleteEntityProvider.getInstance()
+        return update(dtoName, ids, relationInfo, DefaultDeleteEntityProvider.getInstance()
                 , options, false);
     }
 
-    public IServiceResult updateDto(
+    public IServiceResult update(
             String dtoName, Object dtoObject
             , String updateEntityProviderName, Map options, boolean returnUpdateResult) throws Exception {
         EntityDtoServiceRelation relationInfo = serviceSupport.parseEntityDtoServiceRelation(dtoName);
         IUpdateEntityProvider updateEntityProvider = serviceSupport.parseProviderByName(updateEntityProviderName);
-        return updateDto(dtoName, relationInfo, updateEntityProvider, options, returnUpdateResult);
+        return update(dtoName, relationInfo, updateEntityProvider, options, returnUpdateResult);
     }
 
-    public IServiceResult updateDto(
+    public IServiceResult update(
             String dtoName, Object dtoObject
             , IUpdateEntityProvider updateEntityProvider, Map options, boolean returnUpdateResult) throws Exception {
         EntityDtoServiceRelation relationInfo = serviceSupport.parseEntityDtoServiceRelation(dtoName);
-        return updateDto(dtoName, relationInfo, updateEntityProvider, options, returnUpdateResult);
+        return update(dtoName, relationInfo, updateEntityProvider, options, returnUpdateResult);
     }
 
-    public IServiceResult updateDto(
+    public IServiceResult update(
             String dtoName, Object dtoObject, EntityDtoServiceRelation relationInfo
             , IUpdateEntityProvider updateEntityProvider, Map options, boolean returnUpdateResult) throws Exception {
 

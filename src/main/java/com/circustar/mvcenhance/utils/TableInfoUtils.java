@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TableInfoUtils {
-    public static volatile boolean allTableInfoInitialized = false;
+    private static volatile boolean allTableInfoInitialized = false;
     public static AtomicReference<List<String>> scanPackages = new AtomicReference<>();
     private static boolean userCamelCase = false;
     public static synchronized void initAllTableInfo(Configuration configuration) {

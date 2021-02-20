@@ -3,15 +3,17 @@ package com.circustar.mvcenhance.config;
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import com.circustar.mvcenhance.classInfo.DtoClassInfoHelper;
 import com.circustar.mvcenhance.classInfo.EntityClassInfoHelper;
+import com.circustar.mvcenhance.provider.DefaultDeleteEntityProvider;
+import com.circustar.mvcenhance.provider.DefaultInsertEntityProvider;
+import com.circustar.mvcenhance.provider.DefaultUpdateEntityProvider;
 import com.circustar.mvcenhance.relation.ScanValidatorOnStartup;
 import com.circustar.mvcenhance.support.ControllerSupport;
 import com.circustar.mvcenhance.support.ServiceSupport;
-import com.circustar.mvcenhance.utils.TableInfoUtils;
 import com.circustar.mvcenhance.injector.EnhanceSqlInjector;
 import com.circustar.mvcenhance.service.UpdateService;
 import com.circustar.mvcenhance.service.ISelectService;
 import com.circustar.mvcenhance.service.SelectService;
-import com.circustar.mvcenhance.provider.*;
+import com.circustar.mvcenhance.utils.TableInfoUtils;
 import com.circustar.mvcenhance.validator.DtoValidatorManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -33,9 +35,9 @@ import java.util.stream.Stream;
 public class MvcEnhancementConfiguration {
     private ApplicationContext applicationContext;
     private IEntityDtoServiceRelationMap entityDtoServiceRelationMap = null;
-    private EnhanceSqlInjector enhanceSqlInjector = null;
+    private EnhanceSqlInjector enhanceSqlInjector;
     private ScanRelationOnStartup scanRelationOnStartup;
-    private IUpdateService crudService;
+    private IUpdateService updateService;
     private ISelectService selectService;
     private EntityClassInfoHelper entityClassInfoHelper;
     private DtoClassInfoHelper dtoClassInfoHelper;
@@ -50,17 +52,18 @@ public class MvcEnhancementConfiguration {
         this.entityDtoServiceRelationMap = new EntityDtoServiceRelationMap();
         this.entityClassInfoHelper = new EntityClassInfoHelper();
         this.dtoClassInfoHelper = new DtoClassInfoHelper(this.entityDtoServiceRelationMap, this.entityClassInfoHelper);
-        this.crudService = new UpdateService(this.applicationContext, this.dtoClassInfoHelper, this.entityDtoServiceRelationMap);
+        this.updateService = new UpdateService(this.applicationContext, this.dtoClassInfoHelper, this.entityDtoServiceRelationMap);
         this.selectService = new SelectService(this.applicationContext, this.entityDtoServiceRelationMap, this.dtoClassInfoHelper);
-        this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
-        this.serviceSupport = new ServiceSupport(this.applicationContext);
-        this.controllerSupport = new ControllerSupport(this.serviceSupport);
-        TableInfoUtils.scanPackages.getAndSet(getMapperScanPackages(this.applicationContext));
         this.dtoValidatorManager = new DtoValidatorManager(this.applicationContext
                 , DefaultInsertEntityProvider.getInstance()
                 , DefaultUpdateEntityProvider.getInstance()
                 , DefaultDeleteEntityProvider.getInstance());
+        this.serviceSupport = new ServiceSupport(this.applicationContext, this.entityDtoServiceRelationMap, this.selectService, this.updateService, this.dtoValidatorManager);
+        this.controllerSupport = new ControllerSupport(this.serviceSupport);
+        this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
         this.scanValidatorOnStartup = new ScanValidatorOnStartup(this.dtoValidatorManager);
+
+        TableInfoUtils.scanPackages.getAndSet(getMapperScanPackages(this.applicationContext));
     }
 
     private List<String> getMapperScanPackages(ApplicationContext applicationContext) {
@@ -86,8 +89,8 @@ public class MvcEnhancementConfiguration {
     }
 
     @Bean
-    public IUpdateService getCrudService() {
-        return this.crudService;
+    public IUpdateService getUpdateService() {
+        return this.updateService;
     }
 
     @Bean

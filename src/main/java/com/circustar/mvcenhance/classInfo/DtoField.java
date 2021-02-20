@@ -13,9 +13,9 @@ public class DtoField {
     private EntityDtoServiceRelation entityDtoServiceRelation;
     private DtoClassInfo dtoClassInfo;
     private QueryField queryField;
-    private Selector selector;
     private OrderField orderField;
     private GroupField groupField;
+    private Selector[] selectors;
     private Class relatedEntityClass = null;
     private Boolean hasEntityClass = null;
     private JoinTable joinTable;
@@ -27,7 +27,7 @@ public class DtoField {
         this.entityDtoServiceRelation = entityDtoServiceRelation;
 
         this.queryField = fieldTypeInfo.getField().getAnnotation(QueryField.class);
-        this.selector = fieldTypeInfo.getField().getAnnotation(Selector.class);
+        this.selectors = fieldTypeInfo.getField().getAnnotationsByType(Selector.class);
         this.orderField = fieldTypeInfo.getField().getAnnotation(OrderField.class);
         this.groupField = fieldTypeInfo.getField().getAnnotation(GroupField.class);
         this.joinTable = fieldTypeInfo.getField().getAnnotation(JoinTable.class);
@@ -53,8 +53,8 @@ public class DtoField {
         return queryField;
     }
 
-    public Selector getSelector() {
-        return selector;
+    public Selector[] getSelectors() {
+        return selectors;
     }
 
     public OrderField getOrderField() {
@@ -83,5 +83,27 @@ public class DtoField {
 
     public JoinTable getJoinTable() {
         return joinTable;
+    }
+
+    enum SupportGenericType{
+        list(List.class, ArrayList.class),
+        collection(Collection.class, ArrayList.class),
+        set(Set.class, HashSet.class),
+        queue(Queue.class, PriorityQueue.class);
+        private Class<? extends Collection> type;
+        private Class<? extends Collection> newType;
+        SupportGenericType(Class type, Class newType) {
+            this.type = type;
+            this.newType = newType;
+        }
+        public Class<? extends Collection> getOriginClass() {
+            return this.type;
+        }
+        public Class<? extends Collection> getTargetClass() {
+            return this.newType;
+        }
+        public static SupportGenericType getSupportGenericType(Class t) {
+            return Arrays.stream(SupportGenericType.values()).filter(x -> x.getOriginClass() == t).findFirst().orElse(null);
+        }
     }
 }
