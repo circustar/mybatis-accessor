@@ -71,11 +71,11 @@ public class SelectListWithJoin extends AbstractMethod {
     protected String sqlSelectColumns(TableInfo table, boolean queryWrapper) {
         String selectColumns = "*";
         if (table.getResultMap() == null || table.isAutoInitResultMap()) {
-            selectColumns = table.getAllSqlSelect() +  "${" + MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_TABLE + "} ";
+            selectColumns = Arrays.stream(table.getAllSqlSelect().split(",")).map(x -> table.getTableName() + "." + x).collect(Collectors.joining(","))
+                    +  "${" + MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_COLUMNS + "} ";
         }
 
         return !queryWrapper ? selectColumns : SqlScriptUtils.convertChoose(String.format("%s != null and %s != null", "ew", "ew.sqlSelect"), SqlScriptUtils.unSafeParam("ew.sqlSelect"), selectColumns);
-//        return Arrays.stream(table.getAllSqlSelect().split(",")).map(x -> table.getTableName() + "." + x).collect(Collectors.joining(","));
     }
 
     @Override

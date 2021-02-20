@@ -76,7 +76,7 @@ public class DtoFields {
             IService service = subRelation.getServiceBean(applicationContext);
             QueryWrapper qw = new QueryWrapper();
 
-            Arrays.stream(dtoField.getSelectors()).forEach(x -> x.connector().consume(x.masterTableColumn(), qw
+            Arrays.stream(dtoField.getSelectors()).forEach(x -> x.connector().consume(x.tableColumn(), qw
                     , SPELParser.parseExpression(standardEvaluationContext, Arrays.asList(x.valueExpression()))));
 
             List searchResult = service.list(qw);

@@ -22,7 +22,7 @@ public class DtoClassInfo {
     private Map<String, DtoField> dtoFieldMap;
     private EntityClassInfo entityClassInfo;
     private String joinTables;
-    private String jointColumns;
+    private String joinColumns;
     private DtoField versionField;
     private Object versionDefaultValue;
     private DtoField keyField;
@@ -93,7 +93,7 @@ public class DtoClassInfo {
             joinTableList.add(tableJoinInfo.getJoinTable().joinType().getJoinString()
                     + " " + joinTableInfo.getTableName() + " " + strAlias);
             String joinColumnStr = Arrays.stream(tableJoinInfo.getJoinTable().joinColumns())
-                    .map(x -> x.connector().convert((StringUtils.isBlank(masterTableName) ? "" : (masterTableName + ".")) + x.masterTableColumn(), x.value()))
+                    .map(x -> x.connector().convert((StringUtils.isBlank(masterTableName) ? "" : (masterTableName + ".")) + x.tableColumn(), x.value()))
                     .collect(Collectors.joining(" and "));
             joinTableList.add("on " + joinColumnStr);
 
@@ -102,8 +102,8 @@ public class DtoClassInfo {
             joinColumnList.add(joinColumn);
         });
         this.joinTables = joinTableList.stream().collect(Collectors.joining(" "));
-        this.jointColumns = joinColumnList.stream().collect(Collectors.joining(",")).trim();
-        this.jointColumns = (StringUtils.isBlank(this.jointColumns) ? "" : ",") + this.jointColumns;
+        this.joinColumns = joinColumnList.stream().collect(Collectors.joining(",")).trim();
+        this.joinColumns = (StringUtils.isBlank(this.joinColumns) ? "" : ",") + this.joinColumns;
     }
 
     public Class<?> getClazz() {
@@ -134,8 +134,8 @@ public class DtoClassInfo {
         return joinTables;
     }
 
-    public String getJointColumns() {
-        return jointColumns;
+    public String getJoinColumns() {
+        return joinColumns;
     }
 
     public DtoField getDtoField(String name) {

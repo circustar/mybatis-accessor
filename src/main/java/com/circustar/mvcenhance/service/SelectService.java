@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.mvcenhance.annotation.Selector;
 import com.circustar.mvcenhance.classInfo.DtoField;
 import com.circustar.mvcenhance.wrapper.WrapperPiece;
 import com.circustar.mvcenhance.response.PageInfo;
@@ -14,13 +13,10 @@ import com.circustar.mvcenhance.classInfo.DtoFields;
 import com.circustar.mvcenhance.mapper.MybatisPlusMapper;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;
-import com.circustar.mvcenhance.utils.AnnotationUtils;
-import com.circustar.mvcenhance.utils.FieldUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,19 +51,25 @@ public class SelectService implements ISelectService {
             childList = new HashSet<>(Arrays.asList(children));
         }
         List<DtoField> subFields = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass())
-                .getSubDtoFieldList().stream().filter(x -> childList.contains(x)).collect(Collectors.toList());
+                .getSubDtoFieldList().stream().filter(x -> childList.contains(x.getFieldName())).collect(Collectors.toList());
 
         Map<Boolean, List<DtoField>> dtoFieldMap = subFields.stream()
-                .collect(Collectors.partitioningBy(x -> x.getSelectors() == null));
+                .collect(Collectors.partitioningBy(x -> x.getSelectors() == null || x.getSelectors().length == 0));
 
-        DtoFields.queryAndAssignDtoFieldById(applicationContext, dtoClassInfoHelper, entityDtoServiceRelationMap
-                , relationInfo, dtoFieldMap.get(true), result, id);
+        List<DtoField> fieldsWithNoSelector = dtoFieldMap.get(true);
+        if(fieldsWithNoSelector != null && fieldsWithNoSelector.size() > 0) {
+            DtoFields.queryAndAssignDtoFieldById(applicationContext, dtoClassInfoHelper, entityDtoServiceRelationMap
+                    , relationInfo, fieldsWithNoSelector, result, id);
+        }
 
-        DtoFields.queryAndAssignDtoFieldBySelector(applicationContext, dtoClassInfoHelper
-                , entityDtoServiceRelationMap
-                , relationInfo
-                , result
-                , dtoFieldMap.get(false));
+        List<DtoField> fieldsWithSelector = dtoFieldMap.get(false);
+        if(fieldsWithSelector != null && fieldsWithSelector.size() > 0) {
+            DtoFields.queryAndAssignDtoFieldBySelector(applicationContext, dtoClassInfoHelper
+                    , entityDtoServiceRelationMap
+                    , relationInfo
+                    , result
+                    , fieldsWithSelector);
+        }
 
         return result;
     }
@@ -99,7 +101,7 @@ public class SelectService implements ISelectService {
         IPage pageResult = null;
 
         if (!StringUtils.isEmpty(dtoClassInfo.getJoinTables())) {
-            pageResult = ((MybatisPlusMapper) service.getBaseMapper()).selectPageWithJoin(page, qw, dtoClassInfo.getJoinTables(), dtoClassInfo.getJointColumns());
+            pageResult = ((MybatisPlusMapper) service.getBaseMapper()).selectPageWithJoin(page, qw, dtoClassInfo.getJoinTables(), dtoClassInfo.getJoinColumns());
         } else {
             pageResult = service.page(page, qw);
         }
@@ -129,7 +131,7 @@ public class SelectService implements ISelectService {
         QueryWrapper qw = WrapperPiece.createQueryWrapper(queryFiledModelList);
         List entityList = null;
         if (!StringUtils.isEmpty(dtoClassInfo.getJoinTables())) {
-            entityList = ((MybatisPlusMapper)service.getBaseMapper()).selectListWithJoin(qw, dtoClassInfo.getJoinTables(), dtoClassInfo.getJointColumns());
+            entityList = ((MybatisPlusMapper)service.getBaseMapper()).selectListWithJoin(qw, dtoClassInfo.getJoinTables(), dtoClassInfo.getJoinColumns());
         } else {
             entityList = service.list(qw);
         }
