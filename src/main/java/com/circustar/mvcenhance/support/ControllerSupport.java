@@ -247,14 +247,14 @@ public class ControllerSupport {
             , String updateEntityProviderName, Map options, boolean returnUpdateResult) throws Exception {
         EntityDtoServiceRelation relationInfo = serviceSupport.parseEntityDtoServiceRelation(dtoName);
         IUpdateEntityProvider updateEntityProvider = serviceSupport.parseProviderByName(updateEntityProviderName);
-        return update(dtoName, relationInfo, updateEntityProvider, options, returnUpdateResult);
+        return update(dtoName, dtoObject, relationInfo, updateEntityProvider, options, returnUpdateResult);
     }
 
     public IServiceResult update(
             String dtoName, Object dtoObject
             , IUpdateEntityProvider updateEntityProvider, Map options, boolean returnUpdateResult) throws Exception {
         EntityDtoServiceRelation relationInfo = serviceSupport.parseEntityDtoServiceRelation(dtoName);
-        return update(dtoName, relationInfo, updateEntityProvider, options, returnUpdateResult);
+        return update(dtoName, dtoObject, relationInfo, updateEntityProvider, options, returnUpdateResult);
     }
 
     public IServiceResult update(
