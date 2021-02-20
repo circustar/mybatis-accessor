@@ -63,7 +63,7 @@ public class ServiceSupport {
         return object;
     }
 
-    protected IUpdateEntityProvider parseProviderByName(String updateProviderName) throws ResourceNotFoundException {
+    public IUpdateEntityProvider parseProviderByName(String updateProviderName) throws ResourceNotFoundException {
         IUpdateEntityProvider provider = null;
         if(providerMap.containsKey(updateProviderName)) {
             provider = providerMap.get(updateProviderName);
