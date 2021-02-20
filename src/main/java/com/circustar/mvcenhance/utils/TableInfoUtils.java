@@ -79,6 +79,7 @@ public class TableInfoUtils {
         ResultMapping.Builder builder = new ResultMapping.Builder(configuration
                 , tableJoinInfo.getFieldName(), StringUtils.getTargetColumn(tableJoinInfo.getFieldName()), (Class)tableJoinInfo.getActualType());
         builder.nestedResultMapId(registerResultMapping(configuration, tableInfo, null));
+        builder.columnPrefix(tableInfo.getTableName() + "_");
         return builder.build();
     }
 

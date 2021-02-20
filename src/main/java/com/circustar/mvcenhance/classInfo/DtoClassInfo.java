@@ -80,7 +80,7 @@ public class DtoClassInfo {
         });
 
 //        String masterTableName = TableInfoHelper.getTableInfo(entityClassInfo.getClazz()).getTableName();
-        String masterTableName = entityClassInfo.getTableInfo().getTableName();
+//        String masterTableName = entityClassInfo.getTableInfo().getTableName();
         List<String> joinTableList = new ArrayList<>();
         List<String> joinColumnList = new ArrayList<>();
         List<TableJoinInfo> tableJoinInfoList = TableJoinInfo.parseDtoTableJoinInfo(clazz);
@@ -89,16 +89,15 @@ public class DtoClassInfo {
             Class joinClazz = (Class) tableJoinInfo.getActualType();
 
             TableInfo joinTableInfo = TableInfoHelper.getTableInfo(relationMap.getByDtoClass(joinClazz).getEntityClass());
-            String strAlias = tableJoinInfo.getJoinTable().alias();
             joinTableList.add(tableJoinInfo.getJoinTable().joinType().getJoinString()
-                    + " " + joinTableInfo.getTableName() + " " + strAlias);
+                    + " " + joinTableInfo.getTableName());
             String joinColumnStr = Arrays.stream(tableJoinInfo.getJoinTable().joinColumns())
-                    .map(x -> x.connector().convert((StringUtils.isBlank(masterTableName) ? "" : (masterTableName + ".")) + x.tableColumn(), x.value()))
+                    .map(x -> x.connector().convert(x.tableColumn(), x.value()))
                     .collect(Collectors.joining(" and "));
             joinTableList.add("on " + joinColumnStr);
 
             String joinColumn = Arrays.stream(joinTableInfo.getAllSqlSelect().split(","))
-                    .map(x -> strAlias + "." + x ).collect(Collectors.joining(","));
+                    .map(x -> joinTableInfo.getTableName() + "." + x + " as " + joinTableInfo.getTableName() + "_" + x ).collect(Collectors.joining(","));
             joinColumnList.add(joinColumn);
         });
         this.joinTables = joinTableList.stream().collect(Collectors.joining(" "));
