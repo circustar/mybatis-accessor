@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.FIELD})
 public @interface JoinTable {
-    JoinColumn[] joinColumns();
+    String joinString();
     int order() default 1;
     JoinType joinType() default JoinType.LEFT;
 
