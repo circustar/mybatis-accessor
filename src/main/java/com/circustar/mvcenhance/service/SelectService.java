@@ -79,9 +79,9 @@ public class SelectService implements ISelectService {
             , Object object
             , Integer page_index
             , Integer page_size
-            ) throws Exception {
+            ) throws IllegalAccessException {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
-        List<WrapperPiece> queryWrapper = WrapperPiece.getQueryWrapperFromDto(dtoClassInfo, object);
+        List<WrapperPiece> queryWrapper = WrapperPiece.getWrapperPieceFromDto(dtoClassInfo, object);
 
         return getPagesByWrapper(relationInfo, queryWrapper, page_index, page_size);
     }
@@ -114,9 +114,9 @@ public class SelectService implements ISelectService {
     @Override
     public List getListByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
-    ) throws Exception {
+    ) throws IllegalAccessException {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
-        List<WrapperPiece> queryFiledModelList = WrapperPiece.getQueryWrapperFromDto(dtoClassInfo, object);
+        List<WrapperPiece> queryFiledModelList = WrapperPiece.getWrapperPieceFromDto(dtoClassInfo, object);
 
         return getListByWrapper(relationInfo, queryFiledModelList);
     }
@@ -124,7 +124,7 @@ public class SelectService implements ISelectService {
     @Override
     public <T> List<T> getListByWrapper(EntityDtoServiceRelation relationInfo
             , List<WrapperPiece> queryFiledModelList
-    ) throws Exception {
+    ) {
         IService service = relationInfo.getServiceBean(applicationContext);
         List<T> dtoList = null;
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());

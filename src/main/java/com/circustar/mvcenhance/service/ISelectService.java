@@ -16,20 +16,20 @@ public interface ISelectService {
             , Object object
             , Integer page_index
             , Integer page_size
-            ) throws Exception;
+            ) throws IllegalAccessException;
 
     <T> PageInfo<T> getPagesByWrapper(EntityDtoServiceRelation relationInfo
             , List<WrapperPiece> queryFiledModelList
             , Integer page_index
             , Integer page_size
-            ) throws Exception;
+            );
 
     List getListByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
-    ) throws Exception;
+    ) throws IllegalAccessException;
 
     <T> List<T> getListByWrapper(EntityDtoServiceRelation relationInfo
             , List<WrapperPiece> queryFiledModelList
-    ) throws Exception;
+    );
 
 }

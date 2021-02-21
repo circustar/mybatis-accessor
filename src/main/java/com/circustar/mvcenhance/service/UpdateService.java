@@ -27,12 +27,12 @@ public class UpdateService implements IUpdateService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Collection<Object> updateByProviders(EntityDtoServiceRelation relationInfo
+    public List<Object> updateByProviders(EntityDtoServiceRelation relationInfo
             , Object object, IUpdateEntityProvider provider
             , Map options) throws Exception {
         List<Object> updatedObjects = new ArrayList<>();
         try {
-            Collection<DefaultEntityCollectionUpdateProcessor> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper
+            List<DefaultEntityCollectionUpdateProcessor> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper
                     , object, options);
             for(DefaultEntityCollectionUpdateProcessor o : objList) {
                 boolean result = o.execUpdate();

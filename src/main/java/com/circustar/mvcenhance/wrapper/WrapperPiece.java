@@ -137,7 +137,7 @@ public class WrapperPiece {
         return qw;
     }
 
-    public static List<WrapperPiece> getQueryWrapperFromDto(DtoClassInfo dtoClassInfo, Object dto) throws IllegalAccessException {
+    public static List<WrapperPiece> getWrapperPieceFromDto(DtoClassInfo dtoClassInfo, Object dto) throws IllegalAccessException {
         List<WrapperPiece> wrapperPieces = new ArrayList<>();
         for(DtoField dtoField : dtoClassInfo.getNormalFieldList()) {
             Object fieldValue = FieldUtils.getValue(dto, dtoField.getFieldTypeInfo().getField());

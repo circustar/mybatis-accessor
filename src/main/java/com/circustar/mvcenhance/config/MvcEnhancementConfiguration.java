@@ -7,7 +7,6 @@ import com.circustar.mvcenhance.provider.DefaultDeleteEntityProvider;
 import com.circustar.mvcenhance.provider.DefaultInsertEntityProvider;
 import com.circustar.mvcenhance.provider.DefaultUpdateEntityProvider;
 import com.circustar.mvcenhance.relation.ScanValidatorOnStartup;
-import com.circustar.mvcenhance.support.ControllerSupport;
 import com.circustar.mvcenhance.support.ServiceSupport;
 import com.circustar.mvcenhance.injector.EnhanceSqlInjector;
 import com.circustar.mvcenhance.service.UpdateService;
@@ -41,7 +40,6 @@ public class MvcEnhancementConfiguration {
     private ISelectService selectService;
     private EntityClassInfoHelper entityClassInfoHelper;
     private DtoClassInfoHelper dtoClassInfoHelper;
-    private ControllerSupport controllerSupport;
     private ServiceSupport serviceSupport;
     private DtoValidatorManager dtoValidatorManager;
     private ScanValidatorOnStartup scanValidatorOnStartup;
@@ -59,7 +57,6 @@ public class MvcEnhancementConfiguration {
                 , DefaultUpdateEntityProvider.getInstance()
                 , DefaultDeleteEntityProvider.getInstance());
         this.serviceSupport = new ServiceSupport(this.applicationContext, this.entityDtoServiceRelationMap, this.selectService, this.updateService, this.dtoValidatorManager);
-        this.controllerSupport = new ControllerSupport(this.serviceSupport);
         this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
         this.scanValidatorOnStartup = new ScanValidatorOnStartup(this.dtoValidatorManager);
 
@@ -121,11 +118,6 @@ public class MvcEnhancementConfiguration {
     @Bean
     public EntityClassInfoHelper getEntityClassInfoHelper() {
         return this.entityClassInfoHelper;
-    }
-
-    @Bean
-    public ControllerSupport getControllerSupport() {
-        return this.controllerSupport;
     }
 
     @Bean

@@ -154,15 +154,15 @@ public class DtoClassInfoHelper {
         }
     }
 
-    public <T extends Collection> Collection convertFromEntityList(T entityList, Class<?> targetClass) {
+    public <T extends Collection> T convertFromEntityList(T entityList, Class<?> targetClass) {
         try {
             Class collectionClass = entityList.getClass();
-            Class<? extends Collection> implementClass = CollectionType.getSupportCollectionType(collectionClass);
+            Class<T> implementClass = (Class<T>) CollectionType.getSupportCollectionType(collectionClass);
             if(implementClass == null) {
                 throw new Exception("Collection type not Support!");
             }
             DtoClassInfo dtoClassInfo = this.getDtoClassInfo(targetClass);
-            Collection objectList =  implementClass.newInstance();
+            T objectList =  implementClass.newInstance();
             Iterator it = entityList.iterator();
             while(it.hasNext()) {
                 Object entity = it.next();
