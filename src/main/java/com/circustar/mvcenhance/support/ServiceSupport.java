@@ -175,6 +175,15 @@ public class ServiceSupport {
         return this.selectService.getListByAnnotation(relationInfo, object);
     }
 
+    public <T> List<T> getListBySimpleWrapper(String dtoName
+            , List<SimpleWrapperPiece> simpleWrapperPieces
+    ) throws ResourceNotFoundException {
+        EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
+        List<WrapperPiece> wrapperPieces = simpleWrapperPieces.stream().map(x -> x.convertToWrapperPiece(relationInfo))
+                .collect(Collectors.toList());
+        return this.getListByWrapper(relationInfo, wrapperPieces);
+    }
+
     public <T> List<T> getListByWrapper(String dtoName
             , List<WrapperPiece> queryFiledModelList
     ) throws ResourceNotFoundException {
@@ -310,14 +319,8 @@ public class ServiceSupport {
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild
             , boolean physicDelete) throws Exception {
-        Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_AND_INSERT, removeAndInsertNewChild);
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
-
-        return updateWithOptions(dtoName, objects, relation, DefaultUpdateEntityProvider.getInstance()
-                , options);
+        return this.update(dtoName, objects, relation, children
+                , updateChildrenOnly, removeAndInsertNewChild, physicDelete);
     }
 
     public Object deleteById(String dtoName, String children
