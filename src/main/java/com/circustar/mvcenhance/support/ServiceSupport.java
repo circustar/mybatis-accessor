@@ -46,9 +46,9 @@ public class ServiceSupport {
         this.entityDtoServiceRelationMap = entityDtoServiceRelationMap;
     }
 
-    public List<Object> convertFromMapList(List<Object> mapList, Class clazz) {
+    protected List convertFromMapList(List mapList, Class clazz) {
         Class actualClass = (Class) ClassUtils.getFirstTypeArgument(mapList.getClass());
-        List<Object> objects = mapList;
+        Collection<Object> objects = mapList;
         if(!Map.class.isAssignableFrom(actualClass)) {
             return mapList;
         }
@@ -61,8 +61,16 @@ public class ServiceSupport {
     }
 
     public Object convertFromMap(Object object, Class clazz) {
-        if(object instanceof Map){
+        if(object == null) {
+            return null;
+        } else if(object instanceof Map){
             return objectMapper.convertValue(object, clazz);
+        } else if(object instanceof Collection){
+            if(object instanceof List) {
+                return this.convertFromMapList((List) object, clazz);
+            } else {
+                return this.convertFromMapList(new ArrayList((Collection)object), clazz);
+            }
         }
         return object;
     }
@@ -131,7 +139,9 @@ public class ServiceSupport {
             , Integer page_index
             , Integer page_size
     ) throws Exception {
-        return this.selectService.getPagesByAnnotation(relationInfo, object, page_index, page_size);
+        return this.selectService.getPagesByAnnotation(relationInfo
+                , convertFromMap(object, relationInfo.getDtoClass())
+                , page_index, page_size);
     }
 
     public <T> PageInfo<T> getPagesBySimpleWrapper(String dtoName
@@ -166,13 +176,14 @@ public class ServiceSupport {
             , Object object
     ) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        return this.getListByAnnotation(relationInfo, object);
+        return this.getListByAnnotation(relationInfo, this.convertFromMap(object, relationInfo.getDtoClass()));
     }
 
     public List getListByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
     ) throws Exception {
-        return this.selectService.getListByAnnotation(relationInfo, object);
+        return this.selectService.getListByAnnotation(relationInfo
+                , this.convertFromMap(object, relationInfo.getDtoClass()));
     }
 
     public <T> List<T> getListBySimpleWrapper(String dtoName
@@ -212,9 +223,10 @@ public class ServiceSupport {
     }
 
     public List<Object> updateWithOptions(
-            String dtoName, Object dtoObject, EntityDtoServiceRelation relationInfo
+            String dtoName, Object object, EntityDtoServiceRelation relationInfo
             , IUpdateEntityProvider updateEntityProvider, Map options) throws Exception {
 
+        Object dtoObject = convertFromMap(object, relationInfo.getDtoClass());
         BindException errors  = new BindException(dtoObject, dtoName);
         this.dtoValidatorManager.validate(dtoObject, updateEntityProvider, errors);
         if(errors.hasErrors()) {
@@ -232,8 +244,7 @@ public class ServiceSupport {
             , String children
             , boolean updateChildrenOnly) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        Object dto = this.convertFromMap(updateObject, relationInfo.getDtoClass());
-        return save(dtoName, dto,  relationInfo, children, updateChildrenOnly);
+        return save(dtoName, updateObject,  relationInfo, children, updateChildrenOnly);
     }
 
     public List<Object> save(String dtoName
@@ -249,11 +260,10 @@ public class ServiceSupport {
     }
 
     public List<Object> saveList(String dtoName
-            , List<Object> mapList
+            , List<Object> objects
             , String children
             , boolean updateChildrenOnly) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        List<Object> objects = this.convertFromMapList(mapList, relationInfo.getDtoClass());
         return saveList(dtoName, objects, relationInfo, children, updateChildrenOnly);
     }
 
@@ -271,20 +281,18 @@ public class ServiceSupport {
     }
 
     public List<Object> update(String dtoName
-            , Object updateObject
+            , Object object
             , String children
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild
             , boolean physicDelete) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        Object dto = this.convertFromMap(updateObject, relationInfo.getDtoClass());
-
-        return update(dtoName, dto, relationInfo
+        return update(dtoName, object, relationInfo
                 , children, updateChildrenOnly, removeAndInsertNewChild, physicDelete);
     }
 
     public List<Object> update(String dtoName
-            , Object updateObject
+            , Object object
             , EntityDtoServiceRelation relation
             , String children
             , boolean updateChildrenOnly
@@ -296,18 +304,17 @@ public class ServiceSupport {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
-        return updateWithOptions(dtoName, updateObject, relation, DefaultUpdateEntityProvider.getInstance()
+        return updateWithOptions(dtoName, object, relation, DefaultUpdateEntityProvider.getInstance()
                 , options);
     }
 
     public List<Object> updateList(String dtoName
-            , List<Object> mapList
+            , List<Object> objects
             , String children
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild
             , boolean physicDelete) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        List<Object> objects = this.convertFromMapList(mapList, relationInfo.getDtoClass());
         return updateList(dtoName, objects, relationInfo, children
                 , updateChildrenOnly, removeAndInsertNewChild, physicDelete);
     }
