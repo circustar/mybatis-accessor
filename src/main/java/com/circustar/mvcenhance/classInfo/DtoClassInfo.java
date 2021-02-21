@@ -38,9 +38,10 @@ public class DtoClassInfo {
 
         String versionPropertyName = null;
         if(entityClassInfo.getTableInfo().getVersionFieldInfo() != null) {
-            entityClassInfo.getTableInfo().getVersionFieldInfo().getProperty();
+            versionPropertyName = entityClassInfo.getTableInfo().getVersionFieldInfo().getProperty();
         }
         String keyProperty = entityClassInfo.getTableInfo().getKeyProperty();
+        String finalVersionPropertyName = versionPropertyName;
         Arrays.stream(clazz.getDeclaredFields()).forEach(x -> {
             FieldTypeInfo fieldTypeInfo = FieldTypeInfo.parseField(this.clazz, x);
             EntityDtoServiceRelation relation = relationMap.getByDtoClass((Class)fieldTypeInfo.getActualType());
@@ -51,7 +52,7 @@ public class DtoClassInfo {
             } else {
                 dtoField = new DtoField(x.getName(), fieldTypeInfo, this, null);
                 normalFieldList.add(dtoField);
-                if(x.getName().equals(versionPropertyName)) {
+                if(x.getName().equals(finalVersionPropertyName)) {
                     this.versionField = dtoField;
                     this.versionDefaultValue = getDefaultVersionByType(fieldTypeInfo.getField().getType());
                 }
