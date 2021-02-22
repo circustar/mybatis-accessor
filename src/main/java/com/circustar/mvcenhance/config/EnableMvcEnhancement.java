@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Import;
-import com.circustar.mvcenhance.relation.RelationScanPackages;
+import com.circustar.mvcenhance.annotation.RelationScanPackages;
 
 import java.lang.annotation.*;
 

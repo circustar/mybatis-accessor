@@ -48,7 +48,6 @@ public class ServiceSupport {
 
     protected Collection convertFromCollection(Collection mapList, Class clazz) {
         Class actualClass = (Class) ClassUtils.getFirstTypeArgument(mapList.getClass());
-        Collection<Object> objects = mapList;
         if(!Map.class.isAssignableFrom(actualClass)) {
             return mapList;
         }

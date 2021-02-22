@@ -1,4 +1,4 @@
-package com.circustar.mvcenhance.relation;
+package com.circustar.mvcenhance.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

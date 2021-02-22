@@ -1,4 +1,4 @@
-package com.circustar.mvcenhance.relation;
+package com.circustar.mvcenhance.annotation;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mvcenhance.provider.*;
