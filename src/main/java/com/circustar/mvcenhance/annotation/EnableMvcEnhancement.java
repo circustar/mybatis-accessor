@@ -1,6 +1,7 @@
-package com.circustar.mvcenhance.config;
+package com.circustar.mvcenhance.annotation;
 
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
+import com.circustar.mvcenhance.config.MvcEnhancementConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Import;

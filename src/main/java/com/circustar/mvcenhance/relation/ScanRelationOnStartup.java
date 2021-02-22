@@ -3,7 +3,7 @@ package com.circustar.mvcenhance.relation;
 import com.circustar.mvcenhance.annotation.DtoEntityRelation;
 import com.circustar.mvcenhance.annotation.DtoEntityRelations;
 import com.circustar.mvcenhance.annotation.RelationScanPackages;
-import com.circustar.mvcenhance.config.EnableMvcEnhancement;
+import com.circustar.mvcenhance.annotation.EnableMvcEnhancement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
