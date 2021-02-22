@@ -46,7 +46,7 @@ public class ServiceSupport {
         this.entityDtoServiceRelationMap = entityDtoServiceRelationMap;
     }
 
-    protected List convertFromMapList(List mapList, Class clazz) {
+    protected Collection convertFromCollection(Collection mapList, Class clazz) {
         Class actualClass = (Class) ClassUtils.getFirstTypeArgument(mapList.getClass());
         Collection<Object> objects = mapList;
         if(!Map.class.isAssignableFrom(actualClass)) {
@@ -66,11 +66,7 @@ public class ServiceSupport {
         } else if(object instanceof Map){
             return objectMapper.convertValue(object, clazz);
         } else if(object instanceof Collection){
-            if(object instanceof List) {
-                return this.convertFromMapList((List) object, clazz);
-            } else {
-                return this.convertFromMapList(new ArrayList((Collection)object), clazz);
-            }
+            return this.convertFromCollection((Collection) object, clazz);
         }
         return object;
     }
