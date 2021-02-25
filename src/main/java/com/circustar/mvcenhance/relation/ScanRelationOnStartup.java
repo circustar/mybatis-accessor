@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ScanRelationOnStartup implements ApplicationRunner {
+    public static boolean enableSpringValidation = false;
     public ScanRelationOnStartup(ApplicationContext context, IEntityDtoServiceRelationMap relationMap) {
         this.context = context;
         this.relationMap = relationMap;
@@ -54,6 +55,9 @@ public class ScanRelationOnStartup implements ApplicationRunner {
                     .flatMap(Arrays::stream)
                     .collect(Collectors.toList());
             scanForRelationMap(scannList);
+            if(annotations.length > 0) {
+                ScanRelationOnStartup.enableSpringValidation = annotations[0].enableSpringValidation();
+            }
         }
     }
 

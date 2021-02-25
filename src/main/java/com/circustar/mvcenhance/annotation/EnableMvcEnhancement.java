@@ -17,4 +17,5 @@ import java.lang.annotation.*;
 @ConditionalOnClass(MybatisPlusAutoConfiguration.class)
 public @interface EnableMvcEnhancement {
     RelationScanPackages relationScan();
+    boolean enableSpringValidation() default true;
 }
