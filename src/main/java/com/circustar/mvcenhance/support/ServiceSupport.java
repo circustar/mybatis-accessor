@@ -1,13 +1,12 @@
 package com.circustar.mvcenhance.support;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.circustar.mvcenhance.provider.DefaultDeleteEntityProvider;
 import com.circustar.mvcenhance.provider.DefaultInsertEntityProvider;
 import com.circustar.mvcenhance.provider.DefaultUpdateEntityProvider;
 import com.circustar.mvcenhance.relation.ScanRelationOnStartup;
 import com.circustar.mvcenhance.utils.ArrayParamUtils;
 import com.circustar.mvcenhance.utils.MvcEnhanceConstants;
-import com.circustar.mvcenhance.wrapper.SimpleWrapperPiece;
-import com.circustar.mvcenhance.wrapper.WrapperPiece;
 import com.circustar.mvcenhance.error.ResourceNotFoundException;
 import com.circustar.mvcenhance.error.ValidateException;
 import com.circustar.mvcenhance.provider.IUpdateEntityProvider;
@@ -26,7 +25,6 @@ import org.springframework.validation.BindException;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 public class ServiceSupport {
     protected ApplicationContext applicationContext;
@@ -102,112 +100,274 @@ public class ServiceSupport {
         return relationInfo;
     }
 
-    public Object getById(String dtoName
+    public Object getEntityById(Class DtoClass
+            , Serializable id) throws Exception {
+        return this.getEntityById(DtoClass.getSimpleName(), id);
+    }
+
+    public Object getEntityById(String dtoName
+            , Serializable id) throws Exception {
+        EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
+        return this.getEntityById(relationInfo, id);
+    }
+
+    public Object getEntityById(EntityDtoServiceRelation relationInfo
+            , Serializable id) throws Exception {
+        return this.selectService.getEntityById(relationInfo, id);
+    }
+
+    public Object getEntityByQueryWrapper(Class DtoClass
+            , QueryWrapper queryWrapper) throws Exception {
+        return this.getEntityByQueryWrapper(DtoClass.getSimpleName(), queryWrapper);
+    }
+
+    public Object getEntityByQueryWrapper(String dtoName
+            , QueryWrapper queryWrapper) throws Exception {
+        EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
+        return this.getEntityByQueryWrapper(relationInfo, queryWrapper);
+    }
+
+    public Object getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , QueryWrapper queryWrapper) throws Exception {
+        return this.selectService.getEntityByQueryWrapper(relationInfo, queryWrapper);
+    }
+
+    public Object getDtoById(String dtoName
             , Serializable id
             , String children) throws Exception {
-        return this.getById(dtoName, id, ArrayParamUtils.convertStringToArray(children, ArrayParamUtils.DELIMITER_COMMA));
+        return this.getDtoById(dtoName, id, ArrayParamUtils.convertStringToArray(children, ArrayParamUtils.DELIMITER_COMMA));
     }
 
-    public Object getById(String dtoName
+    public Object getDtoById(Class dtoClass
+            , Serializable id
+            , String children) throws Exception {
+        return this.getDtoById(dtoClass.getSimpleName(), id, children);
+    }
+
+    public Object getDtoById(String dtoName
             , Serializable id
             , String[] children) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        return this.getById(relationInfo, id, children);
+        return this.getDtoById(relationInfo, id, children);
     }
 
-    public Object getById(EntityDtoServiceRelation relationInfo
+    public Object getDtoById(Class dtoClass
             , Serializable id
             , String[] children) throws Exception {
-        return this.selectService.getById(relationInfo, id, children);
+        return this.getDtoById(dtoClass.getSimpleName(), id, children);
     }
 
-    public <T> PageInfo<T> getPagesByAnnotation(String dtoName
+    public Object getDtoById(EntityDtoServiceRelation relationInfo
+            , Serializable id
+            , String[] children) throws Exception {
+        return this.selectService.getDtoById(relationInfo, id, children);
+    }
+
+    public Object getDtoByQueryWrapper(String dtoName
+            , QueryWrapper queryWrapper
+            , String children) throws Exception {
+        return this.getDtoByQueryWrapper(dtoName, queryWrapper, ArrayParamUtils.convertStringToArray(children, ArrayParamUtils.DELIMITER_COMMA));
+    }
+
+    public Object getDtoByQueryWrapper(Class dtoClass
+            , QueryWrapper queryWrapper
+            , String children) throws Exception {
+        return this.getDtoByQueryWrapper(dtoClass.getSimpleName(), queryWrapper, children);
+    }
+
+    public Object getDtoByQueryWrapper(String dtoName
+            , QueryWrapper queryWrapper
+            , String[] children) throws Exception {
+        EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
+        return this.getDtoByQueryWrapper(relationInfo, queryWrapper, children);
+    }
+
+    public Object getDtoByQueryWrapper(Class dtoClass
+            , QueryWrapper queryWrapper
+            , String[] children) throws Exception {
+        return this.getDtoByQueryWrapper(dtoClass.getSimpleName(), queryWrapper, children);
+    }
+
+    public Object getDtoByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , QueryWrapper queryWrapper
+            , String[] children) throws Exception {
+        return this.selectService.getDtoByQueryWrapper(relationInfo, queryWrapper, children);
+    }
+
+    public <T> PageInfo<T> getEntityPageByAnnotation(Class dtoClass
+            , Object object
+            , Integer page_index
+            , Integer page_size
+    ) throws Exception {
+        return this.getEntityPageByAnnotation(dtoClass.getSimpleName(), object, page_index, page_size);
+    }
+
+    public <T> PageInfo<T> getEntityPageByAnnotation(String dtoName
             , Object object
             , Integer page_index
             , Integer page_size
     ) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        return this.getPagesByAnnotation(relationInfo, object, page_index, page_size);
+        return this.getEntityPageByAnnotation(relationInfo, object, page_index, page_size);
     }
 
-    public <T> PageInfo<T> getPagesByAnnotation(EntityDtoServiceRelation relationInfo
+    public <T> PageInfo<T> getEntityPageByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
             , Integer page_index
             , Integer page_size
     ) throws Exception {
-        return this.selectService.getPagesByAnnotation(relationInfo
+        return this.selectService.getEntityPageByAnnotation(relationInfo
                 , convertFromMap(object, relationInfo.getDtoClass())
                 , page_index, page_size);
     }
 
-    public <T> PageInfo<T> getPagesBySimpleWrapper(String dtoName
-            , List<SimpleWrapperPiece> queryFiledModelList
+    public <T> PageInfo<T> getEntityPageByQueryWrapper(Class dtoClass
+            , QueryWrapper queryWrapper
+            , Integer page_index
+            , Integer page_size
+    ) throws Exception {
+        return this.getEntityPageByQueryWrapper(dtoClass.getSimpleName(),queryWrapper,page_index,page_size);
+    }
+
+    public <T> PageInfo<T> getEntityPageByQueryWrapper(String dtoName
+            , QueryWrapper queryWrapper
             , Integer page_index
             , Integer page_size
     ) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        return this.getPagesByWrapper(relationInfo
-                ,queryFiledModelList.stream().map(x -> x.convertToWrapperPiece(relationInfo)).collect(Collectors.toList())
-                ,page_index,page_size);
+        return this.getEntityPageByQueryWrapper(relationInfo,queryWrapper,page_index,page_size);
     }
 
-    public <T> PageInfo<T> getPagesByWrapper(String dtoName
-            , List<WrapperPiece> queryFiledModelList
+    public <T> PageInfo<T> getEntityPageByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , QueryWrapper queryWrapper
+            , Integer page_index
+            , Integer page_size
+    ) throws Exception {
+        return this.selectService.getEntityPageByQueryWrapper(relationInfo,queryWrapper,page_index,page_size);
+    }
+
+    public <T> PageInfo<T> getDtoPageByAnnotation(Class dtoClass
+            , Object object
+            , Integer page_index
+            , Integer page_size
+    ) throws Exception {
+        return this.getDtoPageByAnnotation(dtoClass.getSimpleName(), object, page_index, page_size);
+    }
+
+    public <T> PageInfo<T> getDtoPageByAnnotation(String dtoName
+            , Object object
             , Integer page_index
             , Integer page_size
     ) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        return this.getPagesByWrapper(relationInfo,queryFiledModelList,page_index,page_size);
+        return this.getDtoPageByAnnotation(relationInfo, object, page_index, page_size);
     }
 
-    public <T> PageInfo<T> getPagesByWrapper(EntityDtoServiceRelation relationInfo
-            , List<WrapperPiece> queryFiledModelList
+    public <T> PageInfo<T> getDtoPageByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object
             , Integer page_index
             , Integer page_size
     ) throws Exception {
-        return this.selectService.getPagesByWrapper(relationInfo,queryFiledModelList,page_index,page_size);
+        return this.selectService.getDtoPageByAnnotation(relationInfo
+                , convertFromMap(object, relationInfo.getDtoClass())
+                , page_index, page_size);
     }
 
-    public List getListByAnnotation(String dtoName
+    public <T> PageInfo<T> getDtoPageByQueryWrapper(Class dtoClass
+            , QueryWrapper queryWrapper
+            , Integer page_index
+            , Integer page_size
+    ) throws Exception {
+        return this.getDtoPageByQueryWrapper(dtoClass.getSimpleName(),queryWrapper,page_index,page_size);
+    }
+
+    public <T> PageInfo<T> getDtoPageByQueryWrapper(String dtoName
+            , QueryWrapper queryWrapper
+            , Integer page_index
+            , Integer page_size
+    ) throws Exception {
+        EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
+        return this.getDtoPageByQueryWrapper(relationInfo,queryWrapper,page_index,page_size);
+    }
+
+    public <T> PageInfo<T> getDtoPageByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , QueryWrapper queryWrapper
+            , Integer page_index
+            , Integer page_size
+    ) throws Exception {
+        return this.selectService.getDtoPageByQueryWrapper(relationInfo,queryWrapper,page_index,page_size);
+    }
+
+    public List getEntityListByAnnotation(Class dtoClass
+            , Object object
+    ) throws Exception {
+        return this.getEntityListByAnnotation(dtoClass.getSimpleName(), object);
+    }
+
+    public List getEntityListByAnnotation(String dtoName
             , Object object
     ) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        return this.getListByAnnotation(relationInfo, this.convertFromMap(object, relationInfo.getDtoClass()));
+        return this.getEntityListByAnnotation(relationInfo, this.convertFromMap(object, relationInfo.getDtoClass()));
     }
 
-    public List getListByAnnotation(EntityDtoServiceRelation relationInfo
+    public List getEntityListByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
     ) throws Exception {
-        return this.selectService.getListByAnnotation(relationInfo
+        return this.selectService.getEntityListByAnnotation(relationInfo
                 , this.convertFromMap(object, relationInfo.getDtoClass()));
     }
 
-    public <T> List<T> getListBySimpleWrapper(String dtoName
-            , List<SimpleWrapperPiece> simpleWrapperPieces
-    ) throws ResourceNotFoundException {
+    public <T> List<T> getEntityListByQueryWrapper(Class dtoClass
+            , QueryWrapper queryWrapper
+    ) throws Exception {
+        return this.getEntityListByQueryWrapper(dtoClass.getSimpleName(), queryWrapper);
+    }
+
+    public <T> List<T> getEntityListByQueryWrapper(String dtoName
+            , QueryWrapper queryWrapper
+    ) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        return this.getListBySimpleWrapper(relationInfo, simpleWrapperPieces);
+        return this.getEntityListByQueryWrapper(relationInfo, queryWrapper);
     }
 
-    public <T> List<T> getListBySimpleWrapper(EntityDtoServiceRelation relationInfo
-            , List<SimpleWrapperPiece> simpleWrapperPieces
-    ) {
-        List<WrapperPiece> wrapperPieces = simpleWrapperPieces.stream().map(x -> x.convertToWrapperPiece(relationInfo))
-                .collect(Collectors.toList());
-        return this.getListByWrapper(relationInfo, wrapperPieces);
+    public <T> List<T> getEntityListByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , QueryWrapper queryWrapper
+    ) throws Exception {
+        return this.selectService.getEntityListByQueryWrapper(relationInfo, queryWrapper);
     }
 
-    public <T> List<T> getListByWrapper(String dtoName
-            , List<WrapperPiece> queryFiledModelList
-    ) throws ResourceNotFoundException {
+    public List getDtoListByAnnotation(Class dtoClass
+            , Object object
+    ) throws Exception {
+        return this.getDtoListByAnnotation(dtoClass.getSimpleName(), object);
+    }
+
+    public List getDtoListByAnnotation(String dtoName
+            , Object object
+    ) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        return this.getListByWrapper(relationInfo, queryFiledModelList);
+        return this.getDtoListByAnnotation(relationInfo, this.convertFromMap(object, relationInfo.getDtoClass()));
     }
 
-    public <T> List<T> getListByWrapper(EntityDtoServiceRelation relationInfo
-            , List<WrapperPiece> queryFiledModelList
-    ) {
-        return this.selectService.getListByWrapper(relationInfo, queryFiledModelList);
+    public List getDtoListByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object
+    ) throws Exception {
+        return this.selectService.getDtoListByAnnotation(relationInfo
+                , this.convertFromMap(object, relationInfo.getDtoClass()));
+    }
+
+    public <T> List<T> getDtoListByQueryWrapper(String dtoName
+            , QueryWrapper queryWrapper
+    ) throws Exception {
+        EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
+        return this.getDtoListByQueryWrapper(relationInfo, queryWrapper);
+    }
+
+    public <T> List<T> getDtoListByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , QueryWrapper queryWrapper
+    ) throws Exception {
+        return this.selectService.getDtoListByQueryWrapper(relationInfo, queryWrapper);
     }
 
     public List<Object> updateWithOptions(

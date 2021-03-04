@@ -1,19 +1,19 @@
 package com.circustar.mvcenhance.wrapper;
 
-import com.circustar.mvcenhance.annotation.OrderField;
+import com.circustar.mvcenhance.annotation.QueryOrder;
 
-public class OrderFieldModel {
+public class QueryOrderModel {
     private String orderExpression;
     private int sortIndex;
     private String sortOrder;
 
-    public OrderFieldModel(String orderExpression, int sortIndex, String sortOrder) {
+    public QueryOrderModel(String orderExpression, int sortIndex, String sortOrder) {
         this.orderExpression = orderExpression;
         this.sortIndex = sortIndex;
         this.sortOrder = sortOrder;
     }
-    public OrderFieldModel(OrderField queryField) {
-        this(queryField.orderExpression(), queryField.sortIndex(), queryField.sortOrder());
+    public QueryOrderModel(QueryOrder queryField) {
+        this(queryField.expression(), queryField.sortIndex(), queryField.sortOrder());
     }
 
     public String getOrderExpression() {

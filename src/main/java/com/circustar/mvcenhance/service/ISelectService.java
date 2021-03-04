@@ -1,6 +1,6 @@
 package com.circustar.mvcenhance.service;
 
-import com.circustar.mvcenhance.wrapper.WrapperPiece;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.circustar.mvcenhance.response.PageInfo;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 
@@ -8,28 +8,59 @@ import java.io.Serializable;
 import java.util.List;
 
 public interface ISelectService {
-    Object getById(EntityDtoServiceRelation relationInfo
+
+    <T> T getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , QueryWrapper queryWrapper) throws Exception;
+
+    <T> T getDtoByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , QueryWrapper queryWrapper, String[] children) throws Exception;
+
+    <T> T getEntityById(EntityDtoServiceRelation relationInfo
+            , Serializable id) throws Exception;
+
+    <T> T getDtoById(EntityDtoServiceRelation relationInfo
             , Serializable id
             , String[] children) throws Exception;
 
-    <T> PageInfo<T> getPagesByAnnotation(EntityDtoServiceRelation relationInfo
+    <T> PageInfo<T> getEntityPageByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
             , Integer page_index
             , Integer page_size
-            ) throws IllegalAccessException;
+    ) throws Exception;
 
-    <T> PageInfo<T> getPagesByWrapper(EntityDtoServiceRelation relationInfo
-            , List<WrapperPiece> queryFiledModelList
+    <T> PageInfo<T> getDtoPageByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object
             , Integer page_index
             , Integer page_size
-            );
+            ) throws Exception;
 
-    List getListByAnnotation(EntityDtoServiceRelation relationInfo
+    <T> PageInfo<T> getEntityPageByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , QueryWrapper queryWrapper
+            , Integer page_index
+            , Integer page_size
+            ) throws Exception;
+
+
+    <T> PageInfo<T> getDtoPageByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , QueryWrapper queryWrapper
+            , Integer page_index
+            , Integer page_size
+    ) throws Exception;
+
+    <T> List<T> getEntityListByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
-    ) throws IllegalAccessException;
+    ) throws Exception;
 
-    <T> List<T> getListByWrapper(EntityDtoServiceRelation relationInfo
-            , List<WrapperPiece> queryFiledModelList
-    );
 
+    <T> List<T> getDtoListByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object
+    ) throws Exception;
+
+    <T> List<T> getEntityListByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , QueryWrapper queryWrapper
+    )  throws Exception;
+
+    <T> List<T> getDtoListByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , QueryWrapper queryWrapper
+    )  throws Exception;
 }

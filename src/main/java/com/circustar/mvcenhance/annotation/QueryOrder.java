@@ -4,11 +4,11 @@ import java.lang.annotation.*;
 
 @Target(value = {ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface OrderField {
+public @interface QueryOrder {
     String ORDER_DESC = "desc";
     String ORDER_ASC = "asc";
 
-    String orderExpression() default "";
+    String expression() default "";
     int sortIndex() default Integer.MAX_VALUE;
     String sortOrder() default ORDER_ASC;
 }

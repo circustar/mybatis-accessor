@@ -38,11 +38,11 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
         String[] topEntities = this.getTopEntities(children, ".");
         if(topEntities.length > 0) {
             for (Object id : values) {
-                Object object = selectService.getById(relation, (Serializable) id
+                Object object = selectService.getDtoById(relation, (Serializable) id
                         , topEntities);
                 for (String entityName : topEntities) {
                     DtoField dtoField = dtoClassInfo.getDtoField(entityName);
-                    Object entity = FieldUtils.getValue(object, dtoField.getFieldTypeInfo().getField());
+                    Object entity = FieldUtils.getValue(object, dtoField.getTableFieldInfo().getField());
                     if (entity == null) {
                         continue;
                     }

@@ -10,16 +10,16 @@ import java.util.stream.Collectors;
 
 public class EntityClassInfo {
     private Class<?> clazz;
-    private List<FieldTypeInfo> fieldList;
-    private Map<Class<?>, FieldTypeInfo> entityFieldInfoMap;
-    private Map<String, FieldTypeInfo> fieldMap;
+    private List<TableFieldInfo> fieldList;
+    private Map<Class<?>, TableFieldInfo> entityFieldInfoMap;
+    private Map<String, TableFieldInfo> fieldMap;
     private TableInfo tableInfo;
 
     public EntityClassInfo(Class<?> clazz) {
         this.clazz = clazz;
         this.fieldList = Arrays.stream(clazz.getDeclaredFields()).map(x -> {
-            FieldTypeInfo fieldTypeInfo = FieldTypeInfo.parseField(this.clazz, x);
-            return fieldTypeInfo;
+            TableFieldInfo tableFieldInfo = TableFieldInfo.parseField(this.clazz, x);
+            return tableFieldInfo;
         }).collect(Collectors.toList());
         this.entityFieldInfoMap = new HashMap<>();
         this.fieldList.stream().collect(Collectors.collectingAndThen(
@@ -42,18 +42,18 @@ public class EntityClassInfo {
         return clazz;
     }
 
-    public List<FieldTypeInfo> getFieldList() {
+    public List<TableFieldInfo> getFieldList() {
         return fieldList;
     }
 
-    public FieldTypeInfo getFieldByClass(Class<?> clazz) {
+    public TableFieldInfo getFieldByClass(Class<?> clazz) {
         if(entityFieldInfoMap.containsKey(clazz)) {
             return entityFieldInfoMap.get(clazz);
         }
         return null;
     }
 
-    public FieldTypeInfo getFieldByName(String fieldName) {
+    public TableFieldInfo getFieldByName(String fieldName) {
         if(fieldMap.containsKey(fieldName)) {
             return fieldMap.get(fieldName);
         }

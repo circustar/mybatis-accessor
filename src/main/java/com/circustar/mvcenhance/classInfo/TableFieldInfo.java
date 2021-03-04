@@ -1,7 +1,9 @@
 package com.circustar.mvcenhance.classInfo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.circustar.mvcenhance.annotation.QueryField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.circustar.mvcenhance.utils.TableInfoUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -9,15 +11,19 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class FieldTypeInfo {
+public class TableFieldInfo {
     private Field field;
 
     private TableField tableField;
-
-    private QueryField[] queryFields;
+    private String columnName;
+    private boolean isKeyColumn;
 
     public Boolean getPrimitive() {
         return isPrimitive;
+    }
+
+    public boolean isKeyColumn() {
+        return isKeyColumn;
     }
 
     public Boolean getCollection() {
@@ -62,8 +68,8 @@ public class FieldTypeInfo {
     private Type actualType = null;
     private Type ownType = null;
 
-    public static FieldTypeInfo parseField(Class c, Field field) {
-        FieldTypeInfo fieldInfo = new FieldTypeInfo();
+    public static TableFieldInfo parseField(Class c, Field field) {
+        TableFieldInfo fieldInfo = new TableFieldInfo();
         fieldInfo.setField(field);
         if(Collection.class.isAssignableFrom(field.getType())
                 && field.getGenericType() instanceof ParameterizedType) {
@@ -77,11 +83,22 @@ public class FieldTypeInfo {
             fieldInfo.isPrimitive = field.getType().isPrimitive();
         }
         fieldInfo.tableField = field.getAnnotation(TableField.class);
-        fieldInfo.queryFields = field.getAnnotationsByType(QueryField.class);
+        if(fieldInfo.tableField != null && !StringUtils.isEmpty(fieldInfo.tableField.value())) {
+            fieldInfo.columnName = fieldInfo.tableField.value();
+        } else {
+            fieldInfo.columnName = TableInfoUtils.getDBObjectName(fieldInfo.getField().getName());
+        }
+        TableId tableId = field.getAnnotation(TableId.class);
+        if(tableId != null) {
+            fieldInfo.isKeyColumn = true;
+            if(!StringUtils.isEmpty(tableId.value())) {
+                fieldInfo.columnName = tableId.value();
+            }
+        }
         return fieldInfo;
     }
 
-    public static FieldTypeInfo parseFieldByName(Class c, String property_name) {
+    public static TableFieldInfo parseFieldByName(Class c, String property_name) {
         try {
             Field field = c.getDeclaredField(property_name.substring(0,1).toLowerCase() + property_name.substring(1));
             if(field== null) {
@@ -93,11 +110,11 @@ public class FieldTypeInfo {
         return null;
     }
 
-    public static FieldTypeInfo parseFieldByClass(Class c, Class subClass, Boolean findInGenericType) {
+    public static TableFieldInfo parseFieldByClass(Class c, Class subClass, Boolean findInGenericType) {
         try {
             if(!findInGenericType) {
                 return Arrays.stream(c.getDeclaredFields()).filter(x -> x.getType().getClass() == subClass)
-                        .findFirst().map(x -> FieldTypeInfo.parseField(c, x)).orElse(null);
+                        .findFirst().map(x -> TableFieldInfo.parseField(c, x)).orElse(null);
             } else {
                 return Arrays.stream(c.getDeclaredFields())
                         .filter(x -> {
@@ -111,7 +128,7 @@ public class FieldTypeInfo {
                             Type dtoType = ((ParameterizedType) x.getGenericType()).getActualTypeArguments()[0];
                             return (dtoType == subClass);
                         })
-                        .findFirst().map(x -> FieldTypeInfo.parseField(c, x)).orElse(null);
+                        .findFirst().map(x -> TableFieldInfo.parseField(c, x)).orElse(null);
             }
         } catch (Exception e) {
         }
@@ -122,7 +139,7 @@ public class FieldTypeInfo {
         return tableField;
     }
 
-    public QueryField[] getQueryFields() {
-        return queryFields;
+    public String getColumnName() {
+        return columnName;
     }
 }

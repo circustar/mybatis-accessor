@@ -1,5 +1,6 @@
 package com.circustar.mvcenhance.classInfo;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -7,6 +8,7 @@ import com.circustar.mvcenhance.annotation.DeleteFlag;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.utils.AnnotationUtils;
+import com.circustar.mvcenhance.wrapper.QueryWrapperCreator;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -27,6 +29,7 @@ public class DtoClassInfo {
     private Object versionDefaultValue;
     private DtoField keyField;
     private DtoField deleteFlagField;
+    private QueryWrapperCreator queryWrapperCreator;
     public DtoClassInfo(IEntityDtoServiceRelationMap relationMap, Class<?> clazz, EntityClassInfo entityClassInfo) {
         this.clazz = clazz;
         this.relationMap = relationMap;
@@ -43,24 +46,24 @@ public class DtoClassInfo {
         String keyProperty = entityClassInfo.getTableInfo().getKeyProperty();
         String finalVersionPropertyName = versionPropertyName;
         Arrays.stream(clazz.getDeclaredFields()).forEach(x -> {
-            FieldTypeInfo fieldTypeInfo = FieldTypeInfo.parseField(this.clazz, x);
-            EntityDtoServiceRelation relation = relationMap.getByDtoClass((Class)fieldTypeInfo.getActualType());
+            TableFieldInfo tableFieldInfo = TableFieldInfo.parseField(this.clazz, x);
+            EntityDtoServiceRelation relation = relationMap.getByDtoClass((Class) tableFieldInfo.getActualType());
             DtoField dtoField = null;
             if(relation != null) {
-                dtoField = new DtoField(x.getName(), fieldTypeInfo, this, relation);
+                dtoField = new DtoField(x.getName(), tableFieldInfo, this, relation);
                 subDtoFieldList.add(dtoField);
             } else {
-                dtoField = new DtoField(x.getName(), fieldTypeInfo, this, null);
+                dtoField = new DtoField(x.getName(), tableFieldInfo, this, null);
                 normalFieldList.add(dtoField);
                 if(x.getName().equals(finalVersionPropertyName)) {
                     this.versionField = dtoField;
-                    this.versionDefaultValue = getDefaultVersionByType(fieldTypeInfo.getField().getType());
+                    this.versionDefaultValue = getDefaultVersionByType(tableFieldInfo.getField().getType());
                 }
             }
             if(x.getName().equals(keyProperty)) {
                 this.keyField = dtoField;
             }
-            DeleteFlag deleteFlagAnnotation = AnnotationUtils.getFieldAnnotation(fieldTypeInfo.getField(), DeleteFlag.class);
+            DeleteFlag deleteFlagAnnotation = AnnotationUtils.getFieldAnnotation(tableFieldInfo.getField(), DeleteFlag.class);
             if(deleteFlagAnnotation != null) {
                 this.deleteFlagField = dtoField;
             }
@@ -69,11 +72,11 @@ public class DtoClassInfo {
 
         this.subDtoFieldList.forEach(x -> {
             if (x.getHasEntityClass() == null) {
-                EntityDtoServiceRelation relation = relationMap.getByDtoClass((Class) x.getFieldTypeInfo().getActualType());
-                FieldTypeInfo fieldTypeInfo = this.entityClassInfo.getFieldByClass(relation.getEntityClass());
-                if(fieldTypeInfo != null && fieldTypeInfo.getIsCollection() == x.getFieldTypeInfo().getIsCollection()) {
+                EntityDtoServiceRelation relation = relationMap.getByDtoClass((Class) x.getTableFieldInfo().getActualType());
+                TableFieldInfo tableFieldInfo = this.entityClassInfo.getFieldByClass(relation.getEntityClass());
+                if(tableFieldInfo != null && tableFieldInfo.getIsCollection() == x.getTableFieldInfo().getIsCollection()) {
                     x.setHasEntityClass(true);
-                    x.setRelatedEntityClass((Class) fieldTypeInfo.getActualType());
+                    x.setRelatedEntityClass((Class) tableFieldInfo.getActualType());
                 } else {
                     x.setHasEntityClass(false);
                 }
@@ -85,14 +88,14 @@ public class DtoClassInfo {
         List<String> joinTableList = new ArrayList<>();
         List<String> joinColumnList = new ArrayList<>();
         List<TableJoinInfo> tableJoinInfoList = TableJoinInfo.parseDtoTableJoinInfo(clazz);
-        tableJoinInfoList.stream().sorted(Comparator.comparingInt(x -> x.getJoinTable().order()))
+        tableJoinInfoList.stream().sorted(Comparator.comparingInt(x -> x.getQueryJoin().order()))
                 .forEach(tableJoinInfo -> {
             Class joinClazz = (Class) tableJoinInfo.getActualType();
 
             TableInfo joinTableInfo = TableInfoHelper.getTableInfo(relationMap.getByDtoClass(joinClazz).getEntityClass());
-            joinTableList.add(tableJoinInfo.getJoinTable().joinType().getJoinString()
+            joinTableList.add(tableJoinInfo.getQueryJoin().joinType().getJoinString()
                     + " " + joinTableInfo.getTableName());
-            joinTableList.add(" on " + tableJoinInfo.getJoinTable().joinString());
+            joinTableList.add(" on " + tableJoinInfo.getQueryJoin().joinString());
 
             String joinColumn = Arrays.stream(joinTableInfo.getAllSqlSelect().split(","))
                     .map(x -> joinTableInfo.getTableName() + "." + x + " as " + joinTableInfo.getTableName() + "_" + x ).collect(Collectors.joining(","));
@@ -175,5 +178,12 @@ public class DtoClassInfo {
 
     public DtoField getDeleteFlagField() {
         return deleteFlagField;
+    }
+
+    public <T> QueryWrapper<T> createQueryWrapper(Object dto) throws IllegalAccessException {
+        if(this.queryWrapperCreator == null) {
+            this.queryWrapperCreator = new QueryWrapperCreator(this);
+        }
+        return this.queryWrapperCreator.createQueryWrapper(dto);
     }
 }

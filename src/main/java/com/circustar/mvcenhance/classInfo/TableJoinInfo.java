@@ -2,7 +2,7 @@ package com.circustar.mvcenhance.classInfo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
-import com.circustar.mvcenhance.annotation.JoinTable;
+import com.circustar.mvcenhance.annotation.QueryJoin;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeHandler;
 
@@ -19,7 +19,7 @@ public class TableJoinInfo {
     private String fieldName;
     private Class targetClass;
     private Field field;
-    private JoinTable joinTable;
+    private QueryJoin queryJoin;
     private boolean isCollection;
     private Type actualType;
     private Type ownerType;
@@ -48,12 +48,12 @@ public class TableJoinInfo {
         this.field = field;
     }
 
-    public JoinTable getJoinTable() {
-        return joinTable;
+    public QueryJoin getQueryJoin() {
+        return queryJoin;
     }
 
-    public void setJoinTable(JoinTable joinTable) {
-        this.joinTable = joinTable;
+    public void setQueryJoin(QueryJoin queryJoin) {
+        this.queryJoin = queryJoin;
     }
 
     public boolean isCollection() {
@@ -97,8 +97,8 @@ public class TableJoinInfo {
     public static List<TableJoinInfo> parseDtoTableJoinInfo(Class targetClass) {
         List<TableJoinInfo> tableJoinInfos = new ArrayList<>();
         for(Field field : targetClass.getDeclaredFields()) {
-            JoinTable joinTable = field.getAnnotation(JoinTable.class);
-            if(joinTable == null) {
+            QueryJoin queryJoin = field.getAnnotation(QueryJoin.class);
+            if(queryJoin == null) {
                 continue;
             }
             TableJoinInfo tableJoinInfo = new TableJoinInfo();
@@ -117,11 +117,11 @@ public class TableJoinInfo {
                 tableJoinInfo.setActualType(field.getType());
             }
 
-            tableJoinInfo.setJoinTable(joinTable);
+            tableJoinInfo.setQueryJoin(queryJoin);
 
             tableJoinInfos.add(tableJoinInfo);
         }
-        return tableJoinInfos.stream().sorted(Comparator.comparingInt(x -> x.getJoinTable().order()))
+        return tableJoinInfos.stream().sorted(Comparator.comparingInt(x -> x.getQueryJoin().order()))
                 .collect(Collectors.toList());
     }
 

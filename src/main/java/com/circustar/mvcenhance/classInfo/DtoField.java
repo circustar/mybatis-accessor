@@ -1,44 +1,47 @@
 package com.circustar.mvcenhance.classInfo;
 
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.circustar.mvcenhance.annotation.*;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
-import org.springframework.core.annotation.Order;
 
 import java.util.*;
 
 public class DtoField {
     private String fieldName;
-    private FieldTypeInfo fieldTypeInfo;
+    private TableFieldInfo tableFieldInfo;
     private EntityDtoServiceRelation entityDtoServiceRelation;
     private DtoClassInfo dtoClassInfo;
-    private QueryField queryField;
-    private OrderField orderField;
-    private GroupField groupField;
+    private QuerySelect querySelect;
+    private QueryWhere queryWhere;
+    private QueryJoin queryJoin;
+    private QueryGroupBy queryGroupBy;
+    private QueryHaving queryHaving;
+    private QueryOrder queryOrder;
     private Selector[] selectors;
     private Class relatedEntityClass = null;
     private Boolean hasEntityClass = null;
-    private JoinTable joinTable;
 
-    public DtoField(String fieldName,FieldTypeInfo fieldTypeInfo, DtoClassInfo dtoClassInfo, EntityDtoServiceRelation entityDtoServiceRelation) {
+    public DtoField(String fieldName, TableFieldInfo tableFieldInfo, DtoClassInfo dtoClassInfo, EntityDtoServiceRelation entityDtoServiceRelation) {
         this.fieldName = fieldName;
-        this.fieldTypeInfo = fieldTypeInfo;
+        this.tableFieldInfo = tableFieldInfo;
         this.dtoClassInfo = dtoClassInfo;
         this.entityDtoServiceRelation = entityDtoServiceRelation;
 
-        this.queryField = fieldTypeInfo.getField().getAnnotation(QueryField.class);
-        this.selectors = fieldTypeInfo.getField().getAnnotationsByType(Selector.class);
-        this.orderField = fieldTypeInfo.getField().getAnnotation(OrderField.class);
-        this.groupField = fieldTypeInfo.getField().getAnnotation(GroupField.class);
-        this.joinTable = fieldTypeInfo.getField().getAnnotation(JoinTable.class);
+        this.querySelect = tableFieldInfo.getField().getAnnotation(QuerySelect.class);
+        this.queryJoin = tableFieldInfo.getField().getAnnotation(QueryJoin.class);
+        this.queryWhere = tableFieldInfo.getField().getAnnotation(QueryWhere.class);
+        this.queryGroupBy = tableFieldInfo.getField().getAnnotation(QueryGroupBy.class);
+        this.queryHaving = tableFieldInfo.getField().getAnnotation(QueryHaving.class);
+        this.queryOrder = tableFieldInfo.getField().getAnnotation(QueryOrder.class);
+
+        this.selectors = tableFieldInfo.getField().getAnnotationsByType(Selector.class);
     }
 
     public String getFieldName() {
         return fieldName;
     }
 
-    public FieldTypeInfo getFieldTypeInfo() {
-        return fieldTypeInfo;
+    public TableFieldInfo getTableFieldInfo() {
+        return tableFieldInfo;
     }
 
     public EntityDtoServiceRelation getEntityDtoServiceRelation() {
@@ -49,20 +52,32 @@ public class DtoField {
         return dtoClassInfo;
     }
 
-    public QueryField getQueryField() {
-        return queryField;
-    }
-
     public Selector[] getSelectors() {
         return selectors;
     }
 
-    public OrderField getOrderField() {
-        return orderField;
+    public QuerySelect getQuerySelect() {
+        return querySelect;
     }
 
-    public GroupField getGroupField() {
-        return groupField;
+    public QueryJoin getQueryJoin() {
+        return queryJoin;
+    }
+
+    public QueryWhere getQueryWhere() {
+        return queryWhere;
+    }
+
+    public QueryGroupBy getQueryGroupBy() {
+        return queryGroupBy;
+    }
+
+    public QueryHaving getQueryHaving() {
+        return queryHaving;
+    }
+
+    public QueryOrder getQueryOrder() {
+        return queryOrder;
     }
 
     public Boolean getHasEntityClass() {
@@ -79,10 +94,6 @@ public class DtoField {
 
     public void setRelatedEntityClass(Class relatedEntityClass) {
         this.relatedEntityClass = relatedEntityClass;
-    }
-
-    public JoinTable getJoinTable() {
-        return joinTable;
     }
 
     enum SupportGenericType{
