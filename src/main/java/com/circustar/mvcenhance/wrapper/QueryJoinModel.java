@@ -13,15 +13,26 @@ public class QueryJoinModel {
         this.order = order;
         this.joinType = joinType;
     }
-
-    public QueryJoinModel(QueryJoin queryJoin, String tableName1, String tableId1, String tableName2, String tableId2) {
-        if(queryJoin != null && !StringUtils.isEmpty(queryJoin.joinString())) {
-            this.joinString = queryJoin.joinString();
-        } else {
-            this.joinString =  tableName1 + "." + tableId1 + " = " + tableName2 + "." + tableId2;
-        }
+    public QueryJoinModel(QueryJoin queryJoin) {
+        this.joinString = queryJoin.joinString();
         this.joinType = queryJoin.joinType();
         this.order = queryJoin.order();
+    }
+
+    public QueryJoinModel(QueryJoin queryJoin, String tableName1, String tableId1, String tableName2, String tableId2) {
+        if(queryJoin != null ) {
+            if(!StringUtils.isEmpty(queryJoin.joinString())) {
+                this.joinString = queryJoin.joinString();
+            } else {
+                this.joinString =  tableName1 + "." + tableId1 + " = " + tableName2 + "." + tableId2;
+            }
+            this.joinType = queryJoin.joinType();
+            this.order = queryJoin.order();
+        } else {
+            this.joinString =  tableName1 + "." + tableId1 + " = " + tableName2 + "." + tableId2;
+            this.joinType = QueryJoin.JoinType.LEFT;
+            this.order = 1;
+        }
     }
 
     public String getJoinString() {

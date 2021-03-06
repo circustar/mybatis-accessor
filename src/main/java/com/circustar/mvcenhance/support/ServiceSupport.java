@@ -404,6 +404,12 @@ public class ServiceSupport {
                 , this.convertFromMap(object, relationInfo.getDtoClass()));
     }
 
+    public <T> List<T> getDtoListByQueryWrapper(Class dtoClass
+            , QueryWrapper queryWrapper
+    ) throws Exception {
+        return this.getDtoListByQueryWrapper(dtoClass.getSimpleName(), queryWrapper);
+    }
+
     public <T> List<T> getDtoListByQueryWrapper(String dtoName
             , QueryWrapper queryWrapper
     ) throws Exception {

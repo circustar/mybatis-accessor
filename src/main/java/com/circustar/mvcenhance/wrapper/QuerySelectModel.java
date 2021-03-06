@@ -20,8 +20,8 @@ public class QuerySelectModel {
     public QuerySelectModel(QuerySelect querySelect, String tableName, String columnName) {
         this.tableName = tableName;
         this.columnName = columnName;
-        if(querySelect != null && !StringUtils.isEmpty(querySelect.expression())) {
-            this.expression = querySelect.expression() + " AS " + columnName;
+        if(querySelect != null && !StringUtils.isEmpty(querySelect.value())) {
+            this.expression = querySelect.value() + " AS " + columnName;
         } else {
             this.expression = tableName + "." + columnName + " AS " + columnName;
         }
@@ -33,8 +33,8 @@ public class QuerySelectModel {
         if(!StringUtils.isEmpty(columnPrefix)) {
             prefix = columnPrefix.endsWith("_") ? columnPrefix : (columnPrefix + "_");
         }
-        if(querySelect != null && !StringUtils.isEmpty(querySelect.expression())) {
-            this.expression = querySelect.expression() + " AS " + prefix + columnName;
+        if(querySelect != null && !StringUtils.isEmpty(querySelect.value())) {
+            this.expression = querySelect.value() + " AS " + prefix + columnName;
         } else {
             this.expression = tableName + "." + columnName + " AS " + prefix + columnName;
         }

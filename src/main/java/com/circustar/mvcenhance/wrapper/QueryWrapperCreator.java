@@ -34,7 +34,9 @@ public class QueryWrapperCreator {
         this.tableName = this.tableInfo.getTableName();
         this.queryGroupByModels = dtoClassInfo.getNormalFieldList()
                 .stream().filter(x -> x.getQueryGroupBy() != null)
-                .map(x -> new QueryGroupByModel(x.getQueryGroupBy()))
+                .map(x -> new QueryGroupByModel(x.getQueryGroupBy()
+                        , this.entityClassInfo.getTableInfo().getTableName()
+                        , x.getEntityFieldInfo().getColumnName()))
                 .collect(Collectors.toList());
 
         this.queryJoinModels = dtoClassInfo.getSubDtoFieldList()
@@ -42,6 +44,9 @@ public class QueryWrapperCreator {
                 .filter(x -> x.getQueryJoin() != null
                         || (x.getQueryJoin() == null && x.getEntityFieldInfo() != null))
                 .map(x -> {
+                    if(x.getQueryJoin() != null && !StringUtils.isEmpty(x.getQueryJoin().joinString())) {
+                        return new QueryJoinModel(x.getQueryJoin());
+                    }
                     String thisTableId = this.tableInfo.getKeyColumn();
                     String thatTableId = null;
                     EntityClassInfo thatEntityClassInfo = x.getDtoClassInfo().getEntityClassInfo();

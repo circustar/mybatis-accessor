@@ -14,9 +14,10 @@ public class QueryWhereModel {
         this.dtoField = dtoField;
         if(queryWhere != null) {
             if(StringUtils.isEmpty(queryWhere.expression())) {
-                this.expression = table_name + "_" + dtoField.getEntityFieldInfo().getColumnName();
+                this.expression = table_name + "." + dtoField.getEntityFieldInfo().getColumnName();
+            } else {
+                this.expression = queryWhere.expression();
             }
-            this.expression = queryWhere.expression();
             this.connector = queryWhere.connector();
         } else {
             this.expression = table_name + "_" + dtoField.getEntityFieldInfo().getColumnName();
