@@ -5,11 +5,14 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.circustar.mvcenhance.annotation.DeleteFlag;
+import com.circustar.mvcenhance.annotation.DtoEntityRelation;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.utils.AnnotationUtils;
 import com.circustar.mvcenhance.wrapper.QueryWrapperCreator;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -49,16 +52,10 @@ public class DtoClassInfo {
         String finalVersionPropertyName = versionPropertyName;
         Arrays.stream(clazz.getDeclaredFields()).forEach(x -> {
             EntityFieldInfo entityFieldInfo = entityClassInfo.getFieldByName(x.getName());
-            EntityDtoServiceRelation relation = null;
-            if(entityFieldInfo != null) {
-                relation = relationMap.getByDtoClass((Class) entityFieldInfo.getActualType());
-            }
-            DtoField dtoField = null;
-            if(relation != null) {
-                dtoField = new DtoField(x, entityFieldInfo, this, relation);
+            DtoField dtoField = new DtoField(x, entityFieldInfo, this, relationMap);
+            if(dtoField.getEntityDtoServiceRelation() != null) {
                 subDtoFieldList.add(dtoField);
             } else {
-                dtoField = new DtoField(x, entityFieldInfo, this, null);
                 normalFieldList.add(dtoField);
                 if(x.getName().equals(finalVersionPropertyName)) {
                     this.versionField = dtoField;

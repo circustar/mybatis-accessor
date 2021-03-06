@@ -39,6 +39,8 @@ public class QueryWrapperCreator {
 
         this.queryJoinModels = dtoClassInfo.getSubDtoFieldList()
                 .stream()
+                .filter(x -> x.getQueryJoin() != null
+                        || (x.getQueryJoin() == null && x.getEntityFieldInfo() != null))
                 .map(x -> {
                     String thisTableId = this.tableInfo.getKeyColumn();
                     String thatTableId = null;

@@ -2,6 +2,7 @@ package com.circustar.mvcenhance.classInfo;
 
 import com.circustar.mvcenhance.annotation.*;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
+import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -26,11 +27,10 @@ public class DtoField {
     private Type actualType = null;
     private Type ownType = null;
 
-    public DtoField(Field field, EntityFieldInfo entityFieldInfo, DtoClassInfo dtoClassInfo, EntityDtoServiceRelation entityDtoServiceRelation) {
+    public DtoField(Field field, EntityFieldInfo entityFieldInfo, DtoClassInfo dtoClassInfo, IEntityDtoServiceRelationMap relationMap) {
         this.field = field;
         this.entityFieldInfo = entityFieldInfo;
         this.dtoClassInfo = dtoClassInfo;
-        this.entityDtoServiceRelation = entityDtoServiceRelation;
 
         this.querySelect = field.getAnnotation(QuerySelect.class);
         this.queryJoin = field.getAnnotation(QueryJoin.class);
@@ -51,6 +51,7 @@ public class DtoField {
             actualType = field.getType();
             ownType = field.getType();
         }
+        this.entityDtoServiceRelation = relationMap.getByDtoClass((Class)actualType);
     }
 
     public EntityFieldInfo getEntityFieldInfo() {

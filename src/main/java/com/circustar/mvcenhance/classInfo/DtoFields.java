@@ -14,12 +14,12 @@ import java.util.*;
 
 public class DtoFields {
     public static void assignDtoField(DtoClassInfoHelper dtoClassInfoHelper, Object obj, DtoField dtoField, List<Object> values, Class clazz) throws InstantiationException, IllegalAccessException {
-        if(!dtoField.getEntityFieldInfo().getIsCollection()) {
-            FieldUtils.setField(obj, dtoField.getEntityFieldInfo().getField(), (values == null || values.size() == 0)?
+        if(!dtoField.getCollection()) {
+            FieldUtils.setField(obj, dtoField.getField(), (values == null || values.size() == 0)?
                     null : (clazz == null? values.get(0) : dtoClassInfoHelper.convertFromEntity(values.get(0), clazz)));
             return;
         }
-        DtoField.SupportGenericType supportGenericType = DtoField.SupportGenericType.getSupportGenericType((Class) dtoField.getEntityFieldInfo().getOwnType());
+        DtoField.SupportGenericType supportGenericType = DtoField.SupportGenericType.getSupportGenericType((Class) dtoField.getOwnType());
         if(supportGenericType == null) {
             return;
         }
@@ -31,8 +31,8 @@ public class DtoFields {
             }
             c.add(dtoClassInfoHelper.convertFromEntity(var0, clazz));
         }
-        dtoField.getEntityFieldInfo().getField().setAccessible(true);
-        dtoField.getEntityFieldInfo().getField().set(obj, c);
+        dtoField.getField().setAccessible(true);
+        dtoField.getField().set(obj, c);
     }
 
     public static void queryAndAssignDtoFieldById(ApplicationContext applicationContext
@@ -43,7 +43,7 @@ public class DtoFields {
             , Serializable dtoId) throws IllegalAccessException, InstantiationException {
         DtoClassInfo masterDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         for(DtoField dtoField : dtoFields) {
-            EntityDtoServiceRelation childInfo = relationMap.getByDtoClass((Class)dtoField.getEntityFieldInfo().getActualType());
+            EntityDtoServiceRelation childInfo = dtoField.getEntityDtoServiceRelation();
             if(childInfo == null) {
                 continue;
             }
@@ -72,7 +72,10 @@ public class DtoFields {
             , List<DtoField> dtoFields) throws IllegalAccessException, InstantiationException {
         StandardEvaluationContext standardEvaluationContext = new StandardEvaluationContext(dto);
         for(DtoField dtoField : dtoFields) {
-            EntityDtoServiceRelation subRelation = relationMap.getByDtoClass((Class) dtoField.getEntityFieldInfo().getActualType());
+            EntityDtoServiceRelation subRelation = dtoField.getEntityDtoServiceRelation();
+            if(subRelation == null) {
+                continue;
+            }
             IService service = subRelation.getServiceBean(applicationContext);
             QueryWrapper qw = new QueryWrapper();
 
