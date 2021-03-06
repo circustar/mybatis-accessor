@@ -5,14 +5,11 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.circustar.mvcenhance.annotation.DeleteFlag;
-import com.circustar.mvcenhance.annotation.DtoEntityRelation;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 import com.circustar.mvcenhance.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mvcenhance.utils.AnnotationUtils;
 import com.circustar.mvcenhance.wrapper.QueryWrapperCreator;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -72,8 +69,6 @@ public class DtoClassInfo {
             this.dtoFieldMap.put(x.getName(), dtoField);
         });
 
-//        String masterTableName = TableInfoHelper.getTableInfo(entityClassInfo.getClazz()).getTableName();
-//        String masterTableName = entityClassInfo.getTableInfo().getTableName();
         List<String> joinTableList = new ArrayList<>();
         List<String> joinColumnList = new ArrayList<>();
         List<TableJoinInfo> tableJoinInfoList = TableJoinInfo.parseDtoTableJoinInfo(clazz);
@@ -84,7 +79,17 @@ public class DtoClassInfo {
             TableInfo joinTableInfo = TableInfoHelper.getTableInfo(relationMap.getByDtoClass(joinClazz).getEntityClass());
             joinTableList.add(tableJoinInfo.getQueryJoin().joinType().getJoinString()
                     + " " + joinTableInfo.getTableName());
-            joinTableList.add(" on " + tableJoinInfo.getQueryJoin().joinString());
+            String joinString = tableJoinInfo.getQueryJoin().joinString();
+            if(org.springframework.util.StringUtils.isEmpty(joinString)) {
+                if(this.entityClassInfo.getFieldByName(joinTableInfo.getKeyProperty()) != null) {
+                    joinString = this.entityClassInfo.getTableInfo().getTableName() + "." + joinTableInfo.getKeyColumn()
+                            + " = " + joinTableInfo.getTableName() + "." + joinTableInfo.getKeyColumn();
+                } else {
+                    joinString = this.entityClassInfo.getTableInfo().getTableName() + "." + this.entityClassInfo.getTableInfo().getKeyColumn()
+                            + " = " + joinTableInfo.getTableName() + "." + this.entityClassInfo.getTableInfo().getKeyColumn();
+                }
+            }
+            joinTableList.add(" on " + joinString);
 
             String joinColumn = Arrays.stream(joinTableInfo.getAllSqlSelect().split(","))
                     .map(x -> joinTableInfo.getTableName() + "." + x + " as " + joinTableInfo.getTableName() + "_" + x ).collect(Collectors.joining(","));
@@ -169,9 +174,9 @@ public class DtoClassInfo {
         return deleteFlagField;
     }
 
-    public <T> QueryWrapper<T> createQueryWrapper(Object dto) throws IllegalAccessException {
+    public <T> QueryWrapper<T> createQueryWrapper(DtoClassInfoHelper dtoClassInfoHelper, Object dto) throws IllegalAccessException {
         if(this.queryWrapperCreator == null) {
-            this.queryWrapperCreator = new QueryWrapperCreator(this);
+            this.queryWrapperCreator = new QueryWrapperCreator(dtoClassInfoHelper, this);
         }
         return this.queryWrapperCreator.createQueryWrapper(dto);
     }

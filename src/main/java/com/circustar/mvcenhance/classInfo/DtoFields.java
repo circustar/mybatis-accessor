@@ -13,7 +13,7 @@ import java.io.Serializable;
 import java.util.*;
 
 public class DtoFields {
-    public static void assignDtoField(DtoClassInfoHelper dtoClassInfoHelper, Object obj, DtoField dtoField, List<Object> values, Class clazz) throws InstantiationException, IllegalAccessException {
+    public static void assignDtoField(DtoClassInfoHelper dtoClassInfoHelper, Object obj, DtoField dtoField, List<Object> values, Class clazz) throws Exception {
         if(!dtoField.getCollection()) {
             FieldUtils.setField(obj, dtoField.getField(), (values == null || values.size() == 0)?
                     null : (clazz == null? values.get(0) : dtoClassInfoHelper.convertFromEntity(values.get(0), clazz)));
@@ -40,7 +40,7 @@ public class DtoFields {
             , EntityDtoServiceRelation relationInfo
             , List<DtoField> dtoFields
             , Object dto
-            , Serializable dtoId) throws IllegalAccessException, InstantiationException {
+            , Serializable dtoId) throws Exception {
         DtoClassInfo masterDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         for(DtoField dtoField : dtoFields) {
             EntityDtoServiceRelation childInfo = dtoField.getEntityDtoServiceRelation();
@@ -69,7 +69,7 @@ public class DtoFields {
     }
 
     public static void queryAndAssignDtoFieldBySelector(ApplicationContext applicationContext, DtoClassInfoHelper dtoClassInfoHelper, IEntityDtoServiceRelationMap relationMap, EntityDtoServiceRelation relationInfo, Object dto
-            , List<DtoField> dtoFields) throws IllegalAccessException, InstantiationException {
+            , List<DtoField> dtoFields) throws Exception {
         StandardEvaluationContext standardEvaluationContext = new StandardEvaluationContext(dto);
         for(DtoField dtoField : dtoFields) {
             EntityDtoServiceRelation subRelation = dtoField.getEntityDtoServiceRelation();

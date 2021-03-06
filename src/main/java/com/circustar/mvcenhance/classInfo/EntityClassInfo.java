@@ -16,12 +16,13 @@ public class EntityClassInfo {
 
     public EntityClassInfo(Class<?> entityClass) {
         this.entityClass = entityClass;
+        this.tableInfo = TableInfoHelper.getTableInfo(this.entityClass);
         this.fieldList = Arrays.stream(entityClass.getDeclaredFields()).map(x -> {
-            EntityFieldInfo entityFieldInfo = EntityFieldInfo.parseField(this.entityClass, x);
+            EntityFieldInfo entityFieldInfo = EntityFieldInfo.parseField(this.entityClass, x, this);
             return entityFieldInfo;
         }).collect(Collectors.toList());
         this.fieldMap = this.fieldList.stream().collect(Collectors.toMap(x -> x.getField().getName(), x -> x));
-        this.tableInfo = TableInfoHelper.getTableInfo(this.entityClass);
+
         if(this.tableInfo == null) {
             TableName tableName = this.entityClass.getAnnotation(TableName.class);
             if(tableName != null && !StringUtils.isEmpty(tableName.value())) {

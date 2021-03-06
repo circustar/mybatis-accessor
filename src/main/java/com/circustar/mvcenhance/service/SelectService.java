@@ -39,7 +39,7 @@ public class SelectService implements ISelectService {
             , Object object
     ) throws Exception {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
-        QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(object);
+        QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(this.dtoClassInfoHelper, object);
         return getEntityByQueryWrapper(relationInfo, queryWrapper);
     }
 
@@ -82,7 +82,7 @@ public class SelectService implements ISelectService {
     private void setDtoChildren(EntityDtoServiceRelation relationInfo
             , Object dto
             , Serializable id
-            , String[] children) throws InstantiationException, IllegalAccessException {
+            , String[] children) throws Exception {
         Set<String> childList;
         if(children == null) {
             childList = Collections.emptySet();
@@ -140,7 +140,7 @@ public class SelectService implements ISelectService {
             , Integer page_size
             )  throws Exception {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
-        QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(object);
+        QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(this.dtoClassInfoHelper, object);
 
         return getEntityPageByQueryWrapper(relationInfo, queryWrapper, page_index, page_size);
     }
@@ -192,7 +192,7 @@ public class SelectService implements ISelectService {
             , Object object
     )  throws Exception {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
-        QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(object);
+        QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(this.dtoClassInfoHelper, object);
 
         return getEntityListByQueryWrapper(relationInfo, queryWrapper);
     }
@@ -211,7 +211,6 @@ public class SelectService implements ISelectService {
             , QueryWrapper queryWrapper
     )  throws Exception {
         IService service = relationInfo.getServiceBean(applicationContext);
-        List<T> dtoList = null;
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         List entityList = null;
         if (!StringUtils.isEmpty(dtoClassInfo.getJoinTables())) {

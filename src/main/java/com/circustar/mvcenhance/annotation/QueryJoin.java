@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.FIELD})
 public @interface QueryJoin {
-    String joinString();
+    String joinString() default "";
     int order() default 1;
     JoinType joinType() default JoinType.LEFT;
 

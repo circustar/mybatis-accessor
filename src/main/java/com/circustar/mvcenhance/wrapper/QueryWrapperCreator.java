@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.circustar.mvcenhance.annotation.QueryOrder;
 import com.circustar.mvcenhance.classInfo.DtoClassInfo;
+import com.circustar.mvcenhance.classInfo.DtoClassInfoHelper;
 import com.circustar.mvcenhance.classInfo.EntityClassInfo;
 import com.circustar.mvcenhance.classInfo.EntityFieldInfo;
 import com.circustar.mvcenhance.utils.FieldUtils;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 public class QueryWrapperCreator {
     private String tableName;
     private List<QuerySelectModel> querySelectModels;
-    private List<QueryJoinModel> queryJoinModels;
+//    private List<QueryJoinModel> queryJoinModels;
     private List<QueryWhereModel> queryWhereModels;
     private List<QueryGroupByModel> queryGroupByModels;
     private List<QueryHavingModel> queryHavingModels;
@@ -25,9 +26,11 @@ public class QueryWrapperCreator {
     private DtoClassInfo dtoClassInfo;
     private EntityClassInfo entityClassInfo;
     private TableInfo tableInfo;
-    private List<DtoClassInfo> joinTableDtoClassList = new ArrayList<>();
+    private List<DtoClassInfo> joinTableDtoClassList;
+    private DtoClassInfoHelper dtoClassInfoHelper;
 
-    public QueryWrapperCreator(DtoClassInfo dtoClassInfo) {
+    public QueryWrapperCreator(DtoClassInfoHelper dtoClassInfoHelper, DtoClassInfo dtoClassInfo) {
+        this.dtoClassInfoHelper = dtoClassInfoHelper;
         this.dtoClassInfo = dtoClassInfo;
         this.entityClassInfo = dtoClassInfo.getEntityClassInfo();
         this.tableInfo = entityClassInfo.getTableInfo();
@@ -39,43 +42,43 @@ public class QueryWrapperCreator {
                         , x.getEntityFieldInfo().getColumnName()))
                 .collect(Collectors.toList());
 
-        this.queryJoinModels = dtoClassInfo.getSubDtoFieldList()
-                .stream()
-                .filter(x -> x.getQueryJoin() != null
-                        || (x.getQueryJoin() == null && x.getEntityFieldInfo() != null))
-                .map(x -> {
-                    if(x.getQueryJoin() != null && !StringUtils.isEmpty(x.getQueryJoin().joinString())) {
-                        return new QueryJoinModel(x.getQueryJoin());
-                    }
-                    String thisTableId = this.tableInfo.getKeyColumn();
-                    String thatTableId = null;
-                    EntityClassInfo thatEntityClassInfo = x.getDtoClassInfo().getEntityClassInfo();
-                    for(EntityFieldInfo entityFieldInfo : thatEntityClassInfo.getFieldList()) {
-                        if(thisTableId.equals(entityFieldInfo.getColumnName())) {
-                            thatTableId = entityFieldInfo.getColumnName();
-                            break;
-                        }
-                    }
-                    if(thatTableId == null) {
-                        thisTableId = null;
-                        thatTableId = thatEntityClassInfo.getTableInfo().getKeyColumn();
-                        for(EntityFieldInfo entityFieldInfo : this.entityClassInfo.getFieldList()) {
-                            if(thatTableId.equals(entityFieldInfo.getColumnName())) {
-                                thisTableId = entityFieldInfo.getColumnName();
-                            }
-                        }
-                    }
-                    if(StringUtils.isEmpty(thisTableId) || StringUtils.isEmpty(thatTableId)) {
-                        return null;
-                    }
-                    joinTableDtoClassList.add(x.getDtoClassInfo());
-                    return new QueryJoinModel(x.getQueryJoin()
-                        , this.tableName, thisTableId
-                        , x.getDtoClassInfo().getEntityClassInfo().getTableInfo().getTableName()
-                        , thatTableId);
-                }).filter(x -> x != null)
-                .sorted(Comparator.comparingInt(QueryJoinModel::getOrder))
-                .collect(Collectors.toList());
+//        this.queryJoinModels = dtoClassInfo.getSubDtoFieldList()
+//                .stream()
+//                .filter(x -> x.getQueryJoin() != null
+//                        || (x.getQueryJoin() == null && x.getEntityFieldInfo() != null))
+//                .map(x -> {
+//                    if(x.getQueryJoin() != null && !StringUtils.isEmpty(x.getQueryJoin().joinString())) {
+//                        return new QueryJoinModel(x.getQueryJoin());
+//                    }
+//                    String thisTableId = this.tableInfo.getKeyColumn();
+//                    String thatTableId = null;
+//                    DtoClassInfo thatDtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(x.getEntityDtoServiceRelation().getDtoClass());
+//                    for(EntityFieldInfo entityFieldInfo : thatDtoClassInfo.getEntityClassInfo().getFieldList()) {
+//                        if(thisTableId.equals(entityFieldInfo.getColumnName())) {
+//                            thatTableId = entityFieldInfo.getColumnName();
+//                            break;
+//                        }
+//                    }
+//                    if(thatTableId == null) {
+//                        thisTableId = null;
+//                        thatTableId = thatDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn();
+//                        for(EntityFieldInfo entityFieldInfo : this.entityClassInfo.getFieldList()) {
+//                            if(thatTableId.equals(entityFieldInfo.getColumnName())) {
+//                                thisTableId = entityFieldInfo.getColumnName();
+//                            }
+//                        }
+//                    }
+//                    if(StringUtils.isEmpty(thisTableId) || StringUtils.isEmpty(thatTableId)) {
+//                        return null;
+//                    }
+//                    joinTableDtoClassList.add(x.getDtoClassInfo());
+//                    return new QueryJoinModel(x.getQueryJoin()
+//                        , this.tableName, thisTableId
+//                        , thatDtoClassInfo.getEntityClassInfo().getTableInfo().getTableName()
+//                        , thatTableId);
+//                }).filter(x -> x != null)
+//                .sorted(Comparator.comparingInt(QueryJoinModel::getOrder))
+//                .collect(Collectors.toList());
         this.queryWhereModels = dtoClassInfo.getNormalFieldList()
                 .stream().map(x -> new QueryWhereModel(x.getQueryWhere()
                         , this.tableName, x))
@@ -107,6 +110,12 @@ public class QueryWrapperCreator {
                     .collect(Collectors.toList());
         } else {
             this.queryHavingModels = new ArrayList<>();
+            this.joinTableDtoClassList = dtoClassInfo.getSubDtoFieldList()
+                .stream()
+                .filter(x -> x.getQueryJoin() != null)
+                .map(x -> this.dtoClassInfoHelper.getDtoClassInfo(x.getEntityDtoServiceRelation().getDtoClass()))
+                .collect(Collectors.toList());
+            ;
             List<QuerySelectModel> joinQueryModels = this.joinTableDtoClassList.stream().map(x -> {
                 return x.getNormalFieldList().stream()
                         .filter(y -> y.getQuerySelect() != null || y.getEntityFieldInfo() != null).map(y ->

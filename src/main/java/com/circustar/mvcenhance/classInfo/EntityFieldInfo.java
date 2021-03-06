@@ -17,6 +17,7 @@ public class EntityFieldInfo {
     private TableField tableField;
     private String columnName;
     private boolean isKeyColumn;
+    private EntityClassInfo entityClassInfo;
 
     public Boolean getPrimitive() {
         return isPrimitive;
@@ -64,12 +65,21 @@ public class EntityFieldInfo {
         this.ownType = ownType;
     }
 
+    public EntityClassInfo getEntityClassInfo() {
+        return entityClassInfo;
+    }
+
+    public void setEntityClassInfo(EntityClassInfo entityClassInfo) {
+        this.entityClassInfo = entityClassInfo;
+    }
+
     private Boolean isCollection = false;
     private Type actualType = null;
     private Type ownType = null;
 
-    public static EntityFieldInfo parseField(Class c, Field field) {
+    public static EntityFieldInfo parseField(Class c, Field field, EntityClassInfo entityClassInfo) {
         EntityFieldInfo fieldInfo = new EntityFieldInfo();
+        fieldInfo.setEntityClassInfo(entityClassInfo);
         fieldInfo.setField(field);
         if(Collection.class.isAssignableFrom(field.getType())
                 && field.getGenericType() instanceof ParameterizedType) {
@@ -98,23 +108,23 @@ public class EntityFieldInfo {
         return fieldInfo;
     }
 
-    public static EntityFieldInfo parseFieldByName(Class c, String property_name) {
+    public static EntityFieldInfo parseFieldByName(Class c, String property_name, EntityClassInfo entityClassInfo) {
         try {
             Field field = c.getDeclaredField(property_name.substring(0,1).toLowerCase() + property_name.substring(1));
             if(field== null) {
                 return null;
             }
-            return parseField(c, field);
+            return parseField(c, field, entityClassInfo);
         } catch (NoSuchFieldException e) {
         }
         return null;
     }
 
-    public static EntityFieldInfo parseFieldByClass(Class c, Class subClass, Boolean findInGenericType) {
+    public static EntityFieldInfo parseFieldByClass(Class c, Class subClass, Boolean findInGenericType, EntityClassInfo entityClassInfo) {
         try {
             if(!findInGenericType) {
                 return Arrays.stream(c.getDeclaredFields()).filter(x -> x.getType().getClass() == subClass)
-                        .findFirst().map(x -> EntityFieldInfo.parseField(c, x)).orElse(null);
+                        .findFirst().map(x -> EntityFieldInfo.parseField(c, x, entityClassInfo)).orElse(null);
             } else {
                 return Arrays.stream(c.getDeclaredFields())
                         .filter(x -> {
@@ -128,7 +138,7 @@ public class EntityFieldInfo {
                             Type dtoType = ((ParameterizedType) x.getGenericType()).getActualTypeArguments()[0];
                             return (dtoType == subClass);
                         })
-                        .findFirst().map(x -> EntityFieldInfo.parseField(c, x)).orElse(null);
+                        .findFirst().map(x -> EntityFieldInfo.parseField(c, x, entityClassInfo)).orElse(null);
             }
         } catch (Exception e) {
         }

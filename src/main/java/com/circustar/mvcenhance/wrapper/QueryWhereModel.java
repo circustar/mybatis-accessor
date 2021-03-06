@@ -20,7 +20,7 @@ public class QueryWhereModel {
             }
             this.connector = queryWhere.connector();
         } else {
-            this.expression = table_name + "_" + dtoField.getEntityFieldInfo().getColumnName();
+            this.expression = table_name + "." + dtoField.getEntityFieldInfo().getColumnName();
             this.connector = connector;
         }
     }
