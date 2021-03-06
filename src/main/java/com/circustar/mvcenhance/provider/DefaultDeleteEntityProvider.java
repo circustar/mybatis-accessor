@@ -42,7 +42,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
                         , topEntities);
                 for (String entityName : topEntities) {
                     DtoField dtoField = dtoClassInfo.getDtoField(entityName);
-                    Object entity = FieldUtils.getValue(object, dtoField.getTableFieldInfo().getField());
+                    Object entity = FieldUtils.getValue(object, dtoField.getEntityFieldInfo().getField());
                     if (entity == null) {
                         continue;
                     }

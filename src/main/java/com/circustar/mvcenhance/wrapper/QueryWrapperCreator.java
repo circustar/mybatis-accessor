@@ -4,15 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.circustar.mvcenhance.annotation.QueryOrder;
 import com.circustar.mvcenhance.classInfo.DtoClassInfo;
-import com.circustar.mvcenhance.classInfo.DtoField;
 import com.circustar.mvcenhance.classInfo.EntityClassInfo;
-import com.circustar.mvcenhance.classInfo.TableFieldInfo;
+import com.circustar.mvcenhance.classInfo.EntityFieldInfo;
 import com.circustar.mvcenhance.utils.FieldUtils;
-import com.circustar.mvcenhance.utils.TableInfoUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,22 +40,21 @@ public class QueryWrapperCreator {
         this.queryJoinModels = dtoClassInfo.getSubDtoFieldList()
                 .stream()
                 .map(x -> {
-                    List<DtoField> normalFieldList = x.getDtoClassInfo().getNormalFieldList();
                     String thisTableId = this.tableInfo.getKeyColumn();
                     String thatTableId = null;
                     EntityClassInfo thatEntityClassInfo = x.getDtoClassInfo().getEntityClassInfo();
-                    for(TableFieldInfo tableFieldInfo : thatEntityClassInfo.getFieldList()) {
-                        if(thisTableId.equals(tableFieldInfo.getColumnName())) {
-                            thatTableId = tableFieldInfo.getColumnName();
+                    for(EntityFieldInfo entityFieldInfo : thatEntityClassInfo.getFieldList()) {
+                        if(thisTableId.equals(entityFieldInfo.getColumnName())) {
+                            thatTableId = entityFieldInfo.getColumnName();
                             break;
                         }
                     }
                     if(thatTableId == null) {
                         thisTableId = null;
                         thatTableId = thatEntityClassInfo.getTableInfo().getKeyColumn();
-                        for(TableFieldInfo tableFieldInfo : this.entityClassInfo.getFieldList()) {
-                            if(thatTableId.equals(tableFieldInfo.getColumnName())) {
-                                thisTableId = tableFieldInfo.getColumnName();
+                        for(EntityFieldInfo entityFieldInfo : this.entityClassInfo.getFieldList()) {
+                            if(thatTableId.equals(entityFieldInfo.getColumnName())) {
+                                thisTableId = entityFieldInfo.getColumnName();
                             }
                         }
                     }
@@ -75,7 +71,7 @@ public class QueryWrapperCreator {
                 .collect(Collectors.toList());
         this.queryWhereModels = dtoClassInfo.getNormalFieldList()
                 .stream().map(x -> new QueryWhereModel(x.getQueryWhere()
-                        , this.tableName, x.getTableFieldInfo()))
+                        , this.tableName, x))
                 .collect(Collectors.toList());
         this.queryOrders = dtoClassInfo.getNormalFieldList()
                 .stream().filter(x -> x.getQueryOrder() != null)
@@ -83,7 +79,7 @@ public class QueryWrapperCreator {
                 .sorted(Comparator.comparingInt(QueryOrderModel::getSortIndex))
                 .collect(Collectors.toList());
 
-        if(this.queryJoinModels.size() > 0) {
+        if(this.queryGroupByModels.size() > 0) {
             this.queryHavingModels = dtoClassInfo.getNormalFieldList()
                     .stream().filter(x -> x.getQueryHaving() != null)
                     .map(x -> new QueryHavingModel(x.getQueryHaving()))
@@ -94,29 +90,31 @@ public class QueryWrapperCreator {
                         if(x.getQuerySelect() != null) {
                             return new QuerySelectModel(x.getQuerySelect()
                                     , this.tableName
-                                    , x.getTableFieldInfo().getColumnName());
+                                    , x.getEntityFieldInfo().getColumnName());
                         } else {
                             return new QuerySelectModel(x.getQueryGroupBy()
                                     , this.tableName
-                                    , x.getTableFieldInfo().getColumnName());
+                                    , x.getEntityFieldInfo().getColumnName());
                         }
                     })
                     .collect(Collectors.toList());
         } else {
+            this.queryHavingModels = new ArrayList<>();
             List<QuerySelectModel> joinQueryModels = this.joinTableDtoClassList.stream().map(x -> {
-                return x.getNormalFieldList().stream().map(y ->
+                return x.getNormalFieldList().stream()
+                        .filter(y -> y.getQuerySelect() != null || y.getEntityFieldInfo() != null).map(y ->
                         new QuerySelectModel(y.getQuerySelect()
                                 , x.getEntityClassInfo().getTableInfo().getTableName()
-                                , y.getTableFieldInfo().getColumnName()
+                                , y.getEntityFieldInfo().getColumnName()
                                 , x.getEntityClassInfo().getTableInfo().getTableName()))
                         .collect(Collectors.toList());
             }).flatMap(x -> x.stream()).collect(Collectors.toList());
             List<QuerySelectModel> querySelectModels = dtoClassInfo.getNormalFieldList()
-                    .stream()
+                    .stream().filter(x -> x.getQuerySelect() != null || x.getEntityFieldInfo() != null)
                     .map(x -> {
                         return new QuerySelectModel(x.getQuerySelect()
                                 , this.tableName
-                                , x.getTableFieldInfo().getColumnName());
+                                , x.getEntityFieldInfo().getColumnName());
                     })
                     .collect(Collectors.toList());
             this.querySelectModels = new ArrayList<>();
@@ -148,13 +146,13 @@ public class QueryWrapperCreator {
         QueryWrapper<T> result = queryWrapperBuilder.createQueryWrapper();
         for(QueryWhereModel queryWhere : queryWhereModels) {
             queryWhere.getConnector().consume(queryWhere.getExpression()
-                    , result, FieldUtils.getValue(dto, queryWhere.getTableFieldInfo().getField()));
+                    , result, FieldUtils.getValue(dto, queryWhere.getDtoField().getField()));
         }
         return result;
     }
 
     public <T> QueryWrapper<T> createQueryWrapper(Object dto, List<QueryWhereModel> queryWhereModels) throws IllegalAccessException {
-        if(baseWrapperBuilder == null) {
+        if(this.baseWrapperBuilder == null) {
             this.baseWrapperBuilder = createQueryWrapperBuilder(this.querySelectModels
                     , this.queryGroupByModels
                     , this.queryHavingModels
@@ -164,7 +162,7 @@ public class QueryWrapperCreator {
     }
 
     public <T> QueryWrapper<T> createQueryWrapper(Object dto) throws IllegalAccessException {
-        return createQueryWrapper(dto, this.queryWhereModels, this.baseWrapperBuilder);
+        return createQueryWrapper(dto, this.queryWhereModels);
     }
 
     public static class QueryWrapperBuilder {

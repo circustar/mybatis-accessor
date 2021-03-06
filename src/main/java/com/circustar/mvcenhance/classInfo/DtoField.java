@@ -3,11 +3,14 @@ package com.circustar.mvcenhance.classInfo;
 import com.circustar.mvcenhance.annotation.*;
 import com.circustar.mvcenhance.relation.EntityDtoServiceRelation;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 
 public class DtoField {
-    private String fieldName;
-    private TableFieldInfo tableFieldInfo;
+    private Field field;
+    private EntityFieldInfo entityFieldInfo;
     private EntityDtoServiceRelation entityDtoServiceRelation;
     private DtoClassInfo dtoClassInfo;
     private QuerySelect querySelect;
@@ -18,30 +21,40 @@ public class DtoField {
     private QueryOrder queryOrder;
     private Selector[] selectors;
     private Class relatedEntityClass = null;
-    private Boolean hasEntityClass = null;
 
-    public DtoField(String fieldName, TableFieldInfo tableFieldInfo, DtoClassInfo dtoClassInfo, EntityDtoServiceRelation entityDtoServiceRelation) {
-        this.fieldName = fieldName;
-        this.tableFieldInfo = tableFieldInfo;
+    private Boolean isCollection = false;
+    private Type actualType = null;
+    private Type ownType = null;
+
+    public DtoField(Field field, EntityFieldInfo entityFieldInfo, DtoClassInfo dtoClassInfo, EntityDtoServiceRelation entityDtoServiceRelation) {
+        this.field = field;
+        this.entityFieldInfo = entityFieldInfo;
         this.dtoClassInfo = dtoClassInfo;
         this.entityDtoServiceRelation = entityDtoServiceRelation;
 
-        this.querySelect = tableFieldInfo.getField().getAnnotation(QuerySelect.class);
-        this.queryJoin = tableFieldInfo.getField().getAnnotation(QueryJoin.class);
-        this.queryWhere = tableFieldInfo.getField().getAnnotation(QueryWhere.class);
-        this.queryGroupBy = tableFieldInfo.getField().getAnnotation(QueryGroupBy.class);
-        this.queryHaving = tableFieldInfo.getField().getAnnotation(QueryHaving.class);
-        this.queryOrder = tableFieldInfo.getField().getAnnotation(QueryOrder.class);
+        this.querySelect = field.getAnnotation(QuerySelect.class);
+        this.queryJoin = field.getAnnotation(QueryJoin.class);
+        this.queryWhere = field.getAnnotation(QueryWhere.class);
+        this.queryGroupBy = field.getAnnotation(QueryGroupBy.class);
+        this.queryHaving = field.getAnnotation(QueryHaving.class);
+        this.queryOrder = field.getAnnotation(QueryOrder.class);
 
-        this.selectors = tableFieldInfo.getField().getAnnotationsByType(Selector.class);
+        this.selectors = field.getAnnotationsByType(Selector.class);
+
+        if(Collection.class.isAssignableFrom(field.getType())
+                && field.getGenericType() instanceof ParameterizedType) {
+            isCollection = true;
+            actualType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+            ownType = ((ParameterizedType) field.getGenericType()).getRawType();
+        } else {
+            isCollection = false;
+            actualType = field.getType();
+            ownType = field.getType();
+        }
     }
 
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    public TableFieldInfo getTableFieldInfo() {
-        return tableFieldInfo;
+    public EntityFieldInfo getEntityFieldInfo() {
+        return entityFieldInfo;
     }
 
     public EntityDtoServiceRelation getEntityDtoServiceRelation() {
@@ -80,20 +93,32 @@ public class DtoField {
         return queryOrder;
     }
 
-    public Boolean getHasEntityClass() {
-        return hasEntityClass;
-    }
-
-    public void setHasEntityClass(Boolean hasEntityClass) {
-        this.hasEntityClass = hasEntityClass;
-    }
-
     public Class getRelatedEntityClass() {
         return relatedEntityClass;
     }
 
     public void setRelatedEntityClass(Class relatedEntityClass) {
         this.relatedEntityClass = relatedEntityClass;
+    }
+
+    public Field getField() {
+        return field;
+    }
+
+    public void setField(Field field) {
+        this.field = field;
+    }
+
+    public Boolean getCollection() {
+        return isCollection;
+    }
+
+    public Type getActualType() {
+        return actualType;
+    }
+
+    public Type getOwnType() {
+        return ownType;
     }
 
     enum SupportGenericType{

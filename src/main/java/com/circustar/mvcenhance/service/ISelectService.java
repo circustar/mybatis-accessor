@@ -8,6 +8,13 @@ import java.io.Serializable;
 import java.util.List;
 
 public interface ISelectService {
+    <T> T getEntityByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object
+    ) throws Exception;
+
+    <T> T getDtoByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object, String[] children
+    ) throws Exception;
 
     <T> T getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo
             , QueryWrapper queryWrapper) throws Exception;

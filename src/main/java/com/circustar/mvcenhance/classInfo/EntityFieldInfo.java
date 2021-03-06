@@ -11,7 +11,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class TableFieldInfo {
+public class EntityFieldInfo {
     private Field field;
 
     private TableField tableField;
@@ -68,8 +68,8 @@ public class TableFieldInfo {
     private Type actualType = null;
     private Type ownType = null;
 
-    public static TableFieldInfo parseField(Class c, Field field) {
-        TableFieldInfo fieldInfo = new TableFieldInfo();
+    public static EntityFieldInfo parseField(Class c, Field field) {
+        EntityFieldInfo fieldInfo = new EntityFieldInfo();
         fieldInfo.setField(field);
         if(Collection.class.isAssignableFrom(field.getType())
                 && field.getGenericType() instanceof ParameterizedType) {
@@ -98,7 +98,7 @@ public class TableFieldInfo {
         return fieldInfo;
     }
 
-    public static TableFieldInfo parseFieldByName(Class c, String property_name) {
+    public static EntityFieldInfo parseFieldByName(Class c, String property_name) {
         try {
             Field field = c.getDeclaredField(property_name.substring(0,1).toLowerCase() + property_name.substring(1));
             if(field== null) {
@@ -110,11 +110,11 @@ public class TableFieldInfo {
         return null;
     }
 
-    public static TableFieldInfo parseFieldByClass(Class c, Class subClass, Boolean findInGenericType) {
+    public static EntityFieldInfo parseFieldByClass(Class c, Class subClass, Boolean findInGenericType) {
         try {
             if(!findInGenericType) {
                 return Arrays.stream(c.getDeclaredFields()).filter(x -> x.getType().getClass() == subClass)
-                        .findFirst().map(x -> TableFieldInfo.parseField(c, x)).orElse(null);
+                        .findFirst().map(x -> EntityFieldInfo.parseField(c, x)).orElse(null);
             } else {
                 return Arrays.stream(c.getDeclaredFields())
                         .filter(x -> {
@@ -128,7 +128,7 @@ public class TableFieldInfo {
                             Type dtoType = ((ParameterizedType) x.getGenericType()).getActualTypeArguments()[0];
                             return (dtoType == subClass);
                         })
-                        .findFirst().map(x -> TableFieldInfo.parseField(c, x)).orElse(null);
+                        .findFirst().map(x -> EntityFieldInfo.parseField(c, x)).orElse(null);
             }
         } catch (Exception e) {
         }

@@ -52,7 +52,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                     , Collections.singleton(updateTarget)
                     , false
                     , updateChildrenOnly);
-            Object keyValue = FieldUtils.getValue(value, dtoClassInfo.getKeyField().getTableFieldInfo().getField());
+            Object keyValue = FieldUtils.getValue(value, dtoClassInfo.getKeyField().getEntityFieldInfo().getField());
 
             for(String entityName : topEntities) {
                 Object topChild = FieldUtils.getValueByName(value, entityName);
@@ -76,11 +76,11 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                         , entityName, "."));
                 DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(subDtoField.getEntityDtoServiceRelation().getDtoClass());
                 for(Object child : childList) {
-                    Object subEntityKeyValue = FieldUtils.getValue(child, subDtoClassInfo.getKeyField().getTableFieldInfo().getField());
+                    Object subEntityKeyValue = FieldUtils.getValue(child, subDtoClassInfo.getKeyField().getEntityFieldInfo().getField());
                     if(subEntityKeyValue != null) {
                         Object deleteFlagValue = null;
                         if(subDtoClassInfo.getDeleteFlagField() != null) {
-                            deleteFlagValue = FieldUtils.getValue(child, subDtoClassInfo.getDeleteFlagField().getTableFieldInfo().getField());
+                            deleteFlagValue = FieldUtils.getValue(child, subDtoClassInfo.getDeleteFlagField().getEntityFieldInfo().getField());
                         }
                         if(deleteFlagValue != null) {
                             defaultEntityCollectionUpdater.addSubUpdateEntities(defaultDeleteTreeProvider.createUpdateEntities(

@@ -2,7 +2,7 @@ package com.circustar.mvcenhance.updateProcessor;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mvcenhance.classInfo.EntityClassInfo;
-import com.circustar.mvcenhance.classInfo.TableFieldInfo;
+import com.circustar.mvcenhance.classInfo.EntityFieldInfo;
 import com.circustar.mvcenhance.provider.command.IUpdateCommand;
 import com.circustar.mvcenhance.utils.FieldUtils;
 
@@ -71,13 +71,13 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         }
         if(entityClassInfo != null) {
             for (String keyProperty : keyMap.keySet()) {
-                TableFieldInfo tableFieldInfo = entityClassInfo.getFieldByName(keyProperty);
-                if (tableFieldInfo == null) {
+                EntityFieldInfo entityFieldInfo = entityClassInfo.getFieldByName(keyProperty);
+                if (entityFieldInfo == null) {
                     continue;
                 }
                 Object keyValue = keyMap.get(keyProperty);
                 for (Object updateEntity : updateEntities) {
-                    FieldUtils.setField(updateEntity, tableFieldInfo.getField(), keyValue);
+                    FieldUtils.setField(updateEntity, entityFieldInfo.getField(), keyValue);
                 }
             }
         }

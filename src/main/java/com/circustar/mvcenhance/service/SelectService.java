@@ -35,6 +35,29 @@ public class SelectService implements ISelectService {
     private DtoClassInfoHelper dtoClassInfoHelper;
 
     @Override
+    public <T> T getEntityByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object
+    ) throws Exception {
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(object);
+        return getEntityByQueryWrapper(relationInfo, queryWrapper);
+    }
+
+    @Override
+    public <T> T getDtoByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object, String[] children
+    ) throws Exception {
+        Object oriEntity = this.getEntityByAnnotation(relationInfo, object);
+        if (oriEntity == null) {
+            return null;
+        }
+        T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, relationInfo.getDtoClass());
+        Serializable id = (Serializable) FieldUtils.getValueByName(oriEntity, relationInfo.getTableInfo().getKeyProperty());
+        setDtoChildren(relationInfo, result, id , children);
+        return result;
+    }
+
+    @Override
     public <T> T getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo
             , QueryWrapper queryWrapper) throws Exception {
         IService s = relationInfo.getServiceBean(applicationContext);
@@ -67,7 +90,7 @@ public class SelectService implements ISelectService {
             childList = new HashSet<>(Arrays.asList(children));
         }
         List<DtoField> subFields = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass())
-                .getSubDtoFieldList().stream().filter(x -> childList.contains(x.getFieldName())).collect(Collectors.toList());
+                .getSubDtoFieldList().stream().filter(x -> childList.contains(x.getField().getName())).collect(Collectors.toList());
 
         Map<Boolean, List<DtoField>> dtoFieldMap = subFields.stream()
                 .collect(Collectors.partitioningBy(x -> x.getSelectors() == null || x.getSelectors().length == 0));

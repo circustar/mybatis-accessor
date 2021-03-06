@@ -132,6 +132,22 @@ public class ServiceSupport {
         return this.selectService.getEntityByQueryWrapper(relationInfo, queryWrapper);
     }
 
+    public Object getEntityByAnnotation(Class DtoClass
+            , Object object) throws Exception {
+        return this.getEntityByAnnotation(DtoClass.getSimpleName(), object);
+    }
+
+    public Object getEntityByAnnotation(String dtoName
+            , Object object) throws Exception {
+        EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
+        return this.getEntityByAnnotation(relationInfo, object);
+    }
+
+    public Object getEntityByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object) throws Exception {
+        return this.selectService.getEntityByAnnotation(relationInfo, object);
+    }
+
     public Object getDtoById(String dtoName
             , Serializable id
             , String children) throws Exception {
@@ -192,6 +208,37 @@ public class ServiceSupport {
             , QueryWrapper queryWrapper
             , String[] children) throws Exception {
         return this.selectService.getDtoByQueryWrapper(relationInfo, queryWrapper, children);
+    }
+
+    public Object getDtoByAnnotation(String dtoName
+            , Object object
+            , String children) throws Exception {
+        return this.getDtoByAnnotation(dtoName, object, ArrayParamUtils.convertStringToArray(children, ArrayParamUtils.DELIMITER_COMMA));
+    }
+
+    public Object getDtoByAnnotation(Class dtoClass
+            , Object object
+            , String children) throws Exception {
+        return this.getDtoByAnnotation(dtoClass.getSimpleName(), object, children);
+    }
+
+    public Object getDtoByAnnotation(String dtoName
+            , Object object
+            , String[] children) throws Exception {
+        EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
+        return this.getDtoByAnnotation(relationInfo, object, children);
+    }
+
+    public Object getDtoByAnnotation(Class dtoClass
+            , Object object
+            , String[] children) throws Exception {
+        return this.getDtoByAnnotation(dtoClass.getSimpleName(), object, children);
+    }
+
+    public Object getDtoByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object
+            , String[] children) throws Exception {
+        return this.selectService.getDtoByAnnotation(relationInfo, object, children);
     }
 
     public <T> PageInfo<T> getEntityPageByAnnotation(Class dtoClass

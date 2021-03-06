@@ -30,7 +30,7 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
         boolean insertAllEntities = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_INSERT_ALL_CHILDREN, false);
         String[] children;
         if(insertAllEntities) {
-            children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getSubDtoFieldList().stream().map(x -> x.getFieldName()));
+            children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getSubDtoFieldList().stream().map(x -> x.getField().getName()));
         } else {
             children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, new String[]{});
         }
@@ -43,7 +43,7 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
         for(Object value : values) {
             if(dtoClassInfo.getVersionField() != null) {
                 FieldUtils.setField(value
-                        , dtoClassInfo.getVersionField().getTableFieldInfo().getField()
+                        , dtoClassInfo.getVersionField().getEntityFieldInfo().getField()
                         , dtoClassInfo.getVersionDefaultValue());
             }
             Object updateTarget = dtoClassInfoHelper.convertToEntity(value);
@@ -57,7 +57,7 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
                     , updateChildrenOnly);
             for(String entityName : topEntities) {
                 DtoField dtoField = dtoClassInfo.getDtoField(entityName);
-                Object subValue = FieldUtils.getValue(value, dtoField.getTableFieldInfo().getField());
+                Object subValue = FieldUtils.getValue(value, dtoField.getEntityFieldInfo().getField());
                 Collection childList = CollectionUtils.convertToCollection(subValue);
                 if(childList.size() == 0) {continue;}
                 hasChildren = true;

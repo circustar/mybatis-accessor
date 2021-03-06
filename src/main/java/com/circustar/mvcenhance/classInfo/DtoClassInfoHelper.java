@@ -58,13 +58,13 @@ public class DtoClassInfoHelper {
             Object entity = targetClass.newInstance();
             BeanUtils.copyProperties(object, entity);
             for(DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
-                TableFieldInfo entityTableFieldInfo = entityClassInfo.getFieldByClass(dtoField.getEntityDtoServiceRelation().getEntityClass());
-                if(entityTableFieldInfo == null) {
+                EntityFieldInfo entityEntityFieldInfo = entityClassInfo.getFieldByName(dtoField.getField().getName());
+                if(entityEntityFieldInfo == null) {
                     continue;
                 }
-                Object subDto = FieldUtils.getValue(object ,dtoField.getTableFieldInfo().getField());
+                Object subDto = FieldUtils.getValue(object ,dtoField.getEntityFieldInfo().getField());
                 Object child = convertToEntity(subDto);
-                FieldUtils.setField(entity, entityTableFieldInfo.getField(), child);
+                FieldUtils.setField(entity, entityEntityFieldInfo.getField(), child);
             }
             return entity;
         } catch (Exception ex) {
@@ -94,22 +94,22 @@ public class DtoClassInfoHelper {
                     targetClass = dtoClassInfo.getEntityDtoServiceRelation().getEntityClass();
                     entityClassInfo = entityClassInfoHelper.getEntityClassInfo(targetClass);
                 }
-                Object child = entityClassInfo.getClazz().newInstance();
+                Object child = entityClassInfo.getEntityClass().newInstance();
                 BeanUtils.copyProperties(object, child);
                 childList.add(child);
             }
             if(dtoClass == null) {return (T)childList;}
             for(DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
-                TableFieldInfo entityTableFieldInfo = entityClassInfo.getFieldByClass(dtoField.getEntityDtoServiceRelation().getEntityClass());
-                if(entityTableFieldInfo == null && !entityTableFieldInfo.getIsCollection()) {
+                EntityFieldInfo entityEntityFieldInfo = entityClassInfo.getFieldByName(dtoField.getField().getName());
+                if(entityEntityFieldInfo == null && !entityEntityFieldInfo.getIsCollection()) {
                     continue;
                 }
                 Iterator itFrom = objects.iterator();
                 Iterator itTo = childList.iterator();
                 while(itFrom.hasNext()) {
-                    Object object = FieldUtils.getValue(itFrom.next(), dtoField.getTableFieldInfo().getField());
+                    Object object = FieldUtils.getValue(itFrom.next(), dtoField.getEntityFieldInfo().getField());
                     Object child = convertToEntity(object);
-                    FieldUtils.setField(itTo.next(), entityTableFieldInfo.getField(), child);
+                    FieldUtils.setField(itTo.next(), entityEntityFieldInfo.getField(), child);
                 }
             }
             return (T) childList;
@@ -135,18 +135,17 @@ public class DtoClassInfoHelper {
     public <T> T convertFromSingleObject(Object entity, Class<T> targetClass) {
         try {
             DtoClassInfo dtoClassInfo = this.getDtoClassInfo(targetClass);
-            EntityClassInfo entityClassInfo = entityClassInfoHelper.getEntityClassInfo(entity.getClass());
 
             T object = targetClass.newInstance();
             BeanUtils.copyProperties(entity, object);
             for(DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
-                if(!dtoField.getHasEntityClass()) {
+                if(dtoField.getEntityFieldInfo() == null) {
                     continue;
                 }
-                TableFieldInfo entityTableFieldInfo = dtoClassInfo.getEntityClassInfo().getFieldByClass(dtoField.getRelatedEntityClass());
-                Object child = FieldUtils.getValue(entity , entityTableFieldInfo.getField());
-                Object subObject = convertFromEntity(child, (Class)dtoField.getTableFieldInfo().getActualType());
-                FieldUtils.setField(object, dtoField.getTableFieldInfo().getField(), subObject);
+                EntityFieldInfo entityEntityFieldInfo = dtoClassInfo.getEntityClassInfo().getFieldByName(dtoField.getField().getName());
+                Object child = FieldUtils.getValue(entity , entityEntityFieldInfo.getField());
+                Object subObject = convertFromEntity(child, (Class)dtoField.getEntityFieldInfo().getActualType());
+                FieldUtils.setField(object, dtoField.getEntityFieldInfo().getField(), subObject);
             }
             return object;
         } catch (Exception ex) {
@@ -175,18 +174,18 @@ public class DtoClassInfoHelper {
                 objectList.add(object);
             }
             for(DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
-                if(!dtoField.getHasEntityClass()) {
+                if(dtoField.getEntityFieldInfo() == null) {
                     continue;
                 }
-                TableFieldInfo entityTableFieldInfo = dtoClassInfo.getEntityClassInfo().getFieldByClass(dtoField.getRelatedEntityClass());
+                EntityFieldInfo entityEntityFieldInfo = dtoClassInfo.getEntityClassInfo().getFieldByName(dtoField.getField().getName());
                 Iterator itFrom = entityList.iterator();
                 Iterator itTo = objectList.iterator();
                 while(itFrom.hasNext()) {
                     Object entity = itFrom.next();
                     if(entity == null) continue;
-                    Object child = FieldUtils.getValue(entity, entityTableFieldInfo.getField());
-                    Object object = convertFromEntity(child, (Class)dtoField.getTableFieldInfo().getActualType());
-                    FieldUtils.setField(itTo.next(), dtoField.getTableFieldInfo().getField(), object);
+                    Object child = FieldUtils.getValue(entity, entityEntityFieldInfo.getField());
+                    Object object = convertFromEntity(child, (Class)dtoField.getEntityFieldInfo().getActualType());
+                    FieldUtils.setField(itTo.next(), dtoField.getEntityFieldInfo().getField(), object);
                 }
             }
             return objectList;

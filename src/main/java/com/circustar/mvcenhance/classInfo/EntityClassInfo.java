@@ -9,51 +9,36 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class EntityClassInfo {
-    private Class<?> clazz;
-    private List<TableFieldInfo> fieldList;
-    private Map<Class<?>, TableFieldInfo> entityFieldInfoMap;
-    private Map<String, TableFieldInfo> fieldMap;
+    private Class<?> entityClass;
+    private List<EntityFieldInfo> fieldList;
+    private Map<String, EntityFieldInfo> fieldMap;
     private TableInfo tableInfo;
 
-    public EntityClassInfo(Class<?> clazz) {
-        this.clazz = clazz;
-        this.fieldList = Arrays.stream(clazz.getDeclaredFields()).map(x -> {
-            TableFieldInfo tableFieldInfo = TableFieldInfo.parseField(this.clazz, x);
-            return tableFieldInfo;
+    public EntityClassInfo(Class<?> entityClass) {
+        this.entityClass = entityClass;
+        this.fieldList = Arrays.stream(entityClass.getDeclaredFields()).map(x -> {
+            EntityFieldInfo entityFieldInfo = EntityFieldInfo.parseField(this.entityClass, x);
+            return entityFieldInfo;
         }).collect(Collectors.toList());
-        this.entityFieldInfoMap = new HashMap<>();
-        this.fieldList.stream().collect(Collectors.collectingAndThen(
-                Collectors.toCollection(() -> new TreeSet<>(
-                        Comparator.comparing(p -> p.getActualType().getTypeName())))
-                , ArrayList::new)).stream().forEach(x -> {
-            this.entityFieldInfoMap.put((Class)x.getActualType(), x);
-        });
         this.fieldMap = this.fieldList.stream().collect(Collectors.toMap(x -> x.getField().getName(), x -> x));
-        this.tableInfo = TableInfoHelper.getTableInfo(this.clazz);
+        this.tableInfo = TableInfoHelper.getTableInfo(this.entityClass);
         if(this.tableInfo == null) {
-            TableName tableName = this.clazz.getAnnotation(TableName.class);
+            TableName tableName = this.entityClass.getAnnotation(TableName.class);
             if(tableName != null && !StringUtils.isEmpty(tableName.value())) {
                 this.tableInfo = TableInfoHelper.getTableInfo(tableName.value());
             }
         }
     }
 
-    public Class<?> getClazz() {
-        return clazz;
+    public Class<?> getEntityClass() {
+        return entityClass;
     }
 
-    public List<TableFieldInfo> getFieldList() {
+    public List<EntityFieldInfo> getFieldList() {
         return fieldList;
     }
 
-    public TableFieldInfo getFieldByClass(Class<?> clazz) {
-        if(entityFieldInfoMap.containsKey(clazz)) {
-            return entityFieldInfoMap.get(clazz);
-        }
-        return null;
-    }
-
-    public TableFieldInfo getFieldByName(String fieldName) {
+    public EntityFieldInfo getFieldByName(String fieldName) {
         if(fieldMap.containsKey(fieldName)) {
             return fieldMap.get(fieldName);
         }
