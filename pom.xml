@@ -9,10 +9,10 @@
 <!--        <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
 <!--    </parent>-->
     <groupId>com.circustar</groupId>
-    <artifactId>mybatis-plus-mvc-enhance</artifactId>
+    <artifactId>mybatis-accessor</artifactId>
     <version>1.0.0</version>
-    <name>enhanced_mvc_with_mybatis_plus</name>
-    <description>springmvc enhancement based on mybatis plus</description>
+    <name>mybatis-accessor</name>
+    <description>enhancement based on mybatis plus</description>
 
     <properties>
         <java.version>1.8</java.version>
