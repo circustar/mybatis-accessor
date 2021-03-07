@@ -77,8 +77,9 @@ public class TableInfoUtils {
 
     public static ResultMapping getNestedResultMapping(Configuration configuration, TableInfo tableInfo, TableJoinInfo tableJoinInfo) {
         ResultMapping.Builder builder = new ResultMapping.Builder(configuration
-                , tableJoinInfo.getFieldName(), StringUtils.getTargetColumn(tableJoinInfo.getFieldName()), (Class)tableJoinInfo.getActualType());
-        builder.nestedResultMapId(registerResultMapping(configuration, tableInfo, null));
+                , tableJoinInfo.getFieldName(), StringUtils.getTargetColumn(tableJoinInfo.getFieldName()), (Class)tableJoinInfo.getOwnerType());
+        List<TableJoinInfo> tableJoinInfos = TableJoinInfo.parseDtoTableJoinInfo((Class) tableJoinInfo.getActualType());
+        builder.nestedResultMapId(registerResultMapping(configuration, tableInfo, tableJoinInfos));
         builder.columnPrefix(tableInfo.getTableName() + "_");
         return builder.build();
     }

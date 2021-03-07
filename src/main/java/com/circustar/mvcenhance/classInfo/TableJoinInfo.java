@@ -9,10 +9,12 @@ import org.apache.ibatis.type.TypeHandler;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TableJoinInfo {
@@ -133,7 +135,10 @@ public class TableJoinInfo {
                 continue;
             }
             Class clazz = field.getType();
-            if(clazz == null || ReflectionKit.isPrimitiveOrWrapper(clazz) || clazz == String.class || clazz.isInterface()) {
+            if(clazz == null || ReflectionKit.isPrimitiveOrWrapper(clazz) || clazz == String.class
+                    || clazz == Date.class || clazz == BigDecimal.class
+                    || clazz == LocalDate.class || clazz == LocalDateTime.class || clazz == LocalTime.class
+                    || clazz == ZonedDateTime.class) {
                 continue;
             }
             TypeHandler<? extends TableField[]> typeHandler = configuration.getTypeHandlerRegistry().getTypeHandler(clazz);
