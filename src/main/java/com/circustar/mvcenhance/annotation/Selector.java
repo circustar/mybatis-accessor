@@ -9,4 +9,5 @@ public @interface Selector {
     String tableColumn() default "";
     Connector connector() default Connector.eq;
     String[] valueExpression() default "";
+    int order() default 1;
 }

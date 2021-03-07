@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DtoField {
     private Field field;
@@ -39,7 +40,10 @@ public class DtoField {
         this.queryHaving = field.getAnnotation(QueryHaving.class);
         this.queryOrder = field.getAnnotation(QueryOrder.class);
 
-        this.selectors = field.getAnnotationsByType(Selector.class);
+        List<Selector> sortedSelectors = Arrays.stream(field.getAnnotationsByType(Selector.class))
+                .sorted(Comparator.comparingInt(Selector::order))
+                .collect(Collectors.toList());
+        this.selectors = sortedSelectors.toArray(new Selector[sortedSelectors.size()]);
 
         if(Collection.class.isAssignableFrom(field.getType())
                 && field.getGenericType() instanceof ParameterizedType) {
