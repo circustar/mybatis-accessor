@@ -45,8 +45,8 @@ public class ServiceSupport {
         this.entityDtoServiceRelationMap = entityDtoServiceRelationMap;
     }
 
-    protected Collection convertFromCollection(Collection mapList, Class clazz) {
-        Class actualClass = (Class) ClassUtils.getFirstTypeArgument(mapList.getClass());
+    protected Collection convertFromList(List mapList, Class clazz) {
+        Class actualClass = mapList.get(0).getClass();
         if(!Map.class.isAssignableFrom(actualClass)) {
             return mapList;
         }
@@ -63,8 +63,10 @@ public class ServiceSupport {
             return null;
         } else if(object instanceof Map){
             return objectMapper.convertValue(object, clazz);
+        } else if(object instanceof List){
+            return this.convertFromList((List) object, clazz);
         } else if(object instanceof Collection){
-            return this.convertFromCollection((Collection) object, clazz);
+            return this.convertFromList(new ArrayList((Collection) object), clazz);
         }
         return object;
     }
@@ -100,142 +102,142 @@ public class ServiceSupport {
         return relationInfo;
     }
 
-    public Object getEntityById(Class DtoClass
+    public <T> T getEntityById(Class DtoClass
             , Serializable id) throws Exception {
         return this.getEntityById(DtoClass.getSimpleName(), id);
     }
 
-    public Object getEntityById(String dtoName
+    public <T> T getEntityById(String dtoName
             , Serializable id) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
         return this.getEntityById(relationInfo, id);
     }
 
-    public Object getEntityById(EntityDtoServiceRelation relationInfo
+    public <T> T getEntityById(EntityDtoServiceRelation relationInfo
             , Serializable id) throws Exception {
         return this.selectService.getEntityById(relationInfo, id);
     }
 
-    public Object getEntityByQueryWrapper(Class DtoClass
+    public <T> T getEntityByQueryWrapper(Class DtoClass
             , QueryWrapper queryWrapper) throws Exception {
         return this.getEntityByQueryWrapper(DtoClass.getSimpleName(), queryWrapper);
     }
 
-    public Object getEntityByQueryWrapper(String dtoName
+    public <T> T getEntityByQueryWrapper(String dtoName
             , QueryWrapper queryWrapper) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
         return this.getEntityByQueryWrapper(relationInfo, queryWrapper);
     }
 
-    public Object getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo
+    public <T> T getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo
             , QueryWrapper queryWrapper) throws Exception {
         return this.selectService.getEntityByQueryWrapper(relationInfo, queryWrapper);
     }
 
-    public Object getEntityByAnnotation(Class DtoClass
+    public <T> T getEntityByAnnotation(Class DtoClass
             , Object object) throws Exception {
         return this.getEntityByAnnotation(DtoClass.getSimpleName(), object);
     }
 
-    public Object getEntityByAnnotation(String dtoName
+    public <T> T getEntityByAnnotation(String dtoName
             , Object object) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
         return this.getEntityByAnnotation(relationInfo, object);
     }
 
-    public Object getEntityByAnnotation(EntityDtoServiceRelation relationInfo
+    public <T> T getEntityByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object) throws Exception {
         return this.selectService.getEntityByAnnotation(relationInfo, object);
     }
 
-    public Object getDtoById(String dtoName
+    public <T> T getDtoById(String dtoName
             , Serializable id
             , String children) throws Exception {
         return this.getDtoById(dtoName, id, ArrayParamUtils.convertStringToArray(children, ArrayParamUtils.DELIMITER_COMMA));
     }
 
-    public Object getDtoById(Class dtoClass
+    public <T> T getDtoById(Class dtoClass
             , Serializable id
             , String children) throws Exception {
         return this.getDtoById(dtoClass.getSimpleName(), id, children);
     }
 
-    public Object getDtoById(String dtoName
+    public <T> T getDtoById(String dtoName
             , Serializable id
             , String[] children) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
         return this.getDtoById(relationInfo, id, children);
     }
 
-    public Object getDtoById(Class dtoClass
+    public <T> T getDtoById(Class dtoClass
             , Serializable id
             , String[] children) throws Exception {
         return this.getDtoById(dtoClass.getSimpleName(), id, children);
     }
 
-    public Object getDtoById(EntityDtoServiceRelation relationInfo
+    public <T> T getDtoById(EntityDtoServiceRelation relationInfo
             , Serializable id
             , String[] children) throws Exception {
         return this.selectService.getDtoById(relationInfo, id, children);
     }
 
-    public Object getDtoByQueryWrapper(String dtoName
+    public <T> T getDtoByQueryWrapper(String dtoName
             , QueryWrapper queryWrapper
             , String children) throws Exception {
         return this.getDtoByQueryWrapper(dtoName, queryWrapper, ArrayParamUtils.convertStringToArray(children, ArrayParamUtils.DELIMITER_COMMA));
     }
 
-    public Object getDtoByQueryWrapper(Class dtoClass
+    public <T> T getDtoByQueryWrapper(Class dtoClass
             , QueryWrapper queryWrapper
             , String children) throws Exception {
         return this.getDtoByQueryWrapper(dtoClass.getSimpleName(), queryWrapper, children);
     }
 
-    public Object getDtoByQueryWrapper(String dtoName
+    public <T> T getDtoByQueryWrapper(String dtoName
             , QueryWrapper queryWrapper
             , String[] children) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
         return this.getDtoByQueryWrapper(relationInfo, queryWrapper, children);
     }
 
-    public Object getDtoByQueryWrapper(Class dtoClass
+    public <T> T getDtoByQueryWrapper(Class dtoClass
             , QueryWrapper queryWrapper
             , String[] children) throws Exception {
         return this.getDtoByQueryWrapper(dtoClass.getSimpleName(), queryWrapper, children);
     }
 
-    public Object getDtoByQueryWrapper(EntityDtoServiceRelation relationInfo
+    public <T> T getDtoByQueryWrapper(EntityDtoServiceRelation relationInfo
             , QueryWrapper queryWrapper
             , String[] children) throws Exception {
         return this.selectService.getDtoByQueryWrapper(relationInfo, queryWrapper, children);
     }
 
-    public Object getDtoByAnnotation(String dtoName
+    public <T> T getDtoByAnnotation(String dtoName
             , Object object
             , String children) throws Exception {
         return this.getDtoByAnnotation(dtoName, object, ArrayParamUtils.convertStringToArray(children, ArrayParamUtils.DELIMITER_COMMA));
     }
 
-    public Object getDtoByAnnotation(Class dtoClass
+    public <T> T getDtoByAnnotation(Class dtoClass
             , Object object
             , String children) throws Exception {
         return this.getDtoByAnnotation(dtoClass.getSimpleName(), object, children);
     }
 
-    public Object getDtoByAnnotation(String dtoName
+    public <T> T getDtoByAnnotation(String dtoName
             , Object object
             , String[] children) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
         return this.getDtoByAnnotation(relationInfo, object, children);
     }
 
-    public Object getDtoByAnnotation(Class dtoClass
+    public <T> T getDtoByAnnotation(Class dtoClass
             , Object object
             , String[] children) throws Exception {
         return this.getDtoByAnnotation(dtoClass.getSimpleName(), object, children);
     }
 
-    public Object getDtoByAnnotation(EntityDtoServiceRelation relationInfo
+    public <T> T getDtoByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
             , String[] children) throws Exception {
         return this.selectService.getDtoByAnnotation(relationInfo, object, children);
@@ -423,26 +425,26 @@ public class ServiceSupport {
         return this.selectService.getDtoListByQueryWrapper(relationInfo, queryWrapper);
     }
 
-    public List<Object> updateWithOptions(
+    public <T> List<T> updateWithOptions(
             String dtoName, Object dtoObject
             , String providerName, Map options) throws Exception {
         IUpdateEntityProvider updateEntityProvider = this.parseProviderByName(providerName);
         return updateWithOptions(dtoName, dtoObject, updateEntityProvider, options);
     }
 
-    public List<Object> updateWithOptions(
-            String dtoName, Object dtoObject
+    public <T> List<T> updateWithOptions(
+            String dtoName, Object objectOrMap
             , IUpdateEntityProvider updateEntityProvider, Map options) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        return updateWithOptions(dtoObject, relationInfo, updateEntityProvider, options);
+        return updateWithOptions(objectOrMap, relationInfo, updateEntityProvider, options);
     }
 
-    public List<Object> updateWithOptions(
-            Object object, EntityDtoServiceRelation relationInfo
+    public <T> List<T> updateWithOptions(
+            Object objectOrMap, EntityDtoServiceRelation relationInfo
             , IUpdateEntityProvider updateEntityProvider
             , Map options) throws Exception {
 
-        Object dtoObject = convertFromMap(object, relationInfo.getDtoClass());
+        Object dtoObject = convertFromMap(objectOrMap, relationInfo.getDtoClass());
         if(ScanRelationOnStartup.enableSpringValidation) {
             BindException errors  = new BindException(dtoObject, relationInfo.getDtoClass().getSimpleName());
             this.dtoValidatorManager.validate(dtoObject, updateEntityProvider, errors);
@@ -450,66 +452,75 @@ public class ServiceSupport {
                 throw new ValidateException("validate failed", errors);
             }
         }
-        List<Object> updatedEntities = updateService.updateByProviders(relationInfo
+        List<T> updatedEntities = updateService.updateByProviders(relationInfo
                 , dtoObject, updateEntityProvider, options);
 
         return updatedEntities;
     }
 
-    public Object save(Object updateObject
+    public <T> T save(Object object
             , String children
             , boolean updateChildrenOnly) throws Exception {
-        return this.save(updateObject.getClass().getSimpleName(), updateObject, children, updateChildrenOnly);
+        return this.save(object.getClass().getSimpleName(), object, children, updateChildrenOnly);
     }
 
-    public Object save(String dtoName
-            , Object updateObject
+    public <T> T save(String dtoName
+            , Object objectOrMap
             , String children
             , boolean updateChildrenOnly) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        return save(updateObject,  relationInfo, children, updateChildrenOnly);
+        return save(objectOrMap,  relationInfo, children, updateChildrenOnly);
     }
 
-    public Object save(Object updateObject
+    public <T> T save(Object objectOrMap
             , EntityDtoServiceRelation relation
             , String children
             , boolean updateChildrenOnly) throws Exception {
+        if(objectOrMap == null) {
+            return null;
+        }
         Map options = new HashMap();
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        List<Object> objects = updateWithOptions(updateObject, relation, DefaultInsertEntityProvider.getInstance()
+        List<T> objects = updateWithOptions(objectOrMap, relation, DefaultInsertEntityProvider.getInstance()
                 , options);
         return objects.get(0);
     }
 
-    public List<Object> saveList(List<Object> objects
+    public <T> List<T> saveList(List objects
             , String children
             , boolean updateChildrenOnly) throws Exception {
-        String dtoName = ((Class)ClassUtils.getFirstTypeArgument(objects.getClass())).getSimpleName();
+        if(objects.size() <= 0) {
+            return null;
+        }
+        String dtoName = objects.get(0).getClass().getSimpleName();
         return this.saveList(dtoName, objects, children, updateChildrenOnly);
     }
 
-    public List<Object> saveList(String dtoName
-            , List<Object> objects
+    public <T> List<T> saveList(String dtoName
+            , List objectListOrMapList
             , String children
             , boolean updateChildrenOnly) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        return this.saveList(objects, relationInfo, children, updateChildrenOnly);
+        return this.saveList(objectListOrMapList, relationInfo, children, updateChildrenOnly);
     }
 
-    public List<Object> saveList(List<Object> objects
+    public <T> List<T> saveList(List objectListOrMapList
             , EntityDtoServiceRelation relation
             , String children
             , boolean updateChildrenOnly) throws Exception {
+        if(objectListOrMapList == null || objectListOrMapList.size() <= 0) {
+            return null;
+        }
         Map options = new HashMap();
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
 
-        return updateWithOptions(objects, relation, DefaultInsertEntityProvider.getInstance()
+        return updateWithOptions(objectListOrMapList, relation, DefaultInsertEntityProvider.getInstance()
                 , options);
     }
 
-    public Object update(Object object
+    public <T> T update(Object object
             , String children
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild
@@ -518,18 +529,18 @@ public class ServiceSupport {
                 , children, updateChildrenOnly, removeAndInsertNewChild, physicDelete);
     }
 
-    public Object update(String dtoName
-            , Object object
+    public <T> T update(String dtoName
+            , Object objectOrMap
             , String children
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild
             , boolean physicDelete) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        return update(object, relationInfo
+        return update(objectOrMap, relationInfo
                 , children, updateChildrenOnly, removeAndInsertNewChild, physicDelete);
     }
 
-    public Object update(Object object
+    public <T> T update(Object objectOrMap
             , EntityDtoServiceRelation relation
             , String children
             , boolean updateChildrenOnly
@@ -541,12 +552,12 @@ public class ServiceSupport {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
-        List<Object> result = updateWithOptions(object, relation, DefaultUpdateEntityProvider.getInstance()
+        List<T> result = updateWithOptions(objectOrMap, relation, DefaultUpdateEntityProvider.getInstance()
                 , options);
         return result.get(0);
     }
 
-    public List<Object> updateList(List<Object> objects
+    public <T> List<T> updateList(List objects
             , String children
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild
@@ -556,18 +567,18 @@ public class ServiceSupport {
                 , updateChildrenOnly, removeAndInsertNewChild, physicDelete);
     }
 
-    public List<Object> updateList(String dtoName
-            , List<Object> objects
+    public <T> List<T> updateList(String dtoName
+            , List objectListOrMapList
             , String children
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild
             , boolean physicDelete) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        return updateList(objects, relationInfo, children
+        return updateList(objectListOrMapList, relationInfo, children
                 , updateChildrenOnly, removeAndInsertNewChild, physicDelete);
     }
 
-    public List<Object> updateList(List<Object> objects
+    public <T> List<T> updateList(List objectListOrMapList
             , EntityDtoServiceRelation relation
             , String children
             , boolean updateChildrenOnly
@@ -579,19 +590,19 @@ public class ServiceSupport {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
-        return updateWithOptions(objects, relation, DefaultUpdateEntityProvider.getInstance()
+        return updateWithOptions(objectListOrMapList, relation, DefaultUpdateEntityProvider.getInstance()
                 , options);
     }
 
-    public Object deleteById(String dtoName, Serializable id, String children
+    public <T> T deleteById(String dtoName, Serializable id, String children
             , boolean updateChildrenOnly
             , boolean physicDelete) throws Exception  {
-        List<Object> result = deleteByIds(dtoName, Collections.singleton(id), ArrayParamUtils.convertStringToArray(children)
+        List<T> result = deleteByIds(dtoName, Collections.singleton(id), ArrayParamUtils.convertStringToArray(children)
                 , updateChildrenOnly, physicDelete);
         return result.iterator().next();
     }
 
-    public List<Object> deleteByIds(String dtoName
+    public <T> List<T> deleteByIds(String dtoName
             , Set<Serializable> ids
             , String[] children
             , boolean updateChildrenOnly
@@ -601,7 +612,7 @@ public class ServiceSupport {
                 , physicDelete);
     }
 
-    public List<Object> deleteByIds(Set<Serializable> ids
+    public <T> List<T> deleteByIds(Set<Serializable> ids
             , EntityDtoServiceRelation relationInfo
             , String[] children
             , boolean updateChildrenOnly

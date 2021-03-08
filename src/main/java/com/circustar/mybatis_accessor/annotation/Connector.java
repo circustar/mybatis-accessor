@@ -40,7 +40,7 @@ public enum Connector {
     }),
     likeLeft("likeLeft", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){return;}
-        wrapper.likeRight(column, values[0]);}
+        wrapper.likeLeft(column, values[0]);}
         , (column, values) -> {
         if (values == null || values.length == 0 || StringUtils.isEmpty(values[0])) {
             return "";
@@ -49,7 +49,7 @@ public enum Connector {
     }),
     likeRight("likeRight", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){return;}
-        wrapper.likeLeft(column, values[0]);}
+        wrapper.likeRight(column, values[0]);}
         , (column, values) -> {
         if (values == null || values.length == 0) {
             return "";

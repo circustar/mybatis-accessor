@@ -25,7 +25,7 @@ public class UpdateService implements IUpdateService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public List<Object> updateByProviders(EntityDtoServiceRelation relationInfo
+    public <T> List<T> updateByProviders(EntityDtoServiceRelation relationInfo
             , Object object, IUpdateEntityProvider provider
             , Map options) throws Exception {
         List<Object> updatedObjects = new ArrayList<>();
@@ -52,6 +52,9 @@ public class UpdateService implements IUpdateService {
             }
         }
 
-        return dtoClassInfoHelper.convertFromEntityList(updatedObjects, relationInfo.getDtoClass());
+        if(updatedObjects.size() == 0) {
+            return (List<T>) updatedObjects;
+        }
+        return (List<T>) dtoClassInfoHelper.convertFromEntityList(updatedObjects, relationInfo.getDtoClass());
     }
 }

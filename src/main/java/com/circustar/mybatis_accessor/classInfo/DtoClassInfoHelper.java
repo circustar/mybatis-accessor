@@ -38,7 +38,7 @@ public class DtoClassInfoHelper {
 
     }
 
-    public Object convertToEntity(Object object) {
+    public Object convertToEntity(Object object) throws Exception {
         if(object == null) {
             return null;
         }
@@ -49,74 +49,65 @@ public class DtoClassInfoHelper {
         }
     }
 
-    public Object convertToSingleObject(Object object) {
-        try {
-            DtoClassInfo dtoClassInfo = this.getDtoClassInfo(object.getClass());
-            Class targetClass = dtoClassInfo.getEntityDtoServiceRelation().getEntityClass();
-            EntityClassInfo entityClassInfo = entityClassInfoHelper.getEntityClassInfo(targetClass);
+    public Object convertToSingleObject(Object object) throws Exception {
+        DtoClassInfo dtoClassInfo = this.getDtoClassInfo(object.getClass());
+        Class targetClass = dtoClassInfo.getEntityDtoServiceRelation().getEntityClass();
+        EntityClassInfo entityClassInfo = entityClassInfoHelper.getEntityClassInfo(targetClass);
 
-            Object entity = targetClass.newInstance();
-            BeanUtils.copyProperties(object, entity);
-            for(DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
-                EntityFieldInfo entityEntityFieldInfo = entityClassInfo.getFieldByName(dtoField.getField().getName());
-                if(entityEntityFieldInfo == null) {
-                    continue;
-                }
-                Object subDto = FieldUtils.getValue(object ,dtoField.getEntityFieldInfo().getField());
-                Object child = convertToEntity(subDto);
-                FieldUtils.setField(entity, entityEntityFieldInfo.getField(), child);
+        Object entity = targetClass.newInstance();
+        BeanUtils.copyProperties(object, entity);
+        for(DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
+            EntityFieldInfo entityEntityFieldInfo = entityClassInfo.getFieldByName(dtoField.getField().getName());
+            if(entityEntityFieldInfo == null) {
+                continue;
             }
-            return entity;
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            Object subDto = FieldUtils.getValue(object ,dtoField.getField());
+            Object child = convertToEntity(subDto);
+            FieldUtils.setField(entity, entityEntityFieldInfo.getField(), child);
         }
+        return entity;
     }
 
-    public <T extends Collection> T convertToEntityList(T objects) {
-        try {
-            Class collectionClass = objects.getClass();
-            Class<? extends Collection> implementClass = CollectionType.getSupportCollectionType(collectionClass);
-            if(implementClass == null) {
-                throw new Exception("Collection type not Support!");
-            }
-            Class dtoClass = null;
-            DtoClassInfo dtoClassInfo = null;
-            Class targetClass = null;
-            EntityClassInfo entityClassInfo = null;
-            Collection childList =  implementClass.newInstance();
-            Iterator it = objects.iterator();
-            while(it.hasNext()) {
-                Object object = it.next();
-                if(object == null) continue;
-                if(dtoClass == null) {
-                    dtoClass = object.getClass();
-                    dtoClassInfo = this.getDtoClassInfo(dtoClass);
-                    targetClass = dtoClassInfo.getEntityDtoServiceRelation().getEntityClass();
-                    entityClassInfo = entityClassInfoHelper.getEntityClassInfo(targetClass);
-                }
-                Object child = entityClassInfo.getEntityClass().newInstance();
-                BeanUtils.copyProperties(object, child);
-                childList.add(child);
-            }
-            if(dtoClass == null) {return (T)childList;}
-            for(DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
-                EntityFieldInfo entityEntityFieldInfo = entityClassInfo.getFieldByName(dtoField.getField().getName());
-                if(entityEntityFieldInfo == null && !entityEntityFieldInfo.getIsCollection()) {
-                    continue;
-                }
-                Iterator itFrom = objects.iterator();
-                Iterator itTo = childList.iterator();
-                while(itFrom.hasNext()) {
-                    Object object = FieldUtils.getValue(itFrom.next(), dtoField.getEntityFieldInfo().getField());
-                    Object child = convertToEntity(object);
-                    FieldUtils.setField(itTo.next(), entityEntityFieldInfo.getField(), child);
-                }
-            }
-            return (T) childList;
-
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
+    public <T extends Collection> T convertToEntityList(T objects) throws Exception {
+        Class collectionClass = objects.getClass();
+        Class<? extends Collection> implementClass = CollectionType.getSupportCollectionType(collectionClass);
+        if(implementClass == null) {
+            throw new Exception("Collection type not Support!");
         }
+        Class dtoClass = null;
+        DtoClassInfo dtoClassInfo = null;
+        Class targetClass = null;
+        EntityClassInfo entityClassInfo = null;
+        Collection childList =  implementClass.newInstance();
+        Iterator it = objects.iterator();
+        while(it.hasNext()) {
+            Object object = it.next();
+            if(object == null) continue;
+            if(dtoClass == null) {
+                dtoClass = object.getClass();
+                dtoClassInfo = this.getDtoClassInfo(dtoClass);
+                targetClass = dtoClassInfo.getEntityDtoServiceRelation().getEntityClass();
+                entityClassInfo = entityClassInfoHelper.getEntityClassInfo(targetClass);
+            }
+            Object child = entityClassInfo.getEntityClass().newInstance();
+            BeanUtils.copyProperties(object, child);
+            childList.add(child);
+        }
+        if(dtoClass == null) {return (T)childList;}
+        for(DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
+            EntityFieldInfo entityEntityFieldInfo = entityClassInfo.getFieldByName(dtoField.getField().getName());
+            if(entityEntityFieldInfo == null && !entityEntityFieldInfo.getIsCollection()) {
+                continue;
+            }
+            Iterator itFrom = objects.iterator();
+            Iterator itTo = childList.iterator();
+            while(itFrom.hasNext()) {
+                Object object = FieldUtils.getValue(itFrom.next(), dtoField.getField());
+                Object child = convertToEntity(object);
+                FieldUtils.setField(itTo.next(), entityEntityFieldInfo.getField(), child);
+            }
+        }
+        return (T) childList;
     }
 
 

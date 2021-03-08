@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface IUpdateService {
-    List<Object> updateByProviders(EntityDtoServiceRelation relationInfo
+    <T> List<T> updateByProviders(EntityDtoServiceRelation relationInfo
             , Object object
             , IUpdateEntityProvider updateEntityProviders
             , Map options) throws Exception;
