@@ -4,6 +4,7 @@ import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
+import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
 import com.circustar.mybatis_accessor.utils.MvcEnhanceConstants;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.service.ISelectService;
@@ -21,11 +22,11 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
         return instance;
     }
     @Override
-    public List<DefaultEntityCollectionUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
+    public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object ids, Map options)
             throws Exception {
-        List<DefaultEntityCollectionUpdateProcessor> result = new ArrayList<>();
-        Collection values = CollectionUtils.convertToCollection(ids);
+        List<IEntityUpdateProcessor> result = new ArrayList<>();
+        List values = Arrays.asList(ids);
         if(values.size() == 0) {return result;}
 
         String[] children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, new String[]{});

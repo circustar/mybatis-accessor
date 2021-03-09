@@ -4,6 +4,7 @@ import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
+import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
 import com.circustar.mybatis_accessor.utils.MvcEnhanceConstants;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.provider.command.InsertCommand;
@@ -20,9 +21,9 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
     }
 
     @Override
-    public List<DefaultEntityCollectionUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
+    public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options) throws Exception {
-        List<DefaultEntityCollectionUpdateProcessor> result = new ArrayList<>();
+        List<IEntityUpdateProcessor> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(dto);
         if(values.size() == 0) {return result;}
 
@@ -52,7 +53,7 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
                     , InsertCommand.getInstance()
                     , null
                     , dtoClassInfo.getEntityClassInfo()
-                    , Collections.singleton(updateTarget)
+                    , Collections.singletonList(updateTarget)
                     , false
                     , updateChildrenOnly);
             for(String entityName : topEntities) {

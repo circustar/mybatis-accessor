@@ -5,6 +5,7 @@ import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
+import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
 import com.circustar.mybatis_accessor.utils.MvcEnhanceConstants;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.provider.command.*;
@@ -20,9 +21,9 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
         return instance;
     }
     @Override
-    public List<DefaultEntityCollectionUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
+    public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options) throws Exception {
-        List<DefaultEntityCollectionUpdateProcessor> result = new ArrayList<>();
+        List<IEntityUpdateProcessor> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(dto);
         if(values.size() == 0) {return result;}
 
@@ -35,7 +36,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
 
         DefaultDeleteEntityProvider defaultDeleteTreeProvider =  DefaultDeleteEntityProvider.getInstance();
         DefaultInsertEntityProvider inertEntitiesEntityProvider = DefaultInsertEntityProvider.getInstance();
-        List<DefaultEntityCollectionUpdateProcessor> defaultEntityCollectionUpdaterCollection = new ArrayList<>();
+        List<IEntityUpdateProcessor> defaultEntityCollectionUpdaterCollection = new ArrayList<>();
         String keyColumn = dtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn();
 
         String[] topEntities = this.getTopEntities(childNameList, ".");
@@ -49,7 +50,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                     , UpdateByIdCommand.getInstance()
                     , null
                     , dtoClassInfo.getEntityClassInfo()
-                    , Collections.singleton(updateTarget)
+                    , Collections.singletonList(updateTarget)
                     , false
                     , updateChildrenOnly);
             Object keyValue = FieldUtils.getValue(value, dtoClassInfo.getKeyField().getEntityFieldInfo().getField());
@@ -64,7 +65,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                             , DeleteWrapperCommand.getInstance()
                             , physicDelete
                             , null
-                            , Collections.singleton(qw)
+                            , Collections.singletonList(qw)
                             , true
                             , false));
                 }

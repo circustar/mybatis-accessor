@@ -13,13 +13,13 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
             , IUpdateCommand updateCommand
             , Object option
             , EntityClassInfo entityClassInfo
-            , Collection updateEntities
+            , List updateTargets
             , Boolean updateChildrenFirst
             , boolean updateChildrenOnly) {
         this.option = option;
         this.updateCommand = updateCommand;
         this.service = service;
-        this.updateEntities = updateEntities;
+        this.updateTargets = updateTargets;
         this.updatechildFirst = updateChildrenFirst;
         this.entityClassInfo = entityClassInfo;
         this.updateChildrenOnly = updateChildrenOnly;
@@ -28,8 +28,8 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
     private IUpdateCommand updateCommand;
     private IService service;
     private Boolean updatechildFirst;
-    private Collection updateEntities;
-    private List<DefaultEntityCollectionUpdateProcessor> subUpdateEntities;
+    private List updateTargets;
+    private List<IEntityUpdateProcessor> subUpdateEntities;
     private EntityClassInfo entityClassInfo;
     private boolean updateChildrenOnly;
 
@@ -39,18 +39,18 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         }
         this.subUpdateEntities.add(subDefaultEntityCollectionUpdater);
     }
-    public void addSubUpdateEntities(Collection<DefaultEntityCollectionUpdateProcessor> subUpdateEntities) {
+    public void addSubUpdateEntities(Collection<IEntityUpdateProcessor> subUpdateEntities) {
         if(this.subUpdateEntities == null) {
             this.subUpdateEntities = new ArrayList<>();
         }
         this.subUpdateEntities.addAll(subUpdateEntities);
     }
-    public List<DefaultEntityCollectionUpdateProcessor> getSubUpdateEntities() {
+    public List<IEntityUpdateProcessor> getSubUpdateEntities() {
         return subUpdateEntities;
     }
 
-    public Collection getUpdateEntities() {
-        return updateEntities;
+    public List getUpdateTargets() {
+        return updateTargets;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
     public boolean execUpdate(Map<String, Object> keyMap) throws Exception {
         boolean result = true;
         if(updatechildFirst && subUpdateEntities != null) {
-            for(DefaultEntityCollectionUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
+            for(IEntityUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
                 result = subDefaultEntityCollectionUpdater.execUpdate(keyMap);
                 if(!result) {
                     return false;
@@ -76,18 +76,18 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                     continue;
                 }
                 Object keyValue = keyMap.get(keyProperty);
-                for (Object updateEntity : updateEntities) {
+                for (Object updateEntity : updateTargets) {
                     FieldUtils.setField(updateEntity, entityFieldInfo.getField(), keyValue);
                 }
             }
         }
         if(!updateChildrenOnly) {
-            result = this.updateCommand.update(this.service, this.updateEntities, option);
+            result = this.updateCommand.update(this.service, this.updateTargets, option);
             if (!result) return false;
         }
 
         if(entityClassInfo != null) {
-            Optional firstEntity = updateEntities.stream().findFirst();
+            Optional firstEntity = updateTargets.stream().findFirst();
             if (firstEntity.isPresent()) {
                 String keyProperty = entityClassInfo.getTableInfo().getKeyProperty();
                 Object masterKeyValue = FieldUtils.getValueByName(firstEntity.get(), keyProperty);
@@ -98,7 +98,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         }
 
         if((!updatechildFirst) && subUpdateEntities != null) {
-            for(DefaultEntityCollectionUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
+            for(IEntityUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
                 result = subDefaultEntityCollectionUpdater.execUpdate(keyMap);
                 if(!result) {
                     return false;

@@ -6,6 +6,7 @@ import com.circustar.mybatis_accessor.provider.*;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
+import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,14 +31,14 @@ public class UpdateService implements IUpdateService {
             , Map options) throws Exception {
         List<Object> updatedObjects = new ArrayList<>();
         try {
-            List<DefaultEntityCollectionUpdateProcessor> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper
+            List<IEntityUpdateProcessor> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper
                     , object, options);
-            for(DefaultEntityCollectionUpdateProcessor o : objList) {
+            for(IEntityUpdateProcessor o : objList) {
                 boolean result = o.execUpdate();
                 if(!result) {
                     throw new UpdateTargetNotFoundException("update failed");
                 }
-                updatedObjects.addAll(o.getUpdateEntities());
+                updatedObjects.addAll(o.getUpdateTargets());
             }
             provider.onSuccess(object, updatedObjects);
         } catch (Exception ex) {
