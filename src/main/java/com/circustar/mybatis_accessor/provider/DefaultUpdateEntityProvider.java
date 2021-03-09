@@ -12,6 +12,7 @@ import com.circustar.mybatis_accessor.provider.command.*;
 import com.circustar.mybatis_accessor.utils.CollectionUtils;
 import com.circustar.mybatis_accessor.utils.FieldUtils;
 import com.circustar.mybatis_accessor.utils.MapOptionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 
@@ -53,7 +54,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                     , Collections.singletonList(updateTarget)
                     , false
                     , updateChildrenOnly);
-            Object keyValue = FieldUtils.getValue(value, dtoClassInfo.getKeyField().getEntityFieldInfo().getField());
+            Object keyValue = FieldUtils.getValue(value, dtoClassInfo.getKeyField().getField());
 
             for(String entityName : topEntities) {
                 Object topChild = FieldUtils.getValueByName(value, entityName);
@@ -77,13 +78,13 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                         , entityName, "."));
                 DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(subDtoField.getEntityDtoServiceRelation().getDtoClass());
                 for(Object child : childList) {
-                    Object subEntityKeyValue = FieldUtils.getValue(child, subDtoClassInfo.getKeyField().getEntityFieldInfo().getField());
+                    Object subEntityKeyValue = FieldUtils.getValue(child, subDtoClassInfo.getKeyField().getField());
                     if(subEntityKeyValue != null) {
                         Object deleteFlagValue = null;
                         if(subDtoClassInfo.getDeleteFlagField() != null) {
-                            deleteFlagValue = FieldUtils.getValue(child, subDtoClassInfo.getDeleteFlagField().getEntityFieldInfo().getField());
+                            deleteFlagValue = FieldUtils.getValue(child, subDtoClassInfo.getDeleteFlagField().getField());
                         }
-                        if(deleteFlagValue != null) {
+                        if(!StringUtils.isEmpty(deleteFlagValue) && !"0".equals(deleteFlagValue.toString())) { // TODO : replace 0 with mybatis-plus.global-config.db-config.logic-not-delete-value
                             defaultEntityCollectionUpdater.addSubUpdateEntities(defaultDeleteTreeProvider.createUpdateEntities(
                                     subDtoField.getEntityDtoServiceRelation(), dtoClassInfoHelper
                                     , subEntityKeyValue, newOptions
