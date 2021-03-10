@@ -25,7 +25,7 @@ public class UpdateService implements IUpdateService {
     private DtoClassInfoHelper dtoClassInfoHelper;
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = {Exception.class, RuntimeException.class})
     public <T> List<T> updateByProviders(EntityDtoServiceRelation relationInfo
             , Object object, IUpdateEntityProvider provider
             , Map options) throws Exception {
