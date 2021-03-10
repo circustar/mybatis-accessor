@@ -45,12 +45,7 @@ public class UpdateService implements IUpdateService {
             provider.onException(ex);
             throw ex;
         } finally {
-            try {
-                provider.onEnd();
-            } catch (Exception ex) {
-                provider.onException(ex);
-                throw ex;
-            }
+            provider.onEnd();
         }
 
         if(updatedObjects.size() == 0) {

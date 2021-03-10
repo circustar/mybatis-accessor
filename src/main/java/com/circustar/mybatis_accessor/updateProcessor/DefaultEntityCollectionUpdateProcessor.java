@@ -99,7 +99,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
 
         if((!updatechildFirst) && subUpdateEntities != null) {
             for(IEntityUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
-                result = subDefaultEntityCollectionUpdater.execUpdate(keyMap);
+                result = subDefaultEntityCollectionUpdater.execUpdate(new HashMap<>(keyMap));
                 if(!result) {
                     return false;
                 }
