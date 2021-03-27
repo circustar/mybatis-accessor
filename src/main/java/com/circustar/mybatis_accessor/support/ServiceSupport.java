@@ -20,6 +20,7 @@ import com.circustar.mybatis_accessor.utils.FieldUtils;
 import com.circustar.mybatis_accessor.validator.DtoValidatorManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 
 import java.io.Serializable;
@@ -425,6 +426,7 @@ public class ServiceSupport {
         return this.selectService.getDtoListByQueryWrapper(relationInfo, queryWrapper);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> List<T> updateWithOptions(
             String dtoName, Object dtoObject
             , String providerName, Map options) throws Exception {
@@ -432,6 +434,7 @@ public class ServiceSupport {
         return updateWithOptions(dtoName, dtoObject, updateEntityProvider, options);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> List<T> updateWithOptions(
             String dtoName, Object objectOrMap
             , IUpdateEntityProvider updateEntityProvider, Map options) throws Exception {
@@ -439,6 +442,7 @@ public class ServiceSupport {
         return updateWithOptions(objectOrMap, relationInfo, updateEntityProvider, options);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> List<T> updateWithOptions(
             Object objectOrMap, EntityDtoServiceRelation relationInfo
             , IUpdateEntityProvider updateEntityProvider
@@ -458,12 +462,14 @@ public class ServiceSupport {
         return updatedEntities;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> T save(Object object
             , String children
             , boolean updateChildrenOnly) throws Exception {
         return this.save(object.getClass().getSimpleName(), object, children, updateChildrenOnly);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> T save(String dtoName
             , Object objectOrMap
             , String children
@@ -472,6 +478,7 @@ public class ServiceSupport {
         return save(objectOrMap,  relationInfo, children, updateChildrenOnly);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> T save(Object objectOrMap
             , EntityDtoServiceRelation relation
             , String children
@@ -487,6 +494,7 @@ public class ServiceSupport {
         return objects.get(0);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> List<T> saveList(List objects
             , String children
             , boolean updateChildrenOnly) throws Exception {
@@ -497,6 +505,7 @@ public class ServiceSupport {
         return this.saveList(dtoName, objects, children, updateChildrenOnly);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> List<T> saveList(String dtoName
             , List objectListOrMapList
             , String children
@@ -505,6 +514,7 @@ public class ServiceSupport {
         return this.saveList(objectListOrMapList, relationInfo, children, updateChildrenOnly);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> List<T> saveList(List objectListOrMapList
             , EntityDtoServiceRelation relation
             , String children
@@ -520,6 +530,7 @@ public class ServiceSupport {
                 , options);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> T update(Object object
             , String children
             , boolean updateChildrenOnly
@@ -529,6 +540,7 @@ public class ServiceSupport {
                 , children, updateChildrenOnly, removeAndInsertNewChild, physicDelete);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> T update(String dtoName
             , Object objectOrMap
             , String children
@@ -540,6 +552,7 @@ public class ServiceSupport {
                 , children, updateChildrenOnly, removeAndInsertNewChild, physicDelete);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> T update(Object objectOrMap
             , EntityDtoServiceRelation relation
             , String children
@@ -557,6 +570,7 @@ public class ServiceSupport {
         return result.get(0);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> List<T> updateList(List objects
             , String children
             , boolean updateChildrenOnly
@@ -567,6 +581,7 @@ public class ServiceSupport {
                 , updateChildrenOnly, removeAndInsertNewChild, physicDelete);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> List<T> updateList(String dtoName
             , List objectListOrMapList
             , String children
@@ -578,6 +593,7 @@ public class ServiceSupport {
                 , updateChildrenOnly, removeAndInsertNewChild, physicDelete);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> List<T> updateList(List objectListOrMapList
             , EntityDtoServiceRelation relation
             , String children
@@ -594,6 +610,7 @@ public class ServiceSupport {
                 , options);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> T deleteById(String dtoName, Serializable id, String children
             , boolean updateChildrenOnly
             , boolean physicDelete) throws Exception  {
@@ -602,6 +619,7 @@ public class ServiceSupport {
         return result.iterator().next();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> List<T> deleteByIds(String dtoName
             , Set<Serializable> ids
             , String[] children
@@ -612,6 +630,7 @@ public class ServiceSupport {
                 , physicDelete);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public <T> List<T> deleteByIds(Set<Serializable> ids
             , EntityDtoServiceRelation relationInfo
             , String[] children

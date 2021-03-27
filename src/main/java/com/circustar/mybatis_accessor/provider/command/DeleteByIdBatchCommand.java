@@ -1,7 +1,9 @@
 package com.circustar.mybatis_accessor.provider.command;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.circustar.mybatis_accessor.error.UpdateTargetNotFoundException;
 import com.circustar.mybatis_accessor.utils.MybatisPlusUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,6 +15,7 @@ public class DeleteByIdBatchCommand extends DeleteByIdCommand {
         return batchCommand;
     }
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public <T extends Collection> boolean update(IService service, T obj, Object option) throws Exception {
         List physicDeleteCollection = new ArrayList();
         List deleteCollection = new ArrayList();
@@ -26,13 +29,13 @@ public class DeleteByIdBatchCommand extends DeleteByIdCommand {
         if(physicDeleteCollection.size() > 0) {
             boolean result = MybatisPlusUtils.deleteBatchIds(service, physicDeleteCollection, true);
             if (!result) {
-                return false;
+                throw  new UpdateTargetNotFoundException("updateTragetNotFound");
             }
         }
         if(deleteCollection.size() > 0) {
             boolean result = MybatisPlusUtils.deleteBatchIds(service, deleteCollection, false);
             if (!result) {
-                return false;
+                throw  new UpdateTargetNotFoundException("updateTragetNotFound");
             }
         }
         return true;

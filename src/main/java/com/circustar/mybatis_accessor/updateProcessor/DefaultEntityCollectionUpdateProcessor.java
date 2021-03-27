@@ -5,6 +5,7 @@ import com.circustar.mybatis_accessor.classInfo.EntityClassInfo;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.mybatis_accessor.utils.FieldUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -54,11 +55,13 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
     }
 
     @Override
+    @Transactional
     public boolean execUpdate() throws Exception {
         return execUpdate(new HashMap<String, Object>());
     }
 
     @Override
+    @Transactional
     public boolean execUpdate(Map<String, Object> keyMap) throws Exception {
         boolean result = true;
         if(updatechildFirst && subUpdateEntities != null) {

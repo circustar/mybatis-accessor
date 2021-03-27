@@ -9,6 +9,7 @@ import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpd
 import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.*;
 
@@ -25,7 +26,7 @@ public class UpdateService implements IUpdateService {
     private DtoClassInfoHelper dtoClassInfoHelper;
 
     @Override
-    @Transactional(rollbackFor = {Exception.class, RuntimeException.class})
+    @Transactional(rollbackFor = Exception.class)
     public <T> List<T> updateByProviders(EntityDtoServiceRelation relationInfo
             , Object object, IUpdateEntityProvider provider
             , Map options) throws Exception {
