@@ -9,6 +9,7 @@ import com.circustar.mybatis_accessor.classInfo.EntityClassInfo;
 import com.circustar.mybatis_accessor.utils.FieldUtils;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -157,16 +158,16 @@ public class QueryWrapperCreator {
                 , orderByDescList.toArray(new String[orderByDescList.size()]));
 
     }
-    public static <T> QueryWrapper<T> createQueryWrapper(Object dto, List<QueryWhereModel> queryWhereModels, QueryWrapperBuilder queryWrapperBuilder) throws IllegalAccessException {
+    public static <T> QueryWrapper<T> createQueryWrapper(Object dto, List<QueryWhereModel> queryWhereModels, QueryWrapperBuilder queryWrapperBuilder) throws IllegalAccessException, InvocationTargetException {
         QueryWrapper<T> result = queryWrapperBuilder.createQueryWrapper();
         for(QueryWhereModel queryWhere : queryWhereModels) {
             queryWhere.getConnector().consume(queryWhere.getExpression()
-                    , result, FieldUtils.getValue(dto, queryWhere.getDtoField().getField()));
+                    , result, FieldUtils.getValue(dto, queryWhere.getDtoField().getReadMethod()));
         }
         return result;
     }
 
-    public <T> QueryWrapper<T> createQueryWrapper(Object dto, List<QueryWhereModel> queryWhereModels) throws IllegalAccessException {
+    public <T> QueryWrapper<T> createQueryWrapper(Object dto, List<QueryWhereModel> queryWhereModels) throws IllegalAccessException, InvocationTargetException {
         if(this.baseWrapperBuilder == null) {
             this.baseWrapperBuilder = createQueryWrapperBuilder(this.querySelectModels
                     , this.queryGroupByModels
@@ -176,7 +177,7 @@ public class QueryWrapperCreator {
         return createQueryWrapper(dto, queryWhereModels, this.baseWrapperBuilder);
     }
 
-    public <T> QueryWrapper<T> createQueryWrapper(Object dto) throws IllegalAccessException {
+    public <T> QueryWrapper<T> createQueryWrapper(Object dto) throws IllegalAccessException, InvocationTargetException {
         return createQueryWrapper(dto, this.queryWhereModels);
     }
 

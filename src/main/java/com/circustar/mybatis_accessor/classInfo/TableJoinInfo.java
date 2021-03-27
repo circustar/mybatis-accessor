@@ -82,20 +82,6 @@ public class TableJoinInfo {
         this.ownerType = ownerType;
     }
 
-    public Object getValue(Object target) {
-        field.setAccessible(true);
-        try {
-            return field.get(target);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    public void setValue(Object target, Object value) throws IllegalAccessException {
-        field.setAccessible(true);
-        field.set(target, value);
-    }
-
     public static List<TableJoinInfo> parseDtoTableJoinInfo(Class targetClass) {
         List<TableJoinInfo> tableJoinInfos = new ArrayList<>();
         for(Field field : targetClass.getDeclaredFields()) {

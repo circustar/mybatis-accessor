@@ -3,8 +3,11 @@ package com.circustar.mybatis_accessor.classInfo;
 import com.circustar.mybatis_accessor.annotation.*;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
+import org.springframework.beans.BeanUtils;
 
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -28,10 +31,20 @@ public class DtoField {
     private Type actualType = null;
     private Type ownType = null;
 
+    private PropertyDescriptor propertyDescriptor;
+    private Method readMethod;
+    private Method writeMethod;
+
     public DtoField(Field field, EntityFieldInfo entityFieldInfo, DtoClassInfo dtoClassInfo, IEntityDtoServiceRelationMap relationMap) {
         this.field = field;
         this.entityFieldInfo = entityFieldInfo;
         this.dtoClassInfo = dtoClassInfo;
+
+        this.propertyDescriptor = BeanUtils.getPropertyDescriptor(dtoClassInfo.getClazz(), field.getName());
+        if(this.propertyDescriptor != null) {
+            this.readMethod = this.propertyDescriptor.getReadMethod();
+            this.writeMethod = this.propertyDescriptor.getWriteMethod();
+        }
 
         this.querySelect = field.getAnnotation(QuerySelect.class);
         this.queryJoin = field.getAnnotation(QueryJoin.class);
@@ -124,6 +137,30 @@ public class DtoField {
 
     public Type getOwnType() {
         return ownType;
+    }
+
+    public PropertyDescriptor getPropertyDescriptor() {
+        return propertyDescriptor;
+    }
+
+    public void setPropertyDescriptor(PropertyDescriptor propertyDescriptor) {
+        this.propertyDescriptor = propertyDescriptor;
+    }
+
+    public Method getReadMethod() {
+        return readMethod;
+    }
+
+    public void setReadMethod(Method readMethod) {
+        this.readMethod = readMethod;
+    }
+
+    public Method getWriteMethod() {
+        return writeMethod;
+    }
+
+    public void setWriteMethod(Method writeMethod) {
+        this.writeMethod = writeMethod;
     }
 
     enum SupportGenericType{

@@ -54,11 +54,11 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                     , Collections.singletonList(updateTarget)
                     , false
                     , updateChildrenOnly);
-            Object keyValue = FieldUtils.getValue(value, dtoClassInfo.getKeyField().getField());
+            Object keyValue = FieldUtils.getValue(value, dtoClassInfo.getKeyField().getReadMethod());
 
             for(String entityName : topEntities) {
-                Object topChild = FieldUtils.getValueByName(value, entityName);
                 DtoField subDtoField = dtoClassInfo.getDtoField(entityName);
+                Object topChild = FieldUtils.getValue(value, subDtoField.getReadMethod());
                 if(deleteBeforeUpdate) {
                     QueryWrapper qw = new QueryWrapper();
                     qw.eq(keyColumn, keyValue);
@@ -78,11 +78,11 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                         , entityName, "."));
                 DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(subDtoField.getEntityDtoServiceRelation().getDtoClass());
                 for(Object child : childList) {
-                    Object subEntityKeyValue = FieldUtils.getValue(child, subDtoClassInfo.getKeyField().getField());
+                    Object subEntityKeyValue = FieldUtils.getValue(child, subDtoClassInfo.getKeyField().getReadMethod());
                     if(subEntityKeyValue != null) {
                         Object deleteFlagValue = null;
                         if(subDtoClassInfo.getDeleteFlagField() != null) {
-                            deleteFlagValue = FieldUtils.getValue(child, subDtoClassInfo.getDeleteFlagField().getField());
+                            deleteFlagValue = FieldUtils.getValue(child, subDtoClassInfo.getDeleteFlagField().getReadMethod());
                         }
                         if(!StringUtils.isEmpty(deleteFlagValue) && !"0".equals(deleteFlagValue.toString())) { // TODO : replace 0 with mybatis-plus.global-config.db-config.logic-not-delete-value
                             defaultEntityCollectionUpdater.addSubUpdateEntities(defaultDeleteTreeProvider.createUpdateEntities(

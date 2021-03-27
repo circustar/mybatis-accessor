@@ -43,16 +43,21 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
                         , topEntities);
                 for (String entityName : topEntities) {
                     DtoField dtoField = dtoClassInfo.getDtoField(entityName);
-                    Object entity = FieldUtils.getValue(object, dtoField.getEntityFieldInfo().getField());
+                    Object entity = FieldUtils.getValue(object, dtoField.getEntityFieldInfo().getReadMethod());
                     if (entity == null) {
                         continue;
                     }
-                    String keyProperty = dtoField.getDtoClassInfo().getEntityClassInfo().getTableInfo().getKeyProperty();
+                    DtoField dtoKeyField = dtoClassInfo.getKeyField();
                     List<Object> subIds = new ArrayList<>();
                     Collection entityList = CollectionUtils.convertToCollection(entity);
                     if(entityList.size() == 0) {continue;}
                     for (Object obj : entityList) {
-                        subIds.add(FieldUtils.getValueByName(obj, keyProperty));
+                        if(dtoKeyField != null) {
+                            Object subId = FieldUtils.getValue(obj, dtoKeyField.getReadMethod());
+                            if(subId != null) {
+                                subIds.add(subId);
+                            }
+                        }
                     }
                     Map newOptions = new HashMap(options);
                     newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);

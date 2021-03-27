@@ -1,8 +1,12 @@
 package com.circustar.mybatis_accessor.utils;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.util.StringUtils;
 
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,53 +30,87 @@ public class FieldUtils {
 
     }
 
-    public static void setField(Object obj, Field field, Object value) throws IllegalAccessException {
-        field.setAccessible(true);
-        field.set(obj, value);
-    }
+//    public static void setField(Object obj, Field field, Object value) throws IllegalAccessException {
+//        field.setAccessible(true);
+//        field.set(obj, value);
+//    }
 
-    public static void setFieldByName(Object obj, String name, Object value) throws NoSuchFieldException, IllegalAccessException {
-        Field f = obj.getClass().getDeclaredField(name);
-        f.setAccessible(true);
-        f.set(obj, value);
-    }
-
-    public static void setFieldByNameWithCollection(Object object, String name, Object value) throws NoSuchFieldException, IllegalAccessException {
-        if(object == null) {return;}
-        if(Collection.class.isAssignableFrom(object.getClass())) {
-            Collection c = (Collection)object;
-            for (Object obj : c) {
-                setFieldByName(obj, name, value);
-            }
-        } else {
-            setFieldByName(object, name, value);
+    public static void setField(Object obj, Method writeMethod, Object value) throws IllegalAccessException, InvocationTargetException {
+        if(writeMethod == null || obj == null) {
+            return;
         }
+        writeMethod.setAccessible(true);
+        writeMethod.invoke(obj, value);
     }
 
-    public static Object getValueByName(Object obj, String name) throws NoSuchFieldException, IllegalAccessException {
-        Field f = obj.getClass().getDeclaredField(name);
-        f.setAccessible(true);
-        return f.get(obj);
-    }
+//    public static void setFieldByName(Object obj, String name, Object value) throws IllegalAccessException, InvocationTargetException {
+//        if(obj == null) {
+//            return;
+//        }
+//        PropertyDescriptor propertyDescriptor = BeanUtils.getPropertyDescriptor(obj.getClass(), name);
+//        if(propertyDescriptor != null) {
+//            Method writeMethod = propertyDescriptor.getWriteMethod();
+//            if(writeMethod != null) {
+//                writeMethod.setAccessible(true);
+//                writeMethod.invoke(obj, value);
+//            }
+//        }
+//        return;
+//    }
 
-    public static Object getValue(Object obj, Field field) throws IllegalAccessException {
-         field.setAccessible(true);
-        return field.get(obj);
-    }
+//    public static void setFieldByNameWithCollection(Object object, String name, Object value) throws IllegalAccessException, InvocationTargetException {
+//        if(object == null) {return;}
+//        if(Collection.class.isAssignableFrom(object.getClass())) {
+//            Collection c = (Collection)object;
+//            for (Object obj : c) {
+//                setFieldByName(obj, name, value);
+//            }
+//        } else {
+//            setFieldByName(object, name, value);
+//        }
+//    }
 
-    public static List<Field> getExistFields(Object obj, List<String> names, boolean throwable) throws NoSuchFieldException {
-        List<Field> fields = new ArrayList<>();
-        for(String name : names) {
-            try {
-                Field f = obj.getClass().getDeclaredField(name);
-                fields.add(f);
-            } catch (NoSuchFieldException ex) {
-                if(throwable) {
-                    throw ex;
-                }
-            }
+//    public static Object getValueByName(Object obj, String name) throws IllegalAccessException, InvocationTargetException {
+//        if(obj == null) {
+//            return null;
+//        }
+//        PropertyDescriptor propertyDescriptor = BeanUtils.getPropertyDescriptor(obj.getClass(), name);
+//        if(propertyDescriptor != null) {
+//            Method readMethod = propertyDescriptor.getReadMethod();
+//            if(readMethod != null) {
+//                readMethod.setAccessible(true);
+//                return readMethod.invoke(obj);
+//            }
+//        }
+//        return null;
+//    }
+
+    public static Object getValue(Object obj, Method readMethod) throws InvocationTargetException, IllegalAccessException {
+        if(obj != null && readMethod != null) {
+            readMethod.setAccessible(true);
+            return readMethod.invoke(obj);
         }
-        return fields;
+        return null;
     }
+
+//    public static void setValue(Object obj, Method writeMethod, Object value) throws InvocationTargetException, IllegalAccessException {
+//        writeMethod.setAccessible(true);
+//        writeMethod.invoke(obj, value);
+//    }
+
+//    public static List<Field> getExistFields(Object obj, List<String> names, boolean throwable) throws NoSuchFieldException {
+//        List<Field> fields = new ArrayList<>();
+//        for(String name : names) {
+//            try {
+//                Field f = obj.getClass().getDeclaredField(name);
+//                fields.add(f);
+//            } catch (NoSuchFieldException ex) {
+//                if(throwable) {
+//                    throw ex;
+//                }
+//            }
+//        }
+//        return fields;
+//    }
 
 }

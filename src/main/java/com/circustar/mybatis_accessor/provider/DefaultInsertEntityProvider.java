@@ -44,7 +44,7 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
         for(Object value : values) {
             if(dtoClassInfo.getVersionField() != null) {
                 FieldUtils.setField(value
-                        , dtoClassInfo.getVersionField().getField()
+                        , dtoClassInfo.getVersionField().getWriteMethod()
                         , dtoClassInfo.getVersionDefaultValue());
             }
             Object updateTarget = dtoClassInfoHelper.convertToEntity(value);
@@ -58,7 +58,7 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
                     , updateChildrenOnly);
             for(String entityName : topEntities) {
                 DtoField dtoField = dtoClassInfo.getDtoField(entityName);
-                Object subValue = FieldUtils.getValue(value, dtoField.getField());
+                Object subValue = FieldUtils.getValue(value, dtoField.getReadMethod());
                 Collection childList = CollectionUtils.convertToCollection(subValue);
                 if(childList.size() == 0) {continue;}
                 hasChildren = true;

@@ -10,6 +10,7 @@ import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mybatis_accessor.utils.AnnotationUtils;
 import com.circustar.mybatis_accessor.wrapper.QueryWrapperCreator;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -174,7 +175,7 @@ public class DtoClassInfo {
         return deleteFlagField;
     }
 
-    public <T> QueryWrapper<T> createQueryWrapper(DtoClassInfoHelper dtoClassInfoHelper, Object dto) throws IllegalAccessException {
+    public <T> QueryWrapper<T> createQueryWrapper(DtoClassInfoHelper dtoClassInfoHelper, Object dto) throws IllegalAccessException, InvocationTargetException {
         if(this.queryWrapperCreator == null) {
             this.queryWrapperCreator = new QueryWrapperCreator(dtoClassInfoHelper, this);
         }

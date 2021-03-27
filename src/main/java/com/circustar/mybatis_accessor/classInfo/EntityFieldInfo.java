@@ -3,9 +3,12 @@ package com.circustar.mybatis_accessor.classInfo;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.util.StringUtils;
 
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -18,6 +21,9 @@ public class EntityFieldInfo {
     private String columnName;
     private boolean isKeyColumn;
     private EntityClassInfo entityClassInfo;
+    private PropertyDescriptor propertyDescriptor;
+    private Method readMethod;
+    private Method writeMethod;
 
     public Boolean getPrimitive() {
         return isPrimitive;
@@ -77,10 +83,39 @@ public class EntityFieldInfo {
     private Type actualType = null;
     private Type ownType = null;
 
+    public PropertyDescriptor getPropertyDescriptor() {
+        return propertyDescriptor;
+    }
+
+    public void setPropertyDescriptor(PropertyDescriptor propertyDescriptor) {
+        this.propertyDescriptor = propertyDescriptor;
+    }
+
+    public Method getReadMethod() {
+        return readMethod;
+    }
+
+    public void setReadMethod(Method readMethod) {
+        this.readMethod = readMethod;
+    }
+
+    public Method getWriteMethod() {
+        return writeMethod;
+    }
+
+    public void setWriteMethod(Method writeMethod) {
+        this.writeMethod = writeMethod;
+    }
+
     public static EntityFieldInfo parseField(Class c, Field field, EntityClassInfo entityClassInfo) {
         EntityFieldInfo fieldInfo = new EntityFieldInfo();
         fieldInfo.setEntityClassInfo(entityClassInfo);
         fieldInfo.setField(field);
+        fieldInfo.setPropertyDescriptor(BeanUtils.getPropertyDescriptor(c, field.getName()));
+        if(fieldInfo.getPropertyDescriptor() != null) {
+            fieldInfo.setReadMethod(fieldInfo.getPropertyDescriptor().getReadMethod());
+            fieldInfo.setWriteMethod(fieldInfo.getPropertyDescriptor().getWriteMethod());
+        }
         if(Collection.class.isAssignableFrom(field.getType())
                 && field.getGenericType() instanceof ParameterizedType) {
             fieldInfo.setIsCollection(true);

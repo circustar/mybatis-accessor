@@ -13,6 +13,7 @@ public class EntityClassInfo {
     private List<EntityFieldInfo> fieldList;
     private Map<String, EntityFieldInfo> fieldMap;
     private TableInfo tableInfo;
+    private EntityFieldInfo keyField;
 
     public EntityClassInfo(Class<?> entityClass) {
         this.entityClass = entityClass;
@@ -28,6 +29,9 @@ public class EntityClassInfo {
             if(tableName != null && !StringUtils.isEmpty(tableName.value())) {
                 this.tableInfo = TableInfoHelper.getTableInfo(tableName.value());
             }
+        }
+        if(!StringUtils.isEmpty(this.tableInfo.getKeyProperty())) {
+            this.keyField = this.fieldMap.get(this.tableInfo.getKeyProperty());
         }
     }
 
@@ -48,5 +52,9 @@ public class EntityClassInfo {
 
     public TableInfo getTableInfo() {
         return tableInfo;
+    }
+
+    public EntityFieldInfo getKeyField() {
+        return keyField;
     }
 }

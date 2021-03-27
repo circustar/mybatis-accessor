@@ -51,9 +51,14 @@ public class SelectService implements ISelectService {
         if (oriEntity == null) {
             return null;
         }
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, relationInfo.getDtoClass());
-        Serializable id = (Serializable) FieldUtils.getValueByName(oriEntity, relationInfo.getTableInfo().getKeyProperty());
-        setDtoChildren(relationInfo, result, id , children);
+        if(dtoClassInfo.getEntityClassInfo().getKeyField() != null) {
+            Serializable id = (Serializable) FieldUtils.getValue(oriEntity, dtoClassInfo.getEntityClassInfo().getKeyField().getReadMethod());
+            if(id != null) {
+                setDtoChildren(relationInfo, result, id, children);
+            }
+        }
         return result;
     }
 
@@ -74,8 +79,13 @@ public class SelectService implements ISelectService {
             return null;
         }
         T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, relationInfo.getDtoClass());
-        Serializable id = (Serializable) FieldUtils.getValueByName(oriEntity, relationInfo.getTableInfo().getKeyProperty());
-        setDtoChildren(relationInfo, result, id , children);
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        if(dtoClassInfo.getEntityClassInfo().getKeyField() != null) {
+            Serializable id = (Serializable) FieldUtils.getValue(oriEntity, dtoClassInfo.getEntityClassInfo().getKeyField().getReadMethod());
+            if(id != null) {
+                setDtoChildren(relationInfo, result, id, children);
+            }
+        }
         return result;
     }
 

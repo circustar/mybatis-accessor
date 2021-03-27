@@ -15,7 +15,7 @@ import java.util.*;
 public class DtoFields {
     public static void assignDtoField(DtoClassInfoHelper dtoClassInfoHelper, Object obj, DtoField dtoField, List<Object> values, Class clazz) throws Exception {
         if(!dtoField.getCollection()) {
-            FieldUtils.setField(obj, dtoField.getField(), (values == null || values.size() == 0)?
+            FieldUtils.setField(obj, dtoField.getWriteMethod(), (values == null || values.size() == 0)?
                     null : (clazz == null? values.get(0) : dtoClassInfoHelper.convertFromEntity(values.get(0), clazz)));
             return;
         }
@@ -31,8 +31,7 @@ public class DtoFields {
             }
             c.add(dtoClassInfoHelper.convertFromEntity(var0, clazz));
         }
-        dtoField.getField().setAccessible(true);
-        dtoField.getField().set(obj, c);
+        FieldUtils.setField(obj, dtoField.getWriteMethod(), c);
     }
 
     public static void queryAndAssignDtoFieldById(ApplicationContext applicationContext
@@ -59,7 +58,7 @@ public class DtoFields {
                 qw.eq(masterDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), dtoId);
             } else if(masterDtoClassInfoDtoField != null) {
                 qw = new QueryWrapper();
-                Object subDtoId = FieldUtils.getValue(dto, masterDtoClassInfoDtoField.getEntityFieldInfo().getField());
+                Object subDtoId = FieldUtils.getValue(dto, masterDtoClassInfoDtoField.getEntityFieldInfo().getReadMethod());
                 qw.eq(subDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), subDtoId);
             }
             IService service = childInfo.getServiceBean(applicationContext);
