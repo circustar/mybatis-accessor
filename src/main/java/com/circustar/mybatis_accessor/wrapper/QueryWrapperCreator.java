@@ -47,7 +47,7 @@ public class QueryWrapperCreator {
 //                .filter(x -> x.getQueryJoin() != null
 //                        || (x.getQueryJoin() == null && x.getEntityFieldInfo() != null))
 //                .map(x -> {
-//                    if(x.getQueryJoin() != null && !StringUtils.isEmpty(x.getQueryJoin().joinString())) {
+//                    if(x.getQueryJoin() != null && !StringUtils.isEmpty(x.getQueryJoin().joinExpression())) {
 //                        return new QueryJoinModel(x.getQueryJoin());
 //                    }
 //                    String thisTableId = this.tableInfo.getKeyColumn();
@@ -162,7 +162,7 @@ public class QueryWrapperCreator {
         QueryWrapper<T> result = queryWrapperBuilder.createQueryWrapper();
         for(QueryWhereModel queryWhere : queryWhereModels) {
             queryWhere.getConnector().consume(queryWhere.getExpression()
-                    , result, FieldUtils.getValue(dto, queryWhere.getDtoField().getReadMethod()));
+                    , result, FieldUtils.getFieldValue(dto, queryWhere.getDtoField().getReadMethod()));
         }
         return result;
     }

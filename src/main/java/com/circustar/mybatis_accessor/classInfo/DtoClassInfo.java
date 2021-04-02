@@ -78,19 +78,19 @@ public class DtoClassInfo {
             Class joinClazz = (Class) tableJoinInfo.getActualType();
 
             TableInfo joinTableInfo = TableInfoHelper.getTableInfo(relationMap.getByDtoClass(joinClazz).getEntityClass());
-            joinTableList.add(tableJoinInfo.getQueryJoin().joinType().getJoinString()
+            joinTableList.add(tableJoinInfo.getQueryJoin().joinType().getJoinExpression()
                     + " " + joinTableInfo.getTableName());
-            String joinString = tableJoinInfo.getQueryJoin().joinString();
-            if(org.springframework.util.StringUtils.isEmpty(joinString)) {
+            String joinExpression = tableJoinInfo.getQueryJoin().joinExpression();
+            if(org.springframework.util.StringUtils.isEmpty(joinExpression)) {
                 if(this.entityClassInfo.getFieldByName(joinTableInfo.getKeyProperty()) != null) {
-                    joinString = this.entityClassInfo.getTableInfo().getTableName() + "." + joinTableInfo.getKeyColumn()
+                    joinExpression = this.entityClassInfo.getTableInfo().getTableName() + "." + joinTableInfo.getKeyColumn()
                             + " = " + joinTableInfo.getTableName() + "." + joinTableInfo.getKeyColumn();
                 } else {
-                    joinString = this.entityClassInfo.getTableInfo().getTableName() + "." + this.entityClassInfo.getTableInfo().getKeyColumn()
+                    joinExpression = this.entityClassInfo.getTableInfo().getTableName() + "." + this.entityClassInfo.getTableInfo().getKeyColumn()
                             + " = " + joinTableInfo.getTableName() + "." + this.entityClassInfo.getTableInfo().getKeyColumn();
                 }
             }
-            joinTableList.add(" on " + joinString);
+            joinTableList.add(" on " + joinExpression);
 
             String joinColumn = Arrays.stream(joinTableInfo.getAllSqlSelect().split(","))
                     .map(x -> joinTableInfo.getTableName() + "." + x + " as " + joinTableInfo.getTableName() + "_" + x ).collect(Collectors.joining(","));

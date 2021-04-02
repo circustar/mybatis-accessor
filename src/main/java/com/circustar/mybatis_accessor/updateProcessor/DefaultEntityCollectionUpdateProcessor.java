@@ -80,7 +80,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                 }
                 Object keyValue = keyMap.get(keyProperty);
                 for (Object updateEntity : updateTargets) {
-                    FieldUtils.setField(updateEntity, entityFieldInfo.getWriteMethod(), keyValue);
+                    FieldUtils.setFieldValue(updateEntity, entityFieldInfo.getWriteMethod(), keyValue);
                 }
             }
         }
@@ -94,7 +94,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
             if (firstEntity.isPresent()) {
                 EntityFieldInfo keyField = entityClassInfo.getKeyField();
                 if(keyField != null) {
-                    Object masterKeyValue = FieldUtils.getValue(firstEntity.get(), keyField.getReadMethod());
+                    Object masterKeyValue = FieldUtils.getFieldValue(firstEntity.get(), keyField.getReadMethod());
                     if (!keyMap.containsKey(keyField.getField().getName())) {
                         keyMap.put(keyField.getField().getName(), masterKeyValue);
                     }

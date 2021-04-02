@@ -6,18 +6,18 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.FIELD})
 public @interface QueryJoin {
-    String joinString() default "";
+    String joinExpression() default "";
     int order() default 1;
     JoinType joinType() default JoinType.LEFT;
 
     enum JoinType {
         LEFT("left join"), RIGHT("right join"), INNER("inner join"), FULL("full join");
-        private String joinString;
-        JoinType(String joinString) {
-            this.joinString = joinString;
+        private String joinExpression;
+        JoinType(String joinExpression) {
+            this.joinExpression = joinExpression;
         }
-        public String getJoinString() {
-            return joinString;
+        public String getJoinExpression() {
+            return joinExpression;
         }
     }
 }

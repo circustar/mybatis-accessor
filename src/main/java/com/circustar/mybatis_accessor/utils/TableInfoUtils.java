@@ -18,13 +18,12 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.apache.ibatis.type.UnknownTypeHandler;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TableInfoUtils {
+    private static String DEFAULT_NAMESPACE = "CIRCUSTAR";
+    private static String DEFAULT_NESTED_NAMESPACE = "CIRCUSTAR.NESTED";
     private static volatile boolean allTableInfoInitialized = false;
     public static AtomicReference<List<String>> scanPackages = new AtomicReference<>();
     private static boolean userCamelCase = false;
@@ -75,21 +74,56 @@ public class TableInfoUtils {
         return builder.build();
     }
 
-    public static ResultMapping getNestedResultMapping(Configuration configuration, TableInfo tableInfo, TableJoinInfo tableJoinInfo) {
+    private static ResultMapping getNestedResultMapping(Configuration configuration
+            , TableInfo tableInfo
+            , TableJoinInfo tableJoinInfo
+            , List<Class> joinTableList
+            , String namespace) {
         ResultMapping.Builder builder = new ResultMapping.Builder(configuration
                 , tableJoinInfo.getFieldName(), StringUtils.getTargetColumn(tableJoinInfo.getFieldName()), (Class)tableJoinInfo.getOwnerType());
-        List<TableJoinInfo> tableJoinInfos = TableJoinInfo.parseDtoTableJoinInfo((Class) tableJoinInfo.getActualType());
-        builder.nestedResultMapId(registerResultMapping(configuration, tableInfo, tableJoinInfos));
+        List<TableJoinInfo> tableJoinInfos = TableJoinInfo.parseEntityTableJoinInfo(configuration, (Class) tableJoinInfo.getActualType());
+        builder.nestedResultMapId(registerResultMapping(configuration, tableInfo, tableJoinInfos, joinTableList, namespace));
         builder.columnPrefix(tableInfo.getTableName() + "_");
         return builder.build();
     }
 
-    public static String getResultMappingId(TableInfo tableInfo) {
-        return tableInfo.getCurrentNamespace() + "." + "mybatis-plus" + "_" + tableInfo.getEntityType().getSimpleName();
+    public static String getResultMappingId(TableInfo tableInfo, String namespace) {
+        return (StringUtils.isBlank(namespace) ? DEFAULT_NAMESPACE : namespace) + "."
+                + "mybatis-plus" + "_" + tableInfo.getEntityType().getSimpleName();
     }
 
-    public static String registerResultMapping(Configuration configuration, TableInfo tableInfo, List<TableJoinInfo> tableJoinInfos) {
-        String id = getResultMappingId(tableInfo);
+    public static String registerResultMapping(Configuration configuration, TableInfo tableInfo
+            , List<TableJoinInfo> tableJoinInfos, Class modelClass) {
+        List<Class> joinTableList = new ArrayList<>();
+        joinTableList.add(modelClass);
+        return registerResultMapping(configuration, tableInfo, tableJoinInfos, joinTableList, tableInfo.getCurrentNamespace());
+    }
+    public static boolean findJoinTableListLoop(List<Class> joinTableList) {
+        if(joinTableList == null || joinTableList.size() == 1) {
+            return false;
+        }
+        int lastPos = joinTableList.size() - 1;
+        Class lastClass = joinTableList.get(lastPos);
+        for(int i = lastPos - 1; i > 0; i--) {
+            Class checkClass = joinTableList.get(i);
+            if(checkClass.equals(lastClass)) {
+                int j = lastPos - 1;
+                int k = i - 1;
+                for(;j > i && k >= 0; j--,k--) {
+                    if(!joinTableList.get(j).equals(joinTableList.get(k))) {
+                        return false;
+                    }
+                }
+                return j == i;
+            }
+        }
+        return false;
+    }
+
+    public static String registerResultMapping(Configuration configuration, TableInfo tableInfo
+            , List<TableJoinInfo> tableJoinInfos
+            , List<Class> joinTableList, String namespace) {
+        String id = getResultMappingId(tableInfo, namespace);
         Boolean existResultMap = configuration.getResultMapNames().contains(id);
         if(existResultMap == true) {
             return id;
@@ -111,10 +145,28 @@ public class TableInfoUtils {
             for(TableJoinInfo tableJoinInfo : tableJoinInfos) {
                 Class clazz = (Class) tableJoinInfo.getActualType();
                 TableInfo joinTableInfo = TableInfoHelper.getTableInfo(clazz);
-                resultMappings.add(TableInfoUtils.getNestedResultMapping(configuration, joinTableInfo, tableJoinInfo));
+                List<Class> newJoinTableList = new ArrayList<>(joinTableList);
+                newJoinTableList.add(clazz);
+                String newNamespace = joinTableList.contains(clazz) ? namespace : DEFAULT_NESTED_NAMESPACE;
+                boolean terminalFlag = findJoinTableListLoop(newJoinTableList);
+                if(!terminalFlag) {
+                    resultMappings.add(TableInfoUtils.getNestedResultMapping(configuration, joinTableInfo, tableJoinInfo
+                            , newJoinTableList, newNamespace));
+                } else {
+                    String nestedId = TableInfoUtils.registerResultMapping(configuration, joinTableInfo, null, null ,newNamespace);
+                    ResultMapping.Builder builder = new ResultMapping.Builder(configuration
+                            , tableJoinInfo.getFieldName(), StringUtils.getTargetColumn(tableJoinInfo.getFieldName()), (Class)tableJoinInfo.getOwnerType());
+                    builder.nestedResultMapId(nestedId);
+                    builder.columnPrefix(tableInfo.getTableName() + "_");
+                    resultMappings.add(builder.build());
+                }
             }
         }
 
+        existResultMap = configuration.getResultMapNames().contains(id);
+        if(existResultMap == true) {
+            return id;
+        }
         ResultMap resultMap = (new org.apache.ibatis.mapping.ResultMap.Builder(configuration
                 , id, tableInfo.getEntityType(), resultMappings)).build();
         configuration.addResultMap(resultMap);

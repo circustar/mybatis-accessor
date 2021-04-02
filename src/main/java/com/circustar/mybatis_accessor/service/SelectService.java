@@ -13,6 +13,7 @@ import com.circustar.mybatis_accessor.mapper.MybatisPlusMapper;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mybatis_accessor.utils.FieldUtils;
+import com.circustar.mybatis_accessor.utils.SPELParser;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.StringUtils;
 
@@ -54,7 +55,7 @@ public class SelectService implements ISelectService {
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, relationInfo.getDtoClass());
         if(dtoClassInfo.getEntityClassInfo().getKeyField() != null) {
-            Serializable id = (Serializable) FieldUtils.getValue(oriEntity, dtoClassInfo.getEntityClassInfo().getKeyField().getReadMethod());
+            Serializable id = (Serializable) FieldUtils.getFieldValue(oriEntity, dtoClassInfo.getEntityClassInfo().getKeyField().getReadMethod());
             if(id != null) {
                 setDtoChildren(relationInfo, result, id, children);
             }
@@ -81,7 +82,7 @@ public class SelectService implements ISelectService {
         T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, relationInfo.getDtoClass());
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         if(dtoClassInfo.getEntityClassInfo().getKeyField() != null) {
-            Serializable id = (Serializable) FieldUtils.getValue(oriEntity, dtoClassInfo.getEntityClassInfo().getKeyField().getReadMethod());
+            Serializable id = (Serializable) FieldUtils.getFieldValue(oriEntity, dtoClassInfo.getEntityClassInfo().getKeyField().getReadMethod());
             if(id != null) {
                 setDtoChildren(relationInfo, result, id, children);
             }
@@ -152,7 +153,7 @@ public class SelectService implements ISelectService {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(this.dtoClassInfoHelper, object);
 
-        return getEntityPageByQueryWrapper(relationInfo, queryWrapper, page_index, page_size);
+        return getEntityPageByQueryWrapper(relationInfo, queryWrapper, object, page_index, page_size);
     }
 
     @Override
@@ -168,18 +169,23 @@ public class SelectService implements ISelectService {
     @Override
     public <T> PageInfo<T> getEntityPageByQueryWrapper(EntityDtoServiceRelation relationInfo
             , QueryWrapper queryWrapper
+            , Object dto
             , Integer page_index
             , Integer page_size
-            )  throws Exception {
+            ) {
         IService service = relationInfo.getServiceBean(applicationContext);
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
 
-        PageInfo pageInfo = null;
         Page page = new Page(page_index, page_size);
         IPage pageResult = null;
 
-        if (!StringUtils.isEmpty(dtoClassInfo.getJoinTables())) {
-            pageResult = ((MybatisPlusMapper) service.getBaseMapper()).selectPageWithJoin(page, queryWrapper, dtoClassInfo.getJoinTables(), dtoClassInfo.getJoinColumns());
+        String joinExpression = dtoClassInfo.getJoinTables();
+        if(dto != null && !StringUtils.isEmpty(joinExpression)) {
+            joinExpression = SPELParser.parseExpression(dto, joinExpression).toString();
+        }
+        if (!StringUtils.isEmpty(joinExpression)) {
+            pageResult = ((MybatisPlusMapper) service.getBaseMapper()).selectPageWithJoin(page, queryWrapper
+                    , joinExpression, dtoClassInfo.getJoinColumns());
         } else {
             pageResult = service.page(page, queryWrapper);
         }
@@ -191,8 +197,8 @@ public class SelectService implements ISelectService {
             , QueryWrapper queryWrapper
             , Integer page_index
             , Integer page_size
-    )  throws Exception {
-        PageInfo entityPage = getEntityPageByQueryWrapper(relationInfo, queryWrapper, page_index, page_size);
+    ) throws Exception {
+        PageInfo entityPage = getEntityPageByQueryWrapper(relationInfo, queryWrapper, null, page_index, page_size);
         List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityPage.getRecords(), relationInfo.getDtoClass());;
         return new PageInfo<>(entityPage.getTotal(), entityPage.getSize(), entityPage.getCurrent(), dtoList);
     }
@@ -204,7 +210,7 @@ public class SelectService implements ISelectService {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(this.dtoClassInfoHelper, object);
 
-        return getEntityListByQueryWrapper(relationInfo, queryWrapper);
+        return getEntityListByQueryWrapper(relationInfo, queryWrapper, object);
     }
 
     @Override
@@ -218,14 +224,18 @@ public class SelectService implements ISelectService {
 
     @Override
     public <T> List<T> getEntityListByQueryWrapper(EntityDtoServiceRelation relationInfo
-            , QueryWrapper queryWrapper
-    )  throws Exception {
+            , QueryWrapper queryWrapper, Object dto
+    ) {
         IService service = relationInfo.getServiceBean(applicationContext);
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         List entityList = null;
-        if (!StringUtils.isEmpty(dtoClassInfo.getJoinTables())) {
+        String joinExpression = dtoClassInfo.getJoinTables();
+        if(dto != null && !StringUtils.isEmpty(joinExpression)) {
+            joinExpression = SPELParser.parseExpression(dto, joinExpression).toString();
+        }
+        if (!StringUtils.isEmpty(joinExpression)) {
             entityList = ((MybatisPlusMapper)service.getBaseMapper()).selectListWithJoin(queryWrapper
-                    , dtoClassInfo.getJoinTables(), dtoClassInfo.getJoinColumns());
+                    , joinExpression, dtoClassInfo.getJoinColumns());
         } else {
             entityList = service.list(queryWrapper);
         }
@@ -238,7 +248,7 @@ public class SelectService implements ISelectService {
     public <T> List<T> getDtoListByQueryWrapper(EntityDtoServiceRelation relationInfo
             , QueryWrapper queryWrapper
     )  throws Exception {
-        List entityList = getEntityListByQueryWrapper(relationInfo, queryWrapper);
+        List entityList = getEntityListByQueryWrapper(relationInfo, queryWrapper, null);
         List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityList, relationInfo.getDtoClass());;
         return dtoList;
     }

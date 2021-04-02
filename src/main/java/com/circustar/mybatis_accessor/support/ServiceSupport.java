@@ -293,7 +293,7 @@ public class ServiceSupport {
             , Integer page_index
             , Integer page_size
     ) throws Exception {
-        return this.selectService.getEntityPageByQueryWrapper(relationInfo,queryWrapper,page_index,page_size);
+        return this.selectService.getEntityPageByQueryWrapper(relationInfo,queryWrapper,null,page_index,page_size);
     }
 
     public <T> PageInfo<T> getDtoPageByAnnotation(Class dtoClass
@@ -384,7 +384,7 @@ public class ServiceSupport {
     public <T> List<T> getEntityListByQueryWrapper(EntityDtoServiceRelation relationInfo
             , QueryWrapper queryWrapper
     ) throws Exception {
-        return this.selectService.getEntityListByQueryWrapper(relationInfo, queryWrapper);
+        return this.selectService.getEntityListByQueryWrapper(relationInfo, queryWrapper, null);
     }
 
     public List getDtoListByAnnotation(Class dtoClass

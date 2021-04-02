@@ -61,9 +61,9 @@ public class DtoClassInfoHelper {
             if(entityEntityFieldInfo == null) {
                 continue;
             }
-            Object subDto = FieldUtils.getValue(object ,dtoField.getReadMethod());
+            Object subDto = FieldUtils.getFieldValue(object ,dtoField.getReadMethod());
             Object child = convertToEntity(subDto);
-            FieldUtils.setField(entity, entityEntityFieldInfo.getWriteMethod(), child);
+            FieldUtils.setFieldValue(entity, entityEntityFieldInfo.getWriteMethod(), child);
         }
         return entity;
     }
@@ -102,9 +102,9 @@ public class DtoClassInfoHelper {
             Iterator itFrom = objects.iterator();
             Iterator itTo = childList.iterator();
             while(itFrom.hasNext()) {
-                Object object = FieldUtils.getValue(itFrom.next(), dtoField.getReadMethod());
+                Object object = FieldUtils.getFieldValue(itFrom.next(), dtoField.getReadMethod());
                 Object child = convertToEntity(object);
-                FieldUtils.setField(itTo.next(), entityEntityFieldInfo.getWriteMethod(), child);
+                FieldUtils.setFieldValue(itTo.next(), entityEntityFieldInfo.getWriteMethod(), child);
             }
         }
         return (T) childList;
@@ -133,9 +133,9 @@ public class DtoClassInfoHelper {
                 continue;
             }
             EntityFieldInfo entityEntityFieldInfo = dtoClassInfo.getEntityClassInfo().getFieldByName(dtoField.getField().getName());
-            Object child = FieldUtils.getValue(entity , entityEntityFieldInfo.getReadMethod());
+            Object child = FieldUtils.getFieldValue(entity , entityEntityFieldInfo.getReadMethod());
             Object subObject = convertFromEntity(child, (Class)dtoField.getActualType());
-            FieldUtils.setField(object, dtoField.getWriteMethod(), subObject);
+            FieldUtils.setFieldValue(object, dtoField.getWriteMethod(), subObject);
         }
         return object;
     }
@@ -169,12 +169,12 @@ public class DtoClassInfoHelper {
             while(itFrom.hasNext()) {
                 Object entity = itFrom.next();
                 if(entity == null) continue;
-                Object child = FieldUtils.getValue(entity, entityEntityFieldInfo.getReadMethod());
+                Object child = FieldUtils.getFieldValue(entity, entityEntityFieldInfo.getReadMethod());
                 if(child == null) {
                     continue;
                 }
                 Object object = convertFromEntity(child, (Class)dtoField.getActualType());
-                FieldUtils.setField(itTo.next(), dtoField.getWriteMethod(), object);
+                FieldUtils.setFieldValue(itTo.next(), dtoField.getWriteMethod(), object);
             }
         }
         return objectList;

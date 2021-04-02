@@ -43,7 +43,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
                         , topEntities);
                 for (String entityName : topEntities) {
                     DtoField dtoField = dtoClassInfo.getDtoField(entityName);
-                    Object entity = FieldUtils.getValue(object, dtoField.getEntityFieldInfo().getReadMethod());
+                    Object entity = FieldUtils.getFieldValue(object, dtoField.getEntityFieldInfo().getReadMethod());
                     if (entity == null) {
                         continue;
                     }
@@ -53,7 +53,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
                     if(entityList.size() == 0) {continue;}
                     for (Object obj : entityList) {
                         if(dtoKeyField != null) {
-                            Object subId = FieldUtils.getValue(obj, dtoKeyField.getReadMethod());
+                            Object subId = FieldUtils.getFieldValue(obj, dtoKeyField.getReadMethod());
                             if(subId != null) {
                                 subIds.add(subId);
                             }

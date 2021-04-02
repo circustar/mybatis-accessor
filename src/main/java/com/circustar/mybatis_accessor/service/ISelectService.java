@@ -43,6 +43,7 @@ public interface ISelectService {
 
     <T> PageInfo<T> getEntityPageByQueryWrapper(EntityDtoServiceRelation relationInfo
             , QueryWrapper queryWrapper
+            , Object dto
             , Integer page_index
             , Integer page_size
             ) throws Exception;
@@ -64,7 +65,7 @@ public interface ISelectService {
     ) throws Exception;
 
     <T> List<T> getEntityListByQueryWrapper(EntityDtoServiceRelation relationInfo
-            , QueryWrapper queryWrapper
+            , QueryWrapper queryWrapper, Object dto
     )  throws Exception;
 
     <T> List<T> getDtoListByQueryWrapper(EntityDtoServiceRelation relationInfo

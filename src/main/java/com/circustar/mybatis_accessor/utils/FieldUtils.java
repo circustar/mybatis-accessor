@@ -1,10 +1,5 @@
 package com.circustar.mybatis_accessor.utils;
 
-import org.springframework.beans.BeanUtils;
-import org.springframework.util.StringUtils;
-
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -17,25 +12,28 @@ public class FieldUtils {
                 .collect(Collectors.joining());
     }
 
-    public static List<String> parsechildNames(String names) {
-        return Arrays.stream(names.replace(" ", "").split(","))
-                .map(x -> unCap(x)).collect(Collectors.toList());
-    }
-
-    public static String unCap(String name) {
-        if(StringUtils.isEmpty(name)) {
-            return name;
-        }
-        return name.substring(0,1).toLowerCase() + name.substring(1);
-
-    }
+//    public static String unCap(String name) {
+//        if(StringUtils.isEmpty(name)) {
+//            return name;
+//        }
+//        return name.substring(0,1).toLowerCase() + name.substring(1);
+//
+//    }
 
 //    public static void setField(Object obj, Field field, Object value) throws IllegalAccessException {
 //        field.setAccessible(true);
 //        field.set(obj, value);
 //    }
 
-    public static void setField(Object obj, Method writeMethod, Object value) throws IllegalAccessException, InvocationTargetException {
+    public static Object getFieldValue(Object obj, Method readMethod) throws InvocationTargetException, IllegalAccessException {
+        if(obj != null && readMethod != null) {
+            readMethod.setAccessible(true);
+            return readMethod.invoke(obj);
+        }
+        return null;
+    }
+
+    public static void setFieldValue(Object obj, Method writeMethod, Object value) throws IllegalAccessException, InvocationTargetException {
         if(writeMethod == null || obj == null) {
             return;
         }
@@ -84,14 +82,6 @@ public class FieldUtils {
 //        }
 //        return null;
 //    }
-
-    public static Object getValue(Object obj, Method readMethod) throws InvocationTargetException, IllegalAccessException {
-        if(obj != null && readMethod != null) {
-            readMethod.setAccessible(true);
-            return readMethod.invoke(obj);
-        }
-        return null;
-    }
 
 //    public static void setValue(Object obj, Method writeMethod, Object value) throws InvocationTargetException, IllegalAccessException {
 //        writeMethod.setAccessible(true);

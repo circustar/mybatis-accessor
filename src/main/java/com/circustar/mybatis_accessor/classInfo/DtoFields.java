@@ -15,7 +15,7 @@ import java.util.*;
 public class DtoFields {
     public static void assignDtoField(DtoClassInfoHelper dtoClassInfoHelper, Object obj, DtoField dtoField, List<Object> values, Class clazz) throws Exception {
         if(!dtoField.getCollection()) {
-            FieldUtils.setField(obj, dtoField.getWriteMethod(), (values == null || values.size() == 0)?
+            FieldUtils.setFieldValue(obj, dtoField.getWriteMethod(), (values == null || values.size() == 0)?
                     null : (clazz == null? values.get(0) : dtoClassInfoHelper.convertFromEntity(values.get(0), clazz)));
             return;
         }
@@ -31,7 +31,7 @@ public class DtoFields {
             }
             c.add(dtoClassInfoHelper.convertFromEntity(var0, clazz));
         }
-        FieldUtils.setField(obj, dtoField.getWriteMethod(), c);
+        FieldUtils.setFieldValue(obj, dtoField.getWriteMethod(), c);
     }
 
     public static void queryAndAssignDtoFieldById(ApplicationContext applicationContext
@@ -58,7 +58,7 @@ public class DtoFields {
                 qw.eq(masterDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), dtoId);
             } else if(masterDtoClassInfoDtoField != null) {
                 qw = new QueryWrapper();
-                Object subDtoId = FieldUtils.getValue(dto, masterDtoClassInfoDtoField.getEntityFieldInfo().getReadMethod());
+                Object subDtoId = FieldUtils.getFieldValue(dto, masterDtoClassInfoDtoField.getEntityFieldInfo().getReadMethod());
                 qw.eq(subDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), subDtoId);
             }
             IService service = childInfo.getServiceBean(applicationContext);
@@ -69,7 +69,6 @@ public class DtoFields {
 
     public static void queryAndAssignDtoFieldBySelector(ApplicationContext applicationContext, DtoClassInfoHelper dtoClassInfoHelper, IEntityDtoServiceRelationMap relationMap, EntityDtoServiceRelation relationInfo, Object dto
             , List<DtoField> dtoFields) throws Exception {
-        StandardEvaluationContext standardEvaluationContext = new StandardEvaluationContext(dto);
         for(DtoField dtoField : dtoFields) {
             EntityDtoServiceRelation subRelation = dtoField.getEntityDtoServiceRelation();
             if(subRelation == null) {
@@ -79,7 +78,7 @@ public class DtoFields {
             QueryWrapper qw = new QueryWrapper();
 
             Arrays.stream(dtoField.getSelectors()).forEach(x -> x.connector().consume(x.tableColumn(), qw
-                    , SPELParser.parseExpression(standardEvaluationContext, Arrays.asList(x.valueExpression()))));
+                    , SPELParser.parseExpression(dto, Arrays.asList(x.valueExpression()))));
 
             List searchResult = service.list(qw);
             assignDtoField(dtoClassInfoHelper, dto, dtoField, searchResult, subRelation.getDtoClass());
