@@ -78,11 +78,17 @@ public class TableInfoUtils {
             , TableInfo tableInfo
             , TableJoinInfo tableJoinInfo
             , List<Class> joinTableList
-            , String namespace) {
-        ResultMapping.Builder builder = new ResultMapping.Builder(configuration
-                , tableJoinInfo.getFieldName(), StringUtils.getTargetColumn(tableJoinInfo.getFieldName()), (Class)tableJoinInfo.getOwnerType());
-        List<TableJoinInfo> tableJoinInfos = TableJoinInfo.parseEntityTableJoinInfo(configuration, (Class) tableJoinInfo.getActualType());
-        builder.nestedResultMapId(registerResultMapping(configuration, tableInfo, tableJoinInfos, joinTableList, namespace));
+            , String namespace
+            , boolean terminalFlag) {
+        ResultMapping.Builder builder = new ResultMapping.Builder(configuration, tableJoinInfo.getFieldName(), StringUtils.getTargetColumn(tableJoinInfo.getFieldName()), (Class) tableJoinInfo.getOwnerType());
+        String nestedId;
+        if(terminalFlag) {
+            nestedId = registerResultMapping(configuration, tableInfo, null, null, namespace);
+        } else {
+            List<TableJoinInfo> tableJoinInfos = TableJoinInfo.parseEntityTableJoinInfo(configuration, (Class) tableJoinInfo.getActualType());
+            nestedId = registerResultMapping(configuration, tableInfo, tableJoinInfos, joinTableList, namespace);
+        }
+        builder.nestedResultMapId(nestedId);
         builder.columnPrefix(tableInfo.getTableName() + "_");
         return builder.build();
     }
@@ -147,19 +153,10 @@ public class TableInfoUtils {
                 TableInfo joinTableInfo = TableInfoHelper.getTableInfo(clazz);
                 List<Class> newJoinTableList = new ArrayList<>(joinTableList);
                 newJoinTableList.add(clazz);
-                String newNamespace = joinTableList.contains(clazz) ? namespace : DEFAULT_NESTED_NAMESPACE;
-                boolean terminalFlag = findJoinTableListLoop(newJoinTableList);
-                if(!terminalFlag) {
-                    resultMappings.add(TableInfoUtils.getNestedResultMapping(configuration, joinTableInfo, tableJoinInfo
-                            , newJoinTableList, newNamespace));
-                } else {
-                    String nestedId = TableInfoUtils.registerResultMapping(configuration, joinTableInfo, null, null ,newNamespace);
-                    ResultMapping.Builder builder = new ResultMapping.Builder(configuration
-                            , tableJoinInfo.getFieldName(), StringUtils.getTargetColumn(tableJoinInfo.getFieldName()), (Class)tableJoinInfo.getOwnerType());
-                    builder.nestedResultMapId(nestedId);
-                    builder.columnPrefix(tableInfo.getTableName() + "_");
-                    resultMappings.add(builder.build());
-                }
+                resultMappings.add(TableInfoUtils.getNestedResultMapping(configuration, joinTableInfo, tableJoinInfo
+                            , newJoinTableList
+                            , joinTableList.contains(clazz) ? namespace : DEFAULT_NESTED_NAMESPACE
+                            , findJoinTableListLoop(newJoinTableList)));
             }
         }
 
