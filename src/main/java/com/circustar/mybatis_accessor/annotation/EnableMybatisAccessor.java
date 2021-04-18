@@ -12,7 +12,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Import(value = {MybatisAccessorConfiguration.class})
-@ConditionalOnWebApplication
 @ConditionalOnClass(MybatisPlusAutoConfiguration.class)
 public @interface EnableMybatisAccessor {
     RelationScanPackages relationScan();
