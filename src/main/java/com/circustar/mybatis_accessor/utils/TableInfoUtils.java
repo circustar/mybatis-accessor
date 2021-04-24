@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.circustar.common_utils.reflection.ClassUtils;
 import com.circustar.mybatis_accessor.classInfo.TableJoinInfo;
 import com.circustar.mybatis_accessor.scanner.BaseMapperScanner;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
@@ -51,7 +52,7 @@ public class TableInfoUtils {
         Set<Class<? extends BaseMapper>> baseMapperFromPackage = BaseMapperScanner.getBaseMapperFromPackage(scanPackage);
         for(Class<? extends BaseMapper> mapper : baseMapperFromPackage) {
             MapperBuilderAssistant mapperBuilderAssistant = new MapperBuilderAssistant(configuration, mapper.getSimpleName());
-            TableInfoHelper.initTableInfo(mapperBuilderAssistant, (Class)ClassUtils.getFirstTypeArgument(mapper));
+            TableInfoHelper.initTableInfo(mapperBuilderAssistant, (Class) ClassUtils.getFirstTypeArgument(mapper));
         }
     }
 

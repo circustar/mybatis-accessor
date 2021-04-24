@@ -1,7 +1,7 @@
 package com.circustar.mybatis_accessor.scanner;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.circustar.mybatis_accessor.utils.ClassUtils;
+import com.circustar.common_utils.reflection.ClassUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import java.lang.reflect.Type;

@@ -3,7 +3,7 @@ package com.circustar.mybatis_accessor.mapper;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.circustar.mybatis_accessor.utils.MvcEnhanceConstants;
+import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
 import org.apache.ibatis.annotations.Param;
 
 import java.io.Serializable;

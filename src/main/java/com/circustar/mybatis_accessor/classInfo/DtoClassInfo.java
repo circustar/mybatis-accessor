@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.circustar.mybatis_accessor.annotation.DeleteFlag;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
-import com.circustar.mybatis_accessor.utils.AnnotationUtils;
+import com.circustar.common_utils.reflection.AnnotationUtils;
 import com.circustar.mybatis_accessor.wrapper.QueryWrapperCreator;
 
 import java.lang.reflect.InvocationTargetException;

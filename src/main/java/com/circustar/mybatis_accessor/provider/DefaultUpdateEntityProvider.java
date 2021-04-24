@@ -6,12 +6,12 @@ import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
 import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
-import com.circustar.mybatis_accessor.utils.MvcEnhanceConstants;
+import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.provider.command.*;
-import com.circustar.mybatis_accessor.utils.CollectionUtils;
-import com.circustar.mybatis_accessor.utils.FieldUtils;
-import com.circustar.mybatis_accessor.utils.MapOptionUtils;
+import com.circustar.common_utils.collection.CollectionUtils;
+import com.circustar.common_utils.reflection.FieldUtils;
+import com.circustar.common_utils.collection.MapOptionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;

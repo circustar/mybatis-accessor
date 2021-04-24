@@ -4,7 +4,7 @@ import com.circustar.mybatis_accessor.provider.DefaultDeleteEntityProvider;
 import com.circustar.mybatis_accessor.provider.DefaultInsertEntityProvider;
 import com.circustar.mybatis_accessor.provider.DefaultUpdateEntityProvider;
 import com.circustar.mybatis_accessor.provider.IUpdateEntityProvider;
-import com.circustar.mybatis_accessor.utils.ClassUtils;
+import com.circustar.common_utils.reflection.ClassUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.validation.BindingResult;
 

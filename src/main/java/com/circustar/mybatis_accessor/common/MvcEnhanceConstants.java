@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.utils;
+package com.circustar.mybatis_accessor.common;
 
 public class MvcEnhanceConstants {
     public final static String MYBATIS_ENHANCE_JOIN_TABLE = "__MYBATIS_ENHANCE_JOIN_TABLE";

@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.utils;
+package com.circustar.common_utils.collection;
 
 import org.springframework.util.StringUtils;
 

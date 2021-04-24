@@ -4,7 +4,7 @@ package com.circustar.mybatis_accessor.injector.methods;
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.toolkit.sql.SqlScriptUtils;
-import com.circustar.mybatis_accessor.utils.MvcEnhanceConstants;
+import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
 import com.circustar.mybatis_accessor.classInfo.TableJoinInfo;
 import org.apache.ibatis.executor.keygen.NoKeyGenerator;

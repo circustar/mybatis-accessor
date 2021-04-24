@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.utils;
+package com.circustar.common_utils.reflection;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

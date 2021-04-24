@@ -1,7 +1,7 @@
 package com.circustar.mybatis_accessor.classInfo;
 
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
-import com.circustar.mybatis_accessor.utils.FieldUtils;
+import com.circustar.common_utils.reflection.FieldUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.util.Collection;

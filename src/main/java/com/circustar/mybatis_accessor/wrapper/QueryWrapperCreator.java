@@ -6,7 +6,7 @@ import com.circustar.mybatis_accessor.annotation.QueryOrder;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.EntityClassInfo;
-import com.circustar.mybatis_accessor.utils.FieldUtils;
+import com.circustar.common_utils.reflection.FieldUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;

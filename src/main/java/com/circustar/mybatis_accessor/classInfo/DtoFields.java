@@ -4,10 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
-import com.circustar.mybatis_accessor.utils.FieldUtils;
-import com.circustar.mybatis_accessor.utils.SPELParser;
+import com.circustar.common_utils.reflection.FieldUtils;
+import com.circustar.common_utils.parser.SPELParser;
 import org.springframework.context.ApplicationContext;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import java.io.Serializable;
 import java.util.*;

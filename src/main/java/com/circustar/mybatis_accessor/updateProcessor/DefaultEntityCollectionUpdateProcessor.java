@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mybatis_accessor.classInfo.EntityClassInfo;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
-import com.circustar.mybatis_accessor.utils.FieldUtils;
+import com.circustar.common_utils.reflection.FieldUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
