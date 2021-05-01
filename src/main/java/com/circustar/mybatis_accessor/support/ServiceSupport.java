@@ -47,11 +47,14 @@ public class ServiceSupport {
     }
 
     protected Collection convertFromList(List mapList, Class clazz) {
+        List<Object> result = new ArrayList<>();
+        if(mapList == null || mapList.size() == 0) {
+            return result;
+        }
         Class actualClass = mapList.get(0).getClass();
         if(!Map.class.isAssignableFrom(actualClass)) {
             return mapList;
         }
-        List<Object> result = new ArrayList<>();
         for(Object map : mapList) {
             result.add(objectMapper.convertValue(map, clazz));
         }
@@ -487,7 +490,7 @@ public class ServiceSupport {
             return null;
         }
         Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
         List<T> objects = updateWithOptions(objectOrMap, relation, DefaultInsertEntityProvider.getInstance()
                 , options);
@@ -523,7 +526,7 @@ public class ServiceSupport {
             return null;
         }
         Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
 
         return updateWithOptions(objectListOrMapList, relation, DefaultInsertEntityProvider.getInstance()
@@ -534,10 +537,9 @@ public class ServiceSupport {
     public <T> T update(Object object
             , String children
             , boolean updateChildrenOnly
-            , boolean removeAndInsertNewChild
-            , boolean physicDelete) throws Exception {
+            , boolean removeAndInsertNewChild) throws Exception {
         return this.update(object.getClass().getSimpleName(), object
-                , children, updateChildrenOnly, removeAndInsertNewChild, physicDelete);
+                , children, updateChildrenOnly, removeAndInsertNewChild);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -545,11 +547,10 @@ public class ServiceSupport {
             , Object objectOrMap
             , String children
             , boolean updateChildrenOnly
-            , boolean removeAndInsertNewChild
-            , boolean physicDelete) throws Exception {
+            , boolean removeAndInsertNewChild) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
         return update(objectOrMap, relationInfo
-                , children, updateChildrenOnly, removeAndInsertNewChild, physicDelete);
+                , children, updateChildrenOnly, removeAndInsertNewChild);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -557,13 +558,11 @@ public class ServiceSupport {
             , EntityDtoServiceRelation relation
             , String children
             , boolean updateChildrenOnly
-            , boolean removeAndInsertNewChild
-            , boolean physicDelete) throws Exception {
+            , boolean removeAndInsertNewChild) throws Exception {
         Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_AND_INSERT, removeAndInsertNewChild);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
         List<T> result = updateWithOptions(objectOrMap, relation, DefaultUpdateEntityProvider.getInstance()
                 , options);
@@ -574,11 +573,10 @@ public class ServiceSupport {
     public <T> List<T> updateList(List objects
             , String children
             , boolean updateChildrenOnly
-            , boolean removeAndInsertNewChild
-            , boolean physicDelete) throws Exception {
+            , boolean removeAndInsertNewChild) throws Exception {
         String dtoName = ((Class)ClassUtils.getFirstTypeArgument(objects.getClass())).getSimpleName();
         return this.updateList(dtoName, objects, children
-                , updateChildrenOnly, removeAndInsertNewChild, physicDelete);
+                , updateChildrenOnly, removeAndInsertNewChild);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -586,11 +584,10 @@ public class ServiceSupport {
             , List objectListOrMapList
             , String children
             , boolean updateChildrenOnly
-            , boolean removeAndInsertNewChild
-            , boolean physicDelete) throws Exception {
+            , boolean removeAndInsertNewChild) throws Exception {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
         return updateList(objectListOrMapList, relationInfo, children
-                , updateChildrenOnly, removeAndInsertNewChild, physicDelete);
+                , updateChildrenOnly, removeAndInsertNewChild);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -598,13 +595,11 @@ public class ServiceSupport {
             , EntityDtoServiceRelation relation
             , String children
             , boolean updateChildrenOnly
-            , boolean removeAndInsertNewChild
-            , boolean physicDelete) throws Exception {
+            , boolean removeAndInsertNewChild) throws Exception {
         Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, ArrayParamUtils.convertStringToArray(children));
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_AND_INSERT, removeAndInsertNewChild);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
 
         return updateWithOptions(objectListOrMapList, relation, DefaultUpdateEntityProvider.getInstance()
                 , options);
@@ -612,10 +607,9 @@ public class ServiceSupport {
 
     @Transactional(rollbackFor = Exception.class)
     public <T> T deleteById(String dtoName, Serializable id, String children
-            , boolean updateChildrenOnly
-            , boolean physicDelete) throws Exception  {
+            , boolean updateChildrenOnly) throws Exception {
         List<T> result = deleteByIds(dtoName, Collections.singleton(id), ArrayParamUtils.convertStringToArray(children)
-                , updateChildrenOnly, physicDelete);
+                , updateChildrenOnly);
         return result.iterator().next();
     }
 
@@ -623,23 +617,18 @@ public class ServiceSupport {
     public <T> List<T> deleteByIds(String dtoName
             , Set<Serializable> ids
             , String[] children
-            , boolean updateChildrenOnly
-            , boolean physicDelete) throws Exception  {
+            , boolean updateChildrenOnly) throws Exception  {
         EntityDtoServiceRelation relationInfo = this.parseEntityDtoServiceRelation(dtoName);
-        return deleteByIds(ids, relationInfo, children, updateChildrenOnly
-                , physicDelete);
+        return deleteByIds(ids, relationInfo, children, updateChildrenOnly);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public <T> List<T> deleteByIds(Set<Serializable> ids
             , EntityDtoServiceRelation relationInfo
             , String[] children
-            , boolean updateChildrenOnly
-            , boolean physicDelete) throws Exception  {
-
+            , boolean updateChildrenOnly) throws Exception  {
         Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, children);
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, physicDelete);
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, children);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
 
         return updateWithOptions(ids, relationInfo, DefaultDeleteEntityProvider.getInstance()

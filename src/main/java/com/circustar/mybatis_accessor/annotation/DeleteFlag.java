@@ -6,4 +6,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.FIELD})
 public @interface DeleteFlag {
+    boolean physicDelete() default false;
 }

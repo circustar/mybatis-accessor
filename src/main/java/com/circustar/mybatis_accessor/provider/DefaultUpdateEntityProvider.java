@@ -30,10 +30,10 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
 
-        String[] childNameList = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, new String[]{});
+        String[] childNameList = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, new String[]{});
         boolean updateChildrenOnly = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
         boolean deleteBeforeUpdate = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_AND_INSERT, false);
-        boolean physicDelete = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, false);
+        boolean physicDelete = getPhysicDelete(dtoClassInfoHelper, relation);
 
         DefaultDeleteEntityProvider defaultDeleteTreeProvider =  DefaultDeleteEntityProvider.getInstance();
         DefaultInsertEntityProvider inertEntitiesEntityProvider = DefaultInsertEntityProvider.getInstance();
@@ -44,6 +44,9 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
 
         List<Object> updateTargetList = new ArrayList<>();
         for(Object value : values) {
+            if(value == null) {
+                continue;
+            }
             Object updateTarget = dtoClassInfoHelper.convertToEntity(value);
             updateTargetList.add(updateTarget);
 
@@ -74,7 +77,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                 if(childList.size() == 0) {continue;}
                 Map newOptions = new HashMap(options);
                 newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
-                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, this.getChildren(childNameList
+                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, this.getChildren(childNameList
                         , entityName, "."));
                 DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(subDtoField.getEntityDtoServiceRelation().getDtoClass());
                 for(Object child : childList) {
@@ -84,7 +87,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                         if(subDtoClassInfo.getDeleteFlagField() != null) {
                             deleteFlagValue = FieldUtils.getFieldValue(child, subDtoClassInfo.getDeleteFlagField().getReadMethod());
                         }
-                        if(!StringUtils.isEmpty(deleteFlagValue) && !"0".equals(deleteFlagValue.toString())) { // TODO : replace 0 with mybatis-plus.global-config.db-config.logic-not-delete-value
+                        if(!StringUtils.isEmpty(deleteFlagValue) && !"0".equals(deleteFlagValue.toString())) {
                             defaultEntityCollectionUpdater.addSubUpdateEntities(defaultDeleteTreeProvider.createUpdateEntities(
                                     subDtoField.getEntityDtoServiceRelation(), dtoClassInfoHelper
                                     , subEntityKeyValue, newOptions
@@ -96,7 +99,8 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                             ));
                         }
                     } else {
-                        defaultEntityCollectionUpdater.addSubUpdateEntities(inertEntitiesEntityProvider.createUpdateEntities(subDtoField.getEntityDtoServiceRelation()
+                        defaultEntityCollectionUpdater.addSubUpdateEntities(
+                                inertEntitiesEntityProvider.createUpdateEntities(subDtoField.getEntityDtoServiceRelation()
                                 , dtoClassInfoHelper, child, newOptions));
                     }
                 }

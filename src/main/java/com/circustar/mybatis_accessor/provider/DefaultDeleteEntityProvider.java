@@ -29,9 +29,9 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
         List values = Arrays.asList(ids);
         if(values.size() == 0) {return result;}
 
-        String[] children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, new String[]{});
+        String[] children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, new String[]{});
         boolean updateChildrenOnly = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
-        boolean physicDelete = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_PHYSIC_DELETE, false);
+        boolean physicDelete = getPhysicDelete(dtoClassInfoHelper, relation);
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
         ISelectService selectService = this.getSelectService();
@@ -39,6 +39,9 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
         String[] topEntities = this.getTopEntities(children, ".");
         if(topEntities.length > 0) {
             for (Object id : values) {
+                if(id == null) {
+                    continue;
+                }
                 Object object = selectService.getDtoById(relation, (Serializable) id
                         , topEntities);
                 for (String entityName : topEntities) {
@@ -61,7 +64,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
                     }
                     Map newOptions = new HashMap(options);
                     newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
-                    newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_TARGET_LIST, this.getChildren(children
+                    newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, this.getChildren(children
                             , entityName, "."));
                     result.addAll(this.createUpdateEntities(
                             dtoField.getEntityDtoServiceRelation()

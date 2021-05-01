@@ -31,6 +31,7 @@ public class DtoClassInfo {
     private Object versionDefaultValue;
     private DtoField keyField;
     private DtoField deleteFlagField;
+    private boolean physicDelete = false;
     private QueryWrapperCreator queryWrapperCreator;
     public DtoClassInfo(IEntityDtoServiceRelationMap relationMap, Class<?> clazz, EntityClassInfo entityClassInfo) {
         this.clazz = clazz;
@@ -66,6 +67,7 @@ public class DtoClassInfo {
             DeleteFlag deleteFlagAnnotation = AnnotationUtils.getFieldAnnotation(x, DeleteFlag.class);
             if(deleteFlagAnnotation != null) {
                 this.deleteFlagField = dtoField;
+                this.physicDelete = deleteFlagAnnotation.physicDelete();
             }
             this.dtoFieldMap.put(x.getName(), dtoField);
         });
@@ -173,6 +175,10 @@ public class DtoClassInfo {
 
     public DtoField getDeleteFlagField() {
         return deleteFlagField;
+    }
+
+    public boolean isPhysicDelete() {
+        return physicDelete;
     }
 
     public <T> QueryWrapper<T> createQueryWrapper(DtoClassInfoHelper dtoClassInfoHelper, Object dto) throws IllegalAccessException, InvocationTargetException {
