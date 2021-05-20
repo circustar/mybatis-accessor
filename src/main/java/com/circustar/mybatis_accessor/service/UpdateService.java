@@ -1,15 +1,13 @@
 package com.circustar.mybatis_accessor.service;
 
-import com.circustar.mybatis_accessor.error.UpdateTargetNotFoundException;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
+import com.circustar.mybatis_accessor.common.MessageProperties;
 import com.circustar.mybatis_accessor.provider.*;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
-import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
 import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
 import org.springframework.context.ApplicationContext;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
+
 
 import java.util.*;
 
@@ -26,10 +24,10 @@ public class UpdateService implements IUpdateService {
     private DtoClassInfoHelper dtoClassInfoHelper;
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
+
     public <T> List<T> updateByProviders(EntityDtoServiceRelation relationInfo
             , Object object, IUpdateEntityProvider provider
-            , Map options) throws Exception {
+            , Map options) {
         List<Object> updatedObjects = new ArrayList<>();
         try {
             List<IEntityUpdateProcessor> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper
@@ -37,7 +35,9 @@ public class UpdateService implements IUpdateService {
             for(IEntityUpdateProcessor o : objList) {
                 boolean result = o.execUpdate();
                 if(!result) {
-                    throw new UpdateTargetNotFoundException("update failed");
+                    throw new RuntimeException(String.format(MessageProperties.UPDATE_TARGET_NOT_FOUND
+                            , "DTO CLASS - " + relationInfo.getDtoClass().getSimpleName()
+                            + ", UPDATE PROCESSOR - " + o.getClass().getSimpleName()));
                 }
                 updatedObjects.addAll(o.getUpdateTargets());
             }

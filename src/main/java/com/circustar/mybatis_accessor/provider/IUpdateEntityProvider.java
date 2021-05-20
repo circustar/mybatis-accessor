@@ -10,7 +10,7 @@ import java.util.Map;
 
 public interface IUpdateEntityProvider {
     List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
-            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options) throws Exception;
+            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options);
     default <T> void onSuccess(Object dto, List<T> updateEntities) {};
     default void onException(Exception ex) {}
     default void onEnd() {};

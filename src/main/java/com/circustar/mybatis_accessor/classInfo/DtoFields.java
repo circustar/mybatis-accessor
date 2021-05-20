@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.util.*;
 
 public class DtoFields {
-    public static void assignDtoField(DtoClassInfoHelper dtoClassInfoHelper, Object obj, DtoField dtoField, List<Object> values, Class clazz) throws Exception {
+    public static void assignDtoField(DtoClassInfoHelper dtoClassInfoHelper, Object obj, DtoField dtoField, List<Object> values, Class clazz) {
         if(!dtoField.getCollection()) {
             FieldUtils.setFieldValue(obj, dtoField.getWriteMethod(), (values == null || values.size() == 0)?
                     null : (clazz == null? values.get(0) : dtoClassInfoHelper.convertFromEntity(values.get(0), clazz)));
@@ -22,15 +22,19 @@ public class DtoFields {
         if(supportGenericType == null) {
             return;
         }
-        Collection c = supportGenericType.getTargetClass().newInstance();
-        for(Object var0 : values) {
-            if(clazz == null) {
-                c.add(var0);
-                continue;
+        try {
+            Collection c = supportGenericType.getTargetClass().newInstance();
+            for (Object var0 : values) {
+                if (clazz == null) {
+                    c.add(var0);
+                    continue;
+                }
+                c.add(dtoClassInfoHelper.convertFromEntity(var0, clazz));
             }
-            c.add(dtoClassInfoHelper.convertFromEntity(var0, clazz));
+            FieldUtils.setFieldValue(obj, dtoField.getWriteMethod(), c);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
-        FieldUtils.setFieldValue(obj, dtoField.getWriteMethod(), c);
     }
 
     public static void queryAndAssignDtoFieldById(ApplicationContext applicationContext
@@ -38,7 +42,7 @@ public class DtoFields {
             , EntityDtoServiceRelation relationInfo
             , List<DtoField> dtoFields
             , Object dto
-            , Serializable dtoId) throws Exception {
+            , Serializable dtoId) {
         DtoClassInfo masterDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         for(DtoField dtoField : dtoFields) {
             EntityDtoServiceRelation childInfo = dtoField.getEntityDtoServiceRelation();
@@ -67,7 +71,7 @@ public class DtoFields {
     }
 
     public static void queryAndAssignDtoFieldBySelector(ApplicationContext applicationContext, DtoClassInfoHelper dtoClassInfoHelper, IEntityDtoServiceRelationMap relationMap, EntityDtoServiceRelation relationInfo, Object dto
-            , List<DtoField> dtoFields) throws Exception {
+            , List<DtoField> dtoFields) {
         for(DtoField dtoField : dtoFields) {
             EntityDtoServiceRelation subRelation = dtoField.getEntityDtoServiceRelation();
             if(subRelation == null) {

@@ -38,7 +38,7 @@ public class SelectService implements ISelectService {
     @Override
     public <T> T getEntityByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
-    ) throws Exception {
+    ) {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(this.dtoClassInfoHelper, object);
         return getEntityByQueryWrapper(relationInfo, queryWrapper);
@@ -47,7 +47,7 @@ public class SelectService implements ISelectService {
     @Override
     public <T> T getDtoByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object, String[] children
-    ) throws Exception {
+    ){
         Object oriEntity = this.getEntityByAnnotation(relationInfo, object);
         if (oriEntity == null) {
             return null;
@@ -56,7 +56,7 @@ public class SelectService implements ISelectService {
         T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, relationInfo.getDtoClass());
         if(dtoClassInfo.getEntityClassInfo().getKeyField() != null) {
             Serializable id = (Serializable) FieldUtils.getFieldValue(oriEntity, dtoClassInfo.getEntityClassInfo().getKeyField().getReadMethod());
-            if(id != null) {
+            if (id != null) {
                 setDtoChildren(relationInfo, result, id, children);
             }
         }
@@ -65,7 +65,7 @@ public class SelectService implements ISelectService {
 
     @Override
     public <T> T getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo
-            , QueryWrapper queryWrapper) throws Exception {
+            , QueryWrapper queryWrapper) {
         IService s = relationInfo.getServiceBean(applicationContext);
         return (T)s.getOne(queryWrapper);
     }
@@ -73,7 +73,7 @@ public class SelectService implements ISelectService {
     @Override
     public <T> T getDtoByQueryWrapper(EntityDtoServiceRelation relationInfo
             , QueryWrapper queryWrapper
-            , String[] children) throws Exception {
+            , String[] children) {
         IService s = relationInfo.getServiceBean(applicationContext);
         Object oriEntity = s.getOne(queryWrapper);
         if (oriEntity == null) {
@@ -93,7 +93,7 @@ public class SelectService implements ISelectService {
     private void setDtoChildren(EntityDtoServiceRelation relationInfo
             , Object dto
             , Serializable id
-            , String[] children) throws Exception {
+            , String[] children) {
         Set<String> childList;
         if(children == null) {
             childList = Collections.emptySet();
@@ -124,7 +124,7 @@ public class SelectService implements ISelectService {
 
     @Override
     public <T> T getEntityById(EntityDtoServiceRelation relationInfo
-            , Serializable id) throws Exception {
+            , Serializable id){
         IService s = relationInfo.getServiceBean(applicationContext);
         return (T)s.getById(id);
     }
@@ -132,7 +132,7 @@ public class SelectService implements ISelectService {
     @Override
     public <T> T getDtoById(EntityDtoServiceRelation relationInfo
             , Serializable id
-            , String[] children) throws Exception {
+            , String[] children) {
         IService s = relationInfo.getServiceBean(applicationContext);
         Object oriEntity = s.getById(id);
         if (oriEntity == null) {
@@ -149,7 +149,7 @@ public class SelectService implements ISelectService {
             , Object object
             , Integer page_index
             , Integer page_size
-            )  throws Exception {
+            ) {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(this.dtoClassInfoHelper, object);
 
@@ -161,7 +161,7 @@ public class SelectService implements ISelectService {
             , Object object
             , Integer page_index
             , Integer page_size
-    )  throws Exception {
+    ) {
         PageInfo entityPage = getEntityPageByAnnotation(relationInfo, object, page_index, page_size);
         List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityPage.getRecords(), relationInfo.getDtoClass());;
         return new PageInfo<>(entityPage.getTotal(), entityPage.getSize(), entityPage.getCurrent(), dtoList);    }
@@ -197,7 +197,7 @@ public class SelectService implements ISelectService {
             , QueryWrapper queryWrapper
             , Integer page_index
             , Integer page_size
-    ) throws Exception {
+    ) {
         PageInfo entityPage = getEntityPageByQueryWrapper(relationInfo, queryWrapper, null, page_index, page_size);
         List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityPage.getRecords(), relationInfo.getDtoClass());;
         return new PageInfo<>(entityPage.getTotal(), entityPage.getSize(), entityPage.getCurrent(), dtoList);
@@ -206,7 +206,7 @@ public class SelectService implements ISelectService {
     @Override
     public <T> List<T> getEntityListByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
-    )  throws Exception {
+    ) {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(this.dtoClassInfoHelper, object);
 
@@ -216,7 +216,7 @@ public class SelectService implements ISelectService {
     @Override
     public <T> List<T> getDtoListByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
-    )  throws Exception {
+    ) {
         List entityList = getEntityListByAnnotation(relationInfo, object);
         List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityList, relationInfo.getDtoClass());;
         return dtoList;
@@ -247,7 +247,7 @@ public class SelectService implements ISelectService {
     @Override
     public <T> List<T> getDtoListByQueryWrapper(EntityDtoServiceRelation relationInfo
             , QueryWrapper queryWrapper
-    )  throws Exception {
+    ) {
         List entityList = getEntityListByQueryWrapper(relationInfo, queryWrapper, null);
         List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityList, relationInfo.getDtoClass());;
         return dtoList;

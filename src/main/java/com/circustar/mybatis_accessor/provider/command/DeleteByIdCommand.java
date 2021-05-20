@@ -1,9 +1,9 @@
 package com.circustar.mybatis_accessor.provider.command;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.mybatis_accessor.error.UpdateTargetNotFoundException;
+import com.circustar.mybatis_accessor.common.MessageProperties;
 import com.circustar.mybatis_accessor.utils.MybatisPlusUtils;
-import org.springframework.transaction.annotation.Transactional;
+
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -15,14 +15,15 @@ public class DeleteByIdCommand implements IUpdateCommand {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public <T extends Collection> boolean update(IService service, T collection, Object option) throws Exception {
+
+    public <T extends Collection> boolean update(IService service, T collection, Object option) {
         for(Object var1 : collection) {
             boolean physicDelete = (boolean) option;
             Serializable id = (Serializable) var1;
             boolean result = MybatisPlusUtils.deleteById(service, id, physicDelete);
             if(!result) {
-                throw  new UpdateTargetNotFoundException("updateTragetNotFound");
+                throw new RuntimeException(String.format(MessageProperties.UPDATE_TARGET_NOT_FOUND
+                        , "Mapper - " + service.getBaseMapper().getClass().getSimpleName()));
             }
         }
         return true;

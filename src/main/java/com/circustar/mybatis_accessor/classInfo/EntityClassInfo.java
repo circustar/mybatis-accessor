@@ -3,6 +3,7 @@ package com.circustar.mybatis_accessor.classInfo;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
+import com.circustar.mybatis_accessor.common.MessageProperties;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -14,6 +15,7 @@ public class EntityClassInfo {
     private Map<String, EntityFieldInfo> fieldMap;
     private TableInfo tableInfo;
     private EntityFieldInfo keyField;
+    private EntityFieldInfo parentKeyFieldInfo;
 
     public EntityClassInfo(Class<?> entityClass) {
         this.entityClass = entityClass;
@@ -23,6 +25,17 @@ public class EntityClassInfo {
             return entityFieldInfo;
         }).collect(Collectors.toList());
         this.fieldMap = this.fieldList.stream().collect(Collectors.toMap(x -> x.getField().getName(), x -> x));
+        this.parentKeyFieldInfo = this.fieldList.stream().filter(x -> !StringUtils.isEmpty(x.getIdReferenceName())).findAny().orElse(null);
+        if(this.parentKeyFieldInfo != null) {
+            if(!this.fieldList.stream().filter(x -> !x.getField().getName().equals(this.parentKeyFieldInfo.getField().getName())
+                    && x.getField().getName().equals(this.parentKeyFieldInfo.getIdReferenceName()))
+                    .findAny().isPresent()) {
+                throw new RuntimeException(String.format(MessageProperties.ID_REFERENCE_NOT_FOUND
+                        , this.entityClass.getSimpleName()
+                        ,this.parentKeyFieldInfo.getField().getName()
+                        ,this.parentKeyFieldInfo.getIdReferenceName()));
+            }
+        }
 
         if(this.tableInfo == null) {
             TableName tableName = this.entityClass.getAnnotation(TableName.class);
@@ -56,5 +69,9 @@ public class EntityClassInfo {
 
     public EntityFieldInfo getKeyField() {
         return keyField;
+    }
+
+    public EntityFieldInfo getParentKeyFieldInfo() {
+        return parentKeyFieldInfo;
     }
 }

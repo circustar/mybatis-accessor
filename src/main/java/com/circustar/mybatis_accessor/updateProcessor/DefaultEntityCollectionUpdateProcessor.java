@@ -5,7 +5,7 @@ import com.circustar.mybatis_accessor.classInfo.EntityClassInfo;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.common_utils.reflection.FieldUtils;
-import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.*;
 
@@ -55,61 +55,78 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
     }
 
     @Override
-    @Transactional
-    public boolean execUpdate() throws Exception {
+    public boolean execUpdate() {
         return execUpdate(new HashMap<String, Object>());
     }
 
     @Override
-    @Transactional
-    public boolean execUpdate(Map<String, Object> keyMap) throws Exception {
-        boolean result = true;
-        if(updatechildFirst && subUpdateEntities != null) {
-            for(IEntityUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
-                result = subDefaultEntityCollectionUpdater.execUpdate(keyMap);
-                if(!result) {
-                    return false;
+    public boolean execUpdate(Map<String, Object> keyMap) {
+        try {
+            boolean result;
+            if (updatechildFirst && subUpdateEntities != null) {
+                for (IEntityUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
+                    result = subDefaultEntityCollectionUpdater.execUpdate(keyMap);
+                    if (!result) {
+                        return false;
+                    }
                 }
             }
-        }
-        if(entityClassInfo != null) {
-            for (String keyProperty : keyMap.keySet()) {
-                EntityFieldInfo entityFieldInfo = entityClassInfo.getFieldByName(keyProperty);
-                if (entityFieldInfo == null) {
-                    continue;
+            if (entityClassInfo != null) {
+                List<String> avoidIdList = null;
+                if (entityClassInfo.getKeyField() != null && entityClassInfo.getParentKeyFieldInfo() != null) {
+                    Object parentPropertyValue = keyMap.getOrDefault(entityClassInfo.getParentKeyFieldInfo().getIdReferenceName(), null);
+                    if (parentPropertyValue != null) {
+                        avoidIdList = Arrays.asList(entityClassInfo.getKeyField().getField().getName()
+                                , entityClassInfo.getParentKeyFieldInfo().getField().getName());
+                        for (Object updateEntity : updateTargets) {
+                            FieldUtils.setFieldValueIfNull(updateEntity
+                                    , entityClassInfo.getParentKeyFieldInfo().getReadMethod()
+                                    , entityClassInfo.getParentKeyFieldInfo().getWriteMethod(), parentPropertyValue);
+                        }
+                    }
                 }
-                Object keyValue = keyMap.get(keyProperty);
-                for (Object updateEntity : updateTargets) {
-                    FieldUtils.setFieldValue(updateEntity, entityFieldInfo.getWriteMethod(), keyValue);
-                }
-            }
-        }
-        if(!updateChildrenOnly) {
-            result = this.updateCommand.update(this.service, this.updateTargets, option);
-            if (!result) return false;
-        }
 
-        if(entityClassInfo != null) {
-            Optional firstEntity = updateTargets.stream().findFirst();
-            if (firstEntity.isPresent()) {
-                EntityFieldInfo keyField = entityClassInfo.getKeyField();
-                if(keyField != null) {
-                    Object masterKeyValue = FieldUtils.getFieldValue(firstEntity.get(), keyField.getReadMethod());
-                    if (!keyMap.containsKey(keyField.getField().getName())) {
+                for (String keyProperty : keyMap.keySet()) {
+                    if (avoidIdList != null && avoidIdList.contains(keyProperty)) {
+                        continue;
+                    }
+                    EntityFieldInfo entityFieldInfo = entityClassInfo.getFieldByName(keyProperty);
+                    if (entityFieldInfo == null) {
+                        continue;
+                    }
+                    Object keyValue = keyMap.get(keyProperty);
+                    for (Object updateEntity : updateTargets) {
+                        FieldUtils.setFieldValueIfNull(updateEntity, entityFieldInfo.getReadMethod(), entityFieldInfo.getWriteMethod(), keyValue);
+                    }
+                }
+            }
+            if (!updateChildrenOnly) {
+                result = this.updateCommand.update(this.service, this.updateTargets, option);
+                if (!result) return false;
+            }
+
+            if (entityClassInfo != null) {
+                Optional firstEntity = updateTargets.stream().findFirst();
+                if (firstEntity.isPresent()) {
+                    EntityFieldInfo keyField = entityClassInfo.getKeyField();
+                    if (keyField != null) {
+                        Object masterKeyValue = FieldUtils.getFieldValue(firstEntity.get(), keyField.getReadMethod());
                         keyMap.put(keyField.getField().getName(), masterKeyValue);
                     }
                 }
             }
-        }
 
-        if((!updatechildFirst) && subUpdateEntities != null) {
-            for(IEntityUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
-                result = subDefaultEntityCollectionUpdater.execUpdate(new HashMap<>(keyMap));
-                if(!result) {
-                    return false;
+            if ((!updatechildFirst) && subUpdateEntities != null) {
+                for (IEntityUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
+                    result = subDefaultEntityCollectionUpdater.execUpdate(new HashMap<>(keyMap));
+                    if (!result) {
+                        return false;
+                    }
                 }
             }
+            return true;
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
-        return result;
     }
 }

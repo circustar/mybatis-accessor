@@ -7,7 +7,7 @@ import com.circustar.mybatis_accessor.provider.DefaultDeleteEntityProvider;
 import com.circustar.mybatis_accessor.provider.DefaultInsertEntityProvider;
 import com.circustar.mybatis_accessor.provider.DefaultUpdateEntityProvider;
 import com.circustar.mybatis_accessor.relation.ScanValidatorOnStartup;
-import com.circustar.mybatis_accessor.support.ServiceSupport;
+import com.circustar.mybatis_accessor.support.MybatisAccessorService;
 import com.circustar.mybatis_accessor.injector.EnhanceSqlInjector;
 import com.circustar.mybatis_accessor.service.UpdateService;
 import com.circustar.mybatis_accessor.service.ISelectService;
@@ -40,7 +40,7 @@ public class MybatisAccessorConfiguration {
     private ISelectService selectService;
     private EntityClassInfoHelper entityClassInfoHelper;
     private DtoClassInfoHelper dtoClassInfoHelper;
-    private ServiceSupport serviceSupport;
+    private MybatisAccessorService mybatisAccessorService;
     private DtoValidatorManager dtoValidatorManager;
     private ScanValidatorOnStartup scanValidatorOnStartup;
 
@@ -56,7 +56,7 @@ public class MybatisAccessorConfiguration {
                 , DefaultInsertEntityProvider.getInstance()
                 , DefaultUpdateEntityProvider.getInstance()
                 , DefaultDeleteEntityProvider.getInstance());
-        this.serviceSupport = new ServiceSupport(this.applicationContext, this.entityDtoServiceRelationMap, this.selectService, this.updateService, this.dtoValidatorManager);
+        this.mybatisAccessorService = new MybatisAccessorService(this.applicationContext, this.entityDtoServiceRelationMap, this.selectService, this.updateService, this.dtoValidatorManager);
         this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
         this.scanValidatorOnStartup = new ScanValidatorOnStartup(this.dtoValidatorManager);
 
@@ -121,8 +121,8 @@ public class MybatisAccessorConfiguration {
     }
 
     @Bean
-    public ServiceSupport getServiceSupport() {
-        return this.serviceSupport;
+    public MybatisAccessorService getMybatisAccessorService() {
+        return this.mybatisAccessorService;
     }
 
     @Bean

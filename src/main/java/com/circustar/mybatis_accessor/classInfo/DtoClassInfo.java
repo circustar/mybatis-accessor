@@ -181,7 +181,7 @@ public class DtoClassInfo {
         return physicDelete;
     }
 
-    public <T> QueryWrapper<T> createQueryWrapper(DtoClassInfoHelper dtoClassInfoHelper, Object dto) throws IllegalAccessException, InvocationTargetException {
+    public <T> QueryWrapper<T> createQueryWrapper(DtoClassInfoHelper dtoClassInfoHelper, Object dto) {
         if(this.queryWrapperCreator == null) {
             this.queryWrapperCreator = new QueryWrapperCreator(dtoClassInfoHelper, this);
         }

@@ -1,9 +1,9 @@
 package com.circustar.mybatis_accessor.provider.command;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.mybatis_accessor.error.UpdateTargetNotFoundException;
+import com.circustar.mybatis_accessor.common.MessageProperties;
 import com.circustar.mybatis_accessor.utils.MybatisPlusUtils;
-import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,8 +15,8 @@ public class DeleteByIdBatchCommand extends DeleteByIdCommand {
         return batchCommand;
     }
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public <T extends Collection> boolean update(IService service, T obj, Object option) throws Exception {
+
+    public <T extends Collection> boolean update(IService service, T obj, Object option) {
         List physicDeleteCollection = new ArrayList();
         List deleteCollection = new ArrayList();
         boolean physicDelete = (boolean) option;
@@ -29,13 +29,15 @@ public class DeleteByIdBatchCommand extends DeleteByIdCommand {
         if(physicDeleteCollection.size() > 0) {
             boolean result = MybatisPlusUtils.deleteBatchIds(service, physicDeleteCollection, true);
             if (!result) {
-                throw  new UpdateTargetNotFoundException("updateTragetNotFound");
+                throw new RuntimeException(String.format(MessageProperties.UPDATE_TARGET_NOT_FOUND
+                        , "Mapper - " + service.getBaseMapper().getClass().getSimpleName()));
             }
         }
         if(deleteCollection.size() > 0) {
             boolean result = MybatisPlusUtils.deleteBatchIds(service, deleteCollection, false);
             if (!result) {
-                throw  new UpdateTargetNotFoundException("updateTragetNotFound");
+                throw new RuntimeException(String.format(MessageProperties.UPDATE_TARGET_NOT_FOUND
+                        , "Mapper - " + service.getBaseMapper().getClass().getSimpleName()));
             }
         }
         return true;

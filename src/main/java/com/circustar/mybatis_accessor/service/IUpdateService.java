@@ -10,5 +10,5 @@ public interface IUpdateService {
     <T> List<T> updateByProviders(EntityDtoServiceRelation relationInfo
             , Object object
             , IUpdateEntityProvider updateEntityProviders
-            , Map options) throws Exception;
+            , Map options);
 }

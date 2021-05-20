@@ -12,19 +12,45 @@ public class FieldUtils {
                 .collect(Collectors.joining());
     }
 
-    public static Object getFieldValue(Object obj, Method readMethod) throws InvocationTargetException, IllegalAccessException {
-        if(obj != null && readMethod != null) {
-            readMethod.setAccessible(true);
-            return readMethod.invoke(obj);
+    public static Object getFieldValue(Object obj, Method readMethod) {
+        try {
+            if (obj != null && readMethod != null) {
+                readMethod.setAccessible(true);
+                return readMethod.invoke(obj);
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
         return null;
     }
 
-    public static void setFieldValue(Object obj, Method writeMethod, Object value) throws IllegalAccessException, InvocationTargetException {
+    public static void setFieldValue(Object obj, Method writeMethod, Object value) {
         if(writeMethod == null || obj == null) {
             return;
         }
-        writeMethod.setAccessible(true);
-        writeMethod.invoke(obj, value);
+        try {
+            writeMethod.setAccessible(true);
+            writeMethod.invoke(obj, value);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static void setFieldValueIfNull(Object obj, Method readMethod, Method writeMethod, Object value) {
+        if(writeMethod == null || obj == null || readMethod == null) {
+            return;
+        }
+        try {
+            readMethod.setAccessible(true);
+            Object property = readMethod.invoke(obj);
+            if(property != null) {
+                return;
+            }
+
+            writeMethod.setAccessible(true);
+            writeMethod.invoke(obj, value);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

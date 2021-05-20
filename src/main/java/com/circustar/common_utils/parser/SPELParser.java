@@ -1,5 +1,6 @@
 package com.circustar.common_utils.parser;
 
+import org.springframework.context.expression.MapAccessor;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.ParserContext;
@@ -16,6 +17,7 @@ public class SPELParser {
 
     public static Object parseExpression(Object obj, String expressionString) {
         StandardEvaluationContext context = new StandardEvaluationContext(obj);
+        context.addPropertyAccessor(new MapAccessor());
         return parseExpression(context, expressionString);
     }
 

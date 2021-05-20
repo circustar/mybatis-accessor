@@ -23,7 +23,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
     }
     @Override
     public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
-            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options) throws Exception {
+            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options) {
         List<IEntityUpdateProcessor> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(dto);
         if(values.size() == 0) {return result;}

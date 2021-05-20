@@ -24,7 +24,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
     @Override
     public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object ids, Map options)
-            throws Exception {
+    {
         List<IEntityUpdateProcessor> result = new ArrayList<>();
         List values = Arrays.asList(ids);
         if(values.size() == 0) {return result;}

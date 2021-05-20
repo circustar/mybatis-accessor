@@ -158,16 +158,20 @@ public class QueryWrapperCreator {
                 , orderByDescList.toArray(new String[orderByDescList.size()]));
 
     }
-    public static <T> QueryWrapper<T> createQueryWrapper(Object dto, List<QueryWhereModel> queryWhereModels, QueryWrapperBuilder queryWrapperBuilder) throws IllegalAccessException, InvocationTargetException {
+    public static <T> QueryWrapper<T> createQueryWrapper(Object dto, List<QueryWhereModel> queryWhereModels, QueryWrapperBuilder queryWrapperBuilder){
         QueryWrapper<T> result = queryWrapperBuilder.createQueryWrapper();
-        for(QueryWhereModel queryWhere : queryWhereModels) {
-            queryWhere.getConnector().consume(queryWhere.getExpression()
-                    , result, FieldUtils.getFieldValue(dto, queryWhere.getDtoField().getReadMethod()));
+        try {
+            for (QueryWhereModel queryWhere : queryWhereModels) {
+                queryWhere.getConnector().consume(queryWhere.getExpression()
+                        , result, FieldUtils.getFieldValue(dto, queryWhere.getDtoField().getReadMethod()));
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
         return result;
     }
 
-    public <T> QueryWrapper<T> createQueryWrapper(Object dto, List<QueryWhereModel> queryWhereModels) throws IllegalAccessException, InvocationTargetException {
+    public <T> QueryWrapper<T> createQueryWrapper(Object dto, List<QueryWhereModel> queryWhereModels) {
         if(this.baseWrapperBuilder == null) {
             this.baseWrapperBuilder = createQueryWrapperBuilder(this.querySelectModels
                     , this.queryGroupByModels
@@ -177,7 +181,7 @@ public class QueryWrapperCreator {
         return createQueryWrapper(dto, queryWhereModels, this.baseWrapperBuilder);
     }
 
-    public <T> QueryWrapper<T> createQueryWrapper(Object dto) throws IllegalAccessException, InvocationTargetException {
+    public <T> QueryWrapper<T> createQueryWrapper(Object dto) {
         return createQueryWrapper(dto, this.queryWhereModels);
     }
 
