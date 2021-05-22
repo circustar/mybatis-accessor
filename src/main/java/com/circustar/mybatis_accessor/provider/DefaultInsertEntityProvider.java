@@ -24,17 +24,22 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
     public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options) {
         List<IEntityUpdateProcessor> result = new ArrayList<>();
+        Set<Object> updateParents = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_INSERT_PARENTS, new HashSet<>());
+        if(updateParents.contains(dto)) {
+            return result;
+        }
+
         Collection values = CollectionUtils.convertToCollection(dto);
         if(values.size() == 0) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
-//        boolean insertAllEntities = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_INSERT_ALL_CHILDREN, false);
-//        String[] children;
-//        if(insertAllEntities) {
-//            children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getSubDtoFieldList().stream().map(x -> x.getField().getName()));
-//        } else {
-        String[] children= MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, new String[]{});
-//        }
+        boolean includeAllChildren = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_INCLUDE_ALL_CHILDREN, false);
+        String[] children;
+        if(includeAllChildren) {
+            children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getSubDtoFieldList().stream().map(x -> x.getField().getName()));
+        } else {
+            children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, new String[]{});
+        }
         boolean updateChildrenOnly = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
 
         String[] topEntities = this.getTopEntities(children, ".");
@@ -62,13 +67,18 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
             for(String entityName : topEntities) {
                 DtoField dtoField = dtoClassInfo.getDtoField(entityName);
                 Object subValue = FieldUtils.getFieldValue(value, dtoField.getReadMethod());
+                if(subValue == null) {continue;}
                 Collection childList = CollectionUtils.convertToCollection(subValue);
                 if(childList.size() == 0) {continue;}
                 hasChildren = true;
                 Map newOptions = new HashMap(options);
                 newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
+                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_INCLUDE_ALL_CHILDREN, includeAllChildren);
                 newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, this.getChildren(children
                         , entityName, "."));
+                Set<Object> newParents = new HashSet<>(updateParents);
+                newParents.add(dto);
+                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_INSERT_PARENTS, newParents);
                 defaultEntityCollectionUpdater.addSubUpdateEntities(this.createUpdateEntities(
                         dtoField.getEntityDtoServiceRelation()
                         , dtoClassInfoHelper, childList, newOptions));

@@ -41,6 +41,9 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         this.subUpdateEntities.add(subDefaultEntityCollectionUpdater);
     }
     public void addSubUpdateEntities(Collection<IEntityUpdateProcessor> subUpdateEntities) {
+        if(subUpdateEntities == null) {
+            return;
+        }
         if(this.subUpdateEntities == null) {
             this.subUpdateEntities = new ArrayList<>();
         }
