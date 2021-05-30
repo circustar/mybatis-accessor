@@ -26,7 +26,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
             , DtoClassInfoHelper dtoClassInfoHelper, Object ids, Map options)
     {
         List<IEntityUpdateProcessor> result = new ArrayList<>();
-        List values = Arrays.asList(ids);
+        Collection values = CollectionUtils.convertToCollection(ids);;
         if(values.size() == 0) {return result;}
 
         String[] children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, new String[]{});
@@ -79,7 +79,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
                     , DeleteByIdBatchCommand.getInstance()
                     , physicDelete
                     , null //dtoClassInfo.getEntityClassInfo()
-                    , values
+                    , Arrays.asList(values.toArray())
                     , true
                     , false));
         }

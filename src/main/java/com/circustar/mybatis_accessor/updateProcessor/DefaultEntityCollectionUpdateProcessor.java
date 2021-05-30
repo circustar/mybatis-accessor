@@ -64,72 +64,68 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
 
     @Override
     public boolean execUpdate(Map<String, Object> keyMap) {
-        try {
-            boolean result;
-            if (updatechildFirst && subUpdateEntities != null) {
-                for (IEntityUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
-                    result = subDefaultEntityCollectionUpdater.execUpdate(keyMap);
-                    if (!result) {
-                        return false;
-                    }
+        boolean result;
+        if (updatechildFirst && subUpdateEntities != null) {
+            for (IEntityUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
+                result = subDefaultEntityCollectionUpdater.execUpdate(keyMap);
+                if (!result) {
+                    return false;
                 }
             }
-            if (entityClassInfo != null) {
-                List<String> avoidIdList = null;
-                if (entityClassInfo.getKeyField() != null && entityClassInfo.getParentKeyFieldInfo() != null) {
-                    Object parentPropertyValue = keyMap.getOrDefault(entityClassInfo.getParentKeyFieldInfo().getIdReferenceName(), null);
-                    if (parentPropertyValue != null) {
-                        avoidIdList = Arrays.asList(entityClassInfo.getKeyField().getField().getName()
-                                , entityClassInfo.getParentKeyFieldInfo().getField().getName());
-                        for (Object updateEntity : updateTargets) {
-                            FieldUtils.setFieldValueIfNull(updateEntity
-                                    , entityClassInfo.getParentKeyFieldInfo().getReadMethod()
-                                    , entityClassInfo.getParentKeyFieldInfo().getWriteMethod(), parentPropertyValue);
-                        }
-                    }
-                }
-
-                for (String keyProperty : keyMap.keySet()) {
-                    if (avoidIdList != null && avoidIdList.contains(keyProperty)) {
-                        continue;
-                    }
-                    EntityFieldInfo entityFieldInfo = entityClassInfo.getFieldByName(keyProperty);
-                    if (entityFieldInfo == null) {
-                        continue;
-                    }
-                    Object keyValue = keyMap.get(keyProperty);
-                    for (Object updateEntity : updateTargets) {
-                        FieldUtils.setFieldValueIfNull(updateEntity, entityFieldInfo.getReadMethod(), entityFieldInfo.getWriteMethod(), keyValue);
-                    }
-                }
-            }
-            if (!updateChildrenOnly) {
-                result = this.updateCommand.update(this.service, this.updateTargets, option);
-                if (!result) return false;
-            }
-
-            if (entityClassInfo != null) {
-                Optional firstEntity = updateTargets.stream().findFirst();
-                if (firstEntity.isPresent()) {
-                    EntityFieldInfo keyField = entityClassInfo.getKeyField();
-                    if (keyField != null) {
-                        Object masterKeyValue = FieldUtils.getFieldValue(firstEntity.get(), keyField.getReadMethod());
-                        keyMap.put(keyField.getField().getName(), masterKeyValue);
-                    }
-                }
-            }
-
-            if ((!updatechildFirst) && subUpdateEntities != null) {
-                for (IEntityUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
-                    result = subDefaultEntityCollectionUpdater.execUpdate(new HashMap<>(keyMap));
-                    if (!result) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
         }
+        if (entityClassInfo != null) {
+            List<String> avoidIdList = null;
+            if (entityClassInfo.getKeyField() != null && entityClassInfo.getIdReferenceFieldInfo() != null) {
+                Object parentPropertyValue = keyMap.getOrDefault(entityClassInfo.getKeyField().getField().getName(), null);
+                if (parentPropertyValue != null) {
+                    avoidIdList = Arrays.asList(entityClassInfo.getKeyField().getField().getName()
+                            , entityClassInfo.getIdReferenceFieldInfo().getField().getName());
+                    for (Object updateEntity : updateTargets) {
+                        FieldUtils.setFieldValueIfNull(updateEntity
+                                , entityClassInfo.getIdReferenceFieldInfo().getReadMethod()
+                                , entityClassInfo.getIdReferenceFieldInfo().getWriteMethod(), parentPropertyValue);
+                    }
+                }
+            }
+
+            for (String keyProperty : keyMap.keySet()) {
+                if (avoidIdList != null && avoidIdList.contains(keyProperty)) {
+                    continue;
+                }
+                EntityFieldInfo entityFieldInfo = entityClassInfo.getFieldByName(keyProperty);
+                if (entityFieldInfo == null) {
+                    continue;
+                }
+                Object keyValue = keyMap.get(keyProperty);
+                for (Object updateEntity : updateTargets) {
+                    FieldUtils.setFieldValueIfNull(updateEntity, entityFieldInfo.getReadMethod(), entityFieldInfo.getWriteMethod(), keyValue);
+                }
+            }
+        }
+        if (!updateChildrenOnly) {
+            result = this.updateCommand.update(this.service, this.updateTargets, option);
+            if (!result) return false;
+        }
+
+        if (entityClassInfo != null) {
+            Optional firstEntity = updateTargets.stream().findFirst();
+            if (firstEntity.isPresent()) {
+                EntityFieldInfo keyField = entityClassInfo.getKeyField();
+                if (keyField != null) {
+                    Object masterKeyValue = FieldUtils.getFieldValue(firstEntity.get(), keyField.getReadMethod());
+                    keyMap.put(keyField.getField().getName(), masterKeyValue);
+                }
+            }
+        }
+
+        if ((!updatechildFirst) && subUpdateEntities != null) {
+            for (IEntityUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
+                result = subDefaultEntityCollectionUpdater.execUpdate(new HashMap<>(keyMap));
+                if (!result) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

@@ -9,11 +9,22 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import java.util.List;
-
 public class SPELParser {
     public static ExpressionParser expressionParser = new SpelExpressionParser();
 
     private static ParserContext parserContext = new TemplateParserContext();
+
+    public static <T> T calcExpression(String expressionString, Class<T> clazz) {
+        Expression expression = expressionParser.parseExpression(expressionString);
+        return expression.getValue(clazz);
+    }
+
+    public static <T> T calcExpression(Object obj, String expressionString, Class<T> clazz) {
+        StandardEvaluationContext context = new StandardEvaluationContext(obj);
+        Expression expression = expressionParser.parseExpression(expressionString);
+        return expression.getValue(context, clazz);
+    }
+
 
     public static Object parseExpression(Object obj, String expressionString) {
         StandardEvaluationContext context = new StandardEvaluationContext(obj);

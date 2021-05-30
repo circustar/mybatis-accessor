@@ -25,7 +25,7 @@ public class EntityFieldInfo {
     private PropertyDescriptor propertyDescriptor;
     private Method readMethod;
     private Method writeMethod;
-    private String idReferenceName;
+    private IdReference idReference;
 
     public Boolean getPrimitive() {
         return isPrimitive;
@@ -109,12 +109,12 @@ public class EntityFieldInfo {
         this.writeMethod = writeMethod;
     }
 
-    public String getIdReferenceName() {
-        return idReferenceName;
+    public IdReference getIdReference() {
+        return idReference;
     }
 
-    public void setIdReferenceName(String idReferenceName) {
-        this.idReferenceName = idReferenceName;
+    public void setIdReference(IdReference idReference) {
+        this.idReference = idReference;
     }
 
     public static EntityFieldInfo parseField(Class c, Field field, EntityClassInfo entityClassInfo) {
@@ -123,12 +123,7 @@ public class EntityFieldInfo {
         fieldInfo.setField(field);
         fieldInfo.setPropertyDescriptor(BeanUtils.getPropertyDescriptor(c, field.getName()));
         IdReference idReference = field.getAnnotation(IdReference.class);
-        if(idReference != null) {
-            fieldInfo.setIdReferenceName(idReference.value());
-            if(idReference.value().equals(field.getName())) {
-                throw new RuntimeException("");
-            }
-        }
+        fieldInfo.setIdReference(idReference);
         if(fieldInfo.getPropertyDescriptor() != null) {
             fieldInfo.setReadMethod(fieldInfo.getPropertyDescriptor().getReadMethod());
             fieldInfo.setWriteMethod(fieldInfo.getPropertyDescriptor().getWriteMethod());

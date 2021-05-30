@@ -55,7 +55,7 @@ public class MybatisAccessorService {
     public EntityDtoServiceRelation getRelationIfExist(String dtoName) {
         EntityDtoServiceRelation relationInfo = null;
         if(dtoNameMap.containsKey(dtoName)) {
-            relationInfo = dtoNameMap.get(dtoName);
+            relationInfo = dtoNameMap.getOrDefault(dtoName, null);
         } else {
             relationInfo = getEntityDtoServiceRelation(dtoName);
             dtoNameMap.put(dtoName, relationInfo);
@@ -591,6 +591,13 @@ public class MybatisAccessorService {
         return result.iterator().next();
     }
 
+    public <T> List<T> deleteByIds(String dtoName
+            , Set<Serializable> ids
+            , String children
+            , boolean updateChildrenOnly) {
+        EntityDtoServiceRelation relationInfo = this.getRelation(dtoName);
+        return deleteByIds(ids, relationInfo, ArrayParamUtils.convertStringToArray(children), updateChildrenOnly);
+    }
 
     public <T> List<T> deleteByIds(String dtoName
             , Set<Serializable> ids

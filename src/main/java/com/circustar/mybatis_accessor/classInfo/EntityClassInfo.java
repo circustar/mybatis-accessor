@@ -15,7 +15,7 @@ public class EntityClassInfo {
     private Map<String, EntityFieldInfo> fieldMap;
     private TableInfo tableInfo;
     private EntityFieldInfo keyField;
-    private EntityFieldInfo parentKeyFieldInfo;
+    private EntityFieldInfo idReferenceFieldInfo;
 
     public EntityClassInfo(Class<?> entityClass) {
         this.entityClass = entityClass;
@@ -25,17 +25,6 @@ public class EntityClassInfo {
             return entityFieldInfo;
         }).collect(Collectors.toList());
         this.fieldMap = this.fieldList.stream().collect(Collectors.toMap(x -> x.getField().getName(), x -> x));
-        this.parentKeyFieldInfo = this.fieldList.stream().filter(x -> !StringUtils.isEmpty(x.getIdReferenceName())).findAny().orElse(null);
-        if(this.parentKeyFieldInfo != null) {
-            if(!this.fieldList.stream().filter(x -> !x.getField().getName().equals(this.parentKeyFieldInfo.getField().getName())
-                    && x.getField().getName().equals(this.parentKeyFieldInfo.getIdReferenceName()))
-                    .findAny().isPresent()) {
-                throw new RuntimeException(String.format(MessageProperties.ID_REFERENCE_NOT_FOUND
-                        , this.entityClass.getSimpleName()
-                        ,this.parentKeyFieldInfo.getField().getName()
-                        ,this.parentKeyFieldInfo.getIdReferenceName()));
-            }
-        }
 
         if(this.tableInfo == null) {
             TableName tableName = this.entityClass.getAnnotation(TableName.class);
@@ -45,6 +34,13 @@ public class EntityClassInfo {
         }
         if(!StringUtils.isEmpty(this.tableInfo.getKeyProperty())) {
             this.keyField = this.fieldMap.get(this.tableInfo.getKeyProperty());
+        }
+
+        this.idReferenceFieldInfo = this.fieldList.stream().filter(x -> x.getIdReference() != null).findAny().orElse(null);
+        if(this.idReferenceFieldInfo != null && this.keyField == null) {
+            throw new RuntimeException(String.format(MessageProperties.ID_REFERENCE_NOT_FOUND
+                    , this.entityClass.getSimpleName()
+                    ,this.idReferenceFieldInfo.getField().getName()));
         }
     }
 
@@ -71,7 +67,7 @@ public class EntityClassInfo {
         return keyField;
     }
 
-    public EntityFieldInfo getParentKeyFieldInfo() {
-        return parentKeyFieldInfo;
+    public EntityFieldInfo getIdReferenceFieldInfo() {
+        return idReferenceFieldInfo;
     }
 }
