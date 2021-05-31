@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public interface MybatisPlusMapper<T> extends BaseMapper<T> {
+public interface CommonMapper<T> extends BaseMapper<T> {
     int physicDeleteById(Serializable id);
 
     int physicDeleteByMap(@Param("cm") Map<String, Object> columnMap);

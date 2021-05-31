@@ -9,7 +9,7 @@ import com.circustar.mybatis_accessor.response.PageInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoFields;
-import com.circustar.mybatis_accessor.mapper.MybatisPlusMapper;
+import com.circustar.mybatis_accessor.mapper.CommonMapper;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.common_utils.reflection.FieldUtils;
@@ -184,7 +184,7 @@ public class SelectService implements ISelectService {
             joinExpression = SPELParser.parseExpression(dto, joinExpression).toString();
         }
         if (!StringUtils.isEmpty(joinExpression)) {
-            pageResult = ((MybatisPlusMapper) service.getBaseMapper()).selectPageWithJoin(page, queryWrapper
+            pageResult = ((CommonMapper) service.getBaseMapper()).selectPageWithJoin(page, queryWrapper
                     , joinExpression, dtoClassInfo.getJoinColumns());
         } else {
             pageResult = service.page(page, queryWrapper);
@@ -234,7 +234,7 @@ public class SelectService implements ISelectService {
             joinExpression = SPELParser.parseExpression(dto, joinExpression).toString();
         }
         if (!StringUtils.isEmpty(joinExpression)) {
-            entityList = ((MybatisPlusMapper)service.getBaseMapper()).selectListWithJoin(queryWrapper
+            entityList = ((CommonMapper)service.getBaseMapper()).selectListWithJoin(queryWrapper
                     , joinExpression, dtoClassInfo.getJoinColumns());
         } else {
             entityList = service.list(queryWrapper);
