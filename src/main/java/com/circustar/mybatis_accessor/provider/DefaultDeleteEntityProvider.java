@@ -105,7 +105,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
         }
         if(!updateChildrenOnly && noSubEntityList.size() > 0) {
             updateProcessor = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
-                    , noSubEntityList.size() == 1 ? DeleteByIdCommand.getInstance() : DeleteByIdBatchCommand.getInstance()
+                    , DeleteByIdBatchCommand.getInstance()
                     , physicDelete
                     , null //dtoClassInfo.getEntityClassInfo()
                     , noSubEntityList

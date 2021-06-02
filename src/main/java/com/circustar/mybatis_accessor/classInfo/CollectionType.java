@@ -1,5 +1,6 @@
 package com.circustar.mybatis_accessor.classInfo;
 
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 public enum CollectionType {
@@ -13,7 +14,7 @@ public enum CollectionType {
     abstractSet(AbstractSet.class, HashSet.class),
     queue(Queue.class, PriorityQueue.class),
     abstractQueue(AbstractQueue.class, PriorityQueue.class),
-    deque(Deque.class, ArrayDeque.class),
+    deque(Deque.class, ArrayDeque.class)
     ;
     private Class<? extends Collection> inferfaceClass;
     private Class<? extends Collection> implementClass;
@@ -28,9 +29,13 @@ public enum CollectionType {
         return this.implementClass;
     }
     public static Class<? extends Collection> getSupportCollectionType(Class t) {
-        if(Collection.class.isAssignableFrom(t) && !t.isInterface()) {
+        if(Collection.class.isAssignableFrom(t) && !t.isInterface() && Modifier.isPublic(t.getModifiers())) {
             return t;
         }
-        return  Arrays.stream(CollectionType.values()).filter(x -> x.getInterface() == t).map(x -> x.getImplementClass()).findFirst().orElse(null);
+        Class<? extends Collection> result = Arrays.stream(CollectionType.values()).filter(x -> x.getInterface() == t).map(x -> x.getImplementClass()).findFirst().orElse(null);
+        if(result != null) {
+            return result;
+        }
+        return ArrayList.class;
     }
 }
