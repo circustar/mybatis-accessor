@@ -16,8 +16,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
             , EntityClassInfo entityClassInfo
             , List updateTargets
             , Boolean updateChildrenFirst
-            , boolean updateChildrenOnly
-            , boolean feedbackFlag) {
+            , boolean updateChildrenOnly) {
         this.option = option;
         this.updateCommand = updateCommand;
         this.service = service;
@@ -25,7 +24,6 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         this.updateChildFirst = updateChildrenFirst;
         this.entityClassInfo = entityClassInfo;
         this.updateChildrenOnly = updateChildrenOnly;
-        this.feedbackFlag = feedbackFlag;
     }
     private Object option;
     private IUpdateCommand updateCommand;
@@ -57,10 +55,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
     }
 
     public List getUpdatedTargets() {
-        if(feedbackFlag) {
-            return updateTargets;
-        }
-        return null;
+        return updateTargets;
     }
 
     @Override

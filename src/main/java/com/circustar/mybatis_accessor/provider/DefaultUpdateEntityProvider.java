@@ -56,8 +56,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                     , dtoClassInfo.getEntityClassInfo()
                     , Collections.singletonList(updateTarget)
                     , false
-                    , updateChildrenOnly
-                    ,true);
+                    , updateChildrenOnly);
             Object keyValue = FieldUtils.getFieldValue(value, dtoClassInfo.getKeyField().getReadMethod());
 
             for(String entityName : topEntities) {
@@ -72,8 +71,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                             , null
                             , Collections.singletonList(qw)
                             , true
-                            , false
-                            , true));
+                            , false));
                 }
                 Collection childList = CollectionUtils.convertToCollection(topChild);
                 if(childList.size() == 0) {continue;}
