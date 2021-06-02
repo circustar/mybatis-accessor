@@ -63,7 +63,8 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
                     , dtoClassInfo.getEntityClassInfo()
                     , Collections.singletonList(updateTarget)
                     , false
-                    , updateChildrenOnly);
+                    , updateChildrenOnly
+                    , true);
             for(String entityName : topEntities) {
                 DtoField dtoField = dtoClassInfo.getDtoField(entityName);
                 Object subValue = FieldUtils.getFieldValue(value, dtoField.getReadMethod());
@@ -96,7 +97,8 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
                         , dtoClassInfo.getEntityClassInfo()
                         , updateTargetList
                         , false
-                        , false);
+                        , false
+                        , true);
                 return Collections.singletonList(defaultEntityCollectionUpdater);
             }
         }

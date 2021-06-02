@@ -31,7 +31,6 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
 
         String[] children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, new String[]{});
         boolean updateChildrenOnly = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
-        boolean physicDelete = getPhysicDelete(dtoClassInfoHelper, relation);
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
         ISelectService selectService = this.getSelectService();
@@ -46,17 +45,19 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
                         , topEntities);
                 for (String entityName : topEntities) {
                     DtoField dtoField = dtoClassInfo.getDtoField(entityName);
-                    Object entity = FieldUtils.getFieldValue(object, dtoField.getEntityFieldInfo().getReadMethod());
+                    Object entity = FieldUtils.getFieldValue(object, dtoField.getReadMethod());
                     if (entity == null) {
                         continue;
                     }
-                    DtoField dtoKeyField = dtoClassInfo.getKeyField();
+                    DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo((Class) dtoField.getActualType());
+
+                    DtoField subDtoKeyField = subDtoClassInfo.getKeyField();
                     List<Object> subIds = new ArrayList<>();
                     Collection entityList = CollectionUtils.convertToCollection(entity);
                     if(entityList.size() == 0) {continue;}
                     for (Object obj : entityList) {
-                        if(dtoKeyField != null) {
-                            Object subId = FieldUtils.getFieldValue(obj, dtoKeyField.getReadMethod());
+                        if(subDtoKeyField != null) {
+                            Object subId = FieldUtils.getFieldValue(obj, subDtoKeyField.getReadMethod());
                             if(subId != null) {
                                 subIds.add(subId);
                             }
@@ -75,12 +76,14 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
         }
 
         if(!updateChildrenOnly) {
+            boolean physicDelete = getPhysicDelete(dtoClassInfoHelper, relation);
             result.add(new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , DeleteByIdBatchCommand.getInstance()
                     , physicDelete
                     , null //dtoClassInfo.getEntityClassInfo()
                     , Arrays.asList(values.toArray())
                     , true
+                    , false
                     , false));
         }
         return result;

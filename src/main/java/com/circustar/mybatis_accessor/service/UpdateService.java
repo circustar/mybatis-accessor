@@ -1,11 +1,13 @@
 package com.circustar.mybatis_accessor.service;
 
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
+import com.circustar.common_utils.reflection.FieldUtils;
+import com.circustar.mybatis_accessor.classInfo.*;
 import com.circustar.mybatis_accessor.common.MessageProperties;
 import com.circustar.mybatis_accessor.provider.*;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.NoTransactionException;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -29,7 +31,7 @@ public class UpdateService implements IUpdateService {
     public <T> List<T> updateByProviders(EntityDtoServiceRelation relationInfo
             , Object object, IUpdateEntityProvider provider
             , Map options) {
-        List<Object> updatedObjects = new ArrayList<>();
+        List<T> updatedObjects = new ArrayList<>();
         List<IEntityUpdateProcessor> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper
                 , object, options);
         for(IEntityUpdateProcessor o : objList) {
@@ -39,13 +41,12 @@ public class UpdateService implements IUpdateService {
                         , "DTO CLASS - " + relationInfo.getDtoClass().getSimpleName()
                                 + ", UPDATE PROCESSOR - " + o.getClass().getSimpleName()));
             }
-            updatedObjects.addAll(o.getUpdateTargets());
+            if(o.getUpdatedTargets() != null && o.getUpdatedTargets().size() > 0) {
+                updatedObjects.addAll(o.getUpdatedTargets());
+            }
         }
         provider.onSuccess(object, updatedObjects);
 
-        if(updatedObjects.size() == 0) {
-            return (List<T>) updatedObjects;
-        }
-        return (List<T>) dtoClassInfoHelper.convertFromEntityList(updatedObjects, relationInfo.getDtoClass());
+        return updatedObjects;
     }
 }
