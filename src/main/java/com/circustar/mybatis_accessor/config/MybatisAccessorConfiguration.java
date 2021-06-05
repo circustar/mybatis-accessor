@@ -6,14 +6,12 @@ import com.circustar.mybatis_accessor.classInfo.EntityClassInfoHelper;
 import com.circustar.mybatis_accessor.provider.DefaultDeleteEntityProvider;
 import com.circustar.mybatis_accessor.provider.DefaultInsertEntityProvider;
 import com.circustar.mybatis_accessor.provider.DefaultUpdateEntityProvider;
-import com.circustar.mybatis_accessor.relation.ScanValidatorOnStartup;
 import com.circustar.mybatis_accessor.support.MybatisAccessorService;
 import com.circustar.mybatis_accessor.injector.EnhanceSqlInjector;
 import com.circustar.mybatis_accessor.service.UpdateService;
 import com.circustar.mybatis_accessor.service.ISelectService;
 import com.circustar.mybatis_accessor.service.SelectService;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
-import com.circustar.mybatis_accessor.validator.DtoValidatorManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.ApplicationContext;
@@ -41,8 +39,6 @@ public class MybatisAccessorConfiguration {
     private EntityClassInfoHelper entityClassInfoHelper;
     private DtoClassInfoHelper dtoClassInfoHelper;
     private MybatisAccessorService mybatisAccessorService;
-    private DtoValidatorManager dtoValidatorManager;
-    private ScanValidatorOnStartup scanValidatorOnStartup;
 
     public MybatisAccessorConfiguration(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -52,13 +48,8 @@ public class MybatisAccessorConfiguration {
         this.dtoClassInfoHelper = new DtoClassInfoHelper(this.entityDtoServiceRelationMap, this.entityClassInfoHelper);
         this.updateService = new UpdateService(this.applicationContext, this.dtoClassInfoHelper, this.entityDtoServiceRelationMap);
         this.selectService = new SelectService(this.applicationContext, this.entityDtoServiceRelationMap, this.dtoClassInfoHelper);
-        this.dtoValidatorManager = new DtoValidatorManager(this.applicationContext
-                , DefaultInsertEntityProvider.getInstance()
-                , DefaultUpdateEntityProvider.getInstance()
-                , DefaultDeleteEntityProvider.getInstance());
-        this.mybatisAccessorService = new MybatisAccessorService(this.applicationContext, this.entityDtoServiceRelationMap, this.selectService, this.updateService, this.dtoValidatorManager);
+        this.mybatisAccessorService = new MybatisAccessorService(this.applicationContext, this.entityDtoServiceRelationMap, this.selectService, this.updateService);
         this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
-        this.scanValidatorOnStartup = new ScanValidatorOnStartup(this.dtoValidatorManager);
 
         TableInfoUtils.scanPackages.getAndSet(getMapperScanPackages(this.applicationContext));
     }
@@ -123,15 +114,5 @@ public class MybatisAccessorConfiguration {
     @Bean
     public MybatisAccessorService getMybatisAccessorService() {
         return this.mybatisAccessorService;
-    }
-
-    @Bean
-    public DtoValidatorManager getDtoValidatorManager() {
-        return this.dtoValidatorManager;
-    }
-
-    @Bean
-    public ScanValidatorOnStartup getScanValidatorOnStartup() {
-        return this.scanValidatorOnStartup;
     }
 }

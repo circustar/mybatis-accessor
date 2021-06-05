@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.wrapper;
+package com.circustar.mybatis_accessor.model;
 
 import com.circustar.mybatis_accessor.annotation.QueryJoin;
 import org.springframework.util.StringUtils;

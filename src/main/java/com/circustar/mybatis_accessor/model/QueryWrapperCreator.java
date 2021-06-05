@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.wrapper;
+package com.circustar.mybatis_accessor.model;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
@@ -9,7 +9,6 @@ import com.circustar.mybatis_accessor.classInfo.EntityClassInfo;
 import com.circustar.common_utils.reflection.FieldUtils;
 import org.springframework.util.StringUtils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;

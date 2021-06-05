@@ -8,9 +8,8 @@ import com.circustar.mybatis_accessor.annotation.DeleteFlag;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.common_utils.reflection.AnnotationUtils;
-import com.circustar.mybatis_accessor.wrapper.QueryWrapperCreator;
+import com.circustar.mybatis_accessor.model.QueryWrapperCreator;
 
-import java.lang.reflect.InvocationTargetException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;

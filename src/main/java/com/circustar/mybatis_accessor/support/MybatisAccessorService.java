@@ -14,7 +14,6 @@ import com.circustar.mybatis_accessor.response.PageInfo;
 import com.circustar.mybatis_accessor.service.ISelectService;
 import com.circustar.mybatis_accessor.service.IUpdateService;
 import com.circustar.common_utils.reflection.FieldUtils;
-import com.circustar.mybatis_accessor.validator.DtoValidatorManager;
 import org.springframework.context.ApplicationContext;
 
 import java.io.Serializable;
@@ -25,16 +24,14 @@ public class MybatisAccessorService {
     protected ApplicationContext applicationContext;
     protected IUpdateService updateService = null;
     protected ISelectService selectService = null;
-    protected DtoValidatorManager dtoValidatorManager = null;
     protected IEntityDtoServiceRelationMap entityDtoServiceRelationMap = null;
     protected Map<String, EntityDtoServiceRelation> dtoNameMap = new ConcurrentHashMap<>();
 
     public MybatisAccessorService(ApplicationContext applicationContext, IEntityDtoServiceRelationMap entityDtoServiceRelationMap
-            , ISelectService selectService, IUpdateService updateService, DtoValidatorManager dtoValidatorManager) {
+            , ISelectService selectService, IUpdateService updateService) {
         this.applicationContext = applicationContext;
         this.updateService = updateService;
         this.selectService = selectService;
-        this.dtoValidatorManager = dtoValidatorManager;
         this.entityDtoServiceRelationMap = entityDtoServiceRelationMap;
     }
 
