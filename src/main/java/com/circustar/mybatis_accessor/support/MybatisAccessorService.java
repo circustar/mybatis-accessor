@@ -507,27 +507,30 @@ public class MybatisAccessorService {
 
 
     public <T> T update(Object object
+            , boolean includeAllChildren
             , String children
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild)  {
         return this.update(object.getClass().getSimpleName(), object
-                , children, updateChildrenOnly, removeAndInsertNewChild);
+                , includeAllChildren,  children, updateChildrenOnly, removeAndInsertNewChild);
     }
 
 
     public <T> T update(String dtoName
             , Object object
+            , boolean includeAllChildren
             , String children
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild)  {
         EntityDtoServiceRelation relationInfo = this.getRelation(dtoName);
         return update(object, relationInfo
-                , children, updateChildrenOnly, removeAndInsertNewChild);
+                , includeAllChildren,  children, updateChildrenOnly, removeAndInsertNewChild);
     }
 
 
     public <T> T update(Object object
             , EntityDtoServiceRelation relation
+            , boolean includeAllChildren
             , String children
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild)  {
@@ -535,6 +538,7 @@ public class MybatisAccessorService {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_AND_INSERT, removeAndInsertNewChild);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_INCLUDE_ALL_CHILDREN, includeAllChildren);
 
         List<T> result = updateWithOptions(object, relation, DefaultUpdateEntityProvider.getInstance()
                 , options);
@@ -543,6 +547,7 @@ public class MybatisAccessorService {
 
 
     public <T> List<T> updateList(List objects
+            , boolean includeAllChildren
             , String children
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild)  {
@@ -550,24 +555,26 @@ public class MybatisAccessorService {
             return null;
         }
         String dtoName = objects.get(0).getClass().getSimpleName();
-        return this.updateList(dtoName, objects, children
+        return this.updateList(dtoName, objects, includeAllChildren, children
                 , updateChildrenOnly, removeAndInsertNewChild);
     }
 
 
     public <T> List<T> updateList(String dtoName
             , List objectList
+            , boolean includeAllChildren
             , String children
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild)  {
         EntityDtoServiceRelation relationInfo = this.getRelation(dtoName);
-        return updateList(objectList, relationInfo, children
+        return updateList(objectList, relationInfo, includeAllChildren, children
                 , updateChildrenOnly, removeAndInsertNewChild);
     }
 
 
     public <T> List<T> updateList(List objectList
             , EntityDtoServiceRelation relation
+            , boolean includeAllChildren
             , String children
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild)  {
@@ -578,6 +585,7 @@ public class MybatisAccessorService {
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, ArrayParamUtils.convertStringToArray(children));
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_AND_INSERT, removeAndInsertNewChild);
         options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
+        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_INCLUDE_ALL_CHILDREN, includeAllChildren);
 
         return updateWithOptions(objectList, relation, DefaultUpdateEntityProvider.getInstance()
                 , options);

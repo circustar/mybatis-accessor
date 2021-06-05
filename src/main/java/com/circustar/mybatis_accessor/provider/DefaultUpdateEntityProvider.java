@@ -30,9 +30,15 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
 
-        String[] childNameList = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, new String[]{});
         boolean updateChildrenOnly = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
         boolean deleteBeforeUpdate = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_AND_INSERT, false);
+        boolean includeAllChildren = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_INCLUDE_ALL_CHILDREN, false);
+        String[] children;
+        if(includeAllChildren) {
+            children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getSubDtoFieldList().stream().map(x -> x.getField().getName()));
+        } else {
+            children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, new String[]{});
+        }
         boolean physicDelete = getPhysicDelete(dtoClassInfoHelper, relation);
 
         DefaultDeleteEntityProvider defaultDeleteTreeProvider =  DefaultDeleteEntityProvider.getInstance();
@@ -40,7 +46,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
         List<IEntityUpdateProcessor> defaultEntityCollectionUpdaterCollection = new ArrayList<>();
         String keyColumn = dtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn();
 
-        String[] topEntities = this.getTopEntities(childNameList, ".");
+        String[] topEntities = this.getTopEntities(children, ".");
 
         List<Object> updateTargetList = new ArrayList<>();
         for(Object value : values) {
@@ -77,7 +83,8 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                 if(childList.size() == 0) {continue;}
                 Map newOptions = new HashMap(options);
                 newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
-                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, this.getChildren(childNameList
+                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_INCLUDE_ALL_CHILDREN, includeAllChildren);
+                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, this.getChildren(children
                         , entityName, "."));
                 DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(subDtoField.getEntityDtoServiceRelation().getDtoClass());
                 for(Object child : childList) {
