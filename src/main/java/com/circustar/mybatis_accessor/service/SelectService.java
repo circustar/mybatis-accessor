@@ -46,7 +46,7 @@ public class SelectService implements ISelectService {
 
     @Override
     public <T> T getDtoByAnnotation(EntityDtoServiceRelation relationInfo
-            , Object object, String[] children
+            , Object object, boolean includeAllChildren, String[] children
     ){
         Object oriEntity = this.getEntityByAnnotation(relationInfo, object);
         if (oriEntity == null) {
@@ -57,7 +57,7 @@ public class SelectService implements ISelectService {
         if(dtoClassInfo.getEntityClassInfo().getKeyField() != null) {
             Serializable id = (Serializable) FieldUtils.getFieldValue(oriEntity, dtoClassInfo.getEntityClassInfo().getKeyField().getReadMethod());
             if (id != null) {
-                setDtoChildren(relationInfo, result, id, children);
+                setDtoChildren(relationInfo, result, id, includeAllChildren, children);
             }
         }
         return result;
@@ -73,6 +73,7 @@ public class SelectService implements ISelectService {
     @Override
     public <T> T getDtoByQueryWrapper(EntityDtoServiceRelation relationInfo
             , QueryWrapper queryWrapper
+            , boolean includeAllChildren
             , String[] children) {
         IService s = relationInfo.getServiceBean(applicationContext);
         Object oriEntity = s.getOne(queryWrapper);
@@ -84,7 +85,7 @@ public class SelectService implements ISelectService {
         if(dtoClassInfo.getEntityClassInfo().getKeyField() != null) {
             Serializable id = (Serializable) FieldUtils.getFieldValue(oriEntity, dtoClassInfo.getEntityClassInfo().getKeyField().getReadMethod());
             if(id != null) {
-                setDtoChildren(relationInfo, result, id, children);
+                setDtoChildren(relationInfo, result, id, includeAllChildren, children);
             }
         }
         return result;
@@ -93,6 +94,7 @@ public class SelectService implements ISelectService {
     private void setDtoChildren(EntityDtoServiceRelation relationInfo
             , Object dto
             , Serializable id
+            , boolean includeAllChildren
             , String[] children) {
         Set<String> childList;
         if(children == null) {
@@ -100,8 +102,15 @@ public class SelectService implements ISelectService {
         } else {
             childList = new HashSet<>(Arrays.asList(children));
         }
-        List<DtoField> subFields = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass())
-                .getSubDtoFieldList().stream().filter(x -> childList.contains(x.getField().getName())).collect(Collectors.toList());
+        List<DtoField> subFields = null;
+        if(includeAllChildren) {
+            subFields = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass())
+                    .getSubDtoFieldList().stream()
+                    .filter(x -> x.getQueryJoin() == null).collect(Collectors.toList());
+        } else {
+            subFields = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass())
+                    .getSubDtoFieldList().stream().filter(x -> childList.contains(x.getField().getName())).collect(Collectors.toList());
+        }
 
         Map<Boolean, List<DtoField>> dtoFieldMap = subFields.stream()
                 .collect(Collectors.partitioningBy(x -> x.getSelectors() == null || x.getSelectors().length == 0));
@@ -132,6 +141,7 @@ public class SelectService implements ISelectService {
     @Override
     public <T> T getDtoById(EntityDtoServiceRelation relationInfo
             , Serializable id
+            , boolean includeAllChildren
             , String[] children) {
         IService s = relationInfo.getServiceBean(applicationContext);
         Object oriEntity = s.getById(id);
@@ -139,7 +149,7 @@ public class SelectService implements ISelectService {
             return null;
         }
         T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, relationInfo.getDtoClass());
-        setDtoChildren(relationInfo, result, id , children);
+        setDtoChildren(relationInfo, result, id , includeAllChildren, children);
 
         return result;
     }

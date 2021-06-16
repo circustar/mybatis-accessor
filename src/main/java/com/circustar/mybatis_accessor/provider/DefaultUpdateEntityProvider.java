@@ -21,11 +21,19 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
     public static DefaultUpdateEntityProvider getInstance() {
         return instance;
     }
+
     @Override
     public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options) {
+        return this.createUpdateEntities(relation, dtoClassInfoHelper, dto, options, new HashSet());
+    }
+
+    public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
+            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options, Set updateTargetSet) {
         List<IEntityUpdateProcessor> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(dto);
+        values.removeAll(updateTargetSet);
+        updateTargetSet.addAll(values);
         if(values.size() == 0) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
@@ -42,7 +50,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
         boolean physicDelete = getPhysicDelete(dtoClassInfoHelper, relation);
 
         DefaultDeleteEntityProvider defaultDeleteTreeProvider =  DefaultDeleteEntityProvider.getInstance();
-        DefaultInsertEntityProvider inertEntitiesEntityProvider = DefaultInsertEntityProvider.getInstance();
+        DefaultInsertEntityProvider insertEntitiesEntityProvider = DefaultInsertEntityProvider.getInstance();
         List<IEntityUpdateProcessor> defaultEntityCollectionUpdaterCollection = new ArrayList<>();
         String keyColumn = dtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn();
 
@@ -102,13 +110,13 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                         } else {
                             defaultEntityCollectionUpdater.addSubUpdateEntities(this.createUpdateEntities(
                                     subDtoField.getEntityDtoServiceRelation(), dtoClassInfoHelper
-                                    , child, newOptions
+                                    , child, newOptions, updateTargetSet
                             ));
                         }
                     } else {
                         defaultEntityCollectionUpdater.addSubUpdateEntities(
-                                inertEntitiesEntityProvider.createUpdateEntities(subDtoField.getEntityDtoServiceRelation()
-                                , dtoClassInfoHelper, child, newOptions));
+                                insertEntitiesEntityProvider.createUpdateEntities(subDtoField.getEntityDtoServiceRelation()
+                                , dtoClassInfoHelper, child, newOptions, updateTargetSet));
                     }
                 }
             }

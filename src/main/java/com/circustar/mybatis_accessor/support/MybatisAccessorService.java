@@ -114,100 +114,118 @@ public class MybatisAccessorService {
 
     public <T> T getDtoById(String dtoName
             , Serializable id
+            , boolean includeAllChildren
             , String children)  {
-        return this.getDtoById(dtoName, id, ArrayParamUtils.convertStringToArray(children, ArrayParamUtils.DELIMITER_COMMA));
+        return this.getDtoById(dtoName, id, includeAllChildren
+                , ArrayParamUtils.convertStringToArray(children, ArrayParamUtils.DELIMITER_COMMA));
     }
 
     public <T> T getDtoById(Class dtoClass
             , Serializable id
+            , boolean includeAllChildren
             , String children)  {
-        return this.getDtoById(dtoClass.getSimpleName(), id, children);
+        return this.getDtoById(dtoClass.getSimpleName(), id, includeAllChildren, children);
     }
 
     public <T> T getDtoById(String dtoName
             , Serializable id
+            , boolean includeAllChildren
             , String[] children)  {
         EntityDtoServiceRelation relationInfo = this.getRelation(dtoName);
-        return this.getDtoById(relationInfo, id, children);
+        return this.getDtoById(relationInfo, id, includeAllChildren, children);
     }
 
     public <T> T getDtoById(Class dtoClass
             , Serializable id
+            , boolean includeAllChildren
             , String[] children)  {
-        return this.getDtoById(dtoClass.getSimpleName(), id, children);
+        return this.getDtoById(dtoClass.getSimpleName(), id, includeAllChildren, children);
     }
 
     public <T> T getDtoById(EntityDtoServiceRelation relationInfo
             , Serializable id
+            , boolean includeAllChildren
             , String[] children)  {
-        return this.selectService.getDtoById(relationInfo, id, children);
+        return this.selectService.getDtoById(relationInfo, id, includeAllChildren, children);
     }
 
     public <T> T getDtoByQueryWrapper(String dtoName
             , QueryWrapper queryWrapper
+            , boolean includeAllChildren
             , String children)  {
-        return this.getDtoByQueryWrapper(dtoName, queryWrapper, ArrayParamUtils.convertStringToArray(children, ArrayParamUtils.DELIMITER_COMMA));
+        return this.getDtoByQueryWrapper(dtoName, queryWrapper, includeAllChildren
+                , ArrayParamUtils.convertStringToArray(children, ArrayParamUtils.DELIMITER_COMMA));
     }
 
     public <T> T getDtoByQueryWrapper(Class dtoClass
             , QueryWrapper queryWrapper
+            , boolean includeAllChildren
             , String children)  {
-        return this.getDtoByQueryWrapper(dtoClass.getSimpleName(), queryWrapper, children);
+        return this.getDtoByQueryWrapper(dtoClass.getSimpleName(), queryWrapper, includeAllChildren, children);
     }
 
     public <T> T getDtoByQueryWrapper(String dtoName
             , QueryWrapper queryWrapper
+            , boolean includeAllChildren
             , String[] children)  {
         EntityDtoServiceRelation relationInfo = this.getRelation(dtoName);
-        return this.getDtoByQueryWrapper(relationInfo, queryWrapper, children);
+        return this.getDtoByQueryWrapper(relationInfo, queryWrapper, includeAllChildren, children);
     }
 
     public <T> T getDtoByQueryWrapper(Class dtoClass
             , QueryWrapper queryWrapper
+            , boolean includeAllChildren
             , String[] children)  {
-        return this.getDtoByQueryWrapper(dtoClass.getSimpleName(), queryWrapper, children);
+        return this.getDtoByQueryWrapper(dtoClass.getSimpleName(), queryWrapper, includeAllChildren, children);
     }
 
     public <T> T getDtoByQueryWrapper(EntityDtoServiceRelation relationInfo
             , QueryWrapper queryWrapper
+            , boolean includeAllChildren
             , String[] children)  {
-        return this.selectService.getDtoByQueryWrapper(relationInfo, queryWrapper, children);
+        return this.selectService.getDtoByQueryWrapper(relationInfo, queryWrapper, includeAllChildren, children);
     }
 
-    public <T> T getDtoByAnnotation(Object object
+    public <T> T getDtoByAnnotation(Object object, boolean includeAllChildren
             , String children)  {
-        return this.getDtoByAnnotation(object.getClass(), object, children);
+        return this.getDtoByAnnotation(object.getClass(), object, includeAllChildren, children);
     }
 
     public <T> T getDtoByAnnotation(String dtoName
             , Object object
+            , boolean includeAllChildren
             , String children)  {
-        return this.getDtoByAnnotation(dtoName, object, ArrayParamUtils.convertStringToArray(children, ArrayParamUtils.DELIMITER_COMMA));
+        return this.getDtoByAnnotation(dtoName, object, includeAllChildren
+                , ArrayParamUtils.convertStringToArray(children, ArrayParamUtils.DELIMITER_COMMA));
     }
 
     public <T> T getDtoByAnnotation(Class dtoClass
             , Object object
+            , boolean includeAllChildren
             , String children)  {
-        return this.getDtoByAnnotation(dtoClass.getSimpleName(), object, children);
+        return this.getDtoByAnnotation(dtoClass.getSimpleName(), object, includeAllChildren, children);
     }
 
     public <T> T getDtoByAnnotation(String dtoName
             , Object object
+            , boolean includeAllChildren
             , String[] children)  {
         EntityDtoServiceRelation relationInfo = this.getRelation(dtoName);
-        return this.getDtoByAnnotation(relationInfo, object, children);
+        return this.getDtoByAnnotation(relationInfo, object, includeAllChildren, children);
     }
 
     public <T> T getDtoByAnnotation(Class dtoClass
             , Object object
+            , boolean includeAllChildren
             , String[] children)  {
-        return this.getDtoByAnnotation(dtoClass.getSimpleName(), object, children);
+        return this.getDtoByAnnotation(dtoClass.getSimpleName(), object, includeAllChildren, children);
     }
 
     public <T> T getDtoByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
+            , boolean includeAllChildren
             , String[] children)  {
-        return this.selectService.getDtoByAnnotation(relationInfo, object, children);
+        return this.selectService.getDtoByAnnotation(relationInfo, object, includeAllChildren, children);
     }
 
     public <T> PageInfo<T> getEntityPageByAnnotation(Object object

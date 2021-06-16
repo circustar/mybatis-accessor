@@ -50,7 +50,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
                 }
                 List<IEntityUpdateProcessor> subUpdateEntities = new ArrayList<>();
                 Object object = selectService.getDtoById(relation, (Serializable) id
-                        , topEntities);
+                        ,false , topEntities);
                 if(object == null) {
                     continue;
                 }

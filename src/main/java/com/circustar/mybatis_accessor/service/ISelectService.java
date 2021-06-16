@@ -13,20 +13,21 @@ public interface ISelectService {
     );
 
     <T> T getDtoByAnnotation(EntityDtoServiceRelation relationInfo
-            , Object object, String[] children
+            , Object object, boolean includeAllChildren, String[] children
     );
 
     <T> T getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo
             , QueryWrapper queryWrapper);
 
     <T> T getDtoByQueryWrapper(EntityDtoServiceRelation relationInfo
-            , QueryWrapper queryWrapper, String[] children);
+            , QueryWrapper queryWrapper, boolean includeAllChildren, String[] children);
 
     <T> T getEntityById(EntityDtoServiceRelation relationInfo
             , Serializable id);
 
     <T> T getDtoById(EntityDtoServiceRelation relationInfo
             , Serializable id
+            , boolean includeAllChildren
             , String[] children);
 
     <T> PageInfo<T> getEntityPageByAnnotation(EntityDtoServiceRelation relationInfo

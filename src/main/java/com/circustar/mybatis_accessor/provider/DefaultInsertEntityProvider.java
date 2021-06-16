@@ -23,13 +23,15 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
     @Override
     public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options) {
-        List<IEntityUpdateProcessor> result = new ArrayList<>();
-        Set<Object> updateParents = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_INSERT_PARENTS, new HashSet<>());
-        if(updateParents.contains(dto)) {
-            return result;
-        }
+        return this.createUpdateEntities(relation, dtoClassInfoHelper, dto, options, new HashSet());
+    }
 
+    public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
+            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options, Set updateTargetSet) {
+        List<IEntityUpdateProcessor> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(dto);
+        values.removeAll(updateTargetSet);
+        updateTargetSet.addAll(values);
         if(values.size() == 0) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
@@ -76,12 +78,9 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
                 newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_INCLUDE_ALL_CHILDREN, includeAllChildren);
                 newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, this.getChildren(children
                         , entityName, "."));
-                Set<Object> newParents = new HashSet<>(updateParents);
-                newParents.add(dto);
-                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_INSERT_PARENTS, newParents);
                 defaultEntityCollectionUpdater.addSubUpdateEntities(this.createUpdateEntities(
                         dtoField.getEntityDtoServiceRelation()
-                        , dtoClassInfoHelper, childList, newOptions));
+                        , dtoClassInfoHelper, childList, newOptions, updateTargetSet));
             }
             result.add(defaultEntityCollectionUpdater);
         }
