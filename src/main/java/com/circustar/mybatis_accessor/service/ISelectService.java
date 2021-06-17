@@ -17,10 +17,10 @@ public interface ISelectService {
     );
 
     <T> T getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo
-            , QueryWrapper queryWrapper);
+            , QueryWrapper queryWrapper, Object dto);
 
     <T> T getDtoByQueryWrapper(EntityDtoServiceRelation relationInfo
-            , QueryWrapper queryWrapper, boolean includeAllChildren, String[] children);
+            , QueryWrapper queryWrapper, Object dto, boolean includeAllChildren, String[] children);
 
     <T> T getEntityById(EntityDtoServiceRelation relationInfo
             , Serializable id);

@@ -28,9 +28,13 @@ public class TableInfoUtils {
     private static volatile boolean allTableInfoInitialized = false;
     public static AtomicReference<List<String>> scanPackages = new AtomicReference<>();
     private static boolean userCamelCase = false;
+    private static TypeHandlerRegistry typeHandlerRegistry = null;
     public static synchronized void initAllTableInfo(Configuration configuration) {
         if(allTableInfoInitialized) {
             return;
+        }
+        if(TableInfoUtils.typeHandlerRegistry == null) {
+            TableInfoUtils.typeHandlerRegistry = configuration.getTypeHandlerRegistry();
         }
         List<String> pks = scanPackages.get();
         for (String scanPackage : pks) {
@@ -38,6 +42,10 @@ public class TableInfoUtils {
         }
         userCamelCase = configuration.isMapUnderscoreToCamelCase();
         allTableInfoInitialized = true;
+    }
+
+    public static boolean isMybatisSupportType(Class type) {
+        return TableInfoUtils.typeHandlerRegistry.getTypeHandler(type) != null;
     }
 
     private static void initPackageTableInfo(Configuration configuration, String scanPackage) {

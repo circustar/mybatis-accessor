@@ -77,19 +77,19 @@ public class MybatisAccessorService {
     }
 
     public <T> T getEntityByQueryWrapper(Class DtoClass
-            , QueryWrapper queryWrapper)  {
-        return this.getEntityByQueryWrapper(DtoClass.getSimpleName(), queryWrapper);
+            , QueryWrapper queryWrapper, Object dto)  {
+        return this.getEntityByQueryWrapper(DtoClass.getSimpleName(), queryWrapper, dto);
     }
 
     public <T> T getEntityByQueryWrapper(String dtoName
-            , QueryWrapper queryWrapper)  {
+            , QueryWrapper queryWrapper, Object dto)  {
         EntityDtoServiceRelation relationInfo = this.getRelation(dtoName);
-        return this.getEntityByQueryWrapper(relationInfo, queryWrapper);
+        return this.getEntityByQueryWrapper(relationInfo, queryWrapper, dto);
     }
 
     public <T> T getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo
-            , QueryWrapper queryWrapper)  {
-        return this.selectService.getEntityByQueryWrapper(relationInfo, queryWrapper);
+            , QueryWrapper queryWrapper, Object dto)  {
+        return this.selectService.getEntityByQueryWrapper(relationInfo, queryWrapper, dto);
     }
 
     public <T> T getEntityByAnnotation(Object object)  {
@@ -151,39 +151,44 @@ public class MybatisAccessorService {
 
     public <T> T getDtoByQueryWrapper(String dtoName
             , QueryWrapper queryWrapper
+            , Object dto
             , boolean includeAllChildren
             , String children)  {
-        return this.getDtoByQueryWrapper(dtoName, queryWrapper, includeAllChildren
+        return this.getDtoByQueryWrapper(dtoName, queryWrapper, dto, includeAllChildren
                 , ArrayParamUtils.convertStringToArray(children, ArrayParamUtils.DELIMITER_COMMA));
     }
 
     public <T> T getDtoByQueryWrapper(Class dtoClass
             , QueryWrapper queryWrapper
+            , Object dto
             , boolean includeAllChildren
             , String children)  {
-        return this.getDtoByQueryWrapper(dtoClass.getSimpleName(), queryWrapper, includeAllChildren, children);
+        return this.getDtoByQueryWrapper(dtoClass.getSimpleName(), queryWrapper, dto, includeAllChildren, children);
     }
 
     public <T> T getDtoByQueryWrapper(String dtoName
             , QueryWrapper queryWrapper
+            , Object dto
             , boolean includeAllChildren
             , String[] children)  {
         EntityDtoServiceRelation relationInfo = this.getRelation(dtoName);
-        return this.getDtoByQueryWrapper(relationInfo, queryWrapper, includeAllChildren, children);
+        return this.getDtoByQueryWrapper(relationInfo, queryWrapper, dto, includeAllChildren, children);
     }
 
     public <T> T getDtoByQueryWrapper(Class dtoClass
             , QueryWrapper queryWrapper
+            , Object dto
             , boolean includeAllChildren
             , String[] children)  {
-        return this.getDtoByQueryWrapper(dtoClass.getSimpleName(), queryWrapper, includeAllChildren, children);
+        return this.getDtoByQueryWrapper(dtoClass.getSimpleName(), queryWrapper, dto, includeAllChildren, children);
     }
 
     public <T> T getDtoByQueryWrapper(EntityDtoServiceRelation relationInfo
             , QueryWrapper queryWrapper
+            , Object dto
             , boolean includeAllChildren
             , String[] children)  {
-        return this.selectService.getDtoByQueryWrapper(relationInfo, queryWrapper, includeAllChildren, children);
+        return this.selectService.getDtoByQueryWrapper(relationInfo, queryWrapper, dto, includeAllChildren, children);
     }
 
     public <T> T getDtoByAnnotation(Object object, boolean includeAllChildren

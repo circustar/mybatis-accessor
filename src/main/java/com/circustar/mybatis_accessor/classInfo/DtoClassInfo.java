@@ -9,6 +9,7 @@ import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.common_utils.reflection.AnnotationUtils;
 import com.circustar.mybatis_accessor.model.QueryWrapperCreator;
+import com.circustar.mybatis_accessor.utils.TableInfoUtils;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -53,12 +54,14 @@ public class DtoClassInfo {
             DtoField dtoField = new DtoField(x, entityFieldInfo, this, relationMap);
             if(dtoField.getEntityDtoServiceRelation() != null) {
                 subDtoFieldList.add(dtoField);
-            } else {
+            } else if(TableInfoUtils.isMybatisSupportType((Class)dtoField.getActualType())) {
                 normalFieldList.add(dtoField);
                 if(x.getName().equals(finalVersionPropertyName)) {
                     this.versionField = dtoField;
                     this.versionDefaultValue = getDefaultVersionByType(entityFieldInfo.getField().getType());
                 }
+            } else {
+                return;
             }
             if(x.getName().equals(keyProperty)) {
                 this.keyField = dtoField;

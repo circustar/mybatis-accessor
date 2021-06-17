@@ -3,6 +3,7 @@ package com.circustar.mybatis_accessor.classInfo;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
 import com.circustar.mybatis_accessor.annotation.QueryJoin;
+import com.circustar.mybatis_accessor.utils.TableInfoUtils;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeHandler;
 
@@ -121,10 +122,7 @@ public class TableJoinInfo {
                 continue;
             }
             Class clazz = field.getType();
-            if(clazz == null || ReflectionKit.isPrimitiveOrWrapper(clazz) || clazz == String.class
-                    || clazz == Date.class || clazz == BigDecimal.class
-                    || clazz == LocalDate.class || clazz == LocalDateTime.class || clazz == LocalTime.class
-                    || clazz == ZonedDateTime.class) {
+            if(clazz == null || TableInfoUtils.isMybatisSupportType(clazz)) {
                 continue;
             }
             TypeHandler<? extends TableField[]> typeHandler = configuration.getTypeHandlerRegistry().getTypeHandler(clazz);
