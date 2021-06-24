@@ -61,7 +61,7 @@ public class DtoFields {
                 qw.eq(masterDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), dtoId);
             } else if(masterDtoClassInfoDtoField != null) {
                 qw = new QueryWrapper();
-                Object subDtoId = FieldUtils.getFieldValue(dto, masterDtoClassInfoDtoField.getEntityFieldInfo().getReadMethod());
+                Object subDtoId = FieldUtils.getFieldValue(dto, masterDtoClassInfoDtoField.getEntityFieldInfo().getPropertyDescriptor().getReadMethod());
                 qw.eq(subDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), subDtoId);
             }
             IService service = childInfo.getServiceBean(applicationContext);

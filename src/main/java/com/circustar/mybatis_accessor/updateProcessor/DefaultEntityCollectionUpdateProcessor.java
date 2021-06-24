@@ -77,14 +77,14 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         if (entityClassInfo != null) {
             List<String> avoidIdList = null;
             if (entityClassInfo.getKeyField() != null && entityClassInfo.getIdReferenceFieldInfo() != null) {
-                Object parentPropertyValue = keyMap.getOrDefault(entityClassInfo.getKeyField().getField().getName(), null);
+                Object parentPropertyValue = keyMap.get(entityClassInfo.getKeyField().getField().getName());
                 if (parentPropertyValue != null) {
                     avoidIdList = Arrays.asList(entityClassInfo.getKeyField().getField().getName()
                             , entityClassInfo.getIdReferenceFieldInfo().getField().getName());
                     for (Object updateEntity : updateTargets) {
                         FieldUtils.setFieldValueIfNull(updateEntity
-                                , entityClassInfo.getIdReferenceFieldInfo().getReadMethod()
-                                , entityClassInfo.getIdReferenceFieldInfo().getWriteMethod(), parentPropertyValue);
+                                , entityClassInfo.getIdReferenceFieldInfo().getPropertyDescriptor().getReadMethod()
+                                , entityClassInfo.getIdReferenceFieldInfo().getPropertyDescriptor().getWriteMethod(), parentPropertyValue);
                     }
                 }
             }
@@ -99,7 +99,8 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                 }
                 Object keyValue = keyMap.get(keyProperty);
                 for (Object updateEntity : updateTargets) {
-                    FieldUtils.setFieldValueIfNull(updateEntity, entityFieldInfo.getReadMethod(), entityFieldInfo.getWriteMethod(), keyValue);
+                    FieldUtils.setFieldValueIfNull(updateEntity, entityFieldInfo.getPropertyDescriptor().getReadMethod()
+                            , entityFieldInfo.getPropertyDescriptor().getWriteMethod(), keyValue);
                 }
             }
         }
@@ -113,7 +114,8 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
             if (firstEntity.isPresent()) {
                 EntityFieldInfo keyField = entityClassInfo.getKeyField();
                 if (keyField != null) {
-                    Object masterKeyValue = FieldUtils.getFieldValue(firstEntity.get(), keyField.getReadMethod());
+                    Object masterKeyValue = FieldUtils.getFieldValue(firstEntity.get()
+                            , keyField.getPropertyDescriptor().getReadMethod());
                     keyMap.put(keyField.getField().getName(), masterKeyValue);
                 }
             }

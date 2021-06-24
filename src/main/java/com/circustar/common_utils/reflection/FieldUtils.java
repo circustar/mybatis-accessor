@@ -1,5 +1,9 @@
 package com.circustar.common_utils.reflection;
 
+import org.springframework.beans.BeanUtils;
+
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -51,5 +55,26 @@ public class FieldUtils {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    public static Field getField(Class clazz, String name) {
+        if(clazz == Object.class || clazz.isPrimitive()) {
+            return null;
+        }
+        try {
+            return clazz.getDeclaredField(name);
+        } catch (Exception ex) {
+        }
+        return getField(clazz.getSuperclass(), name);
+    }
+
+    public static List<PropertyDescriptor> getPropertyDescriptors(Class clazz) {
+        List<PropertyDescriptor> result = new ArrayList<>();
+        if(clazz == Object.class || clazz.isPrimitive()) {
+            return result;
+        }
+        result.addAll(Arrays.asList(BeanUtils.getPropertyDescriptors(clazz)).stream()
+                .filter(x -> x.getPropertyType() != Class.class).collect(Collectors.toList()));
+        return result;
     }
 }

@@ -1,6 +1,5 @@
 package com.circustar.mybatis_accessor.classInfo;
 
-import com.baomidou.mybatisplus.extension.api.R;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.common_utils.reflection.FieldUtils;
 import org.springframework.beans.BeanUtils;
@@ -65,7 +64,7 @@ public class DtoClassInfoHelper {
                 }
                 Object subDto = FieldUtils.getFieldValue(object, dtoField.getReadMethod());
                 Object child = convertToEntity(subDto);
-                FieldUtils.setFieldValue(entity, entityEntityFieldInfo.getWriteMethod(), child);
+                FieldUtils.setFieldValue(entity, entityEntityFieldInfo.getPropertyDescriptor().getWriteMethod(), child);
             }
             return entity;
         } catch (Exception ex) {
@@ -112,7 +111,7 @@ public class DtoClassInfoHelper {
                 while (itFrom.hasNext()) {
                     Object object = FieldUtils.getFieldValue(itFrom.next(), dtoField.getReadMethod());
                     Object child = convertToEntity(object);
-                    FieldUtils.setFieldValue(itTo.next(), entityEntityFieldInfo.getWriteMethod(), child);
+                    FieldUtils.setFieldValue(itTo.next(), entityEntityFieldInfo.getPropertyDescriptor().getWriteMethod(), child);
                 }
             }
             return (T) childList;
@@ -145,7 +144,7 @@ public class DtoClassInfoHelper {
                     continue;
                 }
                 EntityFieldInfo entityEntityFieldInfo = dtoClassInfo.getEntityClassInfo().getFieldByName(dtoField.getField().getName());
-                Object child = FieldUtils.getFieldValue(entity, entityEntityFieldInfo.getReadMethod());
+                Object child = FieldUtils.getFieldValue(entity, entityEntityFieldInfo.getPropertyDescriptor().getReadMethod());
                 Object subObject = convertFromEntity(child, (Class) dtoField.getActualType());
                 FieldUtils.setFieldValue(object, dtoField.getWriteMethod(), subObject);
             }
@@ -185,7 +184,7 @@ public class DtoClassInfoHelper {
                 while (itFrom.hasNext()) {
                     Object entity = itFrom.next();
                     if (entity == null) continue;
-                    Object child = FieldUtils.getFieldValue(entity, entityEntityFieldInfo.getReadMethod());
+                    Object child = FieldUtils.getFieldValue(entity, entityEntityFieldInfo.getPropertyDescriptor().getReadMethod());
                     if (child == null) {
                         continue;
                     }

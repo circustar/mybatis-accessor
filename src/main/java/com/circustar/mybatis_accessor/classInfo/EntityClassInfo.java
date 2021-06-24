@@ -3,6 +3,7 @@ package com.circustar.mybatis_accessor.classInfo;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
+import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.common.MessageProperties;
 import org.springframework.util.StringUtils;
 
@@ -20,7 +21,7 @@ public class EntityClassInfo {
     public EntityClassInfo(Class<?> entityClass) {
         this.entityClass = entityClass;
         this.tableInfo = TableInfoHelper.getTableInfo(this.entityClass);
-        this.fieldList = Arrays.stream(entityClass.getDeclaredFields()).map(x -> {
+        this.fieldList = FieldUtils.getPropertyDescriptors(entityClass).stream().map(x -> {
             EntityFieldInfo entityFieldInfo = EntityFieldInfo.parseField(this.entityClass, x, this);
             return entityFieldInfo;
         }).collect(Collectors.toList());
@@ -53,10 +54,7 @@ public class EntityClassInfo {
     }
 
     public EntityFieldInfo getFieldByName(String fieldName) {
-        if(fieldMap.containsKey(fieldName)) {
-            return fieldMap.get(fieldName);
-        }
-        return null;
+        return fieldMap.get(fieldName);
     }
 
     public TableInfo getTableInfo() {

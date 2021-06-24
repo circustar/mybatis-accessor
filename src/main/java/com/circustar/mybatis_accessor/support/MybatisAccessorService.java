@@ -52,7 +52,7 @@ public class MybatisAccessorService {
     public EntityDtoServiceRelation getRelationIfExist(String dtoName) {
         EntityDtoServiceRelation relationInfo = null;
         if(dtoNameMap.containsKey(dtoName)) {
-            relationInfo = dtoNameMap.getOrDefault(dtoName, null);
+            relationInfo = dtoNameMap.get(dtoName);
         } else {
             relationInfo = getEntityDtoServiceRelation(dtoName);
             dtoNameMap.put(dtoName, relationInfo);

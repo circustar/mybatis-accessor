@@ -64,9 +64,6 @@ public class BaseMapperScanner {
     }
 
     public static Set<Class<? extends BaseMapper>> getBaseMapperFromPackage(String pkg) {
-        if(packageBaseMappers.containsKey(pkg)) {
-            return packageBaseMappers.get(pkg);
-        }
-        return null;
+        return packageBaseMappers.get(pkg);
     }
 }

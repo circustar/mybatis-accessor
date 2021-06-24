@@ -1,20 +1,16 @@
 package com.circustar.mybatis_accessor.classInfo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
+import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.QueryJoin;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeHandler;
 
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -85,7 +81,9 @@ public class TableJoinInfo {
 
     public static List<TableJoinInfo> parseDtoTableJoinInfo(Class targetClass) {
         List<TableJoinInfo> tableJoinInfos = new ArrayList<>();
-        for(Field field : targetClass.getDeclaredFields()) {
+        List<PropertyDescriptor> propertyDescriptors = FieldUtils.getPropertyDescriptors(targetClass);
+        for(PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+            Field field = FieldUtils.getField(targetClass, propertyDescriptor.getName());
             QueryJoin queryJoin = field.getAnnotation(QueryJoin.class);
             if(queryJoin == null) {
                 continue;
@@ -116,7 +114,9 @@ public class TableJoinInfo {
 
     public static List<TableJoinInfo> parseEntityTableJoinInfo(Configuration configuration, Class targetClass) {
         List<TableJoinInfo> tableJoinInfos = new ArrayList<>();
-        for(Field field : targetClass.getDeclaredFields()) {
+        List<PropertyDescriptor> propertyDescriptors = FieldUtils.getPropertyDescriptors(targetClass);
+        for(PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+            Field field = FieldUtils.getField(targetClass, propertyDescriptor.getName());
             TableField[] tableField = field.getAnnotationsByType(TableField.class);
             if(tableField == null || tableField.length == 0 || tableField[0].exist()) {
                 continue;

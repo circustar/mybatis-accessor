@@ -2,9 +2,9 @@ package com.circustar.mybatis_accessor.classInfo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.IdReference;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.util.StringUtils;
 
 import java.beans.PropertyDescriptor;
@@ -23,8 +23,6 @@ public class EntityFieldInfo {
     private boolean isKeyColumn;
     private EntityClassInfo entityClassInfo;
     private PropertyDescriptor propertyDescriptor;
-    private Method readMethod;
-    private Method writeMethod;
     private IdReference idReference;
 
     public Boolean getPrimitive() {
@@ -93,22 +91,6 @@ public class EntityFieldInfo {
         this.propertyDescriptor = propertyDescriptor;
     }
 
-    public Method getReadMethod() {
-        return readMethod;
-    }
-
-    public void setReadMethod(Method readMethod) {
-        this.readMethod = readMethod;
-    }
-
-    public Method getWriteMethod() {
-        return writeMethod;
-    }
-
-    public void setWriteMethod(Method writeMethod) {
-        this.writeMethod = writeMethod;
-    }
-
     public IdReference getIdReference() {
         return idReference;
     }
@@ -117,17 +99,15 @@ public class EntityFieldInfo {
         this.idReference = idReference;
     }
 
-    public static EntityFieldInfo parseField(Class c, Field field, EntityClassInfo entityClassInfo) {
+    public static EntityFieldInfo parseField(Class c, PropertyDescriptor propertyDescriptor, EntityClassInfo entityClassInfo) {
         EntityFieldInfo fieldInfo = new EntityFieldInfo();
         fieldInfo.setEntityClassInfo(entityClassInfo);
+        fieldInfo.setPropertyDescriptor(propertyDescriptor);
+        Field field = FieldUtils.getField(c ,propertyDescriptor.getName());
+        assert(field != null);
         fieldInfo.setField(field);
-        fieldInfo.setPropertyDescriptor(BeanUtils.getPropertyDescriptor(c, field.getName()));
-        IdReference idReference = field.getAnnotation(IdReference.class);
+        IdReference idReference = fieldInfo.getField().getAnnotation(IdReference.class);
         fieldInfo.setIdReference(idReference);
-        if(fieldInfo.getPropertyDescriptor() != null) {
-            fieldInfo.setReadMethod(fieldInfo.getPropertyDescriptor().getReadMethod());
-            fieldInfo.setWriteMethod(fieldInfo.getPropertyDescriptor().getWriteMethod());
-        }
         if(Collection.class.isAssignableFrom(field.getType())
                 && field.getGenericType() instanceof ParameterizedType) {
             fieldInfo.setIsCollection(true);
@@ -153,43 +133,6 @@ public class EntityFieldInfo {
             }
         }
         return fieldInfo;
-    }
-
-    public static EntityFieldInfo parseFieldByName(Class c, String property_name, EntityClassInfo entityClassInfo) {
-        try {
-            Field field = c.getDeclaredField(property_name.substring(0,1).toLowerCase() + property_name.substring(1));
-            if(field== null) {
-                return null;
-            }
-            return parseField(c, field, entityClassInfo);
-        } catch (NoSuchFieldException e) {
-        }
-        return null;
-    }
-
-    public static EntityFieldInfo parseFieldByClass(Class c, Class subClass, Boolean findInGenericType, EntityClassInfo entityClassInfo) {
-        try {
-            if(!findInGenericType) {
-                return Arrays.stream(c.getDeclaredFields()).filter(x -> x.getType().getClass() == subClass)
-                        .findFirst().map(x -> EntityFieldInfo.parseField(c, x, entityClassInfo)).orElse(null);
-            } else {
-                return Arrays.stream(c.getDeclaredFields())
-                        .filter(x -> {
-                            if(x.getType().getClass() == subClass) {
-                                return true;
-                            }
-
-                            if(!(x.getGenericType() instanceof ParameterizedType)) {
-                                return false;
-                            }
-                            Type dtoType = ((ParameterizedType) x.getGenericType()).getActualTypeArguments()[0];
-                            return (dtoType == subClass);
-                        })
-                        .findFirst().map(x -> EntityFieldInfo.parseField(c, x, entityClassInfo)).orElse(null);
-            }
-        } catch (Exception e) {
-        }
-        return null;
     }
 
     public TableField getTableField() {

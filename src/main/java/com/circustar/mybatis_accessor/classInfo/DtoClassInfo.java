@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.DeleteFlag;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
@@ -11,6 +12,8 @@ import com.circustar.common_utils.reflection.AnnotationUtils;
 import com.circustar.mybatis_accessor.model.QueryWrapperCreator;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
 
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -49,29 +52,30 @@ public class DtoClassInfo {
         }
         String keyProperty = entityClassInfo.getTableInfo().getKeyProperty();
         String finalVersionPropertyName = versionPropertyName;
-        Arrays.stream(clazz.getDeclaredFields()).forEach(x -> {
-            EntityFieldInfo entityFieldInfo = entityClassInfo.getFieldByName(x.getName());
-            DtoField dtoField = new DtoField(x, entityFieldInfo, this, relationMap);
-            if(dtoField.getEntityDtoServiceRelation() != null) {
-                subDtoFieldList.add(dtoField);
-            } else if(TableInfoUtils.isMybatisSupportType((Class)dtoField.getActualType())) {
-                normalFieldList.add(dtoField);
-                if(x.getName().equals(finalVersionPropertyName)) {
-                    this.versionField = dtoField;
-                    this.versionDefaultValue = getDefaultVersionByType(entityFieldInfo.getField().getType());
-                }
-            } else {
-                return;
-            }
-            if(x.getName().equals(keyProperty)) {
+        List<PropertyDescriptor> propertyDescriptors = FieldUtils.getPropertyDescriptors(clazz);
+        propertyDescriptors.stream().forEach(property -> {
+            Field field = FieldUtils.getField(clazz, property.getName());
+            EntityFieldInfo entityFieldInfo = entityClassInfo.getFieldByName(field.getName());
+            DtoField dtoField = new DtoField(field, entityFieldInfo, this, relationMap);
+            if(field.getName().equals(keyProperty)) {
                 this.keyField = dtoField;
             }
-            DeleteFlag deleteFlagAnnotation = AnnotationUtils.getFieldAnnotation(x, DeleteFlag.class);
+            DeleteFlag deleteFlagAnnotation = AnnotationUtils.getFieldAnnotation(field, DeleteFlag.class);
             if(deleteFlagAnnotation != null) {
                 this.deleteFlagField = dtoField;
                 this.physicDelete = deleteFlagAnnotation.physicDelete();
             }
-            this.dtoFieldMap.put(x.getName(), dtoField);
+            if(dtoField.getEntityDtoServiceRelation() != null) {
+                subDtoFieldList.add(dtoField);
+                this.dtoFieldMap.put(field.getName(), dtoField);
+            } else if(TableInfoUtils.isMybatisSupportType((Class)dtoField.getActualType())) {
+                normalFieldList.add(dtoField);
+                if(field.getName().equals(finalVersionPropertyName)) {
+                    this.versionField = dtoField;
+                    this.versionDefaultValue = getDefaultVersionByType(entityFieldInfo.getField().getType());
+                }
+                this.dtoFieldMap.put(field.getName(), dtoField);
+            }
         });
 
         List<String> joinTableList = new ArrayList<>();
@@ -138,10 +142,7 @@ public class DtoClassInfo {
     }
 
     public DtoField getDtoField(String name) {
-        if(dtoFieldMap.containsKey(name)) {
-            return dtoFieldMap.get(name);
-        }
-        return null;
+        return dtoFieldMap.get(name);
     }
 
     public DtoField getVersionField() {
