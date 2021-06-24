@@ -41,7 +41,7 @@ public class SelectService implements ISelectService {
     ) {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(this.dtoClassInfoHelper, object);
-        return getEntityByQueryWrapper(relationInfo, queryWrapper, object);
+        return getEntityByQueryWrapper(relationInfo, object, queryWrapper);
     }
 
     @Override
@@ -66,8 +66,8 @@ public class SelectService implements ISelectService {
 
     @Override
     public <T> T getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo
-            , QueryWrapper queryWrapper
-            , Object dto) {
+            , Object dto
+            , QueryWrapper queryWrapper) {
         IService service = relationInfo.getServiceBean(applicationContext);
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         String joinExpression = getJoinExpression(dtoClassInfo, dto);
@@ -84,11 +84,11 @@ public class SelectService implements ISelectService {
 
     @Override
     public <T> T getDtoByQueryWrapper(EntityDtoServiceRelation relationInfo
-            , QueryWrapper queryWrapper
             , Object dto
+            , QueryWrapper queryWrapper
             , boolean includeAllChildren
             , String[] children) {
-        Object oriEntity = getEntityByQueryWrapper(relationInfo, queryWrapper, dto);
+        Object oriEntity = getEntityByQueryWrapper(relationInfo, dto, queryWrapper);
         if (oriEntity == null) {
             return null;
         }
@@ -188,7 +188,7 @@ public class SelectService implements ISelectService {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(this.dtoClassInfoHelper, object);
 
-        return getEntityPageByQueryWrapper(relationInfo, queryWrapper, object, page_index, page_size);
+        return getEntityPageByQueryWrapper(relationInfo, object, queryWrapper, page_index, page_size);
     }
 
     @Override
@@ -203,8 +203,8 @@ public class SelectService implements ISelectService {
 
     @Override
     public <T> PageInfo<T> getEntityPageByQueryWrapper(EntityDtoServiceRelation relationInfo
-            , QueryWrapper queryWrapper
             , Object dto
+            , QueryWrapper queryWrapper
             , Integer page_index
             , Integer page_size
             ) {
@@ -225,12 +225,12 @@ public class SelectService implements ISelectService {
     }
 
     @Override
-    public <T> PageInfo<T> getDtoPageByQueryWrapper(EntityDtoServiceRelation relationInfo
+    public <T> PageInfo<T> getDtoPageByQueryWrapper(EntityDtoServiceRelation relationInfo, Object object
             , QueryWrapper queryWrapper
             , Integer page_index
             , Integer page_size
     ) {
-        PageInfo entityPage = getEntityPageByQueryWrapper(relationInfo, queryWrapper, null, page_index, page_size);
+        PageInfo entityPage = getEntityPageByQueryWrapper(relationInfo, object, queryWrapper, page_index, page_size);
         List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityPage.getRecords(), relationInfo.getDtoClass());;
         return new PageInfo<>(entityPage.getTotal(), entityPage.getSize(), entityPage.getCurrent(), dtoList);
     }
@@ -242,7 +242,7 @@ public class SelectService implements ISelectService {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(this.dtoClassInfoHelper, object);
 
-        return getEntityListByQueryWrapper(relationInfo, queryWrapper, object);
+        return getEntityListByQueryWrapper(relationInfo, object, queryWrapper);
     }
 
     @Override
@@ -256,7 +256,7 @@ public class SelectService implements ISelectService {
 
     @Override
     public <T> List<T> getEntityListByQueryWrapper(EntityDtoServiceRelation relationInfo
-            , QueryWrapper queryWrapper, Object dto
+            , Object dto, QueryWrapper queryWrapper
     ) {
         IService service = relationInfo.getServiceBean(applicationContext);
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
@@ -274,10 +274,10 @@ public class SelectService implements ISelectService {
 
 
     @Override
-    public <T> List<T> getDtoListByQueryWrapper(EntityDtoServiceRelation relationInfo
+    public <T> List<T> getDtoListByQueryWrapper(EntityDtoServiceRelation relationInfo, Object object
             , QueryWrapper queryWrapper
     ) {
-        List entityList = getEntityListByQueryWrapper(relationInfo, queryWrapper, null);
+        List entityList = getEntityListByQueryWrapper(relationInfo, object, queryWrapper);
         List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityList, relationInfo.getDtoClass());;
         return dtoList;
     }

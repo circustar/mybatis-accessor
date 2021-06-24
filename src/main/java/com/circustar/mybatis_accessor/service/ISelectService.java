@@ -17,10 +17,10 @@ public interface ISelectService {
     );
 
     <T> T getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo
-            , QueryWrapper queryWrapper, Object dto);
+            , Object dto, QueryWrapper queryWrapper);
 
     <T> T getDtoByQueryWrapper(EntityDtoServiceRelation relationInfo
-            , QueryWrapper queryWrapper, Object dto, boolean includeAllChildren, String[] children);
+            , Object dto, QueryWrapper queryWrapper, boolean includeAllChildren, String[] children);
 
     <T> T getEntityById(EntityDtoServiceRelation relationInfo
             , Serializable id);
@@ -43,14 +43,15 @@ public interface ISelectService {
             );
 
     <T> PageInfo<T> getEntityPageByQueryWrapper(EntityDtoServiceRelation relationInfo
-            , QueryWrapper queryWrapper
             , Object dto
+            , QueryWrapper queryWrapper
             , Integer page_index
             , Integer page_size
             );
 
 
     <T> PageInfo<T> getDtoPageByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , Object dto
             , QueryWrapper queryWrapper
             , Integer page_index
             , Integer page_size
@@ -66,10 +67,12 @@ public interface ISelectService {
     );
 
     <T> List<T> getEntityListByQueryWrapper(EntityDtoServiceRelation relationInfo
-            , QueryWrapper queryWrapper, Object dto
+            , Object dto
+            , QueryWrapper queryWrapper
     );
 
     <T> List<T> getDtoListByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , Object dto
             , QueryWrapper queryWrapper
     );
 }
