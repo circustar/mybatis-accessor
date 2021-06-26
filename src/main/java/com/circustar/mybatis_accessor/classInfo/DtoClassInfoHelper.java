@@ -62,7 +62,7 @@ public class DtoClassInfoHelper {
                 if (entityEntityFieldInfo == null) {
                     continue;
                 }
-                Object subDto = FieldUtils.getFieldValue(object, dtoField.getReadMethod());
+                Object subDto = FieldUtils.getFieldValue(object, dtoField.getPropertyDescriptor().getReadMethod());
                 Object child = convertToEntity(subDto);
                 FieldUtils.setFieldValue(entity, entityEntityFieldInfo.getPropertyDescriptor().getWriteMethod(), child);
             }
@@ -109,7 +109,7 @@ public class DtoClassInfoHelper {
                 Iterator itFrom = objects.iterator();
                 Iterator itTo = childList.iterator();
                 while (itFrom.hasNext()) {
-                    Object object = FieldUtils.getFieldValue(itFrom.next(), dtoField.getReadMethod());
+                    Object object = FieldUtils.getFieldValue(itFrom.next(), dtoField.getPropertyDescriptor().getReadMethod());
                     Object child = convertToEntity(object);
                     FieldUtils.setFieldValue(itTo.next(), entityEntityFieldInfo.getPropertyDescriptor().getWriteMethod(), child);
                 }
@@ -146,7 +146,7 @@ public class DtoClassInfoHelper {
                 EntityFieldInfo entityEntityFieldInfo = dtoClassInfo.getEntityClassInfo().getFieldByName(dtoField.getField().getName());
                 Object child = FieldUtils.getFieldValue(entity, entityEntityFieldInfo.getPropertyDescriptor().getReadMethod());
                 Object subObject = convertFromEntity(child, (Class) dtoField.getActualType());
-                FieldUtils.setFieldValue(object, dtoField.getWriteMethod(), subObject);
+                FieldUtils.setFieldValue(object, dtoField.getPropertyDescriptor().getWriteMethod(), subObject);
             }
             return object;
         } catch (Exception ex) {
@@ -189,7 +189,7 @@ public class DtoClassInfoHelper {
                         continue;
                     }
                     Object object = convertFromEntity(child, (Class) dtoField.getActualType());
-                    FieldUtils.setFieldValue(itTo.next(), dtoField.getWriteMethod(), object);
+                    FieldUtils.setFieldValue(itTo.next(), dtoField.getPropertyDescriptor().getWriteMethod(), object);
                 }
             }
             return objectList;

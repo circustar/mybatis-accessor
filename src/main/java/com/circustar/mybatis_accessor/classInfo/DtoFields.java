@@ -14,7 +14,7 @@ import java.util.*;
 public class DtoFields {
     public static void assignDtoField(DtoClassInfoHelper dtoClassInfoHelper, Object obj, DtoField dtoField, List<Object> values, Class clazz) {
         if(!dtoField.getCollection()) {
-            FieldUtils.setFieldValue(obj, dtoField.getWriteMethod(), (values == null || values.size() == 0)?
+            FieldUtils.setFieldValue(obj, dtoField.getPropertyDescriptor().getWriteMethod(), (values == null || values.size() == 0)?
                     null : (clazz == null? values.get(0) : dtoClassInfoHelper.convertFromEntity(values.get(0), clazz)));
             return;
         }
@@ -31,7 +31,7 @@ public class DtoFields {
                 }
                 c.add(dtoClassInfoHelper.convertFromEntity(var0, clazz));
             }
-            FieldUtils.setFieldValue(obj, dtoField.getWriteMethod(), c);
+            FieldUtils.setFieldValue(obj, dtoField.getPropertyDescriptor().getWriteMethod(), c);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

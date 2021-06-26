@@ -54,27 +54,26 @@ public class DtoClassInfo {
         String finalVersionPropertyName = versionPropertyName;
         List<PropertyDescriptor> propertyDescriptors = FieldUtils.getPropertyDescriptors(clazz);
         propertyDescriptors.stream().forEach(property -> {
-            Field field = FieldUtils.getField(clazz, property.getName());
-            EntityFieldInfo entityFieldInfo = entityClassInfo.getFieldByName(field.getName());
-            DtoField dtoField = new DtoField(field, entityFieldInfo, this, relationMap);
-            if(field.getName().equals(keyProperty)) {
+            EntityFieldInfo entityFieldInfo = entityClassInfo.getFieldByName(property.getName());
+            DtoField dtoField = new DtoField(property, entityFieldInfo, this, relationMap);
+            if(property.getName().equals(keyProperty)) {
                 this.keyField = dtoField;
             }
-            DeleteFlag deleteFlagAnnotation = AnnotationUtils.getFieldAnnotation(field, DeleteFlag.class);
+            DeleteFlag deleteFlagAnnotation = AnnotationUtils.getFieldAnnotation(dtoField.getField(), DeleteFlag.class);
             if(deleteFlagAnnotation != null) {
                 this.deleteFlagField = dtoField;
                 this.physicDelete = deleteFlagAnnotation.physicDelete();
             }
             if(dtoField.getEntityDtoServiceRelation() != null) {
                 subDtoFieldList.add(dtoField);
-                this.dtoFieldMap.put(field.getName(), dtoField);
+                this.dtoFieldMap.put(property.getName(), dtoField);
             } else if(TableInfoUtils.isMybatisSupportType((Class)dtoField.getActualType())) {
                 normalFieldList.add(dtoField);
-                if(field.getName().equals(finalVersionPropertyName)) {
+                if(property.getName().equals(finalVersionPropertyName)) {
                     this.versionField = dtoField;
                     this.versionDefaultValue = getDefaultVersionByType(entityFieldInfo.getField().getType());
                 }
-                this.dtoFieldMap.put(field.getName(), dtoField);
+                this.dtoFieldMap.put(property.getName(), dtoField);
             }
         });
 

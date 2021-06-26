@@ -162,7 +162,7 @@ public class QueryWrapperCreator {
         try {
             for (QueryWhereModel queryWhere : queryWhereModels) {
                 queryWhere.getConnector().consume(queryWhere.getExpression()
-                        , result, FieldUtils.getFieldValue(dto, queryWhere.getDtoField().getReadMethod()));
+                        , result, FieldUtils.getFieldValue(dto, queryWhere.getDtoField().getPropertyDescriptor().getReadMethod()));
             }
         } catch (Exception ex) {
             throw new RuntimeException(ex);

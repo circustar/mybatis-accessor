@@ -33,7 +33,6 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
     private List<IEntityUpdateProcessor> subUpdateEntities;
     private EntityClassInfo entityClassInfo;
     private boolean updateChildrenOnly;
-    private boolean feedbackFlag;
 
     public void addSubUpdateEntity(DefaultEntityCollectionUpdateProcessor subDefaultEntityCollectionUpdater) {
         if(this.subUpdateEntities == null) {

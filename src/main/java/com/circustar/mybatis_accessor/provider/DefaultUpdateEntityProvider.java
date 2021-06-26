@@ -71,11 +71,11 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                     , Collections.singletonList(updateTarget)
                     , false
                     , updateChildrenOnly);
-            Object keyValue = FieldUtils.getFieldValue(value, dtoClassInfo.getKeyField().getReadMethod());
+            Object keyValue = FieldUtils.getFieldValue(value, dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod());
 
             for(String entityName : topEntities) {
                 DtoField subDtoField = dtoClassInfo.getDtoField(entityName);
-                Object topChild = FieldUtils.getFieldValue(value, subDtoField.getReadMethod());
+                Object topChild = FieldUtils.getFieldValue(value, subDtoField.getPropertyDescriptor().getReadMethod());
                 if(deleteBeforeUpdate) {
                     QueryWrapper qw = new QueryWrapper();
                     qw.eq(keyColumn, keyValue);
@@ -96,11 +96,11 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                         , entityName, "."));
                 DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(subDtoField.getEntityDtoServiceRelation().getDtoClass());
                 for(Object child : childList) {
-                    Object subEntityKeyValue = FieldUtils.getFieldValue(child, subDtoClassInfo.getKeyField().getReadMethod());
+                    Object subEntityKeyValue = FieldUtils.getFieldValue(child, subDtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod());
                     if(subEntityKeyValue != null) {
                         Object deleteFlagValue = null;
                         if(subDtoClassInfo.getDeleteFlagField() != null) {
-                            deleteFlagValue = FieldUtils.getFieldValue(child, subDtoClassInfo.getDeleteFlagField().getReadMethod());
+                            deleteFlagValue = FieldUtils.getFieldValue(child, subDtoClassInfo.getDeleteFlagField().getPropertyDescriptor().getReadMethod());
                         }
                         if(!StringUtils.isEmpty(deleteFlagValue) && !"0".equals(deleteFlagValue.toString())) {
                             defaultEntityCollectionUpdater.addSubUpdateEntities(defaultDeleteTreeProvider.createUpdateEntities(

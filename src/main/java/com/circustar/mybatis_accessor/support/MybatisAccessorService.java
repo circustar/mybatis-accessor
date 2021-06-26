@@ -5,7 +5,6 @@ import com.circustar.mybatis_accessor.common.MessageProperties;
 import com.circustar.mybatis_accessor.provider.DefaultDeleteEntityProvider;
 import com.circustar.mybatis_accessor.provider.DefaultInsertEntityProvider;
 import com.circustar.mybatis_accessor.provider.DefaultUpdateEntityProvider;
-import com.circustar.common_utils.collection.ArrayParamUtils;
 import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
 import com.circustar.mybatis_accessor.provider.IUpdateEntityProvider;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
@@ -265,7 +264,7 @@ public class MybatisAccessorService {
             , QueryWrapper queryWrapper
     )  {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
-        return this.getDtoListByQueryWrapper(relationInfo, queryWrapper);
+        return this.getDtoListByQueryWrapper(relationInfo, object, queryWrapper);
     }
 
     public <T> List<T> getDtoListByQueryWrapper(EntityDtoServiceRelation relationInfo

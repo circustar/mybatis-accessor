@@ -1,13 +1,12 @@
 package com.circustar.mybatis_accessor.classInfo;
 
+import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.*;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
-import org.springframework.beans.BeanUtils;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -32,41 +31,35 @@ public class DtoField {
     private Type ownType = null;
 
     private PropertyDescriptor propertyDescriptor;
-    private Method readMethod;
-    private Method writeMethod;
 
-    public DtoField(Field field, EntityFieldInfo entityFieldInfo, DtoClassInfo dtoClassInfo, IEntityDtoServiceRelationMap relationMap) {
-        this.field = field;
+    public DtoField(PropertyDescriptor propertyDescriptor, EntityFieldInfo entityFieldInfo, DtoClassInfo dtoClassInfo, IEntityDtoServiceRelationMap relationMap) {
         this.entityFieldInfo = entityFieldInfo;
         this.dtoClassInfo = dtoClassInfo;
 
-        this.propertyDescriptor = BeanUtils.getPropertyDescriptor(dtoClassInfo.getClazz(), field.getName());
-        if(this.propertyDescriptor != null) {
-            this.readMethod = this.propertyDescriptor.getReadMethod();
-            this.writeMethod = this.propertyDescriptor.getWriteMethod();
-        }
+        this.propertyDescriptor = propertyDescriptor;
+        this.field = FieldUtils.getField(dtoClassInfo.getClazz(), propertyDescriptor.getName());
 
-        this.querySelect = field.getAnnotation(QuerySelect.class);
-        this.queryJoin = field.getAnnotation(QueryJoin.class);
-        this.queryWhere = field.getAnnotation(QueryWhere.class);
-        this.queryGroupBy = field.getAnnotation(QueryGroupBy.class);
-        this.queryHaving = field.getAnnotation(QueryHaving.class);
-        this.queryOrder = field.getAnnotation(QueryOrder.class);
+        this.querySelect = this.field.getAnnotation(QuerySelect.class);
+        this.queryJoin = this.field.getAnnotation(QueryJoin.class);
+        this.queryWhere = this.field.getAnnotation(QueryWhere.class);
+        this.queryGroupBy = this.field.getAnnotation(QueryGroupBy.class);
+        this.queryHaving = this.field.getAnnotation(QueryHaving.class);
+        this.queryOrder = this.field.getAnnotation(QueryOrder.class);
 
-        List<Selector> sortedSelectors = Arrays.stream(field.getAnnotationsByType(Selector.class))
+        List<Selector> sortedSelectors = Arrays.stream(this.field.getAnnotationsByType(Selector.class))
                 .sorted(Comparator.comparingInt(Selector::order))
                 .collect(Collectors.toList());
         this.selectors = sortedSelectors.toArray(new Selector[sortedSelectors.size()]);
 
-        if(Collection.class.isAssignableFrom(field.getType())
-                && field.getGenericType() instanceof ParameterizedType) {
+        if(Collection.class.isAssignableFrom(this.field.getType())
+                && this.field.getGenericType() instanceof ParameterizedType) {
             isCollection = true;
-            actualType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-            ownType = ((ParameterizedType) field.getGenericType()).getRawType();
+            actualType = ((ParameterizedType) this.field.getGenericType()).getActualTypeArguments()[0];
+            ownType = ((ParameterizedType) this.field.getGenericType()).getRawType();
         } else {
             isCollection = false;
-            actualType = field.getType();
-            ownType = field.getType();
+            actualType = this.field.getType();
+            ownType = this.field.getType();
         }
         this.entityDtoServiceRelation = relationMap.getByDtoClass((Class)actualType);
     }
@@ -145,22 +138,6 @@ public class DtoField {
 
     public void setPropertyDescriptor(PropertyDescriptor propertyDescriptor) {
         this.propertyDescriptor = propertyDescriptor;
-    }
-
-    public Method getReadMethod() {
-        return readMethod;
-    }
-
-    public void setReadMethod(Method readMethod) {
-        this.readMethod = readMethod;
-    }
-
-    public Method getWriteMethod() {
-        return writeMethod;
-    }
-
-    public void setWriteMethod(Method writeMethod) {
-        this.writeMethod = writeMethod;
     }
 
     enum SupportGenericType{
