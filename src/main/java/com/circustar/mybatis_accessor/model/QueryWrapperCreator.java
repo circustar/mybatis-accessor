@@ -147,14 +147,13 @@ public class QueryWrapperCreator {
         List<String> columnList = querySelectModels.stream().map(x -> x.getExpression()).collect(Collectors.toList());
         List<String> groupByList = queryGroupByModels.stream().map(x -> x.getExpression()).collect(Collectors.toList());
         List<String> havingList = queryHavingModels.stream().map(x -> x.getExpression()).collect(Collectors.toList());
-        List<QueryOrderModel> orderByDescList = queryOrders.stream().filter(x -> QueryOrder.ORDER_DESC.equals(x.getSortOrder())).collect(Collectors.toList());
-        List<QueryOrderModel> orderByAscList = queryOrders.stream().filter(x -> !QueryOrder.ORDER_DESC.equals(x.getSortOrder())).collect(Collectors.toList());
+        List<QueryOrderModel> orderByList = queryOrders.stream().sorted(Comparator.comparingInt(QueryOrderModel::getSortIndex))
+                .collect(Collectors.toList());
 
         return new QueryWrapperBuilder(columnList.toArray(new String[columnList.size()])
-                ,groupByList.toArray(new String[groupByList.size()])
+                ,groupByList
                 , havingList.stream().collect(Collectors.joining(","))
-                , orderByAscList.toArray(new String[orderByAscList.size()])
-                , orderByDescList.toArray(new String[orderByDescList.size()]));
+                , orderByList);
 
     }
     public static <T> QueryWrapper<T> createQueryWrapper(Object dto, List<QueryWhereModel> queryWhereModels, QueryWrapperBuilder queryWrapperBuilder){
@@ -186,17 +185,16 @@ public class QueryWrapperCreator {
 
     public static class QueryWrapperBuilder {
         private String[] columns;
-        private String[] groupBys;
+        private List<String> groupBys;
         private String having;
-        private String[] orderAsc;
-        private String [] orderDesc;
+        private List<QueryOrderModel> orderModels;
 
-        private QueryWrapperBuilder(String[] columns, String[] groupBys, String having, String[] orderAsc, String [] orderDesc) {
+        private QueryWrapperBuilder(String[] columns, List<String> groupBys, String having
+                , List<QueryOrderModel> orderModels) {
             this.columns = columns;
             this.groupBys = groupBys;
             this.having = having;
-            this.orderAsc = orderAsc;
-            this.orderDesc = orderDesc;
+            this.orderModels = orderModels;
         }
 
         public <T> QueryWrapper<T> createQueryWrapper() {
@@ -204,18 +202,19 @@ public class QueryWrapperCreator {
             if(columns != null && columns.length > 0) {
                 qw.select(columns);
             }
-            if(groupBys != null && groupBys.length > 0) {
+            if(groupBys != null && groupBys.size() > 0) {
                 qw.groupBy(groupBys);
             }
             if(!StringUtils.isEmpty(having)) {
                 qw.having(having);
             }
-            if(orderDesc != null && orderDesc.length > 0) {
-                qw.orderByDesc(orderDesc);
-            }
-            if(orderAsc != null && orderAsc.length > 0) {
-                qw.orderByAsc(orderAsc);
-            }
+            orderModels.stream().forEach(x ->  {
+                if(QueryOrder.ORDER_DESC.equals(x.getSortOrder())) {
+                    qw.orderByDesc(x.getOrderExpression());
+                } else {
+                    qw.orderByAsc(x.getOrderExpression());
+                }
+            });
 
             return qw;
         }
