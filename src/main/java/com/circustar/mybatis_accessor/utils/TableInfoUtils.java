@@ -23,8 +23,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TableInfoUtils {
-    private static String DEFAULT_NAMESPACE = "CIRCUSTAR";
-    private static String DEFAULT_NESTED_NAMESPACE = "CIRCUSTAR.NESTED";
+    private static String DEFAULT_NAMESPACE = "CCS.";
+    private static String DEFAULT_NESTED_NAMESPACE = "N_CCS_";
+    private static String DEFAULT_MYBATIS_PLUS_NAMESPACE = "mybatis-plus_";
     private static volatile boolean allTableInfoInitialized = false;
     public static AtomicReference<List<String>> scanPackages = new AtomicReference<>();
     private static boolean userCamelCase = false;
@@ -103,8 +104,8 @@ public class TableInfoUtils {
     }
 
     public static String getResultMappingId(TableInfo tableInfo, String namespace) {
-        return (StringUtils.isBlank(namespace) ? DEFAULT_NAMESPACE : namespace) + "."
-                + "mybatis-plus" + "_" + tableInfo.getEntityType().getSimpleName();
+        return (StringUtils.isBlank(namespace) ? DEFAULT_NAMESPACE : namespace)
+                + DEFAULT_MYBATIS_PLUS_NAMESPACE + tableInfo.getEntityType().getSimpleName();
     }
 
     public static String registerResultMapping(Configuration configuration, TableInfo tableInfo
