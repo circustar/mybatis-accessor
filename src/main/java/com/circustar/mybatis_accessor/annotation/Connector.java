@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -213,7 +214,7 @@ public enum Connector {
     }
 
     public <T> void consume(String column, QueryWrapper wrapper, T value) {
-        consumer.accept(column, wrapper, Arrays.asList(value).toArray());
+        consumer.accept(column, wrapper, (value instanceof List ? (List)value : Arrays.asList(value)).toArray());
     }
 
     public String convert(String column, String[] values) {
@@ -222,7 +223,6 @@ public enum Connector {
 
     public static Connector getConnectorByName(String name) {
         if(StringUtils.isEmpty(name)) return null;
-//        String lowerName = (name == null?null : name.toLowerCase());
         return Arrays.stream(Connector.values()).filter(x -> x.connector.equals(name)).findFirst().orElse(null);
     };
 
