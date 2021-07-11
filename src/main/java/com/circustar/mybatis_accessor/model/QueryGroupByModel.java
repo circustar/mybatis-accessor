@@ -10,10 +10,6 @@ public class QueryGroupByModel {
         this.expression = expression;
     }
 
-    public QueryGroupByModel(QueryGroupBy queryGroupBy) {
-        this(queryGroupBy.selectExpression());
-    }
-
     public QueryGroupByModel(QueryGroupBy queryGroupBy, String tableName, String columnName) {
         if(StringUtils.isEmpty(queryGroupBy.expression())) {
             this.expression = tableName + "." + columnName;
