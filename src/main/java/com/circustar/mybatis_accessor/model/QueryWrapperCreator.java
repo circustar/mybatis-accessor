@@ -5,8 +5,10 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.circustar.mybatis_accessor.annotation.QueryOrder;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
+import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.classInfo.EntityClassInfo;
 import com.circustar.common_utils.reflection.FieldUtils;
+import com.circustar.mybatis_accessor.utils.TableJoinColumnPrefixManager;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -25,7 +27,7 @@ public class QueryWrapperCreator {
     private DtoClassInfo dtoClassInfo;
     private EntityClassInfo entityClassInfo;
     private TableInfo tableInfo;
-    private List<DtoClassInfo> joinTableDtoClassList;
+    private List<DtoField> joinTableDtoFields;
     private DtoClassInfoHelper dtoClassInfoHelper;
 
     public QueryWrapperCreator(DtoClassInfoHelper dtoClassInfoHelper, DtoClassInfo dtoClassInfo) {
@@ -109,19 +111,21 @@ public class QueryWrapperCreator {
                     .collect(Collectors.toList());
         } else {
             this.queryHavingModels = new ArrayList<>();
-            this.joinTableDtoClassList = dtoClassInfo.getSubDtoFieldList()
+            this.joinTableDtoFields = dtoClassInfo.getSubDtoFieldList()
                 .stream()
-                .filter(x -> x.getQueryJoin() != null)
-                .map(x -> this.dtoClassInfoHelper.getDtoClassInfo(x.getEntityDtoServiceRelation().getDtoClass()))
+                .filter(x -> x.getTableJoinInfo() != null)
                 .collect(Collectors.toList());
             ;
-            List<QuerySelectModel> joinQueryModels = this.joinTableDtoClassList.stream().map(x -> {
-                return x.getNormalFieldList().stream()
-                        .filter(y -> y.getQuerySelect() != null || y.getEntityFieldInfo() != null).map(y ->
+            List<QuerySelectModel> joinQueryModels = this.joinTableDtoFields.stream().map(x -> {
+                return this.dtoClassInfoHelper.getDtoClassInfo(x.getEntityDtoServiceRelation().getDtoClass())
+                        .getNormalFieldList().stream()
+                        .filter(y -> y.getQuerySelect() != null || y.getEntityFieldInfo() != null)
+                        .map(y ->
                         new QuerySelectModel(y.getQuerySelect()
-                                , x.getEntityClassInfo().getTableInfo().getTableName()
+                                , x.getTableJoinInfo().getQueryJoin().getTableAlias()
                                 , y.getEntityFieldInfo().getColumnName()
-                                , x.getEntityClassInfo().getTableInfo().getTableName()))
+                                , TableJoinColumnPrefixManager.tryGet((Class)x.getDtoClassInfo().getEntityClassInfo().getEntityClass()
+                                , x.getField().getName())))
                         .collect(Collectors.toList());
             }).flatMap(x -> x.stream()).collect(Collectors.toList());
             List<QuerySelectModel> querySelectModels = dtoClassInfo.getNormalFieldList()

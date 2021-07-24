@@ -90,16 +90,17 @@ public class TableInfoUtils {
             , List<Class> joinTableList
             , String namespace
             , boolean terminalFlag) {
-        ResultMapping.Builder builder = new ResultMapping.Builder(configuration, tableJoinInfo.getFieldName(), StringUtils.getTargetColumn(tableJoinInfo.getFieldName()), (Class) tableJoinInfo.getOwnerType());
+        ResultMapping.Builder builder = new ResultMapping.Builder(configuration, tableJoinInfo.getFieldName(), StringUtils.getTargetColumn(tableJoinInfo.getFieldName()), tableJoinInfo.getOwnerClass());
         String nestedId;
         if(terminalFlag) {
             nestedId = registerResultMapping(configuration, tableInfo, null, null, namespace);
         } else {
-            List<TableJoinInfo> tableJoinInfos = TableJoinInfo.parseEntityTableJoinInfo(configuration, (Class) tableJoinInfo.getActualType());
+            List<TableJoinInfo> tableJoinInfos = TableJoinInfo.parseEntityTableJoinInfo(configuration, tableJoinInfo.getActualClass());
             nestedId = registerResultMapping(configuration, tableInfo, tableJoinInfos, joinTableList, namespace);
         }
         builder.nestedResultMapId(nestedId);
-        builder.columnPrefix(tableInfo.getTableName() + "_");
+        builder.columnPrefix(TableJoinColumnPrefixManager.tryGet(tableJoinInfo.getTargetClass()
+                , tableJoinInfo.getFieldName()) + "_");
         return builder.build();
     }
 
@@ -159,7 +160,7 @@ public class TableInfoUtils {
 
         if (CollectionUtils.isNotEmpty(tableJoinInfos)) {
             for(TableJoinInfo tableJoinInfo : tableJoinInfos) {
-                Class clazz = (Class) tableJoinInfo.getActualType();
+                Class clazz = tableJoinInfo.getActualClass();
                 TableInfo joinTableInfo = TableInfoHelper.getTableInfo(clazz);
                 List<Class> newJoinTableList = new ArrayList<>(joinTableList);
                 newJoinTableList.add(clazz);

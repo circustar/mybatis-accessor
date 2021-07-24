@@ -32,6 +32,8 @@ public class DtoField {
 
     private PropertyDescriptor propertyDescriptor;
 
+    private TableJoinInfo tableJoinInfo;
+
     public DtoField(PropertyDescriptor propertyDescriptor, EntityFieldInfo entityFieldInfo, DtoClassInfo dtoClassInfo, IEntityDtoServiceRelationMap relationMap) {
         this.entityFieldInfo = entityFieldInfo;
         this.dtoClassInfo = dtoClassInfo;
@@ -138,6 +140,14 @@ public class DtoField {
 
     public void setPropertyDescriptor(PropertyDescriptor propertyDescriptor) {
         this.propertyDescriptor = propertyDescriptor;
+    }
+
+    public TableJoinInfo getTableJoinInfo() {
+        return tableJoinInfo;
+    }
+
+    public void setTableJoinInfo(TableJoinInfo tableJoinInfo) {
+        this.tableJoinInfo = tableJoinInfo;
     }
 
     enum SupportGenericType{

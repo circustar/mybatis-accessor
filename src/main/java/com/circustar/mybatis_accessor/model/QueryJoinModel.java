@@ -7,8 +7,10 @@ public class QueryJoinModel {
     private String joinExpression;
     private int order;
     private QueryJoin.JoinType joinType;
+    private String tableAlias;
 
-    public QueryJoinModel(String joinExpression, int order, QueryJoin.JoinType joinType) {
+    public QueryJoinModel(String tableAlias, String joinExpression, int order, QueryJoin.JoinType joinType) {
+        this.tableAlias = tableAlias;
         this.joinExpression = joinExpression;
         this.order = order;
         this.joinType = joinType;
@@ -17,6 +19,7 @@ public class QueryJoinModel {
         this.joinExpression = queryJoin.joinExpression();
         this.joinType = queryJoin.joinType();
         this.order = queryJoin.order();
+        this.tableAlias = queryJoin.tableAlias();
     }
 
     public QueryJoinModel(QueryJoin queryJoin, String tableName1, String tableId1, String tableName2, String tableId2) {
@@ -57,5 +60,13 @@ public class QueryJoinModel {
 
     public void setJoinType(QueryJoin.JoinType joinType) {
         this.joinType = joinType;
+    }
+
+    public String getTableAlias() {
+        return tableAlias;
+    }
+
+    public void setTableAlias(String tableAlias) {
+        this.tableAlias = tableAlias;
     }
 }

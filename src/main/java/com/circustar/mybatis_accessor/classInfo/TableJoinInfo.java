@@ -1,11 +1,15 @@
 package com.circustar.mybatis_accessor.classInfo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.core.metadata.TableInfo;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.QueryJoin;
+import com.circustar.mybatis_accessor.model.QueryJoinModel;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeHandler;
+import org.springframework.util.StringUtils;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -18,10 +22,11 @@ public class TableJoinInfo {
     private String fieldName;
     private Class targetClass;
     private Field field;
-    private QueryJoin queryJoin;
+    private QueryJoinModel queryJoin;
     private boolean isCollection;
-    private Type actualType;
-    private Type ownerType;
+    private Class actualClass;
+    private Class ownerClass;
+    private TableInfo tableInfo;
 
     public String getFieldName() {
         return fieldName;
@@ -47,11 +52,11 @@ public class TableJoinInfo {
         this.field = field;
     }
 
-    public QueryJoin getQueryJoin() {
+    public QueryJoinModel getQueryJoin() {
         return queryJoin;
     }
 
-    public void setQueryJoin(QueryJoin queryJoin) {
+    public void setQueryJoin(QueryJoinModel queryJoin) {
         this.queryJoin = queryJoin;
     }
 
@@ -63,60 +68,80 @@ public class TableJoinInfo {
         isCollection = collection;
     }
 
-    public Type getActualType() {
-        return actualType;
+    public Class getActualClass() {
+        return actualClass;
     }
 
-    public void setActualType(Type actualType) {
-        this.actualType = actualType;
+    public void setActualClass(Class actualClass) {
+        this.actualClass = actualClass;
     }
 
-    public Type getOwnerType() {
-        return ownerType;
+    public Class getOwnerClass() {
+        return ownerClass;
     }
 
-    public void setOwnerType(Type ownerType) {
-        this.ownerType = ownerType;
+    public void setOwnerClass(Class ownerClass) {
+        this.ownerClass = ownerClass;
     }
 
-    public static List<TableJoinInfo> parseDtoTableJoinInfo(Class targetClass) {
-        List<TableJoinInfo> tableJoinInfos = new ArrayList<>();
-        List<PropertyDescriptor> propertyDescriptors = FieldUtils.getPropertyDescriptors(targetClass);
-        for(PropertyDescriptor propertyDescriptor : propertyDescriptors) {
-            Field field = FieldUtils.getField(targetClass, propertyDescriptor.getName());
-            QueryJoin queryJoin = field.getAnnotation(QueryJoin.class);
-            if(queryJoin == null) {
-                continue;
-            }
-            TableJoinInfo tableJoinInfo = new TableJoinInfo();
-            tableJoinInfo.setField(field);
-            tableJoinInfo.setFieldName(field.getName());
-            tableJoinInfo.setTargetClass(targetClass);
+    public TableInfo getTableInfo() {
+        return tableInfo;
+    }
 
-            if(Collection.class.isAssignableFrom(field.getType())) {
-                tableJoinInfo.setCollection(true);
-                Type dtoType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                tableJoinInfo.setActualType(dtoType);
-                tableJoinInfo.setOwnerType(((ParameterizedType) field.getGenericType()).getRawType());
-            } else {
-                tableJoinInfo.setCollection(false);
-                tableJoinInfo.setOwnerType(field.getType());
-                tableJoinInfo.setActualType(field.getType());
-            }
+    public void setTableInfo(TableInfo tableInfo) {
+        this.tableInfo = tableInfo;
+    }
 
-            tableJoinInfo.setQueryJoin(queryJoin);
-
-            tableJoinInfos.add(tableJoinInfo);
+    public static TableJoinInfo parseDtoFieldJoinInfo(DtoClassInfoHelper dtoClassInfoHelper, Class dtoClass, DtoField dtoField) {
+        if(dtoField.getField() == null) {
+            return null;
         }
-        return tableJoinInfos.stream().sorted(Comparator.comparingInt(x -> x.getQueryJoin().order()))
-                .collect(Collectors.toList());
+        Field field = dtoField.getField();
+        QueryJoin queryJoin = field.getAnnotation(QueryJoin.class);
+        if(queryJoin == null) {
+            return null;
+        }
+
+        TableJoinInfo tableJoinInfo = new TableJoinInfo();
+        tableJoinInfo.setField(field);
+        tableJoinInfo.setFieldName(field.getName());
+        tableJoinInfo.setTargetClass(dtoClass);
+
+        Type dtoFieldType = field.getType();
+        if(Collection.class.isAssignableFrom((Class<?>) dtoFieldType)) {
+            dtoFieldType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+        }
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo((Class<?>) dtoFieldType);
+        if(dtoClassInfo == null) {
+            return null;
+        }
+        if(Collection.class.isAssignableFrom(field.getType())) {
+            tableJoinInfo.setCollection(true);
+            tableJoinInfo.setOwnerClass((Class) ((ParameterizedType) field.getGenericType()).getRawType());
+            tableJoinInfo.setActualClass(dtoClassInfo.getEntityClassInfo().getEntityClass());
+        } else {
+            tableJoinInfo.setCollection(false);
+            tableJoinInfo.setActualClass(dtoClassInfo.getEntityClassInfo().getEntityClass());
+            tableJoinInfo.setActualClass(dtoClassInfo.getEntityClassInfo().getEntityClass());
+        }
+
+        tableJoinInfo.setTableInfo(TableInfoHelper.getTableInfo(tableJoinInfo.getActualClass()));
+
+        QueryJoinModel queryJoinModel = new QueryJoinModel(queryJoin);
+        if(StringUtils.isEmpty(queryJoinModel.getTableAlias())) {
+            queryJoinModel.setTableAlias(tableJoinInfo.getTableInfo().getTableName());
+        }
+
+        tableJoinInfo.setQueryJoin(queryJoinModel);
+
+        return tableJoinInfo;
     }
 
-    public static List<TableJoinInfo> parseEntityTableJoinInfo(Configuration configuration, Class targetClass) {
+    public static List<TableJoinInfo> parseEntityTableJoinInfo(Configuration configuration, Class entityClass) {
         List<TableJoinInfo> tableJoinInfos = new ArrayList<>();
-        List<PropertyDescriptor> propertyDescriptors = FieldUtils.getPropertyDescriptors(targetClass);
+        List<PropertyDescriptor> propertyDescriptors = FieldUtils.getPropertyDescriptors(entityClass);
         for(PropertyDescriptor propertyDescriptor : propertyDescriptors) {
-            Field field = FieldUtils.getField(targetClass, propertyDescriptor.getName());
+            Field field = FieldUtils.getField(entityClass, propertyDescriptor.getName());
             TableField[] tableField = field.getAnnotationsByType(TableField.class);
             if(tableField == null || tableField.length == 0 || tableField[0].exist()) {
                 continue;
@@ -132,17 +157,17 @@ public class TableJoinInfo {
             TableJoinInfo tableJoinInfo = new TableJoinInfo();
             tableJoinInfo.setField(field);
             tableJoinInfo.setFieldName(field.getName());
-            tableJoinInfo.setTargetClass(targetClass);
+            tableJoinInfo.setTargetClass(entityClass);
 
             if(Collection.class.isAssignableFrom(field.getType())) {
                 tableJoinInfo.setCollection(true);
-                Type dtoType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                tableJoinInfo.setActualType(dtoType);
-                tableJoinInfo.setOwnerType(((ParameterizedType) field.getGenericType()).getRawType());
+                Class dtoClass = (Class) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                tableJoinInfo.setActualClass(dtoClass);
+                tableJoinInfo.setOwnerClass((Class) ((ParameterizedType) field.getGenericType()).getRawType());
             } else {
                 tableJoinInfo.setCollection(false);
-                tableJoinInfo.setOwnerType(field.getType());
-                tableJoinInfo.setActualType(field.getType());
+                tableJoinInfo.setOwnerClass(field.getType());
+                tableJoinInfo.setActualClass(field.getType());
             }
 
             tableJoinInfos.add(tableJoinInfo);

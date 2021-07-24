@@ -9,6 +9,7 @@ public @interface QueryJoin {
     String joinExpression() default "";
     int order() default 1;
     JoinType joinType() default JoinType.LEFT;
+    String tableAlias() default "";
 
     enum JoinType {
         LEFT("left join"), RIGHT("right join"), INNER("inner join"), FULL("full join");

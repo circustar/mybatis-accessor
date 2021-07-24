@@ -26,7 +26,9 @@ public class DtoClassInfoHelper {
         }
         EntityClassInfo entityClassInfo = entityClassInfoHelper.getEntityClassInfo(entityDtoServiceRelationMap.getByDtoClass(clazz).getEntityClass());
         DtoClassInfo dtoClassInfo = new DtoClassInfo(entityDtoServiceRelationMap, clazz, entityClassInfo);
-        return tryPut(clazz, dtoClassInfo);
+        dtoClassInfo = tryPut(clazz, dtoClassInfo);
+        dtoClassInfo.initJoinTableInfo(this);
+        return dtoClassInfo;
     }
 
     private DtoClassInfo tryPut(Class<?> clazz, DtoClassInfo dtoClassInfo) {

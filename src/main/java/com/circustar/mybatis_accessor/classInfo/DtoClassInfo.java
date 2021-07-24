@@ -11,6 +11,7 @@ import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.common_utils.reflection.AnnotationUtils;
 import com.circustar.mybatis_accessor.model.QueryWrapperCreator;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
+import com.circustar.mybatis_accessor.utils.TableJoinColumnPrefixManager;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -76,33 +77,44 @@ public class DtoClassInfo {
                 this.dtoFieldMap.put(property.getName(), dtoField);
             }
         });
+    }
+
+    public void initJoinTableInfo(DtoClassInfoHelper dtoClassInfoHelper) {
+        this.subDtoFieldList.stream().forEach(x -> {
+            TableJoinInfo tableJoinInfo = TableJoinInfo.parseDtoFieldJoinInfo(dtoClassInfoHelper, this.clazz, x);
+            x.setTableJoinInfo(tableJoinInfo);
+        });
 
         List<String> joinTableList = new ArrayList<>();
         List<String> joinColumnList = new ArrayList<>();
-        List<TableJoinInfo> tableJoinInfoList = TableJoinInfo.parseDtoTableJoinInfo(clazz);
-        tableJoinInfoList.stream().sorted(Comparator.comparingInt(x -> x.getQueryJoin().order()))
+        List<TableJoinInfo> tableJoinInfoList = subDtoFieldList.stream()
+                .map(x -> x.getTableJoinInfo()).filter(x -> x != null)
+                .collect(Collectors.toList());
+        tableJoinInfoList.stream().sorted(Comparator.comparingInt(x -> x.getQueryJoin().getOrder()))
                 .forEach(tableJoinInfo -> {
-            Class joinClazz = (Class) tableJoinInfo.getActualType();
+                    Class joinClazz = tableJoinInfo.getActualClass();
+                    TableInfo joinTableInfo = TableInfoHelper.getTableInfo(joinClazz);
+                    joinTableList.add(tableJoinInfo.getQueryJoin().getJoinType().getJoinExpression()
+                            + " " + joinTableInfo.getTableName() + " " + tableJoinInfo.getQueryJoin().getTableAlias());
+                    String joinExpression = tableJoinInfo.getQueryJoin().getJoinExpression();
+                    if(org.springframework.util.StringUtils.isEmpty(joinExpression)) {
+                        if(this.entityClassInfo.getFieldByName(joinTableInfo.getKeyProperty()) != null) {
+                            joinExpression = this.entityClassInfo.getTableInfo().getTableName() + "." + joinTableInfo.getKeyColumn()
+                                    + " = " + tableJoinInfo.getQueryJoin().getTableAlias() + "." + joinTableInfo.getKeyColumn();
+                        } else {
+                            joinExpression = this.entityClassInfo.getTableInfo().getTableName() + "." + this.entityClassInfo.getTableInfo().getKeyColumn()
+                                    + " = " + tableJoinInfo.getQueryJoin().getTableAlias() + "." + this.entityClassInfo.getTableInfo().getKeyColumn();
+                        }
+                    }
+                    joinTableList.add(" on " + joinExpression);
 
-            TableInfo joinTableInfo = TableInfoHelper.getTableInfo(relationMap.getByDtoClass(joinClazz).getEntityClass());
-            joinTableList.add(tableJoinInfo.getQueryJoin().joinType().getJoinExpression()
-                    + " " + joinTableInfo.getTableName());
-            String joinExpression = tableJoinInfo.getQueryJoin().joinExpression();
-            if(org.springframework.util.StringUtils.isEmpty(joinExpression)) {
-                if(this.entityClassInfo.getFieldByName(joinTableInfo.getKeyProperty()) != null) {
-                    joinExpression = this.entityClassInfo.getTableInfo().getTableName() + "." + joinTableInfo.getKeyColumn()
-                            + " = " + joinTableInfo.getTableName() + "." + joinTableInfo.getKeyColumn();
-                } else {
-                    joinExpression = this.entityClassInfo.getTableInfo().getTableName() + "." + this.entityClassInfo.getTableInfo().getKeyColumn()
-                            + " = " + joinTableInfo.getTableName() + "." + this.entityClassInfo.getTableInfo().getKeyColumn();
-                }
-            }
-            joinTableList.add(" on " + joinExpression);
-
-            String joinColumn = Arrays.stream(joinTableInfo.getAllSqlSelect().split(","))
-                    .map(x -> joinTableInfo.getTableName() + "." + x + " as " + joinTableInfo.getTableName() + "_" + x ).collect(Collectors.joining(","));
-            joinColumnList.add(joinColumn);
-        });
+                    String joinColumn = Arrays.stream(joinTableInfo.getAllSqlSelect().split(","))
+                            .map(x -> tableJoinInfo.getQueryJoin().getTableAlias() + "." + x
+                                    + " as " + TableJoinColumnPrefixManager.tryGet(entityClassInfo.getEntityClass()
+                                    , tableJoinInfo.getFieldName()) + "_" + x )
+                            .collect(Collectors.joining(","));
+                    joinColumnList.add(joinColumn);
+                });
         this.joinTables = joinTableList.stream().collect(Collectors.joining(" "));
         this.joinColumns = joinColumnList.stream().collect(Collectors.joining(",")).trim();
         this.joinColumns = (StringUtils.isBlank(this.joinColumns) ? "" : ",") + this.joinColumns;
