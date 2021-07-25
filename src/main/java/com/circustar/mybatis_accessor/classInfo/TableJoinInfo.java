@@ -27,6 +27,7 @@ public class TableJoinInfo {
     private Class actualClass;
     private Class ownerClass;
     private TableInfo tableInfo;
+    private Integer position;
 
     public String getFieldName() {
         return fieldName;
@@ -90,6 +91,14 @@ public class TableJoinInfo {
 
     public void setTableInfo(TableInfo tableInfo) {
         this.tableInfo = tableInfo;
+    }
+
+    public Integer getPosition() {
+        return position;
+    }
+
+    public void setPosition(Integer position) {
+        this.position = position;
     }
 
     public static TableJoinInfo parseDtoFieldJoinInfo(DtoClassInfoHelper dtoClassInfoHelper, Class dtoClass, DtoField dtoField) {
@@ -172,7 +181,20 @@ public class TableJoinInfo {
 
             tableJoinInfos.add(tableJoinInfo);
         }
+        setPosition(tableJoinInfos);
+
         return tableJoinInfos;
+    }
+
+    public static void setPosition(List<TableJoinInfo> tableJoinInfos) {
+        Map<Class, List<TableJoinInfo>> infoMap = tableJoinInfos.stream().collect(Collectors.groupingBy(x -> x.getActualClass()));
+        for(Class clazz : infoMap.keySet()) {
+            int position = 0;
+            List<TableJoinInfo> var0 = infoMap.get(clazz);;
+            for(TableJoinInfo tableJoinInfo : var0) {
+                tableJoinInfo.setPosition(position++);
+            }
+        }
     }
 
 }

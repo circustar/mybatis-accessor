@@ -18,7 +18,7 @@ public class DtoFields {
                     null : (clazz == null? values.get(0) : dtoClassInfoHelper.convertFromEntity(values.get(0), clazz)));
             return;
         }
-        DtoField.SupportGenericType supportGenericType = DtoField.SupportGenericType.getSupportGenericType((Class) dtoField.getOwnType());
+        DtoField.SupportGenericType supportGenericType = DtoField.SupportGenericType.getSupportGenericType((Class) dtoField.getOwnClass());
         if(supportGenericType == null) {
             return;
         }

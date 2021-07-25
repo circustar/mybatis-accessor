@@ -86,21 +86,14 @@ public class TableInfoUtils {
 
     private static ResultMapping getNestedResultMapping(Configuration configuration
             , TableInfo tableInfo
-            , TableJoinInfo tableJoinInfo
-            , List<Class> joinTableList
-            , String namespace
-            , boolean terminalFlag) {
-        ResultMapping.Builder builder = new ResultMapping.Builder(configuration, tableJoinInfo.getFieldName(), StringUtils.getTargetColumn(tableJoinInfo.getFieldName()), tableJoinInfo.getOwnerClass());
-        String nestedId;
-        if(terminalFlag) {
-            nestedId = registerResultMapping(configuration, tableInfo, null, null, namespace);
-        } else {
-            List<TableJoinInfo> tableJoinInfos = TableJoinInfo.parseEntityTableJoinInfo(configuration, tableJoinInfo.getActualClass());
-            nestedId = registerResultMapping(configuration, tableInfo, tableJoinInfos, joinTableList, namespace);
-        }
+            , TableJoinInfo tableJoinInfo) {
+        ResultMapping.Builder builder = new ResultMapping.Builder(configuration, tableJoinInfo.getFieldName()
+                , StringUtils.getTargetColumn(tableJoinInfo.getFieldName()), tableJoinInfo.getOwnerClass());
+//        String nestedId = registerResultMapping(configuration, tableInfo, null);
+        String nestedId = registerResultMapping(configuration, tableInfo, null, DEFAULT_NESTED_NAMESPACE);
         builder.nestedResultMapId(nestedId);
         builder.columnPrefix(TableJoinColumnPrefixManager.tryGet(tableJoinInfo.getTargetClass()
-                , tableJoinInfo.getFieldName()) + "_");
+                , tableJoinInfo.getActualClass(), tableJoinInfo.getPosition()) + "_");
         return builder.build();
     }
 
@@ -110,36 +103,33 @@ public class TableInfoUtils {
     }
 
     public static String registerResultMapping(Configuration configuration, TableInfo tableInfo
-            , List<TableJoinInfo> tableJoinInfos, Class modelClass) {
-        List<Class> joinTableList = new ArrayList<>();
-        joinTableList.add(modelClass);
-        return registerResultMapping(configuration, tableInfo, tableJoinInfos, joinTableList, tableInfo.getCurrentNamespace());
+            , List<TableJoinInfo> tableJoinInfos) {
+        return registerResultMapping(configuration, tableInfo, tableJoinInfos, tableInfo.getCurrentNamespace());
     }
-    public static boolean findJoinTableListLoop(List<Class> joinTableList) {
-        if(joinTableList == null || joinTableList.size() == 1) {
-            return false;
-        }
-        int lastPos = joinTableList.size() - 1;
-        Class lastClass = joinTableList.get(lastPos);
-        for(int i = lastPos - 1; i > 0; i--) {
-            Class checkClass = joinTableList.get(i);
-            if(checkClass.equals(lastClass)) {
-                int j = lastPos - 1;
-                int k = i - 1;
-                for(;j > i && k >= 0; j--,k--) {
-                    if(!joinTableList.get(j).equals(joinTableList.get(k))) {
-                        return false;
-                    }
-                }
-                return j == i;
-            }
-        }
-        return false;
-    }
+//    public static boolean findJoinTableListLoop(List<Class> joinTableList) {
+//        if(joinTableList == null || joinTableList.size() == 1) {
+//            return false;
+//        }
+//        int lastPos = joinTableList.size() - 1;
+//        Class lastClass = joinTableList.get(lastPos);
+//        for(int i = lastPos - 1; i > 0; i--) {
+//            Class checkClass = joinTableList.get(i);
+//            if(checkClass.equals(lastClass)) {
+//                int j = lastPos - 1;
+//                int k = i - 1;
+//                for(;j > i && k >= 0; j--,k--) {
+//                    if(!joinTableList.get(j).equals(joinTableList.get(k))) {
+//                        return false;
+//                    }
+//                }
+//                return j == i;
+//            }
+//        }
+//        return false;
+//    }
 
     public static String registerResultMapping(Configuration configuration, TableInfo tableInfo
-            , List<TableJoinInfo> tableJoinInfos
-            , List<Class> joinTableList, String namespace) {
+            , List<TableJoinInfo> tableJoinInfos, String namespace) {
         String id = getResultMappingId(tableInfo, namespace);
         Boolean existResultMap = configuration.getResultMapNames().contains(id);
         if(existResultMap == true) {
@@ -162,12 +152,7 @@ public class TableInfoUtils {
             for(TableJoinInfo tableJoinInfo : tableJoinInfos) {
                 Class clazz = tableJoinInfo.getActualClass();
                 TableInfo joinTableInfo = TableInfoHelper.getTableInfo(clazz);
-                List<Class> newJoinTableList = new ArrayList<>(joinTableList);
-                newJoinTableList.add(clazz);
-                resultMappings.add(TableInfoUtils.getNestedResultMapping(configuration, joinTableInfo, tableJoinInfo
-                            , newJoinTableList
-                            , joinTableList.contains(clazz) ? namespace : DEFAULT_NESTED_NAMESPACE
-                            , findJoinTableListLoop(newJoinTableList)));
+                resultMappings.add(TableInfoUtils.getNestedResultMapping(configuration, joinTableInfo, tableJoinInfo));
             }
         }
 

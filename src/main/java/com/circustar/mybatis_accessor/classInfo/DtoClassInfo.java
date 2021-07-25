@@ -14,7 +14,6 @@ import com.circustar.mybatis_accessor.utils.TableInfoUtils;
 import com.circustar.mybatis_accessor.utils.TableJoinColumnPrefixManager;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -68,7 +67,7 @@ public class DtoClassInfo {
             if(dtoField.getEntityDtoServiceRelation() != null) {
                 subDtoFieldList.add(dtoField);
                 this.dtoFieldMap.put(property.getName(), dtoField);
-            } else if(TableInfoUtils.isMybatisSupportType((Class)dtoField.getActualType())) {
+            } else if(TableInfoUtils.isMybatisSupportType((Class)dtoField.getActualClass())) {
                 normalFieldList.add(dtoField);
                 if(property.getName().equals(finalVersionPropertyName)) {
                     this.versionField = dtoField;
@@ -84,12 +83,11 @@ public class DtoClassInfo {
             TableJoinInfo tableJoinInfo = TableJoinInfo.parseDtoFieldJoinInfo(dtoClassInfoHelper, this.clazz, x);
             x.setTableJoinInfo(tableJoinInfo);
         });
+        List<TableJoinInfo> tableJoinInfoList = this.subDtoFieldList.stream().map(x -> x.getTableJoinInfo()).filter(x -> x != null).collect(Collectors.toList());
+        TableJoinInfo.setPosition(tableJoinInfoList);
 
         List<String> joinTableList = new ArrayList<>();
         List<String> joinColumnList = new ArrayList<>();
-        List<TableJoinInfo> tableJoinInfoList = subDtoFieldList.stream()
-                .map(x -> x.getTableJoinInfo()).filter(x -> x != null)
-                .collect(Collectors.toList());
         tableJoinInfoList.stream().sorted(Comparator.comparingInt(x -> x.getQueryJoin().getOrder()))
                 .forEach(tableJoinInfo -> {
                     Class joinClazz = tableJoinInfo.getActualClass();
@@ -111,7 +109,7 @@ public class DtoClassInfo {
                     String joinColumn = Arrays.stream(joinTableInfo.getAllSqlSelect().split(","))
                             .map(x -> tableJoinInfo.getQueryJoin().getTableAlias() + "." + x
                                     + " as " + TableJoinColumnPrefixManager.tryGet(entityClassInfo.getEntityClass()
-                                    , tableJoinInfo.getFieldName()) + "_" + x )
+                                    , tableJoinInfo.getActualClass(), tableJoinInfo.getPosition()) + "_" + x )
                             .collect(Collectors.joining(","));
                     joinColumnList.add(joinColumn);
                 });

@@ -11,8 +11,8 @@ public class TableJoinColumnPrefixManager {
 
     private final static Map<String, Long> tableJoinColumnPrefixMap = new ConcurrentHashMap<>();
 
-    public static String tryGet(Class<?> entityClass, String fieldName) {
-        String fullName = entityClass.getName() + "." + fieldName;
+    public static String tryGet(Class<?> entityClass, Class<?> joinClass, int pos) {
+        String fullName = entityClass.getName() + "-" + joinClass.getName() + "-" + pos;
         try {
             if(!tableJoinColumnPrefixMap.containsKey(fullName)) {
                 tableJoinColumnPrefixMap.put(fullName, tableIndex.addAndGet(1));

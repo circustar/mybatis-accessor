@@ -125,7 +125,8 @@ public class QueryWrapperCreator {
                                 , x.getTableJoinInfo().getQueryJoin().getTableAlias()
                                 , y.getEntityFieldInfo().getColumnName()
                                 , TableJoinColumnPrefixManager.tryGet((Class)x.getDtoClassInfo().getEntityClassInfo().getEntityClass()
-                                , x.getField().getName())))
+                                , x.getTableJoinInfo().getActualClass()
+                                , x.getTableJoinInfo().getPosition())))
                         .collect(Collectors.toList());
             }).flatMap(x -> x.stream()).collect(Collectors.toList());
             List<QuerySelectModel> querySelectModels = dtoClassInfo.getNormalFieldList()

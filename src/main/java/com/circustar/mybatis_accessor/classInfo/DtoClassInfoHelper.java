@@ -147,7 +147,7 @@ public class DtoClassInfoHelper {
                 }
                 EntityFieldInfo entityEntityFieldInfo = dtoClassInfo.getEntityClassInfo().getFieldByName(dtoField.getField().getName());
                 Object child = FieldUtils.getFieldValue(entity, entityEntityFieldInfo.getPropertyDescriptor().getReadMethod());
-                Object subObject = convertFromEntity(child, (Class) dtoField.getActualType());
+                Object subObject = convertFromEntity(child, (Class) dtoField.getActualClass());
                 FieldUtils.setFieldValue(object, dtoField.getPropertyDescriptor().getWriteMethod(), subObject);
             }
             return object;
@@ -190,7 +190,7 @@ public class DtoClassInfoHelper {
                     if (child == null) {
                         continue;
                     }
-                    Object object = convertFromEntity(child, (Class) dtoField.getActualType());
+                    Object object = convertFromEntity(child, (Class) dtoField.getActualClass());
                     FieldUtils.setFieldValue(itTo.next(), dtoField.getPropertyDescriptor().getWriteMethod(), object);
                 }
             }

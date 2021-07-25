@@ -33,7 +33,7 @@ public class SelectListWithJoin extends AbstractMethod {
         CSSqlMethod sqlMethod = this.getSqlMethod();
         String sql = String.format(sqlMethod.getSql(), this.sqlFirst(), this.sqlSelectColumns(tableInfo, true), tableInfo.getTableName(), joinTable, this.sqlWhereEntityWrapper(true, tableInfo), this.sqlComment());
         SqlSource sqlSource = this.languageDriver.createSqlSource(this.configuration, sql, modelClass);
-        this.resultMap = TableInfoUtils.registerResultMapping(configuration, tableInfo, tableJoinInfoList, modelClass);
+        this.resultMap = TableInfoUtils.registerResultMapping(configuration, tableInfo, tableJoinInfoList);
         MappedStatement ms = this.addSelectMappedStatementForTable(mapperClass
                 , this.getSqlMethod().getMethod(), sqlSource, tableInfo);
         return ms;

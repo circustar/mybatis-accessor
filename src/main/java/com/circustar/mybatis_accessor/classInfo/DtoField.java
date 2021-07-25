@@ -8,7 +8,6 @@ import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,8 +26,8 @@ public class DtoField {
     private Class relatedEntityClass = null;
 
     private Boolean isCollection = false;
-    private Type actualType = null;
-    private Type ownType = null;
+    private Class actualClass = null;
+    private Class ownClass = null;
 
     private PropertyDescriptor propertyDescriptor;
 
@@ -56,14 +55,14 @@ public class DtoField {
         if(Collection.class.isAssignableFrom(this.field.getType())
                 && this.field.getGenericType() instanceof ParameterizedType) {
             isCollection = true;
-            actualType = ((ParameterizedType) this.field.getGenericType()).getActualTypeArguments()[0];
-            ownType = ((ParameterizedType) this.field.getGenericType()).getRawType();
+            actualClass = (Class) ((ParameterizedType) this.field.getGenericType()).getActualTypeArguments()[0];
+            ownClass = (Class) ((ParameterizedType) this.field.getGenericType()).getRawType();
         } else {
             isCollection = false;
-            actualType = this.field.getType();
-            ownType = this.field.getType();
+            actualClass = this.field.getType();
+            ownClass = this.field.getType();
         }
-        this.entityDtoServiceRelation = relationMap.getByDtoClass((Class)actualType);
+        this.entityDtoServiceRelation = relationMap.getByDtoClass((Class) actualClass);
     }
 
     public EntityFieldInfo getEntityFieldInfo() {
@@ -126,12 +125,12 @@ public class DtoField {
         return isCollection;
     }
 
-    public Type getActualType() {
-        return actualType;
+    public Class getActualClass() {
+        return actualClass;
     }
 
-    public Type getOwnType() {
-        return ownType;
+    public Class getOwnClass() {
+        return ownClass;
     }
 
     public PropertyDescriptor getPropertyDescriptor() {

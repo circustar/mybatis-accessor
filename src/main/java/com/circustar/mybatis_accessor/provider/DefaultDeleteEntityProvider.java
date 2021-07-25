@@ -3,7 +3,6 @@ package com.circustar.mybatis_accessor.provider;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
-import com.circustar.mybatis_accessor.common.MessageProperties;
 import com.circustar.mybatis_accessor.provider.command.DeleteByIdCommand;
 import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
 import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
@@ -60,7 +59,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
                     if (entity == null) {
                         continue;
                     }
-                    DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo((Class) dtoField.getActualType());
+                    DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo((Class) dtoField.getActualClass());
 
                     DtoField subDtoKeyField = subDtoClassInfo.getKeyField();
                     List<Object> subIds = new ArrayList<>();
