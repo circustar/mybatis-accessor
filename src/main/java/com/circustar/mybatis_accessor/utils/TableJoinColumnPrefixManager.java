@@ -9,17 +9,17 @@ public class TableJoinColumnPrefixManager {
     private final static String aliasPrefix = "z";
     private static AtomicLong tableIndex = new AtomicLong(0);
 
-    private final static Map<String, Long> tableJoinColumnPrefixMap = new ConcurrentHashMap<>();
+    private final static Map<String, String> tableJoinColumnPrefixMap = new ConcurrentHashMap<>();
 
     public static String tryGet(Class<?> entityClass, Class<?> joinClass, int pos) {
-        String fullName = entityClass.getName() + "-" + joinClass.getName() + "-" + pos;
+        String fullName = entityClass.getName() + " " + joinClass.getName() + " " + pos;
         try {
             if(!tableJoinColumnPrefixMap.containsKey(fullName)) {
-                tableJoinColumnPrefixMap.put(fullName, tableIndex.addAndGet(1));
+                tableJoinColumnPrefixMap.put(fullName, aliasPrefix + new BigInteger(String.valueOf(tableIndex.addAndGet(1)))
+                        .toString(32));
             }
         } catch (Exception ex) {
         }
-        return aliasPrefix + new BigInteger(tableJoinColumnPrefixMap.get(fullName).toString())
-                .toString(32);
+        return tableJoinColumnPrefixMap.get(fullName);
     }
 }
