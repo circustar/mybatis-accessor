@@ -7,9 +7,7 @@ import org.springframework.util.StringUtils;
 public class QuerySelectModel {
     private String expression;
     private String columnName;
-    private String tableName;
     public QuerySelectModel(QueryGroupBy queryGroupBy, String tableName, String columnName) {
-        this.tableName = tableName;
         this.columnName = columnName;
         if(queryGroupBy != null && !StringUtils.isEmpty(queryGroupBy.expression())) {
             this.expression = queryGroupBy.expression() + " AS " + columnName;
@@ -18,7 +16,6 @@ public class QuerySelectModel {
         }
     }
     public QuerySelectModel(QuerySelect querySelect, String tableName, String columnName) {
-        this.tableName = tableName;
         this.columnName = columnName;
         if(querySelect != null && !StringUtils.isEmpty(querySelect.value())) {
             this.expression = querySelect.value() + " AS " + columnName;
@@ -27,7 +24,6 @@ public class QuerySelectModel {
         }
     }
     public QuerySelectModel(QuerySelect querySelect, String tableName, String columnName, String columnPrefix) {
-        this.tableName = tableName;
         this.columnName = columnName;
         String prefix = tableName + "_";
         if(!StringUtils.isEmpty(columnPrefix)) {

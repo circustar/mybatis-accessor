@@ -24,7 +24,6 @@ public class QueryWrapperCreator {
     private List<QueryGroupByModel> queryGroupByModels;
     private List<QueryHavingModel> queryHavingModels;
     private List<QueryOrderModel> queryOrders;
-    private DtoClassInfo dtoClassInfo;
     private EntityClassInfo entityClassInfo;
     private TableInfo tableInfo;
     private List<DtoField> joinTableDtoFields;
@@ -32,7 +31,6 @@ public class QueryWrapperCreator {
 
     public QueryWrapperCreator(DtoClassInfoHelper dtoClassInfoHelper, DtoClassInfo dtoClassInfo) {
         this.dtoClassInfoHelper = dtoClassInfoHelper;
-        this.dtoClassInfo = dtoClassInfo;
         this.entityClassInfo = dtoClassInfo.getEntityClassInfo();
         this.tableInfo = entityClassInfo.getTableInfo();
         this.tableName = this.tableInfo.getTableName();

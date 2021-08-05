@@ -3,9 +3,9 @@ package com.circustar.common_utils.collection;
 import org.springframework.util.StringUtils;
 
 public class ArrayParamUtils {
-    public static String DELIMITER_COMMA = ",";
-    public static String DELIMITER_SEMICOLON = ";";
-    public static <T> T parseArray(Object[] array, int position, T defaultValue) {
+    public final static String DELIMITER_COMMA = ",";
+    public final static String DELIMITER_SEMICOLON = ";";
+    public final static <T> T parseArray(Object[] array, int position, T defaultValue) {
         if(array == null || array.length - 1 < position) {
             return defaultValue;
         }

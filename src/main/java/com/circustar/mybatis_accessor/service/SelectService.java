@@ -126,7 +126,7 @@ public class SelectService implements ISelectService {
         }
 
         Map<Boolean, List<DtoField>> dtoFieldMap = subFields.stream().filter(x -> x.getQueryJoin() == null)
-                .collect(Collectors.partitioningBy(x -> x.getSelectors() == null || x.getSelectors().length == 0));
+                .collect(Collectors.partitioningBy(x -> x.getSelectors() == null || x.getSelectors().size() == 0));
 
         List<DtoField> fieldsWithNoSelector = dtoFieldMap.get(true);
         if(fieldsWithNoSelector != null && fieldsWithNoSelector.size() > 0) {

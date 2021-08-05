@@ -56,13 +56,11 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
 
         String[] topEntities = this.getTopEntities(children, ".");
 
-        List<Object> updateTargetList = new ArrayList<>();
         for(Object value : values) {
             if(value == null) {
                 continue;
             }
             Object updateTarget = dtoClassInfoHelper.convertToEntity(value);
-            updateTargetList.add(updateTarget);
 
             DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , UpdateByIdCommand.getInstance()

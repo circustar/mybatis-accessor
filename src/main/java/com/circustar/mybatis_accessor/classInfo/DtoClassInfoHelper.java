@@ -105,7 +105,7 @@ public class DtoClassInfoHelper {
             }
             for (DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
                 EntityFieldInfo entityEntityFieldInfo = entityClassInfo.getFieldByName(dtoField.getField().getName());
-                if (entityEntityFieldInfo == null && !entityEntityFieldInfo.getIsCollection()) {
+                if (entityEntityFieldInfo == null || !entityEntityFieldInfo.getIsCollection()) {
                     continue;
                 }
                 Iterator itFrom = objects.iterator();

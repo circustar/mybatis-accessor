@@ -19,14 +19,12 @@ import java.io.Serializable;
 import java.util.*;
 
 public class MybatisAccessorService {
-    protected ApplicationContext applicationContext;
     protected IUpdateService updateService = null;
     protected ISelectService selectService = null;
     protected IEntityDtoServiceRelationMap entityDtoServiceRelationMap = null;
 
-    public MybatisAccessorService(ApplicationContext applicationContext, IEntityDtoServiceRelationMap entityDtoServiceRelationMap
+    public MybatisAccessorService(IEntityDtoServiceRelationMap entityDtoServiceRelationMap
             , ISelectService selectService, IUpdateService updateService) {
-        this.applicationContext = applicationContext;
         this.updateService = updateService;
         this.selectService = selectService;
         this.entityDtoServiceRelationMap = entityDtoServiceRelationMap;

@@ -80,7 +80,7 @@ public class DtoFields {
             IService service = subRelation.getServiceBean(applicationContext);
             QueryWrapper qw = new QueryWrapper();
 
-            Arrays.stream(dtoField.getSelectors()).forEach(x -> x.connector().consume(x.tableColumn(), qw
+            dtoField.getSelectors().forEach(x -> x.connector().consume(x.tableColumn(), qw
                     , SPELParser.parseExpression(dto, Arrays.asList(x.valueExpression()))));
 
             List searchResult = service.list(qw);

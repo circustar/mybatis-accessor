@@ -88,18 +88,17 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                 }
             }
 
-            for (String keyProperty : keyMap.keySet()) {
-                if (avoidIdList != null && avoidIdList.contains(keyProperty)) {
+            for (Map.Entry<String, Object> keyEntry : keyMap.entrySet()) {
+                if (avoidIdList != null && avoidIdList.contains(keyEntry.getKey())) {
                     continue;
                 }
-                EntityFieldInfo entityFieldInfo = entityClassInfo.getFieldByName(keyProperty);
+                EntityFieldInfo entityFieldInfo = entityClassInfo.getFieldByName(keyEntry.getKey());
                 if (entityFieldInfo == null) {
                     continue;
                 }
-                Object keyValue = keyMap.get(keyProperty);
                 for (Object updateEntity : updateTargets) {
                     FieldUtils.setFieldValueIfNull(updateEntity, entityFieldInfo.getPropertyDescriptor().getReadMethod()
-                            , entityFieldInfo.getPropertyDescriptor().getWriteMethod(), keyValue);
+                            , entityFieldInfo.getPropertyDescriptor().getWriteMethod(), keyEntry.getValue());
                 }
             }
         }

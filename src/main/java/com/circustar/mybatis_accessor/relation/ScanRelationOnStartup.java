@@ -38,17 +38,16 @@ public class ScanRelationOnStartup implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         Map<String, Object> beans = context.getBeansWithAnnotation(RelationScanPackages.class);
-        for(String className : beans.keySet()) {
-            //Class<?> targetClass = AopUtils.getTargetClass(beans.get(className));
-            Class<?> targetClass = getTargetClass(beans.get(className).getClass());
+        for(Map.Entry<String, Object> target : beans.entrySet()) {
+            Class<?> targetClass = getTargetClass(target.getValue().getClass());
             RelationScanPackages[] annotations = targetClass.getAnnotationsByType(RelationScanPackages.class);
             scanForRelationMap(Arrays.stream(annotations).map(x -> x.value())
                     .flatMap(Arrays::stream)
                     .collect(Collectors.toList()));
         }
         Map<String, Object> enableAutoController = context.getBeansWithAnnotation(EnableMybatisAccessor.class);
-        for(String className : enableAutoController.keySet()) {
-            Class<?> targetClass = getTargetClass(enableAutoController.get(className).getClass());
+        for(Map.Entry<String, Object> classEntry : enableAutoController.entrySet()) {
+            Class<?> targetClass = getTargetClass(classEntry.getValue().getClass());
             EnableMybatisAccessor[] annotations = targetClass.getAnnotationsByType(EnableMybatisAccessor.class);
             List<String> scannList = Arrays.stream(annotations).map(x -> x.relationScan().value())
                     .flatMap(Arrays::stream)

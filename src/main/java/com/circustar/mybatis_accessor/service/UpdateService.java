@@ -12,14 +12,9 @@ import org.springframework.context.ApplicationContext;
 import java.util.*;
 
 public class UpdateService implements IUpdateService {
-    public UpdateService(ApplicationContext applicationContext, DtoClassInfoHelper dtoClassInfoHelper, IEntityDtoServiceRelationMap entityDtoServiceRelationMap) {
-        this.applicationContext = applicationContext;
+    public UpdateService(DtoClassInfoHelper dtoClassInfoHelper) {
         this.dtoClassInfoHelper = dtoClassInfoHelper;
-        this.entityDtoServiceRelationMap = entityDtoServiceRelationMap;
     }
-    private ApplicationContext applicationContext;
-
-    private IEntityDtoServiceRelationMap entityDtoServiceRelationMap;
 
     private DtoClassInfoHelper dtoClassInfoHelper;
 

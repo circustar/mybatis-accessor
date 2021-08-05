@@ -27,7 +27,7 @@ public class TableInfoUtils {
     private static String DEFAULT_NESTED_NAMESPACE = "N_CCS_";
     private static String DEFAULT_MYBATIS_PLUS_NAMESPACE = "mybatis-plus_";
     private static volatile boolean allTableInfoInitialized = false;
-    public static AtomicReference<List<String>> scanPackages = new AtomicReference<>();
+    public final static AtomicReference<List<String>> scanPackages = new AtomicReference<>();
     private static boolean userCamelCase = false;
     private static TypeHandlerRegistry typeHandlerRegistry = null;
     public static synchronized void initAllTableInfo(Configuration configuration) {

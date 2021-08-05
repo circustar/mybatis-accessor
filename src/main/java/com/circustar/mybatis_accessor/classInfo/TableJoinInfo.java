@@ -188,9 +188,9 @@ public class TableJoinInfo {
 
     public static void setPosition(List<TableJoinInfo> tableJoinInfos) {
         Map<Class, List<TableJoinInfo>> infoMap = tableJoinInfos.stream().collect(Collectors.groupingBy(x -> x.getActualClass()));
-        for(Class clazz : infoMap.keySet()) {
+        for(Map.Entry<Class, List<TableJoinInfo>> info : infoMap.entrySet()) {
             int position = 0;
-            List<TableJoinInfo> var0 = infoMap.get(clazz);;
+            List<TableJoinInfo> var0 = info.getValue();
             for(TableJoinInfo tableJoinInfo : var0) {
                 tableJoinInfo.setPosition(position++);
             }

@@ -21,11 +21,9 @@ import java.util.stream.Collectors;
 
 public class DtoClassInfo {
     private Class<?> clazz;
-    private IEntityDtoServiceRelationMap relationMap;
     private EntityDtoServiceRelation entityDtoServiceRelation;
     private List<DtoField> subDtoFieldList;
     private List<DtoField> normalFieldList;
-    private List<DtoField> columnFieldList;
     private Map<String, DtoField> dtoFieldMap;
     private EntityClassInfo entityClassInfo;
     private String joinTables;
@@ -38,12 +36,10 @@ public class DtoClassInfo {
     private QueryWrapperCreator queryWrapperCreator;
     public DtoClassInfo(IEntityDtoServiceRelationMap relationMap, Class<?> clazz, EntityClassInfo entityClassInfo) {
         this.clazz = clazz;
-        this.relationMap = relationMap;
         this.entityDtoServiceRelation = relationMap.getByDtoClass(this.clazz);
         this.entityClassInfo = entityClassInfo;
         this.subDtoFieldList = new ArrayList<>();
         this.normalFieldList = new ArrayList<>();
-        this.columnFieldList = new ArrayList<>();
         this.dtoFieldMap = new HashMap<>();
 
         String versionPropertyName = null;

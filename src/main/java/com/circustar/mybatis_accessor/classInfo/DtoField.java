@@ -22,7 +22,7 @@ public class DtoField {
     private QueryGroupBy queryGroupBy;
     private QueryHaving queryHaving;
     private QueryOrder queryOrder;
-    private Selector[] selectors;
+    private List<Selector> selectors;
     private Class relatedEntityClass = null;
 
     private Boolean isCollection = false;
@@ -47,10 +47,9 @@ public class DtoField {
         this.queryHaving = this.field.getAnnotation(QueryHaving.class);
         this.queryOrder = this.field.getAnnotation(QueryOrder.class);
 
-        List<Selector> sortedSelectors = Arrays.stream(this.field.getAnnotationsByType(Selector.class))
+        this.selectors = Arrays.stream(this.field.getAnnotationsByType(Selector.class))
                 .sorted(Comparator.comparingInt(Selector::order))
                 .collect(Collectors.toList());
-        this.selectors = sortedSelectors.toArray(new Selector[sortedSelectors.size()]);
 
         if(Collection.class.isAssignableFrom(this.field.getType())
                 && this.field.getGenericType() instanceof ParameterizedType) {
@@ -77,8 +76,8 @@ public class DtoField {
         return dtoClassInfo;
     }
 
-    public Selector[] getSelectors() {
-        return selectors;
+    public List<Selector> getSelectors() {
+        return this.selectors;
     }
 
     public QuerySelect getQuerySelect() {
