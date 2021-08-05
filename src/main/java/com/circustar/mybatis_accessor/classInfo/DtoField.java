@@ -25,9 +25,9 @@ public class DtoField {
     private List<Selector> selectors;
     private Class relatedEntityClass = null;
 
-    private Boolean isCollection = false;
-    private Class actualClass = null;
-    private Class ownClass = null;
+    private Boolean isCollection;
+    private Class actualClass;
+    private Class ownClass;
 
     private PropertyDescriptor propertyDescriptor;
 

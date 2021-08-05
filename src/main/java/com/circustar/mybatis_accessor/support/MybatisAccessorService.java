@@ -13,7 +13,6 @@ import com.circustar.mybatis_accessor.response.PageInfo;
 import com.circustar.mybatis_accessor.service.ISelectService;
 import com.circustar.mybatis_accessor.service.IUpdateService;
 import com.circustar.common_utils.reflection.FieldUtils;
-import org.springframework.context.ApplicationContext;
 
 import java.io.Serializable;
 import java.util.*;
@@ -314,7 +313,7 @@ public class MybatisAccessorService {
             , boolean includeAllChildren
             , String[] children
             , boolean updateChildrenOnly)  {
-        if(objects.size() <= 0) {
+        if(objects.isEmpty()) {
             return null;
         }
         EntityDtoServiceRelation relationInfo = this.getRelation(objects.get(0).getClass(), null);
@@ -327,7 +326,7 @@ public class MybatisAccessorService {
             , boolean includeAllChildren
             , String[] children
             , boolean updateChildrenOnly)  {
-        if(objectList == null || objectList.size() <= 0) {
+        if(objectList == null || objectList.isEmpty()) {
             return null;
         }
         Map options = new HashMap();
@@ -373,7 +372,7 @@ public class MybatisAccessorService {
             , String[] children
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild)  {
-        if(objects == null || objects.size() == 0) {
+        if(objects == null || objects.isEmpty()) {
             return null;
         }
         EntityDtoServiceRelation relationInfo = this.getRelation(objects.get(0).getClass(), null);
@@ -387,7 +386,7 @@ public class MybatisAccessorService {
             , String[] children
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild)  {
-        if(objectList == null || objectList.size() == 0) {
+        if(objectList == null || objectList.isEmpty()) {
             return null;
         }
         Map options = new HashMap();

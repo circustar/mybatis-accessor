@@ -135,7 +135,7 @@ public class DtoClassInfo {
     }
 
     public boolean containSubDto() {
-        return this.subDtoFieldList.size() > 0;
+        return !this.subDtoFieldList.isEmpty();
     }
 
     public String getJoinTables() {

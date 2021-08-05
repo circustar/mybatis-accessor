@@ -45,14 +45,14 @@ public abstract class AbstractUpdateEntityProvider implements IUpdateEntityProvi
                 .filter(x -> !StringUtils.isEmpty(x) && x.startsWith(prefix + delimeter))
                 .map(x -> x.substring((prefix + delimeter).length()))
                 .collect(Collectors.toList());
-        return entityList.toArray(new String[entityList.size()]);
+        return entityList.toArray(new String[0]);
     }
 
     protected String[] getTopEntities(String[] entities, String delimeter) {
         List<String> entityList = Arrays.stream(entities)
                 .filter(x -> !StringUtils.isEmpty(x) && !x.contains(delimeter))
                 .collect(Collectors.toList());
-        return entityList.toArray(new String[entityList.size()]);
+        return entityList.toArray(new String[0]);
     }
 
     protected boolean getPhysicDelete(DtoClassInfoHelper dtoClassInfoHelper, EntityDtoServiceRelation relation) {

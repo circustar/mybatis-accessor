@@ -46,7 +46,7 @@ public class BaseMapperScanner {
 
     public static Class<? extends BaseMapper> getBaseMapper(Class<?> clazz) {
         Set<Class<? extends BaseMapper>> mapperSet = baseMapperMap.get(clazz);
-        if(mapperSet != null && mapperSet.size() > 0) {
+        if(mapperSet != null && !mapperSet.isEmpty()) {
             return mapperSet.stream().iterator().next();
         }
         return null;

@@ -4,9 +4,7 @@ import com.circustar.mybatis_accessor.classInfo.*;
 import com.circustar.mybatis_accessor.common.MessageProperties;
 import com.circustar.mybatis_accessor.provider.*;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
-import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
-import org.springframework.context.ApplicationContext;
 
 
 import java.util.*;

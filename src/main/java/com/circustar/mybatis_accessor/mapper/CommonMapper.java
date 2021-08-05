@@ -3,7 +3,6 @@ package com.circustar.mybatis_accessor.mapper;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
 import org.apache.ibatis.annotations.Param;
 
@@ -42,7 +41,7 @@ public interface CommonMapper<T> extends BaseMapper<T> {
             , @Param(MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_TABLE) String joinTable
             , @Param(MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_COLUMNS) String joinColumns) {
         List<T> ts = selectListWithJoin(queryWrapper, joinTable, joinColumns);
-        if(ts.size() > 0) {
+        if(!ts.isEmpty()) {
             return ts.get(0);
         }
         return null;

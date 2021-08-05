@@ -34,7 +34,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
         Collection values = CollectionUtils.convertToCollection(dto);
         values.removeAll(updateTargetSet);
         updateTargetSet.addAll(values);
-        if(values.size() == 0) {return result;}
+        if(values.isEmpty()) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
 
@@ -86,7 +86,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                             , false));
                 }
                 Collection childList = CollectionUtils.convertToCollection(topChild);
-                if(childList.size() == 0) {continue;}
+                if(childList.isEmpty()) {continue;}
                 Map newOptions = new HashMap(options);
                 newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
                 newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_INCLUDE_ALL_CHILDREN, includeAllChildren);

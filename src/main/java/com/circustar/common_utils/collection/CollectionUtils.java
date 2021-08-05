@@ -26,6 +26,6 @@ public class CollectionUtils {
 
     public static <T> String[] convertStreamToStringArray(Stream<T> stream) {
         List<T> list = stream.collect(Collectors.toList());
-        return list.toArray(new String[list.size()]);
+        return list.toArray(new String[0]);
     }
 }

@@ -28,7 +28,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
     {
         List<IEntityUpdateProcessor> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(ids);;
-        if(values.size() == 0) {return result;}
+        if(values.isEmpty()) {return result;}
 
         String[] children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, new String[]{});
         boolean updateChildrenOnly = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
@@ -64,7 +64,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
                     DtoField subDtoKeyField = subDtoClassInfo.getKeyField();
                     List<Object> subIds = new ArrayList<>();
                     Collection entityList = CollectionUtils.convertToCollection(entity);
-                    if(entityList.size() == 0) {continue;}
+                    if(entityList.isEmpty()) {continue;}
                     for (Object obj : entityList) {
                         if(subDtoKeyField != null) {
                             Object subId = FieldUtils.getFieldValue(obj, subDtoKeyField.getPropertyDescriptor().getReadMethod());
@@ -82,7 +82,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
                             , dtoClassInfoHelper, subIds, newOptions
                     ));
                 }
-                if(subUpdateEntities.size() == 0) {
+                if(subUpdateEntities.isEmpty()) {
                     noSubEntityList.add(id);
                     continue;
                 }
@@ -102,7 +102,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
                 }
             }
         }
-        if(!updateChildrenOnly && noSubEntityList.size() > 0) {
+        if(!updateChildrenOnly && !noSubEntityList.isEmpty()) {
             updateProcessor = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , DeleteByIdBatchCommand.getInstance()
                     , physicDelete

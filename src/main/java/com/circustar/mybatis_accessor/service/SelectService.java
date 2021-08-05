@@ -129,13 +129,13 @@ public class SelectService implements ISelectService {
                 .collect(Collectors.partitioningBy(x -> x.getSelectors() == null || x.getSelectors().size() == 0));
 
         List<DtoField> fieldsWithNoSelector = dtoFieldMap.get(true);
-        if(fieldsWithNoSelector != null && fieldsWithNoSelector.size() > 0) {
+        if(fieldsWithNoSelector != null && !fieldsWithNoSelector.isEmpty()) {
             DtoFields.queryAndAssignDtoFieldById(applicationContext, dtoClassInfoHelper, entityDtoServiceRelationMap
                     , relationInfo, fieldsWithNoSelector, dto, id);
         }
 
         List<DtoField> fieldsWithSelector = dtoFieldMap.get(false);
-        if(fieldsWithSelector != null && fieldsWithSelector.size() > 0) {
+        if(fieldsWithSelector != null && !fieldsWithSelector.isEmpty()) {
             DtoFields.queryAndAssignDtoFieldBySelector(applicationContext, dtoClassInfoHelper
                     , entityDtoServiceRelationMap
                     , relationInfo

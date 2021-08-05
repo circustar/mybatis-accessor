@@ -32,7 +32,7 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
         Collection values = CollectionUtils.convertToCollection(dto);
         values.removeAll(updateTargetSet);
         updateTargetSet.addAll(values);
-        if(values.size() == 0) {return result;}
+        if(values.isEmpty()) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
         boolean includeAllChildren = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_INCLUDE_ALL_CHILDREN, false);
@@ -71,7 +71,7 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider {
                 Object subValue = FieldUtils.getFieldValue(value, dtoField.getPropertyDescriptor().getReadMethod());
                 if(subValue == null) {continue;}
                 Collection childList = CollectionUtils.convertToCollection(subValue);
-                if(childList.size() == 0) {continue;}
+                if(childList.isEmpty()) {continue;}
                 hasChildren = true;
                 Map newOptions = new HashMap(options);
                 newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);

@@ -36,7 +36,7 @@ public class MybatisPlusUtils {
         }
     }
     public static Boolean deleteBatchIds(IService service, Collection<? extends Serializable> idList, boolean physic) {
-        if(idList == null || idList.size() == 0) {
+        if(idList == null || idList.isEmpty()) {
           return true;
         } else if(idList.size() == 1) {
             return deleteById(service, idList.iterator().next(), physic);

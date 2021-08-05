@@ -26,14 +26,14 @@ public class DeleteByIdBatchCommand extends DeleteByIdCommand {
             deleteCollection.addAll(obj);
         }
 
-        if(physicDeleteCollection.size() > 0) {
+        if(!physicDeleteCollection.isEmpty()) {
             boolean result = MybatisPlusUtils.deleteBatchIds(service, physicDeleteCollection, true);
             if (!result) {
                 throw new RuntimeException(String.format(MessageProperties.UPDATE_TARGET_NOT_FOUND
                         , "Mapper - " + service.getBaseMapper().getClass().getSimpleName()));
             }
         }
-        if(deleteCollection.size() > 0) {
+        if(!deleteCollection.isEmpty()) {
             boolean result = MybatisPlusUtils.deleteBatchIds(service, deleteCollection, false);
             if (!result) {
                 throw new RuntimeException(String.format(MessageProperties.UPDATE_TARGET_NOT_FOUND

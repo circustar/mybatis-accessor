@@ -88,7 +88,7 @@ public class QueryWrapperCreator {
                 .sorted(Comparator.comparingInt(QueryOrderModel::getSortIndex))
                 .collect(Collectors.toList());
 
-        if(this.queryGroupByModels.size() > 0) {
+        if(!this.queryGroupByModels.isEmpty()) {
             this.queryHavingModels = dtoClassInfo.getNormalFieldList()
                     .stream().filter(x -> x.getQueryHaving() != null)
                     .map(x -> new QueryHavingModel(x.getQueryHaving()))
@@ -153,7 +153,7 @@ public class QueryWrapperCreator {
         List<QueryOrderModel> orderByList = queryOrders.stream().sorted(Comparator.comparingInt(QueryOrderModel::getSortIndex))
                 .collect(Collectors.toList());
 
-        return new QueryWrapperBuilder(columnList.toArray(new String[columnList.size()])
+        return new QueryWrapperBuilder(columnList.toArray(new String[0])
                 ,groupByList
                 , havingList.stream().collect(Collectors.joining(","))
                 , orderByList);
@@ -205,7 +205,7 @@ public class QueryWrapperCreator {
             if(columns != null && columns.length > 0) {
                 qw.select(columns);
             }
-            if(groupBys != null && groupBys.size() > 0) {
+            if(groupBys != null && !groupBys.isEmpty()) {
                 qw.groupBy(groupBys);
             }
             if(!StringUtils.isEmpty(having)) {
