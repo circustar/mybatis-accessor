@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.circustar.common_utils.reflection.FieldUtils;
+import com.circustar.mybatis_accessor.annotation.UpdateOrder;
 import com.circustar.mybatis_accessor.common.MessageProperties;
 import org.springframework.util.StringUtils;
 
@@ -17,6 +18,7 @@ public class EntityClassInfo {
     private TableInfo tableInfo;
     private EntityFieldInfo keyField;
     private EntityFieldInfo idReferenceFieldInfo;
+    private int updateOrder = Integer.MAX_VALUE;
 
     public EntityClassInfo(Class<?> entityClass) {
         this.entityClass = entityClass;
@@ -44,6 +46,11 @@ public class EntityClassInfo {
             throw new RuntimeException(String.format(MessageProperties.ID_REFERENCE_NOT_FOUND
                     , this.entityClass.getSimpleName()
                     ,this.idReferenceFieldInfo.getField().getName()));
+        }
+
+        UpdateOrder updateOrderAnno = this.entityClass.getAnnotation(UpdateOrder.class);
+        if(updateOrderAnno != null) {
+            this.updateOrder = updateOrderAnno.value();
         }
     }
 

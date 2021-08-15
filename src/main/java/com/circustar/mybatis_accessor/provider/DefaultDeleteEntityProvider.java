@@ -4,6 +4,7 @@ import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.provider.command.DeleteByIdCommand;
+import com.circustar.mybatis_accessor.provider.parameter.DefaultDeleteProviderParam;
 import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
 import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
 import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
@@ -17,21 +18,21 @@ import com.circustar.common_utils.collection.MapOptionUtils;
 import java.io.Serializable;
 import java.util.*;
 
-public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
+public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<DefaultDeleteProviderParam> {
     private static DefaultDeleteEntityProvider instance = new DefaultDeleteEntityProvider();
     public static DefaultDeleteEntityProvider getInstance() {
         return instance;
     }
     @Override
     public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
-            , DtoClassInfoHelper dtoClassInfoHelper, Object ids, Map options)
+            , DtoClassInfoHelper dtoClassInfoHelper, Object ids, DefaultDeleteProviderParam options)
     {
         List<IEntityUpdateProcessor> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(ids);;
         if(values.isEmpty()) {return result;}
 
-        String[] children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, new String[]{});
-        boolean updateChildrenOnly = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
+        String[] children = options.getUpdateChildrenNames();
+        boolean updateChildrenOnly = options.isUpdateChildrenOnly();
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
         ISelectService selectService = this.getSelectService();
@@ -73,13 +74,12 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider {
                             }
                         }
                     }
-                    Map newOptions = new HashMap(options);
-                    newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
-                    newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, this.getChildren(children
+
+                    DefaultDeleteProviderParam subOptions = new DefaultDeleteProviderParam(false, this.getChildren(children
                             , entityName, "."));
                     subUpdateEntities.addAll(this.createUpdateEntities(
                             dtoField.getEntityDtoServiceRelation()
-                            , dtoClassInfoHelper, subIds, newOptions
+                            , dtoClassInfoHelper, subIds, subOptions
                     ));
                 }
                 if(subUpdateEntities.isEmpty()) {

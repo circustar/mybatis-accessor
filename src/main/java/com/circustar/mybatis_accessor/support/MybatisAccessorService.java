@@ -7,6 +7,10 @@ import com.circustar.mybatis_accessor.provider.DefaultInsertEntityProvider;
 import com.circustar.mybatis_accessor.provider.DefaultUpdateEntityProvider;
 import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
 import com.circustar.mybatis_accessor.provider.IUpdateEntityProvider;
+import com.circustar.mybatis_accessor.provider.parameter.DefaultDeleteProviderParam;
+import com.circustar.mybatis_accessor.provider.parameter.DefaultInsertProviderParam;
+import com.circustar.mybatis_accessor.provider.parameter.DefaultUpdateProviderParam;
+import com.circustar.mybatis_accessor.provider.parameter.IProviderParam;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mybatis_accessor.response.PageInfo;
@@ -17,6 +21,10 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import java.io.Serializable;
 import java.util.*;
 
+// TODO List:
+// 1.代替“subentities”写法 -- 不可行，完成
+// 2.Provider中不使用Map -- 完成
+// 3.多个不同对象的更新,使用更新顺序
 public class MybatisAccessorService {
     protected IUpdateService updateService = null;
     protected ISelectService selectService = null;
@@ -274,7 +282,7 @@ public class MybatisAccessorService {
     public <T> List<T> updateWithOptions(
             Object object, EntityDtoServiceRelation relationInfo
             , IUpdateEntityProvider updateEntityProvider
-            , Map options)  {
+            , IProviderParam options)  {
 
         List<T> updatedEntities = updateService.updateByProviders(relationInfo
                 , object, updateEntityProvider, options);
@@ -299,12 +307,9 @@ public class MybatisAccessorService {
         if(object == null) {
             return null;
         }
-        Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, children);
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_INCLUDE_ALL_CHILDREN, includeAllChildren);
+        IProviderParam providerParam = new DefaultInsertProviderParam(updateChildrenOnly, includeAllChildren, children);
         List<T> objects = updateWithOptions(object, relation, DefaultInsertEntityProvider.getInstance()
-                , options);
+                , providerParam);
         return objects.get(0);
     }
 
@@ -329,13 +334,9 @@ public class MybatisAccessorService {
         if(objectList == null || objectList.isEmpty()) {
             return null;
         }
-        Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, children);
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_INCLUDE_ALL_CHILDREN, includeAllChildren);
-
+        IProviderParam providerParam = new DefaultInsertProviderParam(updateChildrenOnly, includeAllChildren, children);
         return updateWithOptions(objectList, relation, DefaultInsertEntityProvider.getInstance()
-                , options);
+                , providerParam);
     }
 
     public <T> T update(Object object
@@ -355,14 +356,9 @@ public class MybatisAccessorService {
             , String[] children
             , boolean updateChildrenOnly
             , boolean removeAndInsertNewChild)  {
-        Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, children);
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_AND_INSERT, removeAndInsertNewChild);
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_INCLUDE_ALL_CHILDREN, includeAllChildren);
-
+        IProviderParam providerParam = new DefaultUpdateProviderParam(updateChildrenOnly, includeAllChildren, children, removeAndInsertNewChild);
         List<T> result = updateWithOptions(object, relation, DefaultUpdateEntityProvider.getInstance()
-                , options);
+                , providerParam);
         return result.get(0);
     }
 
@@ -389,14 +385,10 @@ public class MybatisAccessorService {
         if(objectList == null || objectList.isEmpty()) {
             return null;
         }
-        Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, children);
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_AND_INSERT, removeAndInsertNewChild);
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_INCLUDE_ALL_CHILDREN, includeAllChildren);
 
+        IProviderParam providerParam = new DefaultUpdateProviderParam(updateChildrenOnly, includeAllChildren, children, removeAndInsertNewChild);
         return updateWithOptions(objectList, relation, DefaultUpdateEntityProvider.getInstance()
-                , options);
+                , providerParam);
     }
 
     public <T> List<T> deleteByIds(Class dtoClass
@@ -419,11 +411,8 @@ public class MybatisAccessorService {
             , Set<Serializable> ids
             , String[] children
             , boolean updateChildrenOnly) {
-        Map options = new HashMap();
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, children);
-        options.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, updateChildrenOnly);
-
+        IProviderParam providerParam = new DefaultDeleteProviderParam(updateChildrenOnly, children);
         return updateWithOptions(ids, relationInfo, DefaultDeleteEntityProvider.getInstance()
-                , options);
+                , providerParam);
     }
 }

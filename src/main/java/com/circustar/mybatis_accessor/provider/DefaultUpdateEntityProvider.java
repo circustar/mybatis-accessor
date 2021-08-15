@@ -4,6 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.provider.parameter.DefaultAbstractUpdateProviderParam;
+import com.circustar.mybatis_accessor.provider.parameter.DefaultDeleteProviderParam;
+import com.circustar.mybatis_accessor.provider.parameter.DefaultInsertProviderParam;
+import com.circustar.mybatis_accessor.provider.parameter.DefaultUpdateProviderParam;
 import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
 import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
 import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
@@ -16,7 +20,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.*;
 
-public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
+public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<DefaultUpdateProviderParam> {
     private static DefaultUpdateEntityProvider instance = new DefaultUpdateEntityProvider();
     public static DefaultUpdateEntityProvider getInstance() {
         return instance;
@@ -24,12 +28,12 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
 
     @Override
     public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
-            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options) {
+            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, DefaultUpdateProviderParam options) {
         return this.createUpdateEntities(relation, dtoClassInfoHelper, dto, options, new HashSet());
     }
 
     public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
-            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, Map options, Set updateTargetSet) {
+            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, DefaultUpdateProviderParam options, Set updateTargetSet) {
         List<IEntityUpdateProcessor> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(dto);
         values.removeAll(updateTargetSet);
@@ -38,14 +42,14 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
 
-        boolean updateChildrenOnly = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
-        boolean deleteBeforeUpdate = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_DELETE_AND_INSERT, false);
-        boolean includeAllChildren = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_INCLUDE_ALL_CHILDREN, false);
+        boolean updateChildrenOnly = options.isUpdateChildrenOnly();
+        boolean deleteBeforeUpdate = options.isDeleteBeforeUpdate();
+        boolean includeAllChildren = options.isIncludeAllChildren();
         String[] children;
         if(includeAllChildren) {
             children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getSubDtoFieldList().stream().map(x -> x.getField().getName()));
         } else {
-            children = MapOptionUtils.getValue(options, MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, new String[]{});
+            children = options.getUpdateChildrenNames();
         }
         boolean physicDelete = getPhysicDelete(dtoClassInfoHelper, relation);
 
@@ -87,11 +91,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                 }
                 Collection childList = CollectionUtils.convertToCollection(topChild);
                 if(childList.isEmpty()) {continue;}
-                Map newOptions = new HashMap(options);
-                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY, false);
-                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_INCLUDE_ALL_CHILDREN, includeAllChildren);
-                newOptions.put(MvcEnhanceConstants.UPDATE_STRATEGY_UPDATE_CHILDREN_LIST, this.getChildren(children
-                        , entityName, "."));
+                String[] subChildren = this.getChildren(children, entityName, ".");
                 DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(subDtoField.getEntityDtoServiceRelation().getDtoClass());
                 for(Object child : childList) {
                     Object subEntityKeyValue = FieldUtils.getFieldValue(child, subDtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod());
@@ -101,20 +101,23 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider {
                             deleteFlagValue = FieldUtils.getFieldValue(child, subDtoClassInfo.getDeleteFlagField().getPropertyDescriptor().getReadMethod());
                         }
                         if(!StringUtils.isEmpty(deleteFlagValue) && !"0".equals(deleteFlagValue.toString())) {
+                            DefaultDeleteProviderParam newParam = new DefaultDeleteProviderParam(false, subChildren);
                             defaultEntityCollectionUpdater.addSubUpdateEntities(defaultDeleteTreeProvider.createUpdateEntities(
                                     subDtoField.getEntityDtoServiceRelation(), dtoClassInfoHelper
-                                    , subEntityKeyValue, newOptions
+                                    , subEntityKeyValue, newParam
                             ));
                         } else {
+                            DefaultUpdateProviderParam newParam = new DefaultUpdateProviderParam(false, includeAllChildren, subChildren, deleteBeforeUpdate);
                             defaultEntityCollectionUpdater.addSubUpdateEntities(this.createUpdateEntities(
                                     subDtoField.getEntityDtoServiceRelation(), dtoClassInfoHelper
-                                    , child, newOptions, updateTargetSet
+                                    , child, newParam, updateTargetSet
                             ));
                         }
                     } else {
+                        DefaultInsertProviderParam newParam = new DefaultInsertProviderParam(false, includeAllChildren, subChildren);
                         defaultEntityCollectionUpdater.addSubUpdateEntities(
                                 insertEntitiesEntityProvider.createUpdateEntities(subDtoField.getEntityDtoServiceRelation()
-                                , dtoClassInfoHelper, child, newOptions, updateTargetSet));
+                                , dtoClassInfoHelper, child, newParam, updateTargetSet));
                     }
                 }
             }

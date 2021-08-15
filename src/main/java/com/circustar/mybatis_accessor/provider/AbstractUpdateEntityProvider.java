@@ -2,6 +2,7 @@ package com.circustar.mybatis_accessor.provider;
 
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
+import com.circustar.mybatis_accessor.provider.parameter.IProviderParam;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.mybatis_accessor.service.ISelectService;
@@ -14,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class AbstractUpdateEntityProvider implements IUpdateEntityProvider, ApplicationContextAware {
+public abstract class AbstractUpdateEntityProvider<P extends IProviderParam> implements IUpdateEntityProvider<P>, ApplicationContextAware {
     protected ApplicationContext applicationContext;
     protected ISelectService selectService = null;
     protected IEntityDtoServiceRelationMap relationMap = null;
@@ -55,6 +56,7 @@ public abstract class AbstractUpdateEntityProvider implements IUpdateEntityProvi
         return entityList.toArray(new String[0]);
     }
 
+    // TODO: deleteIt
     protected boolean getPhysicDelete(DtoClassInfoHelper dtoClassInfoHelper, EntityDtoServiceRelation relation) {
         boolean physicDelete = false;
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());

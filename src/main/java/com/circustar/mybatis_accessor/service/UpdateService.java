@@ -3,6 +3,7 @@ package com.circustar.mybatis_accessor.service;
 import com.circustar.mybatis_accessor.classInfo.*;
 import com.circustar.mybatis_accessor.common.MessageProperties;
 import com.circustar.mybatis_accessor.provider.*;
+import com.circustar.mybatis_accessor.provider.parameter.IProviderParam;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
 
@@ -19,7 +20,7 @@ public class UpdateService implements IUpdateService {
     @Override
     public <T> List<T> updateByProviders(EntityDtoServiceRelation relationInfo
             , Object object, IUpdateEntityProvider provider
-            , Map options) {
+            , IProviderParam options) {
         List<T> updatedObjects = new ArrayList<>();
         List<IEntityUpdateProcessor> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper
                 , object, options);
