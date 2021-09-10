@@ -23,7 +23,6 @@ public class DtoField {
     private QueryHaving queryHaving;
     private QueryOrder queryOrder;
     private List<Selector> selectors;
-    private Class relatedEntityClass = null;
 
     private Boolean isCollection;
     private Class actualClass;
@@ -32,6 +31,8 @@ public class DtoField {
     private PropertyDescriptor propertyDescriptor;
 
     private TableJoinInfo tableJoinInfo;
+
+    private DtoClassInfo fieldDtoClassInfo = null;
 
     public DtoField(PropertyDescriptor propertyDescriptor, EntityFieldInfo entityFieldInfo, DtoClassInfo dtoClassInfo, IEntityDtoServiceRelationMap relationMap) {
         this.entityFieldInfo = entityFieldInfo;
@@ -61,7 +62,7 @@ public class DtoField {
             actualClass = this.field.getType();
             ownClass = this.field.getType();
         }
-        this.entityDtoServiceRelation = relationMap.getByDtoClass((Class) actualClass);
+        this.entityDtoServiceRelation = relationMap.getByDtoClass(actualClass);
     }
 
     public EntityFieldInfo getEntityFieldInfo() {
@@ -104,14 +105,6 @@ public class DtoField {
         return queryOrder;
     }
 
-    public Class getRelatedEntityClass() {
-        return relatedEntityClass;
-    }
-
-    public void setRelatedEntityClass(Class relatedEntityClass) {
-        this.relatedEntityClass = relatedEntityClass;
-    }
-
     public Field getField() {
         return field;
     }
@@ -146,6 +139,13 @@ public class DtoField {
 
     public void setTableJoinInfo(TableJoinInfo tableJoinInfo) {
         this.tableJoinInfo = tableJoinInfo;
+    }
+
+    public DtoClassInfo getFieldDtoClassInfo(DtoClassInfoHelper dtoClassInfoHelper) {
+        if(this.fieldDtoClassInfo == null) {
+            this.fieldDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(this.getActualClass());
+        }
+        return this.fieldDtoClassInfo;
     }
 
     enum SupportGenericType{

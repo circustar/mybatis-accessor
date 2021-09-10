@@ -45,7 +45,7 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider<De
         }
         boolean updateChildrenOnly = options.isUpdateChildrenOnly();
 
-        String[] topEntities = this.getTopEntities(children, ".");
+        String[] topEntities = this.getTopEntities(dtoClassInfo, children);
         boolean hasChildren = false;
 
         List<Object> updateTargetList = new ArrayList<>();

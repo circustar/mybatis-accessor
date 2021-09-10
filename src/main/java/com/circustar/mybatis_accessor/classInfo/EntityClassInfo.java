@@ -77,4 +77,8 @@ public class EntityClassInfo {
     public EntityFieldInfo getIdReferenceFieldInfo() {
         return idReferenceFieldInfo;
     }
+
+    public int getUpdateOrder() {
+        return updateOrder;
+    }
 }

@@ -22,8 +22,7 @@ import java.io.Serializable;
 import java.util.*;
 
 // TODO List:
-// 1.多个不同对象的更新,使用更新顺序
-// 2.SelectCountWithJoin
+// 1.更新Manager类，提供缓存更新功能
 public class MybatisAccessorService {
     protected IUpdateService updateService = null;
     protected ISelectService selectService = null;

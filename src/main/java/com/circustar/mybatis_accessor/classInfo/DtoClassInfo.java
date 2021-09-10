@@ -35,6 +35,7 @@ public class DtoClassInfo {
     private DtoField deleteFlagField;
     private boolean physicDelete = false;
     private QueryWrapperCreator queryWrapperCreator;
+
     public DtoClassInfo(IEntityDtoServiceRelationMap relationMap, Class<?> clazz, EntityClassInfo entityClassInfo) {
         this.clazz = clazz;
         this.entityDtoServiceRelation = relationMap.getByDtoClass(this.clazz);
@@ -200,5 +201,9 @@ public class DtoClassInfo {
             this.queryWrapperCreator = new QueryWrapperCreator(dtoClassInfoHelper, this);
         }
         return this.queryWrapperCreator.createQueryWrapper(dto);
+    }
+
+    public int getUpdateOrder() {
+        return this.entityClassInfo.getUpdateOrder();
     }
 }

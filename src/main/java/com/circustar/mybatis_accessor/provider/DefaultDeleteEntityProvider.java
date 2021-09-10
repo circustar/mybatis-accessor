@@ -37,9 +37,9 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<De
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
         ISelectService selectService = this.getSelectService();
 
-        String[] topEntities = this.getTopEntities(children, ".");
+        String[] topEntities = this.getTopEntities(dtoClassInfo, children);
         DefaultEntityCollectionUpdateProcessor updateProcessor = null;
-        boolean physicDelete = getPhysicDelete(dtoClassInfoHelper, relation);
+        boolean physicDelete = dtoClassInfo.isPhysicDelete();
         List noSubEntityList = new ArrayList();
         if(topEntities == null || topEntities.length == 0) {
             noSubEntityList = Arrays.asList(values.toArray());
