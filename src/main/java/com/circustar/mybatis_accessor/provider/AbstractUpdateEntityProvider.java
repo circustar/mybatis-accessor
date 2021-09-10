@@ -68,7 +68,7 @@ public abstract class AbstractUpdateEntityProvider<P extends IProviderParam> imp
                 .filter(x -> StringUtils.hasLength(x))
                 .map(x -> dtoClassInfo.getDtoField(x))
                 .sorted(Comparator.comparingInt((DtoField x) -> x.getFieldDtoClassInfo(getDtoClassInfoHelper()).getUpdateOrder())
-                        .thenComparing(x -> x.getField().getName()))
+                        .thenComparing(x -> x.getFieldDtoClassInfo(getDtoClassInfoHelper()).getEntityClassInfo().getEntityClass().getSimpleName()))
                 .map(x -> x.getField().getName())
                 .collect(Collectors.toList());
         return entityList.toArray(new String[0]);

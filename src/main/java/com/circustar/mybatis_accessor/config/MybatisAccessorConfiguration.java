@@ -11,6 +11,7 @@ import com.circustar.mybatis_accessor.injector.EnhanceSqlInjector;
 import com.circustar.mybatis_accessor.service.UpdateService;
 import com.circustar.mybatis_accessor.service.ISelectService;
 import com.circustar.mybatis_accessor.service.SelectService;
+import com.circustar.mybatis_accessor.support.MybatisAccessorUpdateManager;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -39,6 +40,7 @@ public class MybatisAccessorConfiguration {
     private EntityClassInfoHelper entityClassInfoHelper;
     private DtoClassInfoHelper dtoClassInfoHelper;
     private MybatisAccessorService mybatisAccessorService;
+    private MybatisAccessorUpdateManager updateManager;
 
     public MybatisAccessorConfiguration(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -49,6 +51,7 @@ public class MybatisAccessorConfiguration {
         this.updateService = new UpdateService(this.dtoClassInfoHelper);
         this.selectService = new SelectService(this.applicationContext, this.entityDtoServiceRelationMap, this.dtoClassInfoHelper);
         this.mybatisAccessorService = new MybatisAccessorService(this.entityDtoServiceRelationMap, this.selectService, this.updateService);
+        this.updateManager = new MybatisAccessorUpdateManager(this.mybatisAccessorService);
         this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
 
         TableInfoUtils.scanPackages.getAndSet(getMapperScanPackages(this.applicationContext));
@@ -114,5 +117,10 @@ public class MybatisAccessorConfiguration {
     @Bean
     public MybatisAccessorService getMybatisAccessorService() {
         return this.mybatisAccessorService;
+    }
+
+    @Bean
+    public MybatisAccessorUpdateManager getMybatisAccessorUpdateManager() {
+        return this.updateManager;
     }
 }

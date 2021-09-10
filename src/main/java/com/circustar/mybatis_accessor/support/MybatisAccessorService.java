@@ -22,7 +22,9 @@ import java.io.Serializable;
 import java.util.*;
 
 // TODO List:
-// 1.更新Manager类，提供缓存更新功能
+// 1.更新Manager类，提供缓存更新功能 - 避免死锁问题
+// 2.提供数字汇总和分拆的能力
+// 3.提供自动生成编码功能
 public class MybatisAccessorService {
     protected IUpdateService updateService = null;
     protected ISelectService selectService = null;

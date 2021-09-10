@@ -4,18 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
-import com.circustar.mybatis_accessor.provider.parameter.DefaultAbstractUpdateProviderParam;
-import com.circustar.mybatis_accessor.provider.parameter.DefaultDeleteProviderParam;
-import com.circustar.mybatis_accessor.provider.parameter.DefaultInsertProviderParam;
-import com.circustar.mybatis_accessor.provider.parameter.DefaultUpdateProviderParam;
+import com.circustar.mybatis_accessor.provider.parameter.*;
 import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
 import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
-import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.provider.command.*;
 import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
-import com.circustar.common_utils.collection.MapOptionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -33,7 +28,8 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
     }
 
     public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
-            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, DefaultUpdateProviderParam options, Set updateTargetSet) {
+            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, DefaultUpdateProviderParam options
+            , Set updateTargetSet) {
         List<IEntityUpdateProcessor> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(dto);
         values.removeAll(updateTargetSet);
@@ -41,12 +37,8 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
         if(values.isEmpty()) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
-
-        boolean updateChildrenOnly = options.isUpdateChildrenOnly();
-        boolean deleteBeforeUpdate = options.isDeleteBeforeUpdate();
-        boolean includeAllChildren = options.isIncludeAllChildren();
         String[] children;
-        if(includeAllChildren) {
+        if(options.isIncludeAllChildren()) {
             children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getSubDtoFieldList().stream().map(x -> x.getField().getName()));
         } else {
             children = options.getUpdateChildrenNames();
@@ -64,21 +56,15 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
             if(value == null) {
                 continue;
             }
-            Object updateTarget = dtoClassInfoHelper.convertToEntity(value);
-
-            DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
-                    , UpdateByIdCommand.getInstance()
-                    , null
-                    , dtoClassInfo.getEntityClassInfo()
-                    , Collections.singletonList(updateTarget)
-                    , false
-                    , updateChildrenOnly);
             Object keyValue = FieldUtils.getFieldValue(value, dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod());
-
+            DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = createDefaultEntityCollectionUpdateProcessor(
+                    relation, dtoClassInfo, value, keyValue, options
+            );
             for(String entityName : topEntities) {
                 DtoField subDtoField = dtoClassInfo.getDtoField(entityName);
                 Object topChild = FieldUtils.getFieldValue(value, subDtoField.getPropertyDescriptor().getReadMethod());
-                if(deleteBeforeUpdate) {
+                if(topChild == null) {continue;}
+                if(options.isDeleteBeforeUpdate()) {
                     QueryWrapper qw = new QueryWrapper();
                     qw.eq(keyColumn, keyValue);
                     defaultEntityCollectionUpdater.addSubUpdateEntity(new DefaultEntityCollectionUpdateProcessor(subDtoField.getEntityDtoServiceRelation().getServiceBean(applicationContext)
@@ -107,14 +93,16 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
                                     , subEntityKeyValue, newParam
                             ));
                         } else {
-                            DefaultUpdateProviderParam newParam = new DefaultUpdateProviderParam(false, includeAllChildren, subChildren, deleteBeforeUpdate);
+                            DefaultUpdateProviderParam newParam = new DefaultUpdateProviderParam(false
+                                    , options.isIncludeAllChildren(), subChildren, options.isDeleteBeforeUpdate());
                             defaultEntityCollectionUpdater.addSubUpdateEntities(this.createUpdateEntities(
                                     subDtoField.getEntityDtoServiceRelation(), dtoClassInfoHelper
                                     , child, newParam, updateTargetSet
                             ));
                         }
                     } else {
-                        DefaultInsertProviderParam newParam = new DefaultInsertProviderParam(false, includeAllChildren, subChildren);
+                        DefaultInsertProviderParam newParam = new DefaultInsertProviderParam(false
+                                , options.isIncludeAllChildren(), subChildren);
                         defaultEntityCollectionUpdater.addSubUpdateEntities(
                                 insertEntitiesEntityProvider.createUpdateEntities(subDtoField.getEntityDtoServiceRelation()
                                 , dtoClassInfoHelper, child, newParam, updateTargetSet));
@@ -124,5 +112,45 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
             defaultEntityCollectionUpdaterCollection.add(defaultEntityCollectionUpdater);
         }
         return defaultEntityCollectionUpdaterCollection;
+    }
+
+    private DefaultEntityCollectionUpdateProcessor createDefaultEntityCollectionUpdateProcessor(EntityDtoServiceRelation relation
+            , DtoClassInfo dtoClassInfo, Object dto, Object keyValue
+            , DefaultUpdateProviderParam options) {
+        Object updateEntity = getDtoClassInfoHelper().convertToEntity(dto);
+        DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = null;
+        if(options.isDelegateMode()) {
+            Object deleteFlagValue = null;
+            if(dtoClassInfo.getDeleteFlagField() != null) {
+                deleteFlagValue = FieldUtils.getFieldValue(dto, dtoClassInfo.getDeleteFlagField().getPropertyDescriptor().getReadMethod());
+            }
+            if(keyValue == null) {
+                defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
+                        , InsertCommand.getInstance()
+                        , null
+                        , dtoClassInfo.getEntityClassInfo()
+                        , Collections.singletonList(updateEntity)
+                        , false
+                        , options.isUpdateChildrenOnly());
+            } else if(!StringUtils.isEmpty(deleteFlagValue) && !"0".equals(deleteFlagValue.toString())) {
+                defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
+                        , DeleteByIdCommand.getInstance()
+                        , dtoClassInfo.isPhysicDelete()
+                        , null
+                        , Collections.singletonList(keyValue)
+                        , true
+                        , false);
+            }
+        }
+        if(defaultEntityCollectionUpdater == null) {
+            defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
+                    , UpdateByIdCommand.getInstance()
+                    , null
+                    , dtoClassInfo.getEntityClassInfo()
+                    , Collections.singletonList(updateEntity)
+                    , false
+                    , options.isUpdateChildrenOnly());
+        }
+        return defaultEntityCollectionUpdater;
     }
 }
