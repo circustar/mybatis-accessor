@@ -51,7 +51,7 @@ public class MybatisAccessorConfiguration {
         this.updateService = new UpdateService(this.dtoClassInfoHelper);
         this.selectService = new SelectService(this.applicationContext, this.entityDtoServiceRelationMap, this.dtoClassInfoHelper);
         this.mybatisAccessorService = new MybatisAccessorService(this.entityDtoServiceRelationMap, this.selectService, this.updateService);
-        this.updateManager = new MybatisAccessorUpdateManager(this.mybatisAccessorService);
+        this.updateManager = new MybatisAccessorUpdateManager(this.mybatisAccessorService, this.dtoClassInfoHelper);
         this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
 
         TableInfoUtils.scanPackages.getAndSet(getMapperScanPackages(this.applicationContext));

@@ -10,8 +10,9 @@ import java.util.*;
 public class MybatisAccessorUpdateManager {
     private MybatisAccessorService mybatisAccessorService;
     private DtoClassInfoHelper dtoClassInfoHelper;
-    public MybatisAccessorUpdateManager(MybatisAccessorService mybatisAccessorService) {
+    public MybatisAccessorUpdateManager(MybatisAccessorService mybatisAccessorService, DtoClassInfoHelper dtoClassInfoHelper) {
         this.mybatisAccessorService = mybatisAccessorService;
+        this.dtoClassInfoHelper = dtoClassInfoHelper;
     }
 
     public static class DtoWithOption {
