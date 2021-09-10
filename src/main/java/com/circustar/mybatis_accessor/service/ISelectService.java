@@ -75,4 +75,13 @@ public interface ISelectService {
             , Object dto
             , QueryWrapper queryWrapper
     );
+    Integer getCountByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object
+    );
+
+
+    Integer getCountByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , Object dto
+            , QueryWrapper queryWrapper
+    );
 }

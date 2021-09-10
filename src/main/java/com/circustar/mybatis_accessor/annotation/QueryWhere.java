@@ -4,7 +4,9 @@ import java.lang.annotation.*;
 
 @Target(value = {ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
+@Inherited
 public @interface QueryWhere {
-    String expression() default "";
+    String tableColumn() default "";
     Connector connector() default Connector.eq;
+    String expression() default "";
 }

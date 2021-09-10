@@ -46,4 +46,8 @@ public interface CommonMapper<T> extends BaseMapper<T> {
         }
         return null;
     }
+
+    Integer selectCountWithJoin(@Param("ew") Wrapper<T> queryWrapper
+            , @Param(MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_TABLE) String joinTable
+            , @Param(MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_COLUMNS) String joinColumns);
 }

@@ -24,6 +24,7 @@ public class DtoClassInfo {
     private EntityDtoServiceRelation entityDtoServiceRelation;
     private List<DtoField> subDtoFieldList;
     private List<DtoField> normalFieldList;
+    private List<DtoField> allFieldList;
     private Map<String, DtoField> dtoFieldMap;
     private EntityClassInfo entityClassInfo;
     private String joinTables;
@@ -40,6 +41,7 @@ public class DtoClassInfo {
         this.entityClassInfo = entityClassInfo;
         this.subDtoFieldList = new ArrayList<>();
         this.normalFieldList = new ArrayList<>();
+        this.allFieldList = new ArrayList<>();
         this.dtoFieldMap = new HashMap<>();
 
         String versionPropertyName = null;
@@ -60,16 +62,16 @@ public class DtoClassInfo {
                 this.deleteFlagField = dtoField;
                 this.physicDelete = deleteFlagAnnotation.physicDelete();
             }
+            this.allFieldList.add(dtoField);
+            this.dtoFieldMap.put(property.getName(), dtoField);
             if(dtoField.getEntityDtoServiceRelation() != null) {
                 subDtoFieldList.add(dtoField);
-                this.dtoFieldMap.put(property.getName(), dtoField);
             } else if(TableInfoUtils.isMybatisSupportType((Class)dtoField.getActualClass())) {
                 normalFieldList.add(dtoField);
                 if(property.getName().equals(finalVersionPropertyName)) {
                     this.versionField = dtoField;
                     this.versionDefaultValue = getDefaultVersionByType(entityFieldInfo.getField().getType());
                 }
-                this.dtoFieldMap.put(property.getName(), dtoField);
             }
         });
     }
@@ -124,6 +126,10 @@ public class DtoClassInfo {
 
     public List<DtoField> getNormalFieldList() {
         return normalFieldList;
+    }
+
+    public List<DtoField> getAllFieldList() {
+        return allFieldList;
     }
 
     public EntityDtoServiceRelation getEntityDtoServiceRelation() {

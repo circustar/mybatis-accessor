@@ -282,6 +282,34 @@ public class SelectService implements ISelectService {
         return dtoList;
     }
 
+    @Override
+    public Integer getCountByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object
+    ){
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(this.dtoClassInfoHelper, object);
+
+        return this.getCountByQueryWrapper(relationInfo, object, queryWrapper);
+    }
+
+    @Override
+    public Integer getCountByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , Object dto, QueryWrapper queryWrapper
+    ) {
+        IService service = relationInfo.getServiceBean(applicationContext);
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        Integer result;
+        String joinExpression = getJoinExpression(dtoClassInfo, dto);
+        if (!StringUtils.isEmpty(joinExpression)) {
+            result = ((CommonMapper)service.getBaseMapper()).selectCountWithJoin(queryWrapper
+                    , joinExpression, dtoClassInfo.getJoinColumns());
+        } else {
+            result = service.count(queryWrapper);
+        }
+
+        return result;
+    }
+
     private String getJoinExpression(DtoClassInfo dtoClassInfo, Object dto) {
         String joinExpression = dtoClassInfo.getJoinTables();
         if(dto != null && !StringUtils.isEmpty(joinExpression)) {

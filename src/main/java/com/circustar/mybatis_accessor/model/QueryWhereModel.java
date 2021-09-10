@@ -12,18 +12,20 @@ public class QueryWhereModel {
     public QueryWhereModel(QueryWhere queryWhere, String table_name, DtoField dtoField, Connector connector) {
         this.dtoField = dtoField;
         if(queryWhere != null) {
-            if(StringUtils.isEmpty(queryWhere.expression())) {
-                this.expression = table_name + "." + dtoField.getEntityFieldInfo().getColumnName();
+            if(StringUtils.hasLength(queryWhere.tableColumn())) {
+                this.tableColumn = queryWhere.tableColumn();
             } else {
-                this.expression = queryWhere.expression();
+                this.tableColumn = table_name + "." + dtoField.getEntityFieldInfo().getColumnName();
             }
+            this.expression = queryWhere.expression();
             this.connector = queryWhere.connector();
         } else {
-            this.expression = table_name + "." + dtoField.getEntityFieldInfo().getColumnName();
+            this.tableColumn = table_name + "." + dtoField.getEntityFieldInfo().getColumnName();
             this.connector = connector;
         }
     }
 
+    private String tableColumn;
     private String expression;
     private Connector connector;
     private DtoField dtoField;
@@ -38,5 +40,9 @@ public class QueryWhereModel {
 
     public DtoField getDtoField() {
         return dtoField;
+    }
+
+    public String getTableColumn() {
+        return tableColumn;
     }
 }

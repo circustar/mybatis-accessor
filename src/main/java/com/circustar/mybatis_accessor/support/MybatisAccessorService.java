@@ -22,9 +22,8 @@ import java.io.Serializable;
 import java.util.*;
 
 // TODO List:
-// 1.代替“subentities”写法 -- 不可行，完成
-// 2.Provider中不使用Map -- 完成
-// 3.多个不同对象的更新,使用更新顺序
+// 1.多个不同对象的更新,使用更新顺序
+// 2.SelectCountWithJoin
 public class MybatisAccessorService {
     protected IUpdateService updateService = null;
     protected ISelectService selectService = null;
@@ -414,5 +413,32 @@ public class MybatisAccessorService {
         IProviderParam providerParam = new DefaultDeleteProviderParam(updateChildrenOnly, children);
         return updateWithOptions(ids, relationInfo, DefaultDeleteEntityProvider.getInstance()
                 , providerParam);
+    }
+
+    public Integer getCountByAnnotation(Object object
+    )  {
+        EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
+        return this.getCountByAnnotation(relationInfo, object);
+    }
+
+    public Integer getCountByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object
+    )  {
+        return this.selectService.getCountByAnnotation(relationInfo
+                , object);
+    }
+
+    public Integer getCountByQueryWrapper(Object object
+            , QueryWrapper queryWrapper
+    )  {
+        EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
+        return this.getCountByQueryWrapper(relationInfo, object, queryWrapper);
+    }
+
+    public Integer getCountByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , Object object
+            , QueryWrapper queryWrapper
+    )  {
+        return this.selectService.getCountByQueryWrapper(relationInfo, object, queryWrapper);
     }
 }

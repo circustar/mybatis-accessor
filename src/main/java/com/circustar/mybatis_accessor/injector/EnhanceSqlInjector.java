@@ -20,6 +20,7 @@ public class EnhanceSqlInjector extends DefaultSqlInjector {
             methodList.add(new PhysicDeleteByMap());
             methodList.add(new SelectListWithJoin());
             methodList.add(new SelectPageWithJoin());
+            methodList.add(new SelectCountWithJoin());
         }
         return methodList;
     }

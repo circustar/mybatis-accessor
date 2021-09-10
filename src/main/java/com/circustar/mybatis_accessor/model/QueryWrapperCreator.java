@@ -9,6 +9,7 @@ import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.classInfo.EntityClassInfo;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.utils.TableJoinColumnPrefixManager;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -19,7 +20,6 @@ import java.util.stream.Collectors;
 public class QueryWrapperCreator {
     private String tableName;
     private List<QuerySelectModel> querySelectModels;
-//    private List<QueryJoinModel> queryJoinModels;
     private List<QueryWhereModel> queryWhereModels;
     private List<QueryGroupByModel> queryGroupByModels;
     private List<QueryHavingModel> queryHavingModels;
@@ -34,62 +34,26 @@ public class QueryWrapperCreator {
         this.entityClassInfo = dtoClassInfo.getEntityClassInfo();
         this.tableInfo = entityClassInfo.getTableInfo();
         this.tableName = this.tableInfo.getTableName();
-        this.queryGroupByModels = dtoClassInfo.getNormalFieldList()
+        this.queryGroupByModels = dtoClassInfo.getAllFieldList()
                 .stream().filter(x -> x.getQueryGroupBy() != null)
                 .map(x -> new QueryGroupByModel(x.getQueryGroupBy()
                         , this.entityClassInfo.getTableInfo().getTableName()
                         , x.getEntityFieldInfo().getColumnName()))
                 .collect(Collectors.toList());
 
-//        this.queryJoinModels = dtoClassInfo.getSubDtoFieldList()
-//                .stream()
-//                .filter(x -> x.getQueryJoin() != null
-//                        || (x.getQueryJoin() == null && x.getEntityFieldInfo() != null))
-//                .map(x -> {
-//                    if(x.getQueryJoin() != null && !StringUtils.isEmpty(x.getQueryJoin().joinExpression())) {
-//                        return new QueryJoinModel(x.getQueryJoin());
-//                    }
-//                    String thisTableId = this.tableInfo.getKeyColumn();
-//                    String thatTableId = null;
-//                    DtoClassInfo thatDtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(x.getEntityDtoServiceRelation().getDtoClass());
-//                    for(EntityFieldInfo entityFieldInfo : thatDtoClassInfo.getEntityClassInfo().getFieldList()) {
-//                        if(thisTableId.equals(entityFieldInfo.getColumnName())) {
-//                            thatTableId = entityFieldInfo.getColumnName();
-//                            break;
-//                        }
-//                    }
-//                    if(thatTableId == null) {
-//                        thisTableId = null;
-//                        thatTableId = thatDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn();
-//                        for(EntityFieldInfo entityFieldInfo : this.entityClassInfo.getFieldList()) {
-//                            if(thatTableId.equals(entityFieldInfo.getColumnName())) {
-//                                thisTableId = entityFieldInfo.getColumnName();
-//                            }
-//                        }
-//                    }
-//                    if(StringUtils.isEmpty(thisTableId) || StringUtils.isEmpty(thatTableId)) {
-//                        return null;
-//                    }
-//                    joinTableDtoClassList.add(x.getDtoClassInfo());
-//                    return new QueryJoinModel(x.getQueryJoin()
-//                        , this.tableName, thisTableId
-//                        , thatDtoClassInfo.getEntityClassInfo().getTableInfo().getTableName()
-//                        , thatTableId);
-//                }).filter(x -> x != null)
-//                .sorted(Comparator.comparingInt(QueryJoinModel::getOrder))
-//                .collect(Collectors.toList());
-        this.queryWhereModels = dtoClassInfo.getNormalFieldList()
-                .stream().map(x -> new QueryWhereModel(x.getQueryWhere()
+        this.queryWhereModels = dtoClassInfo.getAllFieldList()
+                .stream().filter(x -> x.getQueryWhere() != null || x.getEntityFieldInfo() != null)
+                .map(x -> new QueryWhereModel(x.getQueryWhere()
                         , this.tableName, x))
                 .collect(Collectors.toList());
-        this.queryOrders = dtoClassInfo.getNormalFieldList()
+        this.queryOrders = dtoClassInfo.getAllFieldList()
                 .stream().filter(x -> x.getQueryOrder() != null)
                 .map(x -> new QueryOrderModel(x.getQueryOrder()))
                 .sorted(Comparator.comparingInt(QueryOrderModel::getSortIndex))
                 .collect(Collectors.toList());
 
         if(!this.queryGroupByModels.isEmpty()) {
-            this.queryHavingModels = dtoClassInfo.getNormalFieldList()
+            this.queryHavingModels = dtoClassInfo.getAllFieldList()
                     .stream().filter(x -> x.getQueryHaving() != null)
                     .map(x -> new QueryHavingModel(x.getQueryHaving()))
                     .collect(Collectors.toList());
@@ -155,19 +119,17 @@ public class QueryWrapperCreator {
 
         return new QueryWrapperBuilder(columnList.toArray(new String[0])
                 ,groupByList
-                , havingList.stream().collect(Collectors.joining(","))
+                , havingList.stream().collect(Collectors.joining(" and "))
                 , orderByList);
 
     }
     public static <T> QueryWrapper<T> createQueryWrapper(Object dto, List<QueryWhereModel> queryWhereModels, QueryWrapperBuilder queryWrapperBuilder){
         QueryWrapper<T> result = queryWrapperBuilder.createQueryWrapper();
-        try {
-            for (QueryWhereModel queryWhere : queryWhereModels) {
-                queryWhere.getConnector().consume(queryWhere.getExpression()
-                        , result, FieldUtils.getFieldValue(dto, queryWhere.getDtoField().getPropertyDescriptor().getReadMethod()));
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
+        for (QueryWhereModel queryWhere : queryWhereModels) {
+            queryWhere.getConnector().consume(queryWhere.getTableColumn()
+                    , result
+                    , StringUtils.hasLength(queryWhere.getExpression()) ? queryWhere.getExpression() :
+                    FieldUtils.getFieldValue(dto, queryWhere.getDtoField().getPropertyDescriptor().getReadMethod()));
         }
         return result;
     }
