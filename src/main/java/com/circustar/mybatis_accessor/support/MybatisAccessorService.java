@@ -342,11 +342,10 @@ public class MybatisAccessorService {
     public <T> T update(Object object
             , boolean includeAllChildren
             , String[] children
-            , boolean updateChildrenOnly
-            , boolean removeAndInsertNewChild)  {
+            , boolean updateChildrenOnly)  {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
         return this.update(relationInfo, object
-                , includeAllChildren,  children, updateChildrenOnly, removeAndInsertNewChild);
+                , includeAllChildren,  children, updateChildrenOnly);
     }
 
 
@@ -354,9 +353,8 @@ public class MybatisAccessorService {
             , Object object
             , boolean includeAllChildren
             , String[] children
-            , boolean updateChildrenOnly
-            , boolean removeAndInsertNewChild)  {
-        IProviderParam providerParam = new DefaultUpdateProviderParam(updateChildrenOnly, includeAllChildren, children, removeAndInsertNewChild);
+            , boolean updateChildrenOnly)  {
+        IProviderParam providerParam = new DefaultUpdateProviderParam(updateChildrenOnly, includeAllChildren, children);
         List<T> result = updateWithOptions(object, relation, DefaultUpdateEntityProvider.getInstance()
                 , providerParam);
         return result.get(0);
@@ -366,52 +364,53 @@ public class MybatisAccessorService {
     public <T> List<T> updateList(List objects
             , boolean includeAllChildren
             , String[] children
-            , boolean updateChildrenOnly
-            , boolean removeAndInsertNewChild)  {
+            , boolean updateChildrenOnly)  {
         if(objects == null || objects.isEmpty()) {
             return null;
         }
         EntityDtoServiceRelation relationInfo = this.getRelation(objects.get(0).getClass(), null);
         return this.updateList(relationInfo, objects, includeAllChildren, children
-                , updateChildrenOnly, removeAndInsertNewChild);
+                , updateChildrenOnly);
     }
 
 
     public <T> List<T> updateList(EntityDtoServiceRelation relation, List objectList
             , boolean includeAllChildren
             , String[] children
-            , boolean updateChildrenOnly
-            , boolean removeAndInsertNewChild)  {
+            , boolean updateChildrenOnly)  {
         if(objectList == null || objectList.isEmpty()) {
             return null;
         }
 
-        IProviderParam providerParam = new DefaultUpdateProviderParam(updateChildrenOnly, includeAllChildren, children, removeAndInsertNewChild);
+        IProviderParam providerParam = new DefaultUpdateProviderParam(updateChildrenOnly, includeAllChildren, children);
         return updateWithOptions(objectList, relation, DefaultUpdateEntityProvider.getInstance()
                 , providerParam);
     }
 
     public <T> List<T> deleteByIds(Class dtoClass
             , Set<Serializable> ids
+            , boolean includeAllChildren
             , String[] children
             , boolean updateChildrenOnly) {
         EntityDtoServiceRelation relationInfo = this.getRelation(dtoClass, null);
-        return deleteByIds(relationInfo, ids, children, updateChildrenOnly);
+        return deleteByIds(relationInfo, ids, includeAllChildren, children, updateChildrenOnly);
     }
 
     public <T> List<T> deleteByIds(String dtoName
             , Set<Serializable> ids
+            , boolean includeAllChildren
             , String[] children
             , boolean updateChildrenOnly) {
         EntityDtoServiceRelation relationInfo = this.getRelation(null, dtoName);
-        return deleteByIds(relationInfo, ids, children, updateChildrenOnly);
+        return deleteByIds(relationInfo, ids, includeAllChildren, children, updateChildrenOnly);
     }
 
     public <T> List<T> deleteByIds(EntityDtoServiceRelation relationInfo
             , Set<Serializable> ids
+            , boolean includeAllChildren
             , String[] children
             , boolean updateChildrenOnly) {
-        IProviderParam providerParam = new DefaultDeleteProviderParam(updateChildrenOnly, children);
+        IProviderParam providerParam = new DefaultDeleteProviderParam(updateChildrenOnly, includeAllChildren, children);
         return updateWithOptions(ids, relationInfo, DefaultDeleteEntityProvider.getInstance()
                 , providerParam);
     }

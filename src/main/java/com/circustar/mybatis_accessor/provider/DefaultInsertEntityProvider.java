@@ -39,13 +39,13 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider<De
         boolean includeAllChildren = options.isIncludeAllChildren();
         String[] children;
         if(includeAllChildren) {
-            children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getSubDtoFieldList().stream().map(x -> x.getField().getName()));
+            children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getChildDtoFieldList().stream().map(x -> x.getField().getName()));
         } else {
             children = options.getUpdateChildrenNames();
         }
         boolean updateChildrenOnly = options.isUpdateChildrenOnly();
 
-        String[] topEntities = this.getTopEntities(dtoClassInfo, children);
+        String[] topEntities = this.getTopEntities(dtoClassInfo, children, DEFAULT_DELIMITER);
         boolean hasChildren = false;
 
         List<Object> updateTargetList = new ArrayList<>();
@@ -75,7 +75,7 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider<De
                 if(childList.isEmpty()) {continue;}
                 hasChildren = true;
                 DefaultInsertProviderParam subOptions = new DefaultInsertProviderParam(false, includeAllChildren, this.getChildren(children
-                        , entityName, "."));
+                        , entityName, DEFAULT_DELIMITER));
                 defaultEntityCollectionUpdater.addSubUpdateEntities(this.createUpdateEntities(
                         dtoField.getEntityDtoServiceRelation()
                         , dtoClassInfoHelper, childList, subOptions, updateTargetSet));

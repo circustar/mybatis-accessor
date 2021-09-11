@@ -31,15 +31,18 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<De
         Collection values = CollectionUtils.convertToCollection(ids);;
         if(values.isEmpty()) {return result;}
 
-        String[] children = options.getUpdateChildrenNames();
-        boolean updateChildrenOnly = options.isUpdateChildrenOnly();
-
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
+        String[] children;
+        if(options.isIncludeAllChildren()) {
+            children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getChildDtoFieldList().stream().map(x -> x.getField().getName()));
+        } else {
+            children = options.getUpdateChildrenNames();
+        }
+
         ISelectService selectService = this.getSelectService();
 
-        String[] topEntities = this.getTopEntities(dtoClassInfo, children);
-        DefaultEntityCollectionUpdateProcessor updateProcessor = null;
-        boolean physicDelete = dtoClassInfo.isPhysicDelete();
+        String[] topEntities = this.getTopEntities(dtoClassInfo, children, DEFAULT_DELIMITER);
+        DefaultEntityCollectionUpdateProcessor updateProcessor;
         List noSubEntityList = new ArrayList();
         if(topEntities == null || topEntities.length == 0) {
             noSubEntityList = Arrays.asList(values.toArray());
@@ -57,26 +60,22 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<De
                 for (String entityName : topEntities) {
                     DtoField dtoField = dtoClassInfo.getDtoField(entityName);
                     Object entity = FieldUtils.getFieldValue(object, dtoField.getPropertyDescriptor().getReadMethod());
-                    if (entity == null) {
-                        continue;
-                    }
-                    DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo((Class) dtoField.getActualClass());
+                    if (entity == null) { continue; }
+                    DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(dtoField.getActualClass());
 
                     DtoField subDtoKeyField = subDtoClassInfo.getKeyField();
+                    if(subDtoKeyField == null) {continue;}
                     List<Object> subIds = new ArrayList<>();
                     Collection entityList = CollectionUtils.convertToCollection(entity);
                     if(entityList.isEmpty()) {continue;}
                     for (Object obj : entityList) {
-                        if(subDtoKeyField != null) {
-                            Object subId = FieldUtils.getFieldValue(obj, subDtoKeyField.getPropertyDescriptor().getReadMethod());
-                            if(subId != null) {
-                                subIds.add(subId);
-                            }
-                        }
+                        Object subId = FieldUtils.getFieldValue(obj, subDtoKeyField.getPropertyDescriptor().getReadMethod());
+                        if(subId != null) {subIds.add(subId);}
                     }
 
-                    DefaultDeleteProviderParam subOptions = new DefaultDeleteProviderParam(false, this.getChildren(children
-                            , entityName, "."));
+                    DefaultDeleteProviderParam subOptions = new DefaultDeleteProviderParam(false
+                            , options.isIncludeAllChildren(), this.getChildren(children
+                            , entityName, DEFAULT_DELIMITER));
                     subUpdateEntities.addAll(this.createUpdateEntities(
                             dtoField.getEntityDtoServiceRelation()
                             , dtoClassInfoHelper, subIds, subOptions
@@ -87,12 +86,12 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<De
                     continue;
                 }
 
-                if(updateChildrenOnly) {
+                if(options.isUpdateChildrenOnly()) {
                     result.addAll(subUpdateEntities);
                 } else {
                     updateProcessor = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                             , DeleteByIdCommand.getInstance()
-                            , physicDelete
+                            , dtoClassInfo.isPhysicDelete()
                             , null //dtoClassInfo.getEntityClassInfo()
                             , Collections.singletonList(id)
                             , true
@@ -102,10 +101,10 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<De
                 }
             }
         }
-        if(!updateChildrenOnly && !noSubEntityList.isEmpty()) {
+        if(!options.isUpdateChildrenOnly() && !noSubEntityList.isEmpty()) {
             updateProcessor = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , DeleteByIdBatchCommand.getInstance()
-                    , physicDelete
+                    , dtoClassInfo.isPhysicDelete()
                     , null //dtoClassInfo.getEntityClassInfo()
                     , noSubEntityList
                     , true

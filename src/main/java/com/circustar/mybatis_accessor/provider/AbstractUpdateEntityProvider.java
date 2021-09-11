@@ -21,7 +21,8 @@ public abstract class AbstractUpdateEntityProvider<P extends IProviderParam> imp
     protected ISelectService selectService = null;
     protected IEntityDtoServiceRelationMap relationMap = null;
     protected DtoClassInfoHelper dtoClassInfoHelper = null;
-    private static final String[] emptyArray = new String[0];
+    private static final String[] EMPTY_ARRAY = new String[0];
+    protected static final String DEFAULT_DELIMITER = ".";
 
     public DtoClassInfoHelper getDtoClassInfoHelper(){
         if(this.dtoClassInfoHelper != null) {
@@ -52,20 +53,20 @@ public abstract class AbstractUpdateEntityProvider<P extends IProviderParam> imp
         this.applicationContext = applicationContext;
     }
 
-    protected String[] getChildren(String[] entities, String prefix, String delimeter) {
+    protected String[] getChildren(String[] entities, String prefix, String delimiter) {
         List<String> entityList = Arrays.stream(entities)
-                .filter(x -> StringUtils.hasLength(x) && x.startsWith(prefix + delimeter))
-                .map(x -> x.substring((prefix + delimeter).length()))
+                .filter(x -> StringUtils.hasLength(x) && x.startsWith(prefix + delimiter))
+                .map(x -> x.substring((prefix + delimiter).length()))
                 .collect(Collectors.toList());
         return entityList.toArray(new String[0]);
     }
 
-    protected String[] getTopEntities(DtoClassInfo dtoClassInfo, String[] entities) {
+    protected String[] getTopEntities(DtoClassInfo dtoClassInfo, String[] entities, String delimiter) {
         if(entities == null) {
-            return emptyArray;
+            return EMPTY_ARRAY;
         }
         List<String> entityList = Arrays.stream(entities)
-                .filter(x -> StringUtils.hasLength(x))
+                .filter(x -> StringUtils.hasLength(x) && !x.contains(delimiter))
                 .map(x -> dtoClassInfo.getDtoField(x))
                 .sorted(Comparator.comparingInt((DtoField x) -> x.getFieldDtoClassInfo(getDtoClassInfoHelper()).getUpdateOrder())
                         .thenComparing(x -> x.getFieldDtoClassInfo(getDtoClassInfoHelper()).getEntityClassInfo().getEntityClass().getSimpleName()))

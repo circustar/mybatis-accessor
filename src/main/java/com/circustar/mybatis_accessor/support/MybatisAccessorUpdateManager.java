@@ -44,7 +44,7 @@ public class MybatisAccessorUpdateManager {
     private static List<DtoWithOption> updateTargetList = Collections.synchronizedList(new ArrayList<>());
 
     private final static DefaultUpdateProviderParam defaultUpdateProviderParam = new DefaultUpdateProviderParam(false
-            , true , null, false).setDelegateMode(true);
+            , true , null).setDelegateMode(true);
 
     public void putDto(Object dto) {
         putDto(dto, defaultUpdateProviderParam);
@@ -73,8 +73,7 @@ public class MybatisAccessorUpdateManager {
             mybatisAccessorService.updateList(dtoList
                     , dtoWithOption.getParam().isIncludeAllChildren()
                     , dtoWithOption.getParam().getUpdateChildrenNames()
-                    , dtoWithOption.getParam().isUpdateChildrenOnly()
-                    , dtoWithOption.getParam().isDeleteBeforeUpdate());
+                    , dtoWithOption.getParam().isUpdateChildrenOnly());
         });
         updateTargetList.removeAll(dtoWithOptions);
     }

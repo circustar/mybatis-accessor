@@ -23,6 +23,7 @@ public class DtoClassInfo {
     private Class<?> clazz;
     private EntityDtoServiceRelation entityDtoServiceRelation;
     private List<DtoField> subDtoFieldList;
+    private List<DtoField> childDtoFieldList;
     private List<DtoField> normalFieldList;
     private List<DtoField> allFieldList;
     private Map<String, DtoField> dtoFieldMap;
@@ -41,6 +42,7 @@ public class DtoClassInfo {
         this.entityDtoServiceRelation = relationMap.getByDtoClass(this.clazz);
         this.entityClassInfo = entityClassInfo;
         this.subDtoFieldList = new ArrayList<>();
+        this.childDtoFieldList = new ArrayList<>();
         this.normalFieldList = new ArrayList<>();
         this.allFieldList = new ArrayList<>();
         this.dtoFieldMap = new HashMap<>();
@@ -67,7 +69,10 @@ public class DtoClassInfo {
             this.dtoFieldMap.put(property.getName(), dtoField);
             if(dtoField.getEntityDtoServiceRelation() != null) {
                 subDtoFieldList.add(dtoField);
-            } else if(TableInfoUtils.isMybatisSupportType((Class)dtoField.getActualClass())) {
+                if(FieldUtils.getField(dtoField.getEntityDtoServiceRelation().getDtoClass(), keyProperty) != null) {
+                    this.childDtoFieldList.add(dtoField);
+                }
+            } else if(TableInfoUtils.isMybatisSupportType(dtoField.getActualClass())) {
                 normalFieldList.add(dtoField);
                 if(property.getName().equals(finalVersionPropertyName)) {
                     this.versionField = dtoField;
@@ -123,6 +128,10 @@ public class DtoClassInfo {
 
     public List<DtoField> getSubDtoFieldList() {
         return subDtoFieldList;
+    }
+
+    public List<DtoField> getChildDtoFieldList() {
+        return childDtoFieldList;
     }
 
     public List<DtoField> getNormalFieldList() {
@@ -205,5 +214,17 @@ public class DtoClassInfo {
 
     public int getUpdateOrder() {
         return this.entityClassInfo.getUpdateOrder();
+    }
+
+    public boolean isObjectDeleted(Object dto) {
+        if(this.getDeleteFlagField() == null) {return false;}
+        Object deleteFlagValue = FieldUtils.getFieldValue(dto, this.getDeleteFlagField().getPropertyDescriptor().getReadMethod());
+        if(deleteFlagValue == null) {
+            return false;
+        }
+        if(deleteFlagValue instanceof Boolean) {
+            return (Boolean)deleteFlagValue;
+        }
+        return !"0".equals(deleteFlagValue.toString());
     }
 }
