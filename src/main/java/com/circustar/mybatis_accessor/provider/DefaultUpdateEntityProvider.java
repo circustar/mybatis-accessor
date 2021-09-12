@@ -41,11 +41,9 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
         } else {
             children = options.getUpdateChildrenNames();
         }
-        boolean physicDelete = dtoClassInfo.isPhysicDelete();
 
         DefaultDeleteEntityProvider defaultDeleteEntityProvider =  DefaultDeleteEntityProvider.getInstance();
         DefaultInsertEntityProvider insertEntitiesEntityProvider = DefaultInsertEntityProvider.getInstance();
-        String keyColumn = dtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn();
 
         String[] topEntities = this.getTopEntities(dtoClassInfo, children, DEFAULT_DELIMITER);
         List deleteObjectList = new ArrayList();
