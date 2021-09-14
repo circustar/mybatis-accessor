@@ -22,16 +22,13 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
     @Override
     public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dto, DefaultUpdateProviderParam options) {
-        return this.createUpdateEntities(relation, dtoClassInfoHelper, dto, options, new HashSet());
+        return this.createUpdateProcessors(relation, dtoClassInfoHelper, dto, options);
     }
 
-    public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
-            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, DefaultUpdateProviderParam options
-            , Set updateTargetSet) {
+    protected List<IEntityUpdateProcessor> createUpdateProcessors(EntityDtoServiceRelation relation
+            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, DefaultUpdateProviderParam options) {
         List<IEntityUpdateProcessor> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(dto);
-        values.removeAll(updateTargetSet);
-        updateTargetSet.addAll(values);
         if(values.isEmpty()) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
@@ -53,11 +50,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
             if(value == null) {continue;}
             Object keyValue = FieldUtils.getFieldValue(value, dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod());
             if(keyValue == null) {
-                if(options.isDelegateMode()) {
-                    insertObjectList.add(value);
-                } else {
-                    throw new RuntimeException("cannot update without id");
-                }
+                insertObjectList.add(value);
             } else {
                 boolean isDeleted = dtoClassInfo.isObjectDeleted(value);
                 if(isDeleted) {
@@ -75,16 +68,18 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
         if(!insertObjectList.isEmpty()) {
             DefaultInsertProviderParam defaultInsertProviderParam = new DefaultInsertProviderParam(options);
             result.addAll(insertEntitiesEntityProvider.createUpdateEntities(relation
-                    , dtoClassInfoHelper, deleteObjectList, defaultInsertProviderParam));
+                    , dtoClassInfoHelper, insertObjectList, defaultInsertProviderParam));
         }
 
         boolean hasChildren = false;
+        List<IEntityUpdateProcessor> updateResult = new ArrayList<>();
         for(Object value : updateObjectList) {
+            Object entity = dtoClassInfoHelper.convertToEntity(value);
             DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , UpdateByIdCommand.getInstance()
                     , null
                     , dtoClassInfo.getEntityClassInfo()
-                    , Collections.singletonList(value)
+                    , Collections.singletonList(entity)
                     , false
                     , options.isUpdateChildrenOnly());
 
@@ -100,19 +95,21 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
                 DefaultUpdateProviderParam subOptions = new DefaultUpdateProviderParam(false
                         , options.isIncludeAllChildren(), subChildren);
                 defaultEntityCollectionUpdater.addSubUpdateEntities(
-                        this.createUpdateEntities(subDtoClassInfo.getEntityDtoServiceRelation()
-                                , dtoClassInfoHelper, childList, subOptions, updateTargetSet));
+                        this.createUpdateProcessors(subDtoClassInfo.getEntityDtoServiceRelation()
+                                , dtoClassInfoHelper, childList, subOptions));
             }
-            result.add(defaultEntityCollectionUpdater);
+            updateResult.add(defaultEntityCollectionUpdater);
         }
         if(!hasChildren) {
-            return Collections.singletonList(new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
+            result.add(new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , UpdateByIdCommand.getInstance()
                     , null
                     , dtoClassInfo.getEntityClassInfo()
-                    , updateObjectList
+                    , dtoClassInfoHelper.convertToEntityList(updateObjectList)
                     , false
                     , options.isUpdateChildrenOnly()));
+        } else {
+            result.addAll(updateResult);
         }
         return result;
     }

@@ -22,15 +22,13 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider<De
     @Override
     public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dto, DefaultInsertProviderParam options) {
-        return this.createUpdateEntities(relation, dtoClassInfoHelper, dto, options, new HashSet());
+        return this.createUpdateProcessors(relation, dtoClassInfoHelper, dto, options);
     }
 
-    public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
-            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, DefaultInsertProviderParam options, Set updateTargetSet) {
+    protected List<IEntityUpdateProcessor> createUpdateProcessors(EntityDtoServiceRelation relation
+            , DtoClassInfoHelper dtoClassInfoHelper, Object dto, DefaultInsertProviderParam options) {
         List<IEntityUpdateProcessor> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(dto);
-        values.removeAll(updateTargetSet);
-        updateTargetSet.addAll(values);
         if(values.isEmpty()) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
@@ -74,9 +72,9 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider<De
                 hasChildren = true;
                 DefaultInsertProviderParam subOptions = new DefaultInsertProviderParam(false, includeAllChildren, this.getChildren(children
                         , entityName, DEFAULT_DELIMITER));
-                defaultEntityCollectionUpdater.addSubUpdateEntities(this.createUpdateEntities(
+                defaultEntityCollectionUpdater.addSubUpdateEntities(this.createUpdateProcessors(
                         dtoField.getEntityDtoServiceRelation()
-                        , dtoClassInfoHelper, childList, subOptions, updateTargetSet));
+                        , dtoClassInfoHelper, childList, subOptions));
             }
             result.add(defaultEntityCollectionUpdater);
         }

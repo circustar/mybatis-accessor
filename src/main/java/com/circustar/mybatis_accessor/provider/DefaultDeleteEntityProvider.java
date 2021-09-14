@@ -23,6 +23,11 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<De
     }
     @Override
     public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
+            , DtoClassInfoHelper dtoClassInfoHelper, Object ids, DefaultDeleteProviderParam options) {
+        return this.createUpdateProcessors(relation, dtoClassInfoHelper, ids, options);
+    }
+
+    protected List<IEntityUpdateProcessor> createUpdateProcessors(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object ids, DefaultDeleteProviderParam options)
     {
         List<IEntityUpdateProcessor> result = new ArrayList<>();
