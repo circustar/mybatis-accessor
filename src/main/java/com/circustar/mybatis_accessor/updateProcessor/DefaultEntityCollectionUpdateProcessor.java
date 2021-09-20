@@ -81,9 +81,9 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                     avoidIdList = Arrays.asList(entityClassInfo.getKeyField().getField().getName()
                             , entityClassInfo.getIdReferenceFieldInfo().getField().getName());
                     for (Object updateEntity : updateTargets) {
-                        FieldUtils.setFieldValueIfNull(updateEntity
-                                , entityClassInfo.getIdReferenceFieldInfo().getPropertyDescriptor().getReadMethod()
-                                , entityClassInfo.getIdReferenceFieldInfo().getPropertyDescriptor().getWriteMethod(), parentPropertyValue);
+                        FieldUtils.setFieldValue(updateEntity
+                                , entityClassInfo.getIdReferenceFieldInfo().getPropertyDescriptor().getWriteMethod()
+                                , parentPropertyValue);
                     }
                 }
             }
@@ -97,7 +97,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                     continue;
                 }
                 for (Object updateEntity : updateTargets) {
-                    FieldUtils.setFieldValueIfNull(updateEntity, entityFieldInfo.getPropertyDescriptor().getReadMethod()
+                    FieldUtils.setFieldValue(updateEntity
                             , entityFieldInfo.getPropertyDescriptor().getWriteMethod(), keyEntry.getValue());
                 }
             }

@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.annotation;
+package com.circustar.mybatis_accessor.annotation.scan;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mybatis_accessor.provider.*;

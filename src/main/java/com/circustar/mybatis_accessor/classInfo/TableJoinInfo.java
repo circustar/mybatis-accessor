@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.circustar.common_utils.reflection.FieldUtils;
-import com.circustar.mybatis_accessor.annotation.QueryJoin;
+import com.circustar.mybatis_accessor.annotation.dto.QueryJoin;
 import com.circustar.mybatis_accessor.model.QueryJoinModel;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
 import org.apache.ibatis.session.Configuration;

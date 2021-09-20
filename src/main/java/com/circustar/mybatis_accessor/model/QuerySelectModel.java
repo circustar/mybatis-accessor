@@ -1,7 +1,7 @@
 package com.circustar.mybatis_accessor.model;
 
-import com.circustar.mybatis_accessor.annotation.QueryGroupBy;
-import com.circustar.mybatis_accessor.annotation.QuerySelect;
+import com.circustar.mybatis_accessor.annotation.dto.QueryGroupBy;
+import com.circustar.mybatis_accessor.annotation.dto.QuerySelect;
 import org.springframework.util.StringUtils;
 
 public class QuerySelectModel {

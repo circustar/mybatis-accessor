@@ -1,7 +1,7 @@
 package com.circustar.mybatis_accessor.classInfo;
 
 import com.circustar.common_utils.reflection.FieldUtils;
-import com.circustar.mybatis_accessor.annotation.*;
+import com.circustar.mybatis_accessor.annotation.dto.*;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 
@@ -33,6 +33,8 @@ public class DtoField {
     private TableJoinInfo tableJoinInfo;
 
     private DtoClassInfo fieldDtoClassInfo = null;
+
+    private boolean deleteAndInsertNewOnUpdate = false;
 
     public DtoField(PropertyDescriptor propertyDescriptor, EntityFieldInfo entityFieldInfo, DtoClassInfo dtoClassInfo, IEntityDtoServiceRelationMap relationMap) {
         this.entityFieldInfo = entityFieldInfo;
@@ -146,6 +148,17 @@ public class DtoField {
             this.fieldDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(this.getActualClass());
         }
         return this.fieldDtoClassInfo;
+    }
+
+    public boolean isDeleteAndInsertNewOnUpdate() {
+        return deleteAndInsertNewOnUpdate;
+    }
+
+    public void retrieveDeleteAndInsertNewOnUpdate() {
+        DeleteAndInsertNewOnUpdate deleteAndInsertAnnotation = this.field.getAnnotation(DeleteAndInsertNewOnUpdate.class);
+        if(deleteAndInsertAnnotation != null) {
+            this.deleteAndInsertNewOnUpdate = deleteAndInsertAnnotation.value();
+        }
     }
 
     enum SupportGenericType{

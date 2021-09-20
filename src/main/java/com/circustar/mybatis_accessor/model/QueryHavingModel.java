@@ -1,6 +1,6 @@
 package com.circustar.mybatis_accessor.model;
 
-import com.circustar.mybatis_accessor.annotation.QueryHaving;
+import com.circustar.mybatis_accessor.annotation.dto.QueryHaving;
 
 public class QueryHavingModel {
     public QueryHavingModel(String expression) {

@@ -74,4 +74,8 @@ public abstract class AbstractUpdateEntityProvider<P extends IProviderParam> imp
                 .collect(Collectors.toList());
         return entityList.toArray(new String[0]);
     }
+
+    protected boolean getUpdateChildrenFirst() {
+        return false;
+    }
 }

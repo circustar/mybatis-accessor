@@ -1,6 +1,6 @@
 package com.circustar.mybatis_accessor.model;
 
-import com.circustar.mybatis_accessor.annotation.QueryOrder;
+import com.circustar.mybatis_accessor.annotation.dto.QueryOrder;
 
 public class QueryOrderModel {
     private String orderExpression;

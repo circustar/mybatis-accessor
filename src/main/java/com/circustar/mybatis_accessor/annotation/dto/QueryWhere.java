@@ -1,4 +1,6 @@
-package com.circustar.mybatis_accessor.annotation;
+package com.circustar.mybatis_accessor.annotation.dto;
+
+import com.circustar.mybatis_accessor.annotation.Connector;
 
 import java.lang.annotation.*;
 

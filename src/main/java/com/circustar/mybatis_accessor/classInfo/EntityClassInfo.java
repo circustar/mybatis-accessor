@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.circustar.common_utils.reflection.FieldUtils;
-import com.circustar.mybatis_accessor.annotation.UpdateOrder;
+import com.circustar.mybatis_accessor.annotation.entity.UpdateOrder;
 import com.circustar.mybatis_accessor.common.MessageProperties;
 import org.springframework.util.StringUtils;
 

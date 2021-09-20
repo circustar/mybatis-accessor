@@ -1,9 +1,9 @@
 package com.circustar.mybatis_accessor.relation;
 
-import com.circustar.mybatis_accessor.annotation.DtoEntityRelation;
-import com.circustar.mybatis_accessor.annotation.DtoEntityRelations;
-import com.circustar.mybatis_accessor.annotation.RelationScanPackages;
-import com.circustar.mybatis_accessor.annotation.EnableMybatisAccessor;
+import com.circustar.mybatis_accessor.annotation.scan.DtoEntityRelation;
+import com.circustar.mybatis_accessor.annotation.scan.DtoEntityRelations;
+import com.circustar.mybatis_accessor.annotation.scan.RelationScanPackages;
+import com.circustar.mybatis_accessor.annotation.scan.EnableMybatisAccessor;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

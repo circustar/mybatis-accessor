@@ -4,7 +4,8 @@ import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.provider.command.DeleteByIdCommand;
-import com.circustar.mybatis_accessor.provider.parameter.DefaultDeleteProviderParam;
+import com.circustar.mybatis_accessor.provider.parameter.DefaultEntityProviderParam;
+import com.circustar.mybatis_accessor.provider.parameter.IEntityProviderParam;
 import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
 import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
@@ -16,19 +17,25 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import java.io.Serializable;
 import java.util.*;
 
-public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<DefaultDeleteProviderParam> {
+public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<IEntityProviderParam> {
     private static DefaultDeleteEntityProvider instance = new DefaultDeleteEntityProvider();
     public static DefaultDeleteEntityProvider getInstance() {
         return instance;
     }
+
+    @Override
+    protected boolean getUpdateChildrenFirst() {
+        return true;
+    }
+
     @Override
     public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
-            , DtoClassInfoHelper dtoClassInfoHelper, Object ids, DefaultDeleteProviderParam options) {
+            , DtoClassInfoHelper dtoClassInfoHelper, Object ids, IEntityProviderParam options) {
         return this.createUpdateProcessors(relation, dtoClassInfoHelper, ids, options);
     }
 
     protected List<IEntityUpdateProcessor> createUpdateProcessors(EntityDtoServiceRelation relation
-            , DtoClassInfoHelper dtoClassInfoHelper, Object ids, DefaultDeleteProviderParam options)
+            , DtoClassInfoHelper dtoClassInfoHelper, Object ids, IEntityProviderParam options)
     {
         List<IEntityUpdateProcessor> result = new ArrayList<>();
         Collection values = CollectionUtils.convertToCollection(ids);;
@@ -76,7 +83,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<De
                         if(subId != null) {subIds.add(subId);}
                     }
 
-                    DefaultDeleteProviderParam subOptions = new DefaultDeleteProviderParam(false
+                    IEntityProviderParam subOptions = new DefaultEntityProviderParam(false
                             , options.isIncludeAllChildren(), this.getChildren(children
                             , entityName, DEFAULT_DELIMITER));
                     subUpdateEntities.addAll(this.createUpdateEntities(
@@ -97,7 +104,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<De
                             , dtoClassInfo.isPhysicDelete()
                             , null //dtoClassInfo.getEntityClassInfo()
                             , Collections.singletonList(id)
-                            , true
+                            , this.getUpdateChildrenFirst()
                             , false);
                     updateProcessor.addSubUpdateEntities(subUpdateEntities);
                     result.add(updateProcessor);
@@ -110,7 +117,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<De
                     , dtoClassInfo.isPhysicDelete()
                     , null //dtoClassInfo.getEntityClassInfo()
                     , noSubEntityList
-                    , true
+                    , this.getUpdateChildrenFirst()
                     , false);
             result.add(updateProcessor);
         }

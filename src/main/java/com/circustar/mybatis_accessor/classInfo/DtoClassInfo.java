@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
-import com.circustar.mybatis_accessor.annotation.DeleteFlag;
+import com.circustar.mybatis_accessor.annotation.dto.DeleteFlag;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.common_utils.reflection.AnnotationUtils;
@@ -14,6 +14,7 @@ import com.circustar.mybatis_accessor.utils.TableInfoUtils;
 import com.circustar.mybatis_accessor.utils.TableJoinColumnPrefixManager;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -69,7 +70,9 @@ public class DtoClassInfo {
             this.dtoFieldMap.put(property.getName(), dtoField);
             if(dtoField.getEntityDtoServiceRelation() != null) {
                 subDtoFieldList.add(dtoField);
-                if(FieldUtils.getField(dtoField.getEntityDtoServiceRelation().getDtoClass(), keyProperty) != null) {
+                Field parentKeyField = FieldUtils.getField(dtoField.getEntityDtoServiceRelation().getDtoClass(), keyProperty);
+                if(parentKeyField != null) {
+                    dtoField.retrieveDeleteAndInsertNewOnUpdate();
                     this.childDtoFieldList.add(dtoField);
                 }
             } else if(TableInfoUtils.isMybatisSupportType(dtoField.getActualClass())) {

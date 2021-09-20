@@ -3,7 +3,7 @@ package com.circustar.mybatis_accessor.classInfo;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.circustar.common_utils.reflection.FieldUtils;
-import com.circustar.mybatis_accessor.annotation.IdReference;
+import com.circustar.mybatis_accessor.annotation.entity.IdReference;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
 import org.springframework.util.StringUtils;
 

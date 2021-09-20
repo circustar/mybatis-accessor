@@ -5,10 +5,8 @@ import com.circustar.mybatis_accessor.common.MessageProperties;
 import com.circustar.mybatis_accessor.provider.DefaultDeleteEntityProvider;
 import com.circustar.mybatis_accessor.provider.DefaultInsertEntityProvider;
 import com.circustar.mybatis_accessor.provider.DefaultUpdateEntityProvider;
-import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
 import com.circustar.mybatis_accessor.provider.IUpdateEntityProvider;
-import com.circustar.mybatis_accessor.provider.parameter.DefaultDeleteProviderParam;
-import com.circustar.mybatis_accessor.provider.parameter.DefaultInsertProviderParam;
+import com.circustar.mybatis_accessor.provider.parameter.DefaultEntityProviderParam;
 import com.circustar.mybatis_accessor.provider.parameter.DefaultUpdateProviderParam;
 import com.circustar.mybatis_accessor.provider.parameter.IProviderParam;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
@@ -22,9 +20,7 @@ import java.io.Serializable;
 import java.util.*;
 
 // TODO List:
-// 1.更新Manager类，提供缓存更新功能 - 避免死锁问题
-// 2.提供数字汇总和分拆的能力
-// 3.提供自动生成编码功能
+// 1.提供数字汇总和分拆的能力
 public class MybatisAccessorService {
     protected IUpdateService updateService = null;
     protected ISelectService selectService = null;
@@ -307,7 +303,7 @@ public class MybatisAccessorService {
         if(object == null) {
             return null;
         }
-        IProviderParam providerParam = new DefaultInsertProviderParam(updateChildrenOnly, includeAllChildren, children);
+        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
         List<T> objects = updateWithOptions(object, relation, DefaultInsertEntityProvider.getInstance()
                 , providerParam);
         return objects.get(0);
@@ -334,7 +330,7 @@ public class MybatisAccessorService {
         if(objectList == null || objectList.isEmpty()) {
             return null;
         }
-        IProviderParam providerParam = new DefaultInsertProviderParam(updateChildrenOnly, includeAllChildren, children);
+        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
         return updateWithOptions(objectList, relation, DefaultInsertEntityProvider.getInstance()
                 , providerParam);
     }
@@ -410,7 +406,7 @@ public class MybatisAccessorService {
             , boolean includeAllChildren
             , String[] children
             , boolean updateChildrenOnly) {
-        IProviderParam providerParam = new DefaultDeleteProviderParam(updateChildrenOnly, includeAllChildren, children);
+        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
         return updateWithOptions(ids, relationInfo, DefaultDeleteEntityProvider.getInstance()
                 , providerParam);
     }

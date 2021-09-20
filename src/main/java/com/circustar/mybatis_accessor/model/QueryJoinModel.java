@@ -1,6 +1,6 @@
 package com.circustar.mybatis_accessor.model;
 
-import com.circustar.mybatis_accessor.annotation.QueryJoin;
+import com.circustar.mybatis_accessor.annotation.dto.QueryJoin;
 import org.springframework.util.StringUtils;
 
 public class QueryJoinModel {

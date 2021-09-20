@@ -1,12 +1,12 @@
-package com.circustar.mybatis_accessor.annotation;
+package com.circustar.mybatis_accessor.annotation.dto;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(value = {ElementType.TYPE})
+@Target(value = {ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RelationScanPackages {
-    String[] value();
+public @interface QuerySelect {
+    String value() default "";
 }

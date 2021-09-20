@@ -1,5 +1,7 @@
 package com.circustar.mybatis_accessor.provider;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
@@ -12,6 +14,7 @@ import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<DefaultUpdateProviderParam> {
     private static DefaultUpdateEntityProvider instance = new DefaultUpdateEntityProvider();
@@ -61,14 +64,12 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
             }
         }
         if(!deleteObjectList.isEmpty()) {
-            DefaultDeleteProviderParam defaultDeleteProviderParam = new DefaultDeleteProviderParam(options);
             result.addAll(defaultDeleteEntityProvider.createUpdateEntities(relation
-                    , dtoClassInfoHelper, deleteObjectList, defaultDeleteProviderParam));
+                    , dtoClassInfoHelper, deleteObjectList, options));
         }
         if(!insertObjectList.isEmpty()) {
-            DefaultInsertProviderParam defaultInsertProviderParam = new DefaultInsertProviderParam(options);
             result.addAll(insertEntitiesEntityProvider.createUpdateEntities(relation
-                    , dtoClassInfoHelper, insertObjectList, defaultInsertProviderParam));
+                    , dtoClassInfoHelper, insertObjectList, options));
         }
 
         boolean hasChildren = false;
@@ -80,9 +81,10 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
                     , null
                     , dtoClassInfo.getEntityClassInfo()
                     , Collections.singletonList(entity)
-                    , false
+                    , this.getUpdateChildrenFirst()
                     , options.isUpdateChildrenOnly());
 
+            Object keyValue = FieldUtils.getFieldValue(value, dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod());
             for(String entityName : topEntities) {
                 DtoField subDtoField = dtoClassInfo.getDtoField(entityName);
                 Object topChild = FieldUtils.getFieldValue(value, subDtoField.getPropertyDescriptor().getReadMethod());
@@ -94,9 +96,23 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
                 DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(subDtoField.getEntityDtoServiceRelation().getDtoClass());
                 DefaultUpdateProviderParam subOptions = new DefaultUpdateProviderParam(false
                         , options.isIncludeAllChildren(), subChildren);
-                defaultEntityCollectionUpdater.addSubUpdateEntities(
-                        this.createUpdateProcessors(subDtoClassInfo.getEntityDtoServiceRelation()
-                                , dtoClassInfoHelper, childList, subOptions));
+                if(subDtoField.isDeleteAndInsertNewOnUpdate()) {
+                    QueryWrapper qw = new QueryWrapper();
+                    qw.eq(relation.getTableInfo().getKeyColumn(), keyValue);
+                    IService subEntityService = subDtoClassInfo.getEntityDtoServiceRelation().getServiceBean(applicationContext);
+                    List deletedSubEntities = subEntityService.list(qw);
+                    List subIds = (List) deletedSubEntities.stream().map(x -> FieldUtils.getFieldValue(x
+                            , subDtoClassInfo.getEntityClassInfo().getKeyField().getPropertyDescriptor().getReadMethod()))
+                            .collect(Collectors.toList());
+                    defaultEntityCollectionUpdater.addSubUpdateEntities(defaultDeleteEntityProvider.createUpdateEntities(subDtoClassInfo.getEntityDtoServiceRelation()
+                            , dtoClassInfoHelper, subIds, DefaultEntityProviderParam.IncludeAllEntityProviderParam));
+                    defaultEntityCollectionUpdater.addSubUpdateEntities(insertEntitiesEntityProvider.createUpdateEntities(subDtoClassInfo.getEntityDtoServiceRelation()
+                            , dtoClassInfoHelper, childList, subOptions));
+                } else {
+                    defaultEntityCollectionUpdater.addSubUpdateEntities(
+                            this.createUpdateProcessors(subDtoClassInfo.getEntityDtoServiceRelation()
+                                    , dtoClassInfoHelper, childList, subOptions));
+                }
             }
             updateResult.add(defaultEntityCollectionUpdater);
         }
@@ -106,7 +122,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
                     , null
                     , dtoClassInfo.getEntityClassInfo()
                     , dtoClassInfoHelper.convertToEntityList(updateObjectList)
-                    , false
+                    , this.getUpdateChildrenFirst()
                     , options.isUpdateChildrenOnly()));
         } else {
             result.addAll(updateResult);

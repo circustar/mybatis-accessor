@@ -1,6 +1,6 @@
 package com.circustar.mybatis_accessor.model;
 
-import com.circustar.mybatis_accessor.annotation.QueryGroupBy;
+import com.circustar.mybatis_accessor.annotation.dto.QueryGroupBy;
 import org.springframework.util.StringUtils;
 
 public class QueryGroupByModel {

@@ -1,7 +1,7 @@
 package com.circustar.mybatis_accessor.model;
 
 import com.circustar.mybatis_accessor.annotation.Connector;
-import com.circustar.mybatis_accessor.annotation.QueryWhere;
+import com.circustar.mybatis_accessor.annotation.dto.QueryWhere;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import org.springframework.util.StringUtils;
 

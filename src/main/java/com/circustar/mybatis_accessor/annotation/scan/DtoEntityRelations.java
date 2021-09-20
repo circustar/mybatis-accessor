@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.annotation;
+package com.circustar.mybatis_accessor.annotation.scan;
 
 import java.lang.annotation.*;
 

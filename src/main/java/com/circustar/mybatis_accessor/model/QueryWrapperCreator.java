@@ -2,14 +2,13 @@ package com.circustar.mybatis_accessor.model;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
-import com.circustar.mybatis_accessor.annotation.QueryOrder;
+import com.circustar.mybatis_accessor.annotation.dto.QueryOrder;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.classInfo.EntityClassInfo;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.utils.TableJoinColumnPrefixManager;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
