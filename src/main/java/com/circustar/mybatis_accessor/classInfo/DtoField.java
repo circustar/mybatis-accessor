@@ -143,9 +143,9 @@ public class DtoField {
         this.tableJoinInfo = tableJoinInfo;
     }
 
-    public DtoClassInfo getFieldDtoClassInfo(DtoClassInfoHelper dtoClassInfoHelper) {
+    public DtoClassInfo getFieldDtoClassInfo() {
         if(this.fieldDtoClassInfo == null) {
-            this.fieldDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(this.getActualClass());
+            this.fieldDtoClassInfo = this.getDtoClassInfo().getDtoClassInfoHelper().getDtoClassInfo(this.getActualClass());
         }
         return this.fieldDtoClassInfo;
     }

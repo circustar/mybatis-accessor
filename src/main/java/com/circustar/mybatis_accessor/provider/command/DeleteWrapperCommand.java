@@ -17,7 +17,9 @@ public class DeleteWrapperCommand extends DeleteByIdCommand {
     }
 
     @Override
+    public UpdateType getUpdateType() {return UpdateType.DELETE;}
 
+    @Override
     public <T extends Collection> boolean update(IService service, T collection, Object option) {
         List<Wrapper> physicDeleteCollection = new ArrayList();
         List<Wrapper> deleteCollection = new ArrayList();

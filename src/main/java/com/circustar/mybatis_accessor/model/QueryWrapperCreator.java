@@ -23,13 +23,13 @@ public class QueryWrapperCreator {
     private List<QueryGroupByModel> queryGroupByModels;
     private List<QueryHavingModel> queryHavingModels;
     private List<QueryOrderModel> queryOrders;
+    private DtoClassInfo dtoClassInfo;
     private EntityClassInfo entityClassInfo;
     private TableInfo tableInfo;
     private List<DtoField> joinTableDtoFields;
-    private DtoClassInfoHelper dtoClassInfoHelper;
 
-    public QueryWrapperCreator(DtoClassInfoHelper dtoClassInfoHelper, DtoClassInfo dtoClassInfo) {
-        this.dtoClassInfoHelper = dtoClassInfoHelper;
+    public QueryWrapperCreator(DtoClassInfo dtoClassInfo) {
+        this.dtoClassInfo = dtoClassInfo;
         this.entityClassInfo = dtoClassInfo.getEntityClassInfo();
         this.tableInfo = entityClassInfo.getTableInfo();
         this.tableName = this.tableInfo.getTableName();
@@ -78,7 +78,7 @@ public class QueryWrapperCreator {
                 .collect(Collectors.toList());
             ;
             List<QuerySelectModel> joinQueryModels = this.joinTableDtoFields.stream().map(x -> {
-                return this.dtoClassInfoHelper.getDtoClassInfo(x.getEntityDtoServiceRelation().getDtoClass())
+                return this.dtoClassInfo.getDtoClassInfoHelper().getDtoClassInfo(x.getEntityDtoServiceRelation().getDtoClass())
                         .getNormalFieldList().stream()
                         .filter(y -> y.getQuerySelect() != null || y.getEntityFieldInfo() != null)
                         .map(y ->

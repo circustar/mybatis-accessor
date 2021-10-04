@@ -15,7 +15,9 @@ public class DeleteByIdCommand implements IUpdateCommand {
     }
 
     @Override
+    public UpdateType getUpdateType() {return UpdateType.DELETE;}
 
+    @Override
     public <T extends Collection> boolean update(IService service, T collection, Object option) {
         for(Object var1 : collection) {
             boolean physicDelete = (boolean) option;

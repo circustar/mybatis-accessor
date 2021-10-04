@@ -1,5 +1,8 @@
 package com.circustar.mybatis_accessor.relation;
 
+import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.context.ApplicationContext;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +15,10 @@ public class EntityDtoServiceRelationMap implements IEntityDtoServiceRelationMap
 
     private Map<String, EntityDtoServiceRelation> dtoNameMap = new HashMap<>();
 
-    public EntityDtoServiceRelationMap(){
+    private ApplicationContext applicationContext;
+
+    public EntityDtoServiceRelationMap(ApplicationContext applicationContext){
+        this.applicationContext = applicationContext;
     }
 
     public void addRelation(EntityDtoServiceRelation relation) {
@@ -48,5 +54,10 @@ public class EntityDtoServiceRelationMap implements IEntityDtoServiceRelationMap
     @Override
     public EntityDtoServiceRelation getByDtoName(String dtoName) {
         return dtoNameMap.get(dtoName);
+    }
+
+    @Override
+    public IService getServiceBeanByDtoClass(Class clazz) {
+        return getByDtoClass(clazz).getServiceBean(this.applicationContext);
     }
 }

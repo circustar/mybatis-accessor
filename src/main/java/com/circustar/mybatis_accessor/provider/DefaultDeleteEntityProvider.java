@@ -102,7 +102,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<IE
                     updateProcessor = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                             , DeleteByIdCommand.getInstance()
                             , dtoClassInfo.isPhysicDelete()
-                            , null //dtoClassInfo.getEntityClassInfo()
+                            , dtoClassInfo
                             , Collections.singletonList(id)
                             , this.getUpdateChildrenFirst()
                             , false);
@@ -115,7 +115,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<IE
             updateProcessor = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , DeleteByIdBatchCommand.getInstance()
                     , dtoClassInfo.isPhysicDelete()
-                    , null //dtoClassInfo.getEntityClassInfo()
+                    , dtoClassInfo
                     , noSubEntityList
                     , this.getUpdateChildrenFirst()
                     , false);

@@ -1,5 +1,7 @@
 package com.circustar.mybatis_accessor.relation;
 
+import com.baomidou.mybatisplus.extension.service.IService;
+
 public interface IEntityDtoServiceRelationMap {
 
     EntityDtoServiceRelation getByDtoClass(Class clazz);
@@ -11,4 +13,6 @@ public interface IEntityDtoServiceRelationMap {
     Class[] getAllDtoClasses();
 
     String[] getAllDtoClassNames();
+
+    IService getServiceBeanByDtoClass(Class clazz);
 }

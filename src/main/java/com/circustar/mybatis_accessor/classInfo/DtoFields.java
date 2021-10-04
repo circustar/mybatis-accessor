@@ -37,47 +37,46 @@ public class DtoFields {
         }
     }
 
-    public static void queryAndAssignDtoFieldById(ApplicationContext applicationContext
-            , DtoClassInfoHelper dtoClassInfoHelper, IEntityDtoServiceRelationMap relationMap
+    public static void queryAndAssignDtoFieldById(DtoClassInfo dtoClassInfo
             , EntityDtoServiceRelation relationInfo
             , List<DtoField> dtoFields
             , Object dto
             , Serializable dtoId) {
-        DtoClassInfo masterDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
         for(DtoField dtoField : dtoFields) {
             EntityDtoServiceRelation childInfo = dtoField.getEntityDtoServiceRelation();
             if(childInfo == null) {
                 continue;
             }
-            DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(childInfo.getDtoClass());
-            DtoField subDtoClassInfoDtoField = subDtoClassInfo.getDtoField(masterDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyProperty());
-            DtoField masterDtoClassInfoDtoField = masterDtoClassInfo.getDtoField(subDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyProperty());
+            DtoClassInfo subDtoClassInfo = dtoClassInfo.getDtoClassInfoHelper().getDtoClassInfo(childInfo.getDtoClass());
+            DtoField subDtoClassInfoDtoField = subDtoClassInfo.getDtoField(dtoClassInfo.getEntityClassInfo().getTableInfo().getKeyProperty());
+            DtoField masterDtoClassInfoDtoField = dtoClassInfo.getDtoField(subDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyProperty());
             if(subDtoClassInfoDtoField == null && masterDtoClassInfoDtoField == null) {
                 continue;
             }
             QueryWrapper qw = null;
             if(subDtoClassInfoDtoField != null) {
                 qw = new QueryWrapper();
-                qw.eq(masterDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), dtoId);
+                qw.eq(dtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), dtoId);
             } else if(masterDtoClassInfoDtoField != null) {
                 qw = new QueryWrapper();
                 Object subDtoId = FieldUtils.getFieldValue(dto, masterDtoClassInfoDtoField.getEntityFieldInfo().getPropertyDescriptor().getReadMethod());
                 qw.eq(subDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), subDtoId);
             }
-            IService service = childInfo.getServiceBean(applicationContext);
+            IService service = subDtoClassInfo.getServiceBean();
             List searchResult = service.list(qw);
-            assignDtoField(dtoClassInfoHelper, dto, dtoField, searchResult, childInfo.getDtoClass());
+            assignDtoField(dtoClassInfo.getDtoClassInfoHelper(), dto, dtoField, searchResult, childInfo.getDtoClass());
         }
     }
 
-    public static void queryAndAssignDtoFieldBySelector(ApplicationContext applicationContext, DtoClassInfoHelper dtoClassInfoHelper, IEntityDtoServiceRelationMap relationMap, EntityDtoServiceRelation relationInfo, Object dto
+    public static void queryAndAssignDtoFieldBySelector(DtoClassInfoHelper dtoClassInfoHelper, EntityDtoServiceRelation relationInfo, Object dto
             , List<DtoField> dtoFields) {
         for(DtoField dtoField : dtoFields) {
             EntityDtoServiceRelation subRelation = dtoField.getEntityDtoServiceRelation();
             if(subRelation == null) {
                 continue;
             }
-            IService service = subRelation.getServiceBean(applicationContext);
+
+            IService service =  dtoClassInfoHelper.getDtoClassInfo(subRelation.getDtoClass()).getServiceBean();
             QueryWrapper qw = new QueryWrapper();
 
             dtoField.getSelectors().forEach(x -> x.connector().consume(x.tableColumn(), qw

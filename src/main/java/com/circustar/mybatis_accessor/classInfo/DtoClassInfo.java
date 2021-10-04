@@ -4,7 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.common_utils.reflection.FieldUtils;
+import com.circustar.mybatis_accessor.annotation.after_update_executor.AfterUpdate;
+import com.circustar.mybatis_accessor.annotation.after_update_executor.AfterUpdateModel;
+import com.circustar.mybatis_accessor.annotation.after_update_executor.MultiAfterUpdate;
 import com.circustar.mybatis_accessor.annotation.dto.DeleteFlag;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
@@ -22,6 +26,8 @@ import java.util.stream.Collectors;
 
 public class DtoClassInfo {
     private Class<?> clazz;
+    private IEntityDtoServiceRelationMap entityDtoServiceRelationMap;
+    private DtoClassInfoHelper dtoClassInfoHelper;
     private EntityDtoServiceRelation entityDtoServiceRelation;
     private List<DtoField> subDtoFieldList;
     private List<DtoField> childDtoFieldList;
@@ -37,10 +43,14 @@ public class DtoClassInfo {
     private DtoField deleteFlagField;
     private boolean physicDelete = false;
     private QueryWrapperCreator queryWrapperCreator;
+    private List<AfterUpdateModel> afterUpdateList;
 
-    public DtoClassInfo(IEntityDtoServiceRelationMap relationMap, Class<?> clazz, EntityClassInfo entityClassInfo) {
+
+    public DtoClassInfo(IEntityDtoServiceRelationMap relationMap, DtoClassInfoHelper dtoClassInfoHelper, Class<?> clazz, EntityClassInfo entityClassInfo) {
         this.clazz = clazz;
-        this.entityDtoServiceRelation = relationMap.getByDtoClass(this.clazz);
+        this.entityDtoServiceRelationMap = relationMap;
+        this.dtoClassInfoHelper = dtoClassInfoHelper;
+        this.entityDtoServiceRelation = this.entityDtoServiceRelationMap.getByDtoClass(this.clazz);
         this.entityClassInfo = entityClassInfo;
         this.subDtoFieldList = new ArrayList<>();
         this.childDtoFieldList = new ArrayList<>();
@@ -83,6 +93,23 @@ public class DtoClassInfo {
                 }
             }
         });
+
+        MultiAfterUpdate multiAfterUpdateAnnotation = this.clazz.getAnnotation(MultiAfterUpdate.class);
+        List<AfterUpdate> afterUpdateList = null;
+        if(multiAfterUpdateAnnotation != null) {
+            afterUpdateList = Arrays.asList(multiAfterUpdateAnnotation.value());
+        } else {
+            AfterUpdate[] annotationsByType = this.clazz.getAnnotationsByType(AfterUpdate.class);
+            if(annotationsByType!=null) {
+                afterUpdateList = Arrays.asList(annotationsByType);
+            }
+        }
+        if(afterUpdateList!= null & !afterUpdateList.isEmpty()) {
+            this.afterUpdateList = afterUpdateList.stream().map(x -> new AfterUpdateModel(x.onExpression(),
+                    AfterUpdateModel.getInstance(x.afterUpdateExecutor()), x.updateParams(), x.updateTypes()))
+                    .collect(Collectors.toList());
+        }
+
     }
 
     public void initJoinTableInfo(DtoClassInfoHelper dtoClassInfoHelper) {
@@ -208,9 +235,9 @@ public class DtoClassInfo {
         return physicDelete;
     }
 
-    public <T> QueryWrapper<T> createQueryWrapper(DtoClassInfoHelper dtoClassInfoHelper, Object dto) {
+    public <T> QueryWrapper<T> createQueryWrapper(Object dto) {
         if(this.queryWrapperCreator == null) {
-            this.queryWrapperCreator = new QueryWrapperCreator(dtoClassInfoHelper, this);
+            this.queryWrapperCreator = new QueryWrapperCreator(this);
         }
         return this.queryWrapperCreator.createQueryWrapper(dto);
     }
@@ -229,5 +256,21 @@ public class DtoClassInfo {
             return (Boolean)deleteFlagValue;
         }
         return !"0".equals(deleteFlagValue.toString());
+    }
+
+    public IEntityDtoServiceRelationMap getEntityDtoServiceRelationMap() {
+        return entityDtoServiceRelationMap;
+    }
+
+    public DtoClassInfoHelper getDtoClassInfoHelper() {
+        return dtoClassInfoHelper;
+    }
+
+    public IService getServiceBean() {
+        return getEntityDtoServiceRelationMap().getServiceBeanByDtoClass(this.clazz);
+    }
+
+    public List<AfterUpdateModel> getAfterUpdateList() {
+        return afterUpdateList;
     }
 }

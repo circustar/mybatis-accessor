@@ -14,7 +14,9 @@ public class InsertCommand implements IUpdateCommand {
     }
 
     @Override
+    public UpdateType getUpdateType() {return UpdateType.INSERT;}
 
+    @Override
     public <T extends Collection> boolean update(IService service, T collection, Object option) {
         boolean result = service.saveBatch(collection);
         if(!result) {

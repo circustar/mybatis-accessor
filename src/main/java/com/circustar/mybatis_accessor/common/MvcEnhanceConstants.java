@@ -3,6 +3,7 @@ package com.circustar.mybatis_accessor.common;
 public class MvcEnhanceConstants {
     public final static String MYBATIS_ENHANCE_JOIN_TABLE = "__MYBATIS_ENHANCE_JOIN_TABLE";
     public final static String MYBATIS_ENHANCE_JOIN_COLUMNS = "__MYBATIS_ENHANCE_JOIN_COLUMNS";
+    public final static String MYBATIS_ENHANCE_UPDATE_SET_EXPRESSION = "__MYBATIS_ENHANCE_UPDATE_SET_EXPRESSION";
 
     public final static String UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY = "_UPDATE_STRATEGY_UPDATE_CHILDREN_ONLY";
     public final static String UPDATE_STRATEGY_UPDATE_CHILDREN_LIST = "_UPDATE_STRATEGY_UPDATE_CHILDREN_LIST";

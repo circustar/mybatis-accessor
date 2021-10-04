@@ -14,7 +14,9 @@ public class UpdateByIdCommand implements IUpdateCommand {
     }
 
     @Override
+    public UpdateType getUpdateType() {return UpdateType.UPDATE;}
 
+    @Override
     public <T extends Collection> boolean update(IService service, T collection, Object option) {
         for(Object var1 : collection) {
             boolean result = service.updateById(var1);

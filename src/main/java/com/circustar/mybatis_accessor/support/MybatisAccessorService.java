@@ -20,7 +20,10 @@ import java.io.Serializable;
 import java.util.*;
 
 // TODO List:
-// 1.提供数字汇总和分拆的能力
+// 3.提供数字汇总和分拆的能力
+// 1.设置更新内容监听
+// 2.更新后监听
+// 0.UpdateExpression
 public class MybatisAccessorService {
     protected IUpdateService updateService = null;
     protected ISelectService selectService = null;

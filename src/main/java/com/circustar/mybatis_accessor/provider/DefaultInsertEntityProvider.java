@@ -60,7 +60,7 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider<IE
             DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , InsertCommand.getInstance()
                     , null
-                    , dtoClassInfo.getEntityClassInfo()
+                    , dtoClassInfo
                     , Collections.singletonList(updateTarget)
                     , this.getUpdateChildrenFirst()
                     , updateChildrenOnly);
@@ -87,7 +87,7 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider<IE
                 DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                         , InsertCommand.getInstance()
                         , null
-                        , dtoClassInfo.getEntityClassInfo()
+                        , dtoClassInfo
                         , updateTargetList
                         , this.getUpdateChildrenFirst()
                         , false);

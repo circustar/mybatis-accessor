@@ -45,11 +45,11 @@ public class MybatisAccessorConfiguration {
     public MybatisAccessorConfiguration(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         this.enhanceSqlInjector = new EnhanceSqlInjector();
-        this.entityDtoServiceRelationMap = new EntityDtoServiceRelationMap();
+        this.entityDtoServiceRelationMap = new EntityDtoServiceRelationMap(this.applicationContext);
         this.entityClassInfoHelper = new EntityClassInfoHelper();
         this.dtoClassInfoHelper = new DtoClassInfoHelper(this.entityDtoServiceRelationMap, this.entityClassInfoHelper);
         this.updateService = new UpdateService(this.dtoClassInfoHelper);
-        this.selectService = new SelectService(this.applicationContext, this.entityDtoServiceRelationMap, this.dtoClassInfoHelper);
+        this.selectService = new SelectService(this.dtoClassInfoHelper);
         this.mybatisAccessorService = new MybatisAccessorService(this.entityDtoServiceRelationMap, this.selectService, this.updateService);
         this.updateManager = new MybatisAccessorUpdateManager(this.mybatisAccessorService, this.dtoClassInfoHelper);
         this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
@@ -60,8 +60,7 @@ public class MybatisAccessorConfiguration {
     private List<String> getMapperScanPackages(ApplicationContext applicationContext) {
         String[] beanNames = applicationContext.getBeanNamesForAnnotation(MapperScan.class);
         return Arrays.stream(beanNames).map(x -> applicationContext.findAnnotationOnBean(x, MapperScan.class))
-                .map(x -> Stream.concat(Stream.of(x.value()), Stream.of(x.basePackages())))
-                .flatMap(x -> x).collect(Collectors.toList());
+                .flatMap(x -> Stream.concat(Stream.of(x.value()), Stream.of(x.basePackages()))).collect(Collectors.toList());
     }
 
     @Bean

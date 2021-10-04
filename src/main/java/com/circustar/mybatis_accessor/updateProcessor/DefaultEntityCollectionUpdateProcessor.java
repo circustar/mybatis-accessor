@@ -1,19 +1,25 @@
 package com.circustar.mybatis_accessor.updateProcessor;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.circustar.common_utils.parser.SPELParser;
+import com.circustar.mybatis_accessor.annotation.after_update_executor.AfterUpdateModel;
+import com.circustar.mybatis_accessor.annotation.after_update_executor.ExecuteTiming;
+import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.EntityClassInfo;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.common_utils.reflection.FieldUtils;
+import org.springframework.util.StringUtils;
 
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProcessor<Collection> {
     public DefaultEntityCollectionUpdateProcessor(IService service
             , IUpdateCommand updateCommand
             , Object option
-            , EntityClassInfo entityClassInfo
+            , DtoClassInfo dtoClassInfo
             , List updateTargets
             , Boolean updateChildrenFirst
             , boolean updateChildrenOnly) {
@@ -22,7 +28,8 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         this.service = service;
         this.updateTargets = updateTargets;
         this.updateChildFirst = updateChildrenFirst;
-        this.entityClassInfo = entityClassInfo;
+        this.dtoClassInfo = dtoClassInfo;
+        this.entityClassInfo = dtoClassInfo.getEntityClassInfo();
         this.updateChildrenOnly = updateChildrenOnly;
     }
     private Object option;
@@ -31,6 +38,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
     private Boolean updateChildFirst;
     private List updateTargets;
     private List<IEntityUpdateProcessor> subUpdateEntities;
+    private DtoClassInfo dtoClassInfo;
     private EntityClassInfo entityClassInfo;
     private boolean updateChildrenOnly;
 
@@ -59,12 +67,18 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
 
     @Override
     public boolean execUpdate() {
-        return execUpdate(new HashMap<String, Object>());
+        return execUpdate(new HashMap<>());
     }
 
     @Override
     public boolean execUpdate(Map<String, Object> keyMap) {
         boolean result;
+        List<AfterUpdateModel> afterUpdateList = this.dtoClassInfo.getAfterUpdateList();
+        if(afterUpdateList != null && !afterUpdateList.isEmpty()) {
+            executeAfterUpdateExecutor(dtoClassInfo, afterUpdateList, ExecuteTiming.BEFORE_UPDATE, updateCommand.getUpdateType()
+                    , this.updateTargets);
+        }
+
         if (updateChildFirst && subUpdateEntities != null) {
             for (IEntityUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
                 result = subDefaultEntityCollectionUpdater.execUpdate(keyMap);
@@ -73,7 +87,9 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                 }
             }
         }
-        if (entityClassInfo != null) {
+        Optional firstEntity = updateTargets.stream().findFirst();
+        if (entityClassInfo != null && firstEntity.isPresent()
+                && entityClassInfo.getEntityClass().isAssignableFrom(firstEntity.get().getClass())) {
             List<String> avoidIdList = null;
             if (entityClassInfo.getKeyField() != null && entityClassInfo.getIdReferenceFieldInfo() != null) {
                 Object parentPropertyValue = keyMap.get(entityClassInfo.getKeyField().getField().getName());
@@ -107,15 +123,13 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
             if (!result) return false;
         }
 
-        if (entityClassInfo != null) {
-            Optional firstEntity = updateTargets.stream().findFirst();
-            if (firstEntity.isPresent()) {
-                EntityFieldInfo keyField = entityClassInfo.getKeyField();
-                if (keyField != null) {
-                    Object masterKeyValue = FieldUtils.getFieldValue(firstEntity.get()
-                            , keyField.getPropertyDescriptor().getReadMethod());
-                    keyMap.put(keyField.getField().getName(), masterKeyValue);
-                }
+        if (entityClassInfo != null && firstEntity.isPresent()
+                && entityClassInfo.getEntityClass().isAssignableFrom(firstEntity.get().getClass())) {
+            EntityFieldInfo keyField = entityClassInfo.getKeyField();
+            if (keyField != null) {
+                Object masterKeyValue = FieldUtils.getFieldValue(firstEntity.get()
+                        , keyField.getPropertyDescriptor().getReadMethod());
+                keyMap.put(keyField.getField().getName(), masterKeyValue);
             }
         }
 
@@ -127,6 +141,37 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                 }
             }
         }
+        if(afterUpdateList != null && !afterUpdateList.isEmpty()) {
+            executeAfterUpdateExecutor(dtoClassInfo, afterUpdateList, ExecuteTiming.AFTER_UPDATE, updateCommand.getUpdateType()
+                    , this.updateTargets);
+        }
         return true;
+    }
+
+    private void executeAfterUpdateExecutor(DtoClassInfo dtoClassInfo
+            , List<AfterUpdateModel> afterUpdateList
+            , ExecuteTiming executeTiming, IUpdateCommand.UpdateType updateType, List updateTargets) {
+        if(afterUpdateList == null || afterUpdateList.isEmpty()) {
+            return;
+        }
+        List<AfterUpdateModel> updateModelList = afterUpdateList.stream()
+                .filter(x -> executeTiming.equals(x.getAfterUpdateExecutor().getExecuteTiming()))
+                .filter(x -> Arrays.stream(x.getUpdateTypes()).anyMatch(y -> updateType.equals(y)))
+                .collect(Collectors.toList());
+        for(AfterUpdateModel m : updateModelList) {
+            List executeList = new ArrayList();
+            for(Object o : updateTargets) {
+                boolean execFlag = true;
+                if(StringUtils.hasLength(m.getOnExpression())) {
+                    execFlag = (boolean) SPELParser.parseExpression(o,m.getOnExpression());
+                }
+                if(!execFlag) {
+                    continue;
+                }
+                executeList.add(o);
+            }
+            m.getAfterUpdateExecutor().exec(dtoClassInfo
+                    , executeList, m.getUpdateParams());
+        }
     }
 }

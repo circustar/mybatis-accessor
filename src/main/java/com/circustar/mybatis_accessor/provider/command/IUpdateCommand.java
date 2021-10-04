@@ -6,4 +6,11 @@ import java.util.Collection;
 
 public interface IUpdateCommand {
     <T extends Collection> boolean update(IService service, T obj, Object option);
+    UpdateType getUpdateType();
+
+    enum UpdateType {
+        INSERT,
+        DELETE,
+        UPDATE
+    }
 }

@@ -79,7 +79,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
             DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , UpdateByIdCommand.getInstance()
                     , null
-                    , dtoClassInfo.getEntityClassInfo()
+                    , dtoClassInfo
                     , Collections.singletonList(entity)
                     , this.getUpdateChildrenFirst()
                     , options.isUpdateChildrenOnly());
@@ -120,7 +120,7 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
             result.add(new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , UpdateByIdCommand.getInstance()
                     , null
-                    , dtoClassInfo.getEntityClassInfo()
+                    , dtoClassInfo
                     , dtoClassInfoHelper.convertToEntityList(updateObjectList)
                     , this.getUpdateChildrenFirst()
                     , options.isUpdateChildrenOnly()));

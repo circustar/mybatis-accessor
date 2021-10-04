@@ -14,7 +14,9 @@ public class UpdateByIdBatchCommand implements IUpdateCommand {
     }
 
     @Override
+    public UpdateType getUpdateType() {return UpdateType.UPDATE;}
 
+    @Override
     public <T extends Collection> boolean update(IService service, T collection, Object option) {
         boolean result = service.updateBatchById(collection);
         if(!result) {

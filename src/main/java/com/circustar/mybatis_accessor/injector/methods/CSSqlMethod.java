@@ -13,7 +13,7 @@ public enum CSSqlMethod {
     private final String desc;
     private final String sql;
 
-    private CSSqlMethod(String method, String desc, String sql) {
+    CSSqlMethod(String method, String desc, String sql) {
         this.method = method;
         this.desc = desc;
         this.sql = sql;

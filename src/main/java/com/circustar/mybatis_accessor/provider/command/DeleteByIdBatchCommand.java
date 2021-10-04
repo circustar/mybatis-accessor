@@ -14,8 +14,11 @@ public class DeleteByIdBatchCommand extends DeleteByIdCommand {
     public static DeleteByIdBatchCommand getInstance() {
         return batchCommand;
     }
-    @Override
 
+    @Override
+    public UpdateType getUpdateType() {return UpdateType.DELETE;}
+
+    @Override
     public <T extends Collection> boolean update(IService service, T obj, Object option) {
         List physicDeleteCollection = new ArrayList();
         List deleteCollection = new ArrayList();
