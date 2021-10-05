@@ -1,12 +1,9 @@
-package com.circustar.mybatis_accessor.annotation.after_update_executor;
+package com.circustar.mybatis_accessor.annotation.after_update;
 
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 
-import java.lang.annotation.*;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class AfterUpdateModel {
     private String onExpression;

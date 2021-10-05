@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.annotation.after_update_executor;
+package com.circustar.mybatis_accessor.annotation.after_update;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;

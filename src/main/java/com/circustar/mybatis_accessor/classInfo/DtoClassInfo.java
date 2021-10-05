@@ -6,9 +6,9 @@ import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.common_utils.reflection.FieldUtils;
-import com.circustar.mybatis_accessor.annotation.after_update_executor.AfterUpdate;
-import com.circustar.mybatis_accessor.annotation.after_update_executor.AfterUpdateModel;
-import com.circustar.mybatis_accessor.annotation.after_update_executor.MultiAfterUpdate;
+import com.circustar.mybatis_accessor.annotation.after_update.AfterUpdate;
+import com.circustar.mybatis_accessor.annotation.after_update.AfterUpdateModel;
+import com.circustar.mybatis_accessor.annotation.after_update.MultiAfterUpdate;
 import com.circustar.mybatis_accessor.annotation.dto.DeleteFlag;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
@@ -75,6 +75,8 @@ public class DtoClassInfo {
             if(deleteFlagAnnotation != null) {
                 this.deleteFlagField = dtoField;
                 this.physicDelete = deleteFlagAnnotation.physicDelete();
+            } else if(this.deleteFlagField == null && entityFieldInfo != null && entityFieldInfo.isLogicDeleteField()) {
+                this.deleteFlagField = dtoField;
             }
             this.allFieldList.add(dtoField);
             this.dtoFieldMap.put(property.getName(), dtoField);
@@ -94,22 +96,25 @@ public class DtoClassInfo {
             }
         });
 
+        initAfterUpdateList();
+    }
+
+    protected void initAfterUpdateList() {
         MultiAfterUpdate multiAfterUpdateAnnotation = this.clazz.getAnnotation(MultiAfterUpdate.class);
-        List<AfterUpdate> afterUpdateList = null;
+        List<AfterUpdate> var0 = null;
         if(multiAfterUpdateAnnotation != null) {
-            afterUpdateList = Arrays.asList(multiAfterUpdateAnnotation.value());
+            var0 = Arrays.asList(multiAfterUpdateAnnotation.value());
         } else {
             AfterUpdate[] annotationsByType = this.clazz.getAnnotationsByType(AfterUpdate.class);
             if(annotationsByType!=null) {
-                afterUpdateList = Arrays.asList(annotationsByType);
+                var0 = Arrays.asList(annotationsByType);
             }
         }
-        if(afterUpdateList!= null & !afterUpdateList.isEmpty()) {
-            this.afterUpdateList = afterUpdateList.stream().map(x -> new AfterUpdateModel(x.onExpression(),
+        if(var0!= null & !var0.isEmpty()) {
+            this.afterUpdateList = var0.stream().map(x -> new AfterUpdateModel(x.onExpression(),
                     AfterUpdateModel.getInstance(x.afterUpdateExecutor()), x.updateParams(), x.updateTypes()))
                     .collect(Collectors.toList());
         }
-
     }
 
     public void initJoinTableInfo(DtoClassInfoHelper dtoClassInfoHelper) {

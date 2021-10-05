@@ -2,8 +2,8 @@ package com.circustar.mybatis_accessor.updateProcessor;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.common_utils.parser.SPELParser;
-import com.circustar.mybatis_accessor.annotation.after_update_executor.AfterUpdateModel;
-import com.circustar.mybatis_accessor.annotation.after_update_executor.ExecuteTiming;
+import com.circustar.mybatis_accessor.annotation.after_update.AfterUpdateModel;
+import com.circustar.mybatis_accessor.annotation.after_update.ExecuteTiming;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.EntityClassInfo;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;

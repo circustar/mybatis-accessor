@@ -1,6 +1,4 @@
-package com.circustar.mybatis_accessor.annotation.after_update_executor;
-
-import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
+package com.circustar.mybatis_accessor.annotation.after_update;
 
 import java.lang.annotation.*;
 

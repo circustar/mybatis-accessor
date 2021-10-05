@@ -2,6 +2,7 @@ package com.circustar.mybatis_accessor.classInfo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.entity.IdReference;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
@@ -22,6 +23,7 @@ public class EntityFieldInfo {
     private EntityClassInfo entityClassInfo;
     private PropertyDescriptor propertyDescriptor;
     private IdReference idReference;
+    private boolean isLogicDeleteField = false;
 
     public Boolean getPrimitive() {
         return isPrimitive;
@@ -130,6 +132,9 @@ public class EntityFieldInfo {
                 fieldInfo.columnName = tableId.value();
             }
         }
+        TableLogic tableLogic = fieldInfo.getField().getAnnotation(TableLogic.class);
+        fieldInfo.setLogicDeleteField(tableLogic != null);
+
         return fieldInfo;
     }
 
@@ -139,5 +144,13 @@ public class EntityFieldInfo {
 
     public String getColumnName() {
         return columnName;
+    }
+
+    public boolean isLogicDeleteField() {
+        return isLogicDeleteField;
+    }
+
+    public void setLogicDeleteField(boolean logicDeleteField) {
+        isLogicDeleteField = logicDeleteField;
     }
 }
