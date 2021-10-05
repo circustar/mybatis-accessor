@@ -37,8 +37,8 @@ public class AfterUpdateModel {
         return updateTypes;
     }
 
-    private static Map<Class<IAfterUpdateExecutor>, IAfterUpdateExecutor> afterUpdateExecutorMap = new HashMap<>();
-    public static IAfterUpdateExecutor getInstance(Class<IAfterUpdateExecutor> clazz) {
+    private static Map<Class<? extends IAfterUpdateExecutor>, IAfterUpdateExecutor> afterUpdateExecutorMap = new HashMap<>();
+    public static IAfterUpdateExecutor getInstance(Class<? extends IAfterUpdateExecutor> clazz) {
         try {
             if (!afterUpdateExecutorMap.containsKey(clazz)) {
                 IAfterUpdateExecutor iAfterUpdateExecutor = clazz.newInstance();

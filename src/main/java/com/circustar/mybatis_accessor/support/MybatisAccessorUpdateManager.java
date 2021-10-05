@@ -66,7 +66,7 @@ public class MybatisAccessorUpdateManager {
         dtoWithOptions.stream().sorted(Comparator.comparingInt((DtoWithOption x) -> x.getDtoClassInfo().getUpdateOrder())
                 .thenComparing(x -> x.getDtoClassInfo().getEntityClassInfo().getEntityClass().getSimpleName()))
                 .forEach(dtoWithOption -> {
-            List dtoList = new ArrayList<>(CollectionUtils.convertToCollection(dtoWithOption.getDto()));
+            List dtoList = new ArrayList<>(CollectionUtils.convertToList(dtoWithOption.getDto()));
             if(dtoList == null || dtoList.isEmpty()) {
                 throw new RuntimeException("update list cannot be empty");
             }

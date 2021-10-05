@@ -11,7 +11,6 @@ import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.common_utils.reflection.FieldUtils;
 import org.springframework.util.StringUtils;
 
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,13 +19,15 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
             , IUpdateCommand updateCommand
             , Object option
             , DtoClassInfo dtoClassInfo
-            , List updateTargets
+            , List updateDtoList
+            , List updateEntityList
             , Boolean updateChildrenFirst
             , boolean updateChildrenOnly) {
         this.option = option;
         this.updateCommand = updateCommand;
         this.service = service;
-        this.updateTargets = updateTargets;
+        this.updateDtoList = updateDtoList;
+        this.updateEntityList = updateEntityList;
         this.updateChildFirst = updateChildrenFirst;
         this.dtoClassInfo = dtoClassInfo;
         this.entityClassInfo = dtoClassInfo.getEntityClassInfo();
@@ -36,7 +37,8 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
     private IUpdateCommand updateCommand;
     private IService service;
     private Boolean updateChildFirst;
-    private List updateTargets;
+    private List updateDtoList;
+    private List updateEntityList;
     private List<IEntityUpdateProcessor> subUpdateEntities;
     private DtoClassInfo dtoClassInfo;
     private EntityClassInfo entityClassInfo;
@@ -61,8 +63,8 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         return subUpdateEntities;
     }
 
-    public List getUpdatedTargets() {
-        return updateTargets;
+    public List getUpdatedEntityList() {
+        return updateEntityList;
     }
 
     @Override
@@ -76,7 +78,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         List<AfterUpdateModel> afterUpdateList = this.dtoClassInfo.getAfterUpdateList();
         if(afterUpdateList != null && !afterUpdateList.isEmpty()) {
             executeAfterUpdateExecutor(dtoClassInfo, afterUpdateList, ExecuteTiming.BEFORE_UPDATE, updateCommand.getUpdateType()
-                    , this.updateTargets);
+                    , this.updateDtoList, this.updateEntityList);
         }
 
         if (updateChildFirst && subUpdateEntities != null) {
@@ -87,7 +89,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                 }
             }
         }
-        Optional firstEntity = updateTargets.stream().findFirst();
+        Optional firstEntity = updateEntityList.stream().findFirst();
         if (entityClassInfo != null && firstEntity.isPresent()
                 && entityClassInfo.getEntityClass().isAssignableFrom(firstEntity.get().getClass())) {
             List<String> avoidIdList = null;
@@ -96,7 +98,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                 if (parentPropertyValue != null) {
                     avoidIdList = Arrays.asList(entityClassInfo.getKeyField().getField().getName()
                             , entityClassInfo.getIdReferenceFieldInfo().getField().getName());
-                    for (Object updateEntity : updateTargets) {
+                    for (Object updateEntity : updateEntityList) {
                         FieldUtils.setFieldValue(updateEntity
                                 , entityClassInfo.getIdReferenceFieldInfo().getPropertyDescriptor().getWriteMethod()
                                 , parentPropertyValue);
@@ -112,14 +114,14 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                 if (entityFieldInfo == null) {
                     continue;
                 }
-                for (Object updateEntity : updateTargets) {
+                for (Object updateEntity : updateEntityList) {
                     FieldUtils.setFieldValue(updateEntity
                             , entityFieldInfo.getPropertyDescriptor().getWriteMethod(), keyEntry.getValue());
                 }
             }
         }
         if (!updateChildrenOnly) {
-            result = this.updateCommand.update(this.service, this.updateTargets, option);
+            result = this.updateCommand.update(this.service, this.updateEntityList, option);
             if (!result) return false;
         }
 
@@ -143,14 +145,15 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         }
         if(afterUpdateList != null && !afterUpdateList.isEmpty()) {
             executeAfterUpdateExecutor(dtoClassInfo, afterUpdateList, ExecuteTiming.AFTER_UPDATE, updateCommand.getUpdateType()
-                    , this.updateTargets);
+                    , this.updateDtoList, this.updateEntityList);
         }
         return true;
     }
 
     private void executeAfterUpdateExecutor(DtoClassInfo dtoClassInfo
             , List<AfterUpdateModel> afterUpdateList
-            , ExecuteTiming executeTiming, IUpdateCommand.UpdateType updateType, List updateTargets) {
+            , ExecuteTiming executeTiming, IUpdateCommand.UpdateType updateType
+            , List updateDtoList, List updateEntityList) {
         if(afterUpdateList == null || afterUpdateList.isEmpty()) {
             return;
         }
@@ -159,19 +162,20 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                 .filter(x -> Arrays.stream(x.getUpdateTypes()).anyMatch(y -> updateType.equals(y)))
                 .collect(Collectors.toList());
         for(AfterUpdateModel m : updateModelList) {
-            List executeList = new ArrayList();
-            for(Object o : updateTargets) {
+            List executeDtoList = new ArrayList();
+            List executeEntityList = new ArrayList();
+            for(int i = 0 ; i < updateDtoList.size(); i++) {
                 boolean execFlag = true;
                 if(StringUtils.hasLength(m.getOnExpression())) {
-                    execFlag = (boolean) SPELParser.parseExpression(o,m.getOnExpression());
+                    execFlag = (boolean) SPELParser.parseExpression(updateDtoList.get(i),m.getOnExpression());
                 }
                 if(!execFlag) {
                     continue;
                 }
-                executeList.add(o);
+                executeDtoList.add(updateDtoList.get(i));
+                executeEntityList.add(updateEntityList.get(i));
             }
-            m.getAfterUpdateExecutor().exec(dtoClassInfo
-                    , executeList, m.getUpdateParams());
+            m.getAfterUpdateExecutor().exec(dtoClassInfo, executeDtoList, executeEntityList, m.getUpdateParams());
         }
     }
 }

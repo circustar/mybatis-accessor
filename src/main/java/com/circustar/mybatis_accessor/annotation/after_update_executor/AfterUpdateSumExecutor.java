@@ -21,7 +21,7 @@ public class AfterUpdateSumExecutor implements  IAfterUpdateExecutor {
     }
 
     @Override
-    public void exec(DtoClassInfo dtoClassInfo, List<Object> entityList, String[] params) {
+    public void exec(DtoClassInfo dtoClassInfo, List<Object> dtoList, List<Object> entityList, String[] params) {
         String resultFieldName = params[0];
         String targetFieldName = params[1];
         String subFieldName = params[2];
@@ -29,7 +29,7 @@ public class AfterUpdateSumExecutor implements  IAfterUpdateExecutor {
         DtoField targetField = dtoClassInfo.getDtoField(targetFieldName);
         TableInfo tableInfo = dtoClassInfo.getEntityClassInfo().getTableInfo();
 
-        DtoClassInfo fieldDtoClassInfo = resultField.getFieldDtoClassInfo();
+        DtoClassInfo fieldDtoClassInfo = targetField.getFieldDtoClassInfo();
         TableInfo subTableInfo = fieldDtoClassInfo.getEntityClassInfo().getTableInfo();
         DtoField subFieldInfo = fieldDtoClassInfo.getDtoField(subFieldName);
         String subSql = String.format(selectSql
@@ -48,7 +48,7 @@ public class AfterUpdateSumExecutor implements  IAfterUpdateExecutor {
             Object keyValue = FieldUtils.getFieldValue(entityList.get(i), keyField.getPropertyDescriptor().getReadMethod());
 
             UpdateWrapper uw = new UpdateWrapper();
-            uw.setSql(targetField.getEntityFieldInfo().getColumnName() + " = (" + subSql + ")");
+            uw.setSql(resultField.getEntityFieldInfo().getColumnName() + " = (" + subSql + ")");
             uw.eq(keyField.getColumnName(), keyValue);
             serviceBean.update(uw);
         }

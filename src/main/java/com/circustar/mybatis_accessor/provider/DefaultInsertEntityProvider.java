@@ -29,8 +29,8 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider<IE
     protected List<IEntityUpdateProcessor> createUpdateProcessors(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dto, IEntityProviderParam options) {
         List<IEntityUpdateProcessor> result = new ArrayList<>();
-        Collection values = CollectionUtils.convertToCollection(dto);
-        if(values.isEmpty()) {return result;}
+        List dtoList = CollectionUtils.convertToList(dto);
+        if(dtoList.isEmpty()) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
         boolean includeAllChildren = options.isIncludeAllChildren();
@@ -45,30 +45,28 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider<IE
         String[] topEntities = this.getTopEntities(dtoClassInfo, children, DEFAULT_DELIMITER);
         boolean hasChildren = false;
 
-        List<Object> updateTargetList = new ArrayList<>();
-        for(Object value : values) {
-            if(value == null) {
-                continue;
-            }
+        List<Object> updateEntityList = new ArrayList<>();
+        for(Object value : dtoList) {
             if(dtoClassInfo.getVersionField() != null) {
                 FieldUtils.setFieldValue(value
                         , dtoClassInfo.getVersionField().getPropertyDescriptor().getWriteMethod()
                         , dtoClassInfo.getVersionDefaultValue());
             }
-            Object updateTarget = dtoClassInfoHelper.convertToEntity(value);
-            updateTargetList.add(updateTarget);
+            Object updateEntity = dtoClassInfoHelper.convertToEntity(value);
+            updateEntityList.add(updateEntity);
             DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , InsertCommand.getInstance()
                     , null
                     , dtoClassInfo
-                    , Collections.singletonList(updateTarget)
+                    , Collections.singletonList(value)
+                    , Collections.singletonList(updateEntity)
                     , this.getUpdateChildrenFirst()
                     , updateChildrenOnly);
             for(String entityName : topEntities) {
                 DtoField dtoField = dtoClassInfo.getDtoField(entityName);
                 Object subValue = FieldUtils.getFieldValue(value, dtoField.getPropertyDescriptor().getReadMethod());
                 if(subValue == null) {continue;}
-                Collection childList = CollectionUtils.convertToCollection(subValue);
+                Collection childList = CollectionUtils.convertToList(subValue);
                 if(childList.isEmpty()) {continue;}
                 hasChildren = true;
                 IEntityProviderParam subOptions = new DefaultEntityProviderParam(false, includeAllChildren, this.getChildren(children
@@ -88,7 +86,8 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider<IE
                         , InsertCommand.getInstance()
                         , null
                         , dtoClassInfo
-                        , updateTargetList
+                        , dtoList
+                        , updateEntityList
                         , this.getUpdateChildrenFirst()
                         , false);
                 return Collections.singletonList(defaultEntityCollectionUpdater);

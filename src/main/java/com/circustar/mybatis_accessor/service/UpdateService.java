@@ -31,8 +31,8 @@ public class UpdateService implements IUpdateService {
                         , "DTO CLASS - " + relationInfo.getDtoClass().getSimpleName()
                                 + ", UPDATE PROCESSOR - " + o.getClass().getSimpleName()));
             }
-            if(o.getUpdatedTargets() != null && o.getUpdatedTargets().size() > 0) {
-                updatedObjects.addAll(o.getUpdatedTargets());
+            if(o.getUpdatedEntityList() != null && o.getUpdatedEntityList().size() > 0) {
+                updatedObjects.addAll(o.getUpdatedEntityList());
             }
         }
         provider.onSuccess(object, updatedObjects);

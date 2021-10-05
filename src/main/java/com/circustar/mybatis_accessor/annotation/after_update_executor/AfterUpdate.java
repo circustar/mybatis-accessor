@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Repeatable(MultiAfterUpdate.class)
 public @interface AfterUpdate {
     String onExpression() default "";
-    Class<IAfterUpdateExecutor> afterUpdateExecutor();
+    Class<? extends IAfterUpdateExecutor> afterUpdateExecutor();
     String[] updateParams();
     IUpdateCommand.UpdateType[] updateTypes() default {IUpdateCommand.UpdateType.INSERT
             , IUpdateCommand.UpdateType.UPDATE};

@@ -31,8 +31,8 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
     protected List<IEntityUpdateProcessor> createUpdateProcessors(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dto, DefaultUpdateProviderParam options) {
         List<IEntityUpdateProcessor> result = new ArrayList<>();
-        Collection values = CollectionUtils.convertToCollection(dto);
-        if(values.isEmpty()) {return result;}
+        Collection dtoList = CollectionUtils.convertToList(dto);
+        if(dtoList.isEmpty()) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
         String[] children;
@@ -46,50 +46,51 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
         DefaultInsertEntityProvider insertEntitiesEntityProvider = DefaultInsertEntityProvider.getInstance();
 
         String[] topEntities = this.getTopEntities(dtoClassInfo, children, DEFAULT_DELIMITER);
-        List deleteObjectList = new ArrayList();
-        List insertObjectList = new ArrayList();
-        List updateObjectList = new ArrayList();
-        for(Object value : values) {
+        List deleteObjectIdList = new ArrayList();
+        List insertDtoList = new ArrayList();
+        List updateDtoList = new ArrayList();
+        for(Object value : dtoList) {
             if(value == null) {continue;}
             Object keyValue = FieldUtils.getFieldValue(value, dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod());
             if(keyValue == null) {
-                insertObjectList.add(value);
+                insertDtoList.add(value);
             } else {
                 boolean isDeleted = dtoClassInfo.isObjectDeleted(value);
                 if(isDeleted) {
-                    deleteObjectList.add(keyValue);
+                    deleteObjectIdList.add(keyValue);
                 } else {
-                    updateObjectList.add(value);
+                    updateDtoList.add(value);
                 }
             }
         }
-        if(!deleteObjectList.isEmpty()) {
+        if(!deleteObjectIdList.isEmpty()) {
             result.addAll(defaultDeleteEntityProvider.createUpdateEntities(relation
-                    , dtoClassInfoHelper, deleteObjectList, options));
+                    , dtoClassInfoHelper, deleteObjectIdList, options));
         }
-        if(!insertObjectList.isEmpty()) {
+        if(!insertDtoList.isEmpty()) {
             result.addAll(insertEntitiesEntityProvider.createUpdateEntities(relation
-                    , dtoClassInfoHelper, insertObjectList, options));
+                    , dtoClassInfoHelper, insertDtoList, options));
         }
 
         boolean hasChildren = false;
         List<IEntityUpdateProcessor> updateResult = new ArrayList<>();
-        for(Object value : updateObjectList) {
-            Object entity = dtoClassInfoHelper.convertToEntity(value);
+        for(Object updateDto : updateDtoList) {
+            Object entity = dtoClassInfoHelper.convertToEntity(updateDto);
             DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , UpdateByIdCommand.getInstance()
                     , null
                     , dtoClassInfo
+                    , Collections.singletonList(updateDto)
                     , Collections.singletonList(entity)
                     , this.getUpdateChildrenFirst()
                     , options.isUpdateChildrenOnly());
 
-            Object keyValue = FieldUtils.getFieldValue(value, dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod());
+            Object keyValue = FieldUtils.getFieldValue(updateDto, dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod());
             for(String entityName : topEntities) {
                 DtoField subDtoField = dtoClassInfo.getDtoField(entityName);
-                Object topChild = FieldUtils.getFieldValue(value, subDtoField.getPropertyDescriptor().getReadMethod());
+                Object topChild = FieldUtils.getFieldValue(updateDto, subDtoField.getPropertyDescriptor().getReadMethod());
                 if(topChild == null) {continue;}
-                Collection childList = CollectionUtils.convertToCollection(topChild);
+                Collection childList = CollectionUtils.convertToList(topChild);
                 if(childList.isEmpty()) {continue;}
                 hasChildren = true;
                 String[] subChildren = this.getChildren(children, entityName, DEFAULT_DELIMITER);
@@ -121,7 +122,8 @@ public class DefaultUpdateEntityProvider extends AbstractUpdateEntityProvider<De
                     , UpdateByIdCommand.getInstance()
                     , null
                     , dtoClassInfo
-                    , dtoClassInfoHelper.convertToEntityList(updateObjectList)
+                    , updateDtoList
+                    , dtoClassInfoHelper.convertToEntityList(updateDtoList)
                     , this.getUpdateChildrenFirst()
                     , options.isUpdateChildrenOnly()));
         } else {

@@ -6,5 +6,5 @@ import java.util.Map;
 public interface IEntityUpdateProcessor<T> {
     boolean execUpdate();
     boolean execUpdate(Map<String, Object> options);
-    List getUpdatedTargets();
+    List getUpdatedEntityList();
 }

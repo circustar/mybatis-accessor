@@ -38,7 +38,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<IE
             , DtoClassInfoHelper dtoClassInfoHelper, Object ids, IEntityProviderParam options)
     {
         List<IEntityUpdateProcessor> result = new ArrayList<>();
-        Collection values = CollectionUtils.convertToCollection(ids);;
+        Collection values = CollectionUtils.convertToList(ids);;
         if(values.isEmpty()) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
@@ -76,7 +76,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<IE
                     DtoField subDtoKeyField = subDtoClassInfo.getKeyField();
                     if(subDtoKeyField == null) {continue;}
                     List<Object> subIds = new ArrayList<>();
-                    Collection entityList = CollectionUtils.convertToCollection(entity);
+                    Collection entityList = CollectionUtils.convertToList(entity);
                     if(entityList.isEmpty()) {continue;}
                     for (Object obj : entityList) {
                         Object subId = FieldUtils.getFieldValue(obj, subDtoKeyField.getPropertyDescriptor().getReadMethod());
@@ -99,11 +99,13 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<IE
                 if(options.isUpdateChildrenOnly()) {
                     result.addAll(subUpdateEntities);
                 } else {
+                    List entityList = Collections.singletonList(id);
                     updateProcessor = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                             , DeleteByIdCommand.getInstance()
                             , dtoClassInfo.isPhysicDelete()
                             , dtoClassInfo
-                            , Collections.singletonList(id)
+                            , entityList
+                            , entityList
                             , this.getUpdateChildrenFirst()
                             , false);
                     updateProcessor.addSubUpdateEntities(subUpdateEntities);
@@ -116,6 +118,7 @@ public class DefaultDeleteEntityProvider extends AbstractUpdateEntityProvider<IE
                     , DeleteByIdBatchCommand.getInstance()
                     , dtoClassInfo.isPhysicDelete()
                     , dtoClassInfo
+                    , noSubEntityList
                     , noSubEntityList
                     , this.getUpdateChildrenFirst()
                     , false);

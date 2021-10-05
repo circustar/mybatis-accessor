@@ -1,5 +1,6 @@
 package com.circustar.common_utils.collection;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -13,14 +14,15 @@ public class CollectionUtils {
         return Collection.class.isAssignableFrom(o.getClass());
     }
 
-    public static Collection convertToCollection(Object o) {
+    public static List convertToList(Object o) {
         if(o == null) {return Collections.emptyList();}
 
         if(Collection.class.isAssignableFrom(o.getClass())) {
-            Collection value =  (Collection)o;
-            return value;
+            if(List.class.isAssignableFrom(o.getClass())) {
+                return (List) o;
+            }
+            return new ArrayList((Collection)o);
         }
-
         return Collections.singletonList(o);
     }
 
