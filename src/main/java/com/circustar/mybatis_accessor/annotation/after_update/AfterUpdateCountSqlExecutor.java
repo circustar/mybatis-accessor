@@ -35,9 +35,13 @@ public class AfterUpdateCountSqlExecutor implements  IAfterUpdateExecutor {
     }
 
     protected String CreateSqlPart(TableInfo tableInfo, TableInfo subTableInfo, List<DtoField> dtoFields, String[] originParams) {
+        String upperKeyColumn = tableInfo.getKeyColumn();
+        if(subTableInfo == tableInfo) {
+            upperKeyColumn = dtoFields.get(0).getDtoClassInfo().getEntityClassInfo().getIdReferenceFieldInfo().getColumnName();
+        }
         String selectSql = String.format(AfterUpdateCountSqlExecutor.originalSql
                 , subTableInfo.getTableName()
-                , tableInfo.getKeyColumn()
+                , upperKeyColumn
                 , tableInfo.getTableName()
                 , tableInfo.getKeyColumn());
 

@@ -261,7 +261,7 @@ public class MybatisAccessorService {
             , QueryWrapper queryWrapper
     )  {
         EntityDtoServiceRelation relationInfo = this.getRelation(dtoClass, null);
-        return this.getDtoListByQueryWrapper(relationInfo, queryWrapper);
+        return this.getDtoListByQueryWrapper(relationInfo, null, queryWrapper);
     }
 
     public <T> List<T> getDtoListByQueryWrapper(Object object

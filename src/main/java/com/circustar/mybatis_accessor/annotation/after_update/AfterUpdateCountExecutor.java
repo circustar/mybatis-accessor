@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.circustar.common_utils.collection.NumberUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
@@ -37,19 +38,26 @@ public class AfterUpdateCountExecutor extends AfterUpdateCountSqlExecutor implem
         EntityFieldInfo mKeyField = dtoClassInfo.getEntityClassInfo().getKeyField();
         Method mKeyFieldReadMethod = mKeyField.getPropertyDescriptor().getReadMethod();
 
+        EntityFieldInfo upperKeyField = mKeyField;
+        if(fieldDtoClassInfo == dtoClassInfo) {
+            upperKeyField = dtoClassInfo.getEntityClassInfo().getIdReferenceFieldInfo();
+        }
+        Class<?> type = mField.getEntityFieldInfo().getField().getType();
+
         for(int i = 0; i< entityList.size(); i++) {
             Object mKeyValue = FieldUtils.getFieldValue(entityList.get(i), mKeyFieldReadMethod);
             QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq(mKeyField.getColumnName(), mKeyValue);
+            queryWrapper.eq(upperKeyField.getColumnName(), mKeyValue);
 
             if(fieldLogicDeleteFieldInfo!= null) {
                 queryWrapper.eq(fieldLogicDeleteFieldInfo.getColumn(), fieldLogicDeleteFieldInfo.getLogicNotDeleteValue());
             }
 
-            BigDecimal finalValue = getValue(queryWrapper, fieldServiceBean, dtoFields, parsedParams);
+            BigDecimal decimalValue = getValue(queryWrapper, fieldServiceBean, dtoFields, parsedParams);
+            Object updateValue = NumberUtils.castFromBigDecimal(type, decimalValue);
 
             UpdateWrapper uw = new UpdateWrapper();
-            uw.set(mField.getEntityFieldInfo().getColumnName(), finalValue.intValue());
+            uw.set(mField.getEntityFieldInfo().getColumnName(), updateValue);
             uw.eq(mKeyField.getColumnName(), mKeyValue);
             serviceBean.update(uw);
         }

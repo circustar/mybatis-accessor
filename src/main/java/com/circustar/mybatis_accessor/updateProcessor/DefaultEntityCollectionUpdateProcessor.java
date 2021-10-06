@@ -12,6 +12,7 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProcessor<Collection> {
@@ -69,25 +70,22 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
 
     @Override
     public boolean execUpdate() {
-        return execUpdate(new HashMap<>());
+        return execUpdate(new HashMap<>(), new ArrayList<>(), 0);
+    }
+
+    private List<AfterUpdateModel> getAfterUpdateList () {
+        return this.dtoClassInfo.getAfterUpdateList();
     }
 
     @Override
-    public boolean execUpdate(Map<String, Object> keyMap) {
+    public boolean execUpdate(Map<String, Object> keyMap, List<Supplier<Integer>> consumerList, int level) {
         boolean result;
-        List<AfterUpdateModel> afterUpdateList = this.dtoClassInfo.getAfterUpdateList();
-        if(afterUpdateList != null && !afterUpdateList.isEmpty()) {
-            executeAfterUpdateExecutor(dtoClassInfo, afterUpdateList, ExecuteTiming.BEFORE_UPDATE, updateCommand.getUpdateType()
-                    , this.updateDtoList, this.updateEntityList);
-        }
+        List<AfterUpdateModel> afterUpdateList = this.getAfterUpdateList();
+        executeAfterUpdateExecutor(dtoClassInfo, afterUpdateList, ExecuteTiming.BEFORE_UPDATE, updateCommand.getUpdateType()
+                , this.updateDtoList, this.updateEntityList);
 
-        if (updateChildFirst && subUpdateEntities != null) {
-            for (IEntityUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
-                result = subDefaultEntityCollectionUpdater.execUpdate(keyMap);
-                if (!result) {
-                    return false;
-                }
-            }
+        if (updateChildFirst) {
+            execSubEntityUpdate(keyMap, consumerList, level);
         }
         Optional firstEntity = updateEntityList.stream().findFirst();
         if (entityClassInfo != null && firstEntity.isPresent()
@@ -123,6 +121,9 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         if (!updateChildrenOnly) {
             result = this.updateCommand.update(this.service, this.updateEntityList, option);
             if (!result) return false;
+
+            executeAfterUpdateExecutor(dtoClassInfo, afterUpdateList, ExecuteTiming.AFTER_ENTITY_UPDATE, updateCommand.getUpdateType()
+                    , this.updateDtoList, this.updateEntityList);
         }
 
         if (entityClassInfo != null && firstEntity.isPresent()
@@ -135,19 +136,35 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
             }
         }
 
-        if ((!updateChildFirst) && subUpdateEntities != null) {
-            for (IEntityUpdateProcessor subDefaultEntityCollectionUpdater : subUpdateEntities) {
-                result = subDefaultEntityCollectionUpdater.execUpdate(new HashMap<>(keyMap));
-                if (!result) {
-                    return false;
-                }
+        if ((!updateChildFirst)) {
+            execSubEntityUpdate(keyMap, consumerList, level);
+        }
+        if(level == 0) {
+            for(int i = 0; i < consumerList.size(); i++) {
+                consumerList.get(i).get();
             }
         }
-        if(afterUpdateList != null && !afterUpdateList.isEmpty()) {
-            executeAfterUpdateExecutor(dtoClassInfo, afterUpdateList, ExecuteTiming.AFTER_UPDATE, updateCommand.getUpdateType()
-                    , this.updateDtoList, this.updateEntityList);
-        }
         return true;
+    }
+
+    private boolean execSubEntityUpdate(Map<String, Object> keyMap, List<Supplier<Integer>> consumerList, int level) {
+        consumerList.add(() -> {
+            executeAfterUpdateExecutor(this.dtoClassInfo, this.getAfterUpdateList()
+                    , ExecuteTiming.AFTER_SUB_ENTITY_UPDATE, this.updateCommand.getUpdateType()
+                    , this.updateDtoList, this.updateEntityList);
+            return level;
+        });
+        if(this.subUpdateEntities == null) {
+            return true;
+        }
+        boolean result = false;
+        for (IEntityUpdateProcessor entityUpdateProcessor : subUpdateEntities) {
+            result = entityUpdateProcessor.execUpdate(new HashMap<>(keyMap), consumerList, level + 1);
+            if (!result) {
+                break;
+            }
+        }
+        return result;
     }
 
     private void executeAfterUpdateExecutor(DtoClassInfo dtoClassInfo
@@ -175,7 +192,9 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                 executeDtoList.add(updateDtoList.get(i));
                 executeEntityList.add(updateEntityList.get(i));
             }
-            m.getAfterUpdateExecutor().exec(dtoClassInfo, executeDtoList, executeEntityList, m.getUpdateParams());
+            if(!executeDtoList.isEmpty()) {
+                m.getAfterUpdateExecutor().exec(dtoClassInfo, executeDtoList, executeEntityList, m.getUpdateParams());
+            }
         }
     }
 }

@@ -48,15 +48,25 @@ public class DtoFields {
                 continue;
             }
             DtoClassInfo subDtoClassInfo = dtoClassInfo.getDtoClassInfoHelper().getDtoClassInfo(childInfo.getDtoClass());
-            DtoField subDtoClassInfoDtoField = subDtoClassInfo.getDtoField(dtoClassInfo.getEntityClassInfo().getTableInfo().getKeyProperty());
-            DtoField masterDtoClassInfoDtoField = dtoClassInfo.getDtoField(subDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyProperty());
+            DtoField subDtoClassInfoDtoField = null;
+            DtoField masterDtoClassInfoDtoField = null;
+            if(subDtoClassInfo == dtoClassInfo && dtoClassInfo.getIdReferenceField() != null) {
+                if(Collection.class.isAssignableFrom(dtoField.getOwnClass())) {
+                    subDtoClassInfoDtoField =  dtoClassInfo.getIdReferenceField();
+                } else {
+                    masterDtoClassInfoDtoField =  dtoClassInfo.getIdReferenceField();
+                }
+            } else {
+                subDtoClassInfoDtoField = subDtoClassInfo.getDtoField(dtoClassInfo.getEntityClassInfo().getTableInfo().getKeyProperty());
+                masterDtoClassInfoDtoField = dtoClassInfo.getDtoField(subDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyProperty());
+            }
             if(subDtoClassInfoDtoField == null && masterDtoClassInfoDtoField == null) {
                 continue;
             }
             QueryWrapper qw = null;
             if(subDtoClassInfoDtoField != null) {
                 qw = new QueryWrapper();
-                qw.eq(dtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), dtoId);
+                qw.eq(subDtoClassInfoDtoField.getEntityFieldInfo().getColumnName(), dtoId);
             } else if(masterDtoClassInfoDtoField != null) {
                 qw = new QueryWrapper();
                 Object subDtoId = FieldUtils.getFieldValue(dto, masterDtoClassInfoDtoField.getEntityFieldInfo().getPropertyDescriptor().getReadMethod());

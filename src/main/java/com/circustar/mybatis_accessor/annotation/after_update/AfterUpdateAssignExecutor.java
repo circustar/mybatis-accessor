@@ -13,6 +13,7 @@ import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
 import com.sun.org.apache.bcel.internal.generic.BIPUSH;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -35,8 +36,9 @@ public class AfterUpdateAssignExecutor extends AfterUpdateAvgExecutor implements
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams) {
         EntityFieldInfo mKeyField = dtoClassInfo.getEntityClassInfo().getKeyField();
         Method mKeyFieldReadMethod = mKeyField.getPropertyDescriptor().getReadMethod();
-        EntityFieldInfo mEnittyField = dtoFields.get(0).getEntityFieldInfo();
-        Method mFieldReadMethod = mEnittyField.getPropertyDescriptor().getReadMethod();
+
+        EntityFieldInfo mEntityField = dtoFields.get(0).getEntityFieldInfo();
+        Method mFieldReadMethod = mEntityField.getPropertyDescriptor().getReadMethod();
 
         TableInfo sTableInfo = fieldDtoClassInfo.getEntityClassInfo().getTableInfo();
         TableFieldInfo sTableLogicDeleteFieldInfo = sTableInfo.getLogicDeleteFieldInfo();
@@ -48,18 +50,29 @@ public class AfterUpdateAssignExecutor extends AfterUpdateAvgExecutor implements
         Class sWeightEntityClass = (Class) sWeightEntityField.getActualType();
         Method sWeightFieldReadMethod = sWeightEntityField.getPropertyDescriptor().getReadMethod();
 
-        Class sAssignFieldType = dtoFields.get(2).getEntityFieldInfo().getField().getType();
-        String sAssignColumnName = dtoFields.get(2).getEntityFieldInfo().getColumnName();
+        EntityFieldInfo sAssignEntityFieldInfo = dtoFields.get(2).getEntityFieldInfo();
+        Class sAssignFieldType = sAssignEntityFieldInfo.getField().getType();
+        String sAssignColumnName = sAssignEntityFieldInfo.getColumnName();
 
+        IService mServiceBean = dtoClassInfo.getServiceBean();
         IService sServiceBean = fieldDtoClassInfo.getServiceBean();
         int scale = (int)parsedParams.get(0);
 
-        for(Object entity : entityList) {
-            Object mKeyValue = FieldUtils.getFieldValue(entity, mKeyFieldReadMethod);
-            BigDecimal mSumValue = NumberUtils.readDecimalValue((Class) mEnittyField.getActualType(), entity, mFieldReadMethod);
+        EntityFieldInfo upperKeyField = mKeyField;
+        if(fieldDtoClassInfo == dtoClassInfo) {
+            upperKeyField = dtoClassInfo.getEntityClassInfo().getIdReferenceFieldInfo();
+        }
+
+        for(Object o : entityList) {
+            Object mKeyValue = FieldUtils.getFieldValue(o, mKeyFieldReadMethod);
+            Object entity = mServiceBean.getById((Serializable) mKeyValue);
+            BigDecimal mSumValue = NumberUtils.readDecimalValue((Class) mEntityField.getActualType(), entity, mFieldReadMethod);
+            if(mSumValue == null) {
+                continue;
+            }
 
             QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq(mKeyField.getColumnName(), mKeyValue);
+            queryWrapper.eq(upperKeyField.getColumnName(), mKeyValue);
 
             if(sTableLogicDeleteFieldInfo!= null) {
                 queryWrapper.eq(sTableLogicDeleteFieldInfo.getColumn(), sTableLogicDeleteFieldInfo.getLogicNotDeleteValue());

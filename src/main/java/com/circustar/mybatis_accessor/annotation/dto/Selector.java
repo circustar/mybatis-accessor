@@ -10,6 +10,6 @@ import java.lang.annotation.*;
 public @interface Selector {
     String tableColumn() default "";
     Connector connector() default Connector.eq;
-    String[] valueExpression() default "";
+    String[] valueExpression();
     int order() default 1;
 }

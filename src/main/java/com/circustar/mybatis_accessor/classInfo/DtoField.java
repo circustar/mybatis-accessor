@@ -23,6 +23,7 @@ public class DtoField {
     private QueryHaving queryHaving;
     private QueryOrder queryOrder;
     private List<Selector> selectors;
+    private boolean isIdReference;
 
     private Boolean isCollection;
     private Class actualClass;
@@ -65,6 +66,7 @@ public class DtoField {
             ownClass = this.field.getType();
         }
         this.entityDtoServiceRelation = relationMap.getByDtoClass(actualClass);
+        this.isIdReference = this.entityFieldInfo != null && this.entityFieldInfo.getIdReference() != null;
     }
 
     public EntityFieldInfo getEntityFieldInfo() {
@@ -159,6 +161,10 @@ public class DtoField {
         if(deleteAndInsertAnnotation != null) {
             this.deleteAndInsertNewOnUpdate = deleteAndInsertAnnotation.value();
         }
+    }
+
+    public boolean isIdReference() {
+        return isIdReference;
     }
 
     enum SupportGenericType{

@@ -17,6 +17,7 @@ import com.circustar.mybatis_accessor.model.QueryWrapperCreator;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
 import com.circustar.mybatis_accessor.utils.TableJoinColumnPrefixManager;
 
+import javax.management.remote.rmi._RMIConnection_Stub;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
@@ -44,7 +45,7 @@ public class DtoClassInfo {
     private boolean physicDelete = false;
     private QueryWrapperCreator queryWrapperCreator;
     private List<AfterUpdateModel> afterUpdateList;
-
+    private DtoField idReferenceField;
 
     public DtoClassInfo(IEntityDtoServiceRelationMap relationMap, DtoClassInfoHelper dtoClassInfoHelper, Class<?> clazz, EntityClassInfo entityClassInfo) {
         this.clazz = clazz;
@@ -93,6 +94,9 @@ public class DtoClassInfo {
                     this.versionField = dtoField;
                     this.versionDefaultValue = getDefaultVersionByType(entityFieldInfo.getField().getType());
                 }
+            }
+            if(dtoField.isIdReference()) {
+                this.idReferenceField = dtoField;
             }
         });
 
@@ -277,5 +281,9 @@ public class DtoClassInfo {
 
     public List<AfterUpdateModel> getAfterUpdateList() {
         return afterUpdateList;
+    }
+
+    public DtoField getIdReferenceField() {
+        return idReferenceField;
     }
 }

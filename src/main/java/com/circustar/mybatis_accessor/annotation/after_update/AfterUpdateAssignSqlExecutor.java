@@ -9,6 +9,7 @@ import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
 // 解决分配问题
@@ -61,11 +62,16 @@ public class AfterUpdateAssignSqlExecutor extends AfterUpdateAvgSqlExecutor impl
         Method sAssignFieldReadMethod = sAssignEntityFieldInfo.getPropertyDescriptor().getReadMethod();
         String sAssignColumnName = sAssignEntityFieldInfo.getColumnName();
 
+        IService mServiceBean = dtoClassInfo.getServiceBean();
         IService sServiceBean = fieldDtoClassInfo.getServiceBean();
 
-        for(int i = 0; i< entityList.size(); i++) {
-            Object keyValue = FieldUtils.getFieldValue(entityList.get(i), mKeyFieldReadMethod);
-            String summaryValue = FieldUtils.getFieldValue(entityList.get(i), mFieldReadMethod).toString();
+        for(Object o : entityList) {
+            Object keyValue = FieldUtils.getFieldValue(o, mKeyFieldReadMethod);
+            Object entity = mServiceBean.getById((Serializable) keyValue);
+            String summaryValue = FieldUtils.getFieldValue(entity, mFieldReadMethod).toString();
+            if(summaryValue == null) {
+                continue;
+            }
 
             String assignValueSql = String.format(assignTemplateSql, summaryValue, summaryValue);
             QueryWrapper queryWrapper = new QueryWrapper();
