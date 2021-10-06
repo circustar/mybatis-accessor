@@ -2,92 +2,88 @@ package com.circustar.mybatis_accessor.annotation.after_update;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.circustar.common_utils.collection.CollectionUtils;
+import com.circustar.common_utils.collection.NumberUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
+import com.sun.org.apache.bcel.internal.generic.BIPUSH;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Arrays;
 import java.util.List;
-// 将一个值分配到子表的字段上
-// 参数1：需要分配的值对应的变量名
-// 参数2：子表对应DTO中的变量名
-// 参数3：分配依据对应的变量名
-// 参数4：分配目标字段对应的变量名
-// 参数5（可选）：精度，默认0
-public class AfterUpdateAssignExecutor implements  IAfterUpdateExecutor {
-    private static final String selectSql = "Round((sum(%s) over (partition by %s order by %s)) / (sum(%s) over (partition by %s)) * %s, %s) " +
-            "- Round(((sum(%s) over (partition by %s order by %s)) - %s) / (sum(%s) over (partition by %s)) * %s, %s) as %s";
+import java.util.stream.Collectors;
 
-    private static final AfterUpdateAssignExecutor instance = new AfterUpdateAssignExecutor();
-
+public class AfterUpdateAssignExecutor extends AfterUpdateAvgExecutor implements  IAfterUpdateExecutor {
     @Override
-    public ExecuteTiming getExecuteTiming() {
-        return ExecuteTiming.AFTER_UPDATE;
+    protected List<DtoField> parseDtoFieldList(DtoClassInfo dtoClassInfo, String[] params) {
+        List<DtoField> dtoFields = super.parseDtoFieldList(dtoClassInfo, params);
+        String sWeightFieldName = params[4];
+        DtoField sWeightField = dtoFields.get(1).getFieldDtoClassInfo().getDtoField(sWeightFieldName);
+        dtoFields.add(sWeightField);
+        return dtoFields;
     }
 
     @Override
-    public void exec(DtoClassInfo dtoClassInfo, List<Object> dtoList, List<Object> entityList, String[] params) {
-        String summaryFieldName = params[0];
-        String resultFieldName = params[1];
-        String accordingFieldName = params[2];
-        String assignFieldName = params[3];
-        String precision = "0";
-        if(params.length > 4) {
-            precision = params[4];
-        }
+    protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams) {
+        EntityFieldInfo mKeyField = dtoClassInfo.getEntityClassInfo().getKeyField();
+        Method mKeyFieldReadMethod = mKeyField.getPropertyDescriptor().getReadMethod();
+        EntityFieldInfo mEnittyField = dtoFields.get(0).getEntityFieldInfo();
+        Method mFieldReadMethod = mEnittyField.getPropertyDescriptor().getReadMethod();
 
-        DtoField dtoField = dtoClassInfo.getDtoField(resultFieldName);
-        DtoClassInfo fieldDtoClassInfo = dtoField.getFieldDtoClassInfo();
-        TableInfo tableInfo = dtoClassInfo.getEntityClassInfo().getTableInfo();
-        String summaryTableId = tableInfo.getKeyColumn();
+        TableInfo sTableInfo = fieldDtoClassInfo.getEntityClassInfo().getTableInfo();
+        TableFieldInfo sTableLogicDeleteFieldInfo = sTableInfo.getLogicDeleteFieldInfo();
 
-        TableInfo subTableInfo = fieldDtoClassInfo.getEntityClassInfo().getTableInfo();
-        String assignTableId = subTableInfo.getKeyColumn();
+        EntityFieldInfo sKeyField = fieldDtoClassInfo.getKeyField().getEntityFieldInfo();
+        Method sKeyFieldReadMethod = sKeyField.getPropertyDescriptor().getReadMethod();
 
-        Method summaryFieldReadMethod = dtoClassInfo.getDtoField(summaryFieldName)
-                .getEntityFieldInfo().getPropertyDescriptor().getReadMethod();
+        EntityFieldInfo sWeightEntityField = dtoFields.get(3).getEntityFieldInfo();
+        Class sWeightEntityClass = (Class) sWeightEntityField.getActualType();
+        Method sWeightFieldReadMethod = sWeightEntityField.getPropertyDescriptor().getReadMethod();
 
-        DtoField assignDtoField = fieldDtoClassInfo.getDtoField(assignFieldName);
-        String assignColumnName = assignDtoField.getEntityFieldInfo().getColumnName();
+        Class sAssignFieldType = dtoFields.get(2).getEntityFieldInfo().getField().getType();
+        String sAssignColumnName = dtoFields.get(2).getEntityFieldInfo().getColumnName();
 
-        dtoField = fieldDtoClassInfo.getDtoField(accordingFieldName);
-        String accordingColumnName = dtoField.getEntityFieldInfo().getColumnName();
+        IService sServiceBean = fieldDtoClassInfo.getServiceBean();
+        int scale = (int)parsedParams.get(0);
 
-        String assignTemplateSql = String.format(selectSql, accordingColumnName, summaryTableId, assignTableId
-                , accordingColumnName, summaryTableId, "%s", precision, accordingColumnName
-                , summaryTableId, assignTableId, accordingColumnName, accordingColumnName, summaryTableId
-                , "%s", precision, assignColumnName);
+        for(Object entity : entityList) {
+            Object mKeyValue = FieldUtils.getFieldValue(entity, mKeyFieldReadMethod);
+            BigDecimal mSumValue = NumberUtils.readDecimalValue((Class) mEnittyField.getActualType(), entity, mFieldReadMethod);
 
-        IService serviceBean = fieldDtoClassInfo.getServiceBean();
-        EntityFieldInfo mainKeyField = dtoClassInfo.getEntityClassInfo().getKeyField();
-        Method keyFieldReadMethod = fieldDtoClassInfo.getEntityClassInfo().getKeyField().getPropertyDescriptor().getReadMethod();
-        Method assignFieldReadMethod = assignDtoField.getEntityFieldInfo().getPropertyDescriptor().getReadMethod();
-        for(int i = 0; i< entityList.size(); i++) {
-            Object keyValue = FieldUtils.getFieldValue(entityList.get(i), mainKeyField.getPropertyDescriptor().getReadMethod());
-            String summaryValue = FieldUtils.getFieldValue(entityList.get(i), summaryFieldReadMethod).toString();
-
-            String assignValueSql = String.format(assignTemplateSql, summaryValue, summaryValue);
             QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.select(assignTableId,summaryTableId,assignValueSql);
-            queryWrapper.eq(summaryTableId, keyValue);
-            if(fieldDtoClassInfo.getDeleteFlagField() != null) {
-                queryWrapper.eq(fieldDtoClassInfo.getDeleteFlagField().getEntityFieldInfo().getColumnName()
-                        , subTableInfo.getLogicDeleteFieldInfo().getLogicNotDeleteValue());
+            queryWrapper.eq(mKeyField.getColumnName(), mKeyValue);
+
+            if(sTableLogicDeleteFieldInfo!= null) {
+                queryWrapper.eq(sTableLogicDeleteFieldInfo.getColumn(), sTableLogicDeleteFieldInfo.getLogicNotDeleteValue());
             }
-            List subEntityList = serviceBean.list(queryWrapper);
-            if(subEntityList.isEmpty()) {
-                throw new RuntimeException("assign target not found");
-            }
-            for(Object subEntity : subEntityList) {
+            List sEntityList = sServiceBean.list(queryWrapper);
+            BigDecimal allWeightValue = NumberUtils.sumListByType(sWeightEntityClass, sEntityList, sWeightFieldReadMethod);
+            BigDecimal sumAssignValue = BigDecimal.ZERO;
+            BigDecimal sumWeightValue = BigDecimal.ZERO;
+
+            BigDecimal nextSumWeightValue;
+            BigDecimal nextSumAssignValue;
+            for(Object sEntity : sEntityList) {
+                Object sKeyValue = FieldUtils.getFieldValue(sEntity, sKeyFieldReadMethod);
+                nextSumWeightValue = sumWeightValue.add(NumberUtils.readDecimalValue(sWeightEntityClass, sEntity, sWeightFieldReadMethod));
+                nextSumAssignValue = mSumValue.multiply(nextSumWeightValue).divide(allWeightValue, scale, RoundingMode.HALF_DOWN);
+                Object assignValue = NumberUtils.castFromBigDecimal(sAssignFieldType, nextSumAssignValue.subtract(sumAssignValue));
+
                 UpdateWrapper uw = new UpdateWrapper();
-                Object subKeyValue = FieldUtils.getFieldValue(subEntity, keyFieldReadMethod);
-                uw.eq(assignTableId, subKeyValue);
-                Object assignValue = FieldUtils.getFieldValue(subEntity, assignFieldReadMethod);
-                uw.set(assignColumnName, assignValue);
-                serviceBean.update(uw);
+                uw.eq(sKeyField.getColumnName(), sKeyValue);
+                uw.set(sAssignColumnName, assignValue);
+                sServiceBean.update(uw);
+
+                sumAssignValue = nextSumAssignValue;
+                sumWeightValue = nextSumWeightValue;
             }
         }
     }
