@@ -30,11 +30,11 @@ public class AfterUpdateCountSqlExecutor implements  IAfterUpdateExecutor {
     protected List<Object> parseParams(List<DtoField> dtoFields, DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, String[] originParams) {
         TableInfo tableInfo = dtoClassInfo.getEntityClassInfo().getTableInfo();
         TableInfo subTableInfo = fieldDtoClassInfo.getEntityClassInfo().getTableInfo();
-        String selectSql = CreateSqlPart(tableInfo, subTableInfo, dtoFields, originParams);
+        String selectSql = CreateSqlPart(dtoClassInfo, tableInfo, fieldDtoClassInfo, subTableInfo, dtoFields, originParams);
         return Collections.singletonList(selectSql);
     }
 
-    protected String CreateSqlPart(TableInfo tableInfo, TableInfo subTableInfo, List<DtoField> dtoFields, String[] originParams) {
+    protected String CreateSqlPart(DtoClassInfo dtoClassInfo, TableInfo tableInfo, DtoClassInfo subDtoClassInfo, TableInfo subTableInfo, List<DtoField> dtoFields, String[] originParams) {
         String upperKeyColumn = tableInfo.getKeyColumn();
         if(subTableInfo == tableInfo) {
             upperKeyColumn = dtoFields.get(0).getDtoClassInfo().getEntityClassInfo().getIdReferenceFieldInfo().getColumnName();

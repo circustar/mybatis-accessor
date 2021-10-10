@@ -9,7 +9,7 @@ import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
 import java.util.List;
 import java.util.Map;
 
-public interface IUpdateEntityProvider<P extends IProviderParam> {
+public interface IUpdateProcessorProvider<P extends IProviderParam> {
      List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dto, P options);
     default <T> void onSuccess(Object dto, List<T> updateEntities) {};

@@ -11,16 +11,20 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public abstract class AbstractUpdateEntityProvider<P extends IProviderParam> implements IUpdateEntityProvider<P>, ApplicationContextAware {
+public abstract class AbstractUpdateEntityProvider<P extends IProviderParam> implements IUpdateProcessorProvider<P> {
     protected ApplicationContext applicationContext;
     protected ISelectService selectService = null;
     private static final String[] EMPTY_ARRAY = new String[0];
     protected static final String DEFAULT_DELIMITER = ".";
+    protected final static Map<Class, AbstractUpdateEntityProvider> PROVIDER_MAP = new HashMap<>();
+
+    public AbstractUpdateEntityProvider(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+        PROVIDER_MAP.put(this.getClass(), this);
+    }
 
     public ISelectService getSelectService(){
         if(this.selectService != null) {
@@ -28,11 +32,6 @@ public abstract class AbstractUpdateEntityProvider<P extends IProviderParam> imp
         }
         this.selectService = applicationContext.getBean(ISelectService.class);
         return this.selectService;
-    };
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 
     protected String[] getChildren(String[] entities, String prefix, String delimiter) {

@@ -3,7 +3,7 @@ package com.circustar.mybatis_accessor.support;
 import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
-import com.circustar.mybatis_accessor.provider.parameter.DefaultUpdateProviderParam;
+import com.circustar.mybatis_accessor.provider.parameter.DefaultEntityProviderParam;
 
 import java.util.*;
 
@@ -17,9 +17,9 @@ public class MybatisAccessorUpdateManager {
 
     public static class DtoWithOption {
         private Object dto;
-        private DefaultUpdateProviderParam param;
+        private DefaultEntityProviderParam param;
         private DtoClassInfo dtoClassInfo;
-        public DtoWithOption(Object dto, DefaultUpdateProviderParam param) {
+        public DtoWithOption(Object dto, DefaultEntityProviderParam param) {
             this.dto = dto;
             this.param = param;
         }
@@ -28,7 +28,7 @@ public class MybatisAccessorUpdateManager {
             return dto;
         }
 
-        public DefaultUpdateProviderParam getParam() {
+        public DefaultEntityProviderParam getParam() {
             return param;
         }
 
@@ -43,14 +43,14 @@ public class MybatisAccessorUpdateManager {
 
     private final static ThreadLocal<List<DtoWithOption>> updateTargetList = ThreadLocal.withInitial(() -> new ArrayList<>());
 
-    private final static DefaultUpdateProviderParam defaultUpdateProviderParam = new DefaultUpdateProviderParam(false
-            , true , null).setDelegateMode(true);
+    private final static DefaultEntityProviderParam defaultUpdateProviderParam = new DefaultEntityProviderParam(false
+            , true , null);
 
     public void putDto(Object dto) {
         putDto(dto, defaultUpdateProviderParam);
     }
 
-    public void putDto(Object dto, DefaultUpdateProviderParam option) {
+    public void putDto(Object dto, DefaultEntityProviderParam option) {
         updateTargetList.get().add(new DtoWithOption(dto, option));
     }
 

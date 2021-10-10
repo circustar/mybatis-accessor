@@ -32,6 +32,24 @@ public class AfterUpdateAssignExecutor extends AfterUpdateAvgExecutor implements
         return dtoFields;
     }
 
+    protected BigDecimal getTotalWeight(List sEntityList, EntityFieldInfo sWeightEntityField) {
+        Class sWeightEntityClass = (Class) sWeightEntityField.getActualType();
+        BigDecimal allWeightValue = NumberUtils.sumListByType(sWeightEntityClass, sEntityList
+                , sWeightEntityField.getPropertyDescriptor().getReadMethod());
+        return allWeightValue;
+    }
+
+    protected BigDecimal getNextWeight(Object sEntity, EntityFieldInfo sWeightEntityField) {
+        Class sWeightEntityClass = (Class) sWeightEntityField.getActualType();
+        BigDecimal bigDecimal = NumberUtils.readDecimalValue(sWeightEntityClass, sEntity
+                , sWeightEntityField.getPropertyDescriptor().getReadMethod());
+        return bigDecimal;
+    }
+
+    protected EntityFieldInfo getWeightEntityField(List<DtoField> dtoFields) {
+        return dtoFields.get(3).getEntityFieldInfo();
+    }
+
     @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams) {
         EntityFieldInfo mKeyField = dtoClassInfo.getEntityClassInfo().getKeyField();
@@ -46,9 +64,7 @@ public class AfterUpdateAssignExecutor extends AfterUpdateAvgExecutor implements
         EntityFieldInfo sKeyField = fieldDtoClassInfo.getKeyField().getEntityFieldInfo();
         Method sKeyFieldReadMethod = sKeyField.getPropertyDescriptor().getReadMethod();
 
-        EntityFieldInfo sWeightEntityField = dtoFields.get(3).getEntityFieldInfo();
-        Class sWeightEntityClass = (Class) sWeightEntityField.getActualType();
-        Method sWeightFieldReadMethod = sWeightEntityField.getPropertyDescriptor().getReadMethod();
+        EntityFieldInfo sWeightEntityField = this.getWeightEntityField(dtoFields);
 
         EntityFieldInfo sAssignEntityFieldInfo = dtoFields.get(2).getEntityFieldInfo();
         Class sAssignFieldType = sAssignEntityFieldInfo.getField().getType();
@@ -59,7 +75,7 @@ public class AfterUpdateAssignExecutor extends AfterUpdateAvgExecutor implements
         int scale = (int)parsedParams.get(0);
 
         EntityFieldInfo upperKeyField = mKeyField;
-        if(fieldDtoClassInfo == dtoClassInfo) {
+        if(fieldDtoClassInfo.getEntityClassInfo() == dtoClassInfo.getEntityClassInfo()) {
             upperKeyField = dtoClassInfo.getEntityClassInfo().getIdReferenceFieldInfo();
         }
 
@@ -78,7 +94,7 @@ public class AfterUpdateAssignExecutor extends AfterUpdateAvgExecutor implements
                 queryWrapper.eq(sTableLogicDeleteFieldInfo.getColumn(), sTableLogicDeleteFieldInfo.getLogicNotDeleteValue());
             }
             List sEntityList = sServiceBean.list(queryWrapper);
-            BigDecimal allWeightValue = NumberUtils.sumListByType(sWeightEntityClass, sEntityList, sWeightFieldReadMethod);
+            BigDecimal allWeightValue = this.getTotalWeight(sEntityList, sWeightEntityField);
             BigDecimal sumAssignValue = BigDecimal.ZERO;
             BigDecimal sumWeightValue = BigDecimal.ZERO;
 
@@ -86,7 +102,7 @@ public class AfterUpdateAssignExecutor extends AfterUpdateAvgExecutor implements
             BigDecimal nextSumAssignValue;
             for(Object sEntity : sEntityList) {
                 Object sKeyValue = FieldUtils.getFieldValue(sEntity, sKeyFieldReadMethod);
-                nextSumWeightValue = sumWeightValue.add(NumberUtils.readDecimalValue(sWeightEntityClass, sEntity, sWeightFieldReadMethod));
+                nextSumWeightValue = sumWeightValue.add(this.getNextWeight(sEntity, sWeightEntityField));
                 nextSumAssignValue = mSumValue.multiply(nextSumWeightValue).divide(allWeightValue, scale, RoundingMode.HALF_DOWN);
                 Object assignValue = NumberUtils.castFromBigDecimal(sAssignFieldType, nextSumAssignValue.subtract(sumAssignValue));
 

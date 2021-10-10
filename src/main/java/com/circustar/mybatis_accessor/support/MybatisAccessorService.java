@@ -2,12 +2,11 @@ package com.circustar.mybatis_accessor.support;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.circustar.mybatis_accessor.common.MessageProperties;
-import com.circustar.mybatis_accessor.provider.DefaultDeleteEntityProvider;
-import com.circustar.mybatis_accessor.provider.DefaultInsertEntityProvider;
-import com.circustar.mybatis_accessor.provider.DefaultUpdateEntityProvider;
-import com.circustar.mybatis_accessor.provider.IUpdateEntityProvider;
+import com.circustar.mybatis_accessor.provider.DefaultDeleteByIdProcessorProvider;
+import com.circustar.mybatis_accessor.provider.DefaultInsertProcessorProvider;
+import com.circustar.mybatis_accessor.provider.DefaultUpdateProcessorProvider;
+import com.circustar.mybatis_accessor.provider.IUpdateProcessorProvider;
 import com.circustar.mybatis_accessor.provider.parameter.DefaultEntityProviderParam;
-import com.circustar.mybatis_accessor.provider.parameter.DefaultUpdateProviderParam;
 import com.circustar.mybatis_accessor.provider.parameter.IProviderParam;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
@@ -28,12 +27,21 @@ public class MybatisAccessorService {
     protected IUpdateService updateService = null;
     protected ISelectService selectService = null;
     protected IEntityDtoServiceRelationMap entityDtoServiceRelationMap = null;
+    protected DefaultInsertProcessorProvider defaultInsertProcessorProvider;
+    protected DefaultDeleteByIdProcessorProvider defaultDeleteByIdProcessorProvider;
+    protected DefaultUpdateProcessorProvider defaultUpdateProcessorProvider;
 
     public MybatisAccessorService(IEntityDtoServiceRelationMap entityDtoServiceRelationMap
-            , ISelectService selectService, IUpdateService updateService) {
+            , ISelectService selectService, IUpdateService updateService
+            , DefaultInsertProcessorProvider defaultInsertProcessorProvider
+            , DefaultUpdateProcessorProvider defaultUpdateProcessorProvider
+            , DefaultDeleteByIdProcessorProvider defaultDeleteByIdProcessorProvider) {
         this.updateService = updateService;
         this.selectService = selectService;
         this.entityDtoServiceRelationMap = entityDtoServiceRelationMap;
+        this.defaultInsertProcessorProvider = defaultInsertProcessorProvider;
+        this.defaultUpdateProcessorProvider = defaultUpdateProcessorProvider;
+        this.defaultDeleteByIdProcessorProvider = defaultDeleteByIdProcessorProvider;
     }
 
     private EntityDtoServiceRelation getEntityDtoServiceRelation(Class dtoClass, String dtoName) {
@@ -280,7 +288,7 @@ public class MybatisAccessorService {
 
     public <T> List<T> updateWithOptions(
             Object object, EntityDtoServiceRelation relationInfo
-            , IUpdateEntityProvider updateEntityProvider
+            , IUpdateProcessorProvider updateEntityProvider
             , IProviderParam options)  {
 
         List<T> updatedEntities = updateService.updateByProviders(relationInfo
@@ -307,7 +315,7 @@ public class MybatisAccessorService {
             return null;
         }
         IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
-        List<T> objects = updateWithOptions(object, relation, DefaultInsertEntityProvider.getInstance()
+        List<T> objects = updateWithOptions(object, relation, defaultInsertProcessorProvider
                 , providerParam);
         return objects.get(0);
     }
@@ -334,7 +342,7 @@ public class MybatisAccessorService {
             return null;
         }
         IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
-        return updateWithOptions(objectList, relation, DefaultInsertEntityProvider.getInstance()
+        return updateWithOptions(objectList, relation, defaultInsertProcessorProvider
                 , providerParam);
     }
 
@@ -353,8 +361,8 @@ public class MybatisAccessorService {
             , boolean includeAllChildren
             , String[] children
             , boolean updateChildrenOnly)  {
-        IProviderParam providerParam = new DefaultUpdateProviderParam(updateChildrenOnly, includeAllChildren, children);
-        List<T> result = updateWithOptions(object, relation, DefaultUpdateEntityProvider.getInstance()
+        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
+        List<T> result = updateWithOptions(object, relation, defaultUpdateProcessorProvider
                 , providerParam);
         return result.get(0);
     }
@@ -381,8 +389,8 @@ public class MybatisAccessorService {
             return null;
         }
 
-        IProviderParam providerParam = new DefaultUpdateProviderParam(updateChildrenOnly, includeAllChildren, children);
-        return updateWithOptions(objectList, relation, DefaultUpdateEntityProvider.getInstance()
+        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
+        return updateWithOptions(objectList, relation, defaultUpdateProcessorProvider
                 , providerParam);
     }
 
@@ -410,7 +418,7 @@ public class MybatisAccessorService {
             , String[] children
             , boolean updateChildrenOnly) {
         IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
-        return updateWithOptions(ids, relationInfo, DefaultDeleteEntityProvider.getInstance()
+        return updateWithOptions(ids, relationInfo, defaultDeleteByIdProcessorProvider
                 , providerParam);
     }
 

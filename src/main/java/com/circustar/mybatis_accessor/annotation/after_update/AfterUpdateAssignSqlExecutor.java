@@ -20,7 +20,7 @@ import java.util.List;
 // 参数5：分配权重对应的变量名
 
 public class AfterUpdateAssignSqlExecutor extends AfterUpdateAvgSqlExecutor implements  IAfterUpdateExecutor {
-    private static final String selectSql = "Round((sum(%s) over (partition by %s order by %s)) / (sum(%s) over (partition by %s)) * %s, %s) " +
+    protected static final String selectSql = "Round((sum(%s) over (partition by %s order by %s)) / (sum(%s) over (partition by %s)) * %s, %s) " +
             "- Round(((sum(%s) over (partition by %s order by %s)) - %s) / (sum(%s) over (partition by %s)) * %s, %s) as %s";
 
     @Override
@@ -33,9 +33,12 @@ public class AfterUpdateAssignSqlExecutor extends AfterUpdateAvgSqlExecutor impl
     }
 
     @Override
-    protected String CreateSqlPart(TableInfo tableInfo, TableInfo subTableInfo, List<DtoField> dtoFields, String[] originParams) {
+    protected String CreateSqlPart(DtoClassInfo dtoClassInfo, TableInfo tableInfo, DtoClassInfo subDtoClassInfo, TableInfo subTableInfo, List<DtoField> dtoFields, String[] originParams) {
         String mTableId = tableInfo.getKeyColumn();
         String sTableId = subTableInfo.getKeyColumn();
+        if(tableInfo == subTableInfo) {
+            mTableId = dtoClassInfo.getEntityClassInfo().getIdReferenceFieldInfo().getColumnName();
+        }
         String sAssignColumnName = dtoFields.get(2).getEntityFieldInfo().getColumnName();
         String sWeightColumnName = dtoFields.get(3).getEntityFieldInfo().getColumnName();
         String precision = originParams[3];
@@ -56,6 +59,9 @@ public class AfterUpdateAssignSqlExecutor extends AfterUpdateAvgSqlExecutor impl
         Method mFieldReadMethod =dtoFields.get(0).getEntityFieldInfo().getPropertyDescriptor().getReadMethod();
         String assignTemplateSql = parsedParams.get(0).toString();
         String mTableId = tableInfo.getKeyColumn();
+        if(fieldDtoClassInfo == dtoClassInfo) {
+            mTableId = dtoClassInfo.getEntityClassInfo().getIdReferenceFieldInfo().getColumnName();
+        }
         String sTableId = subTableInfo.getKeyColumn();
         Method sKeyFieldReadMethod = fieldDtoClassInfo.getEntityClassInfo().getKeyField().getPropertyDescriptor().getReadMethod();
         EntityFieldInfo sAssignEntityFieldInfo = dtoFields.get(2).getEntityFieldInfo();
@@ -68,7 +74,7 @@ public class AfterUpdateAssignSqlExecutor extends AfterUpdateAvgSqlExecutor impl
         for(Object o : entityList) {
             Object keyValue = FieldUtils.getFieldValue(o, mKeyFieldReadMethod);
             Object entity = mServiceBean.getById((Serializable) keyValue);
-            String summaryValue = FieldUtils.getFieldValue(entity, mFieldReadMethod).toString();
+            Object summaryValue = FieldUtils.getFieldValue(entity, mFieldReadMethod);
             if(summaryValue == null) {
                 continue;
             }

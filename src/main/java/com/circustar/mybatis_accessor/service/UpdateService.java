@@ -19,7 +19,7 @@ public class UpdateService implements IUpdateService {
 
     @Override
     public <T> List<T> updateByProviders(EntityDtoServiceRelation relationInfo
-            , Object object, IUpdateEntityProvider provider
+            , Object object, IUpdateProcessorProvider provider
             , IProviderParam options) {
         List<T> updatedObjects = new ArrayList<>();
         List<IEntityUpdateProcessor> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper

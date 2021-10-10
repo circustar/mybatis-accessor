@@ -11,13 +11,14 @@ import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.provider.command.InsertCommand;
 import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
+import org.springframework.context.ApplicationContext;
 
 import java.util.*;
 
-public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider<IEntityProviderParam> {
-    private static DefaultInsertEntityProvider instance = new DefaultInsertEntityProvider();
-    public static DefaultInsertEntityProvider getInstance() {
-        return instance;
+public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider<IEntityProviderParam> {
+
+    public DefaultInsertProcessorProvider(ApplicationContext applicationContext) {
+        super(applicationContext);
     }
 
     @Override
@@ -95,6 +96,6 @@ public class DefaultInsertEntityProvider extends AbstractUpdateEntityProvider<IE
         }
 
         return result;
-    };
+    }
 
 }

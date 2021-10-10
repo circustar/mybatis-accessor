@@ -23,7 +23,7 @@ public class AfterUpdateSumSqlExecutor extends AfterUpdateCountSqlExecutor imple
     }
 
     @Override
-    protected String CreateSqlPart(TableInfo tableInfo, TableInfo subTableInfo, List<DtoField> dtoFields, String[] originParams) {
+    protected String CreateSqlPart(DtoClassInfo dtoClassInfo, TableInfo tableInfo, DtoClassInfo subDtoClassInfo, TableInfo subTableInfo, List<DtoField> dtoFields, String[] originParams) {
         String selectSql = String.format(getOriginalSql(originParams)
                 , dtoFields.get(2).getEntityFieldInfo().getColumnName()
                 , subTableInfo.getTableName()

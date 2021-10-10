@@ -3,9 +3,10 @@ package com.circustar.mybatis_accessor.config;
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.EntityClassInfoHelper;
-import com.circustar.mybatis_accessor.provider.DefaultDeleteEntityProvider;
-import com.circustar.mybatis_accessor.provider.DefaultInsertEntityProvider;
-import com.circustar.mybatis_accessor.provider.DefaultUpdateEntityProvider;
+import com.circustar.mybatis_accessor.provider.DefaultDeleteByIdProcessorProvider;
+import com.circustar.mybatis_accessor.provider.DefaultDeleteProcessorProvider;
+import com.circustar.mybatis_accessor.provider.DefaultInsertProcessorProvider;
+import com.circustar.mybatis_accessor.provider.DefaultUpdateProcessorProvider;
 import com.circustar.mybatis_accessor.support.MybatisAccessorService;
 import com.circustar.mybatis_accessor.injector.EnhanceSqlInjector;
 import com.circustar.mybatis_accessor.service.UpdateService;
@@ -41,6 +42,10 @@ public class MybatisAccessorConfiguration {
     private DtoClassInfoHelper dtoClassInfoHelper;
     private MybatisAccessorService mybatisAccessorService;
     private MybatisAccessorUpdateManager updateManager;
+    private DefaultDeleteByIdProcessorProvider defaultDeleteByIdProcessorProvider;
+    private DefaultDeleteProcessorProvider defaultDeleteProcessorProvider;
+    private DefaultInsertProcessorProvider defaultInsertProcessorProvider;
+    private DefaultUpdateProcessorProvider defaultUpdateProcessorProvider;
 
     public MybatisAccessorConfiguration(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -50,7 +55,15 @@ public class MybatisAccessorConfiguration {
         this.dtoClassInfoHelper = new DtoClassInfoHelper(this.entityDtoServiceRelationMap, this.entityClassInfoHelper);
         this.updateService = new UpdateService(this.dtoClassInfoHelper);
         this.selectService = new SelectService(this.dtoClassInfoHelper);
-        this.mybatisAccessorService = new MybatisAccessorService(this.entityDtoServiceRelationMap, this.selectService, this.updateService);
+
+        this.defaultDeleteProcessorProvider = new DefaultDeleteProcessorProvider(this.applicationContext);
+        this.defaultDeleteByIdProcessorProvider = new DefaultDeleteByIdProcessorProvider(this.applicationContext);
+        this.defaultInsertProcessorProvider = new DefaultInsertProcessorProvider(this.applicationContext);
+        this.defaultUpdateProcessorProvider = new DefaultUpdateProcessorProvider(this.applicationContext);
+
+        this.mybatisAccessorService = new MybatisAccessorService(this.entityDtoServiceRelationMap
+                , this.selectService, this.updateService
+                , this.defaultInsertProcessorProvider, this.defaultUpdateProcessorProvider, this.defaultDeleteByIdProcessorProvider);
         this.updateManager = new MybatisAccessorUpdateManager(this.mybatisAccessorService, this.dtoClassInfoHelper);
         this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
 
@@ -89,18 +102,24 @@ public class MybatisAccessorConfiguration {
     }
 
     @Bean
-    public DefaultDeleteEntityProvider getDefaultDeleteEntitiesProvider() {
-        return DefaultDeleteEntityProvider.getInstance();
+    public DefaultDeleteByIdProcessorProvider getDefaultDeleteByIdProcessorProvider() {
+        return this.defaultDeleteByIdProcessorProvider;
     }
 
     @Bean
-    public DefaultInsertEntityProvider getDefaultInsertEntitiesEntityProvider() {
-        return DefaultInsertEntityProvider.getInstance();
+    public DefaultDeleteProcessorProvider getDefaultDeleteProcessorProvider() {
+        return this.defaultDeleteProcessorProvider;
+    }
+
+
+    @Bean
+    public DefaultInsertProcessorProvider getDefaultInsertProcessorProvider() {
+        return this.defaultInsertProcessorProvider;
     }
 
     @Bean
-    public DefaultUpdateEntityProvider getDefaultUpdateEntityProvider() {
-        return DefaultUpdateEntityProvider.getInstance();
+    public DefaultUpdateProcessorProvider getDefaultUpdateProcessorProvider() {
+        return this.defaultUpdateProcessorProvider;
     }
 
     @Bean
