@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.circustar</groupId>
     <artifactId>mybatis-accessor</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <name>mybatis-accessor</name>
     <description>enhancement based on mybatis plus</description>
     <url>https://github.com/circustar/mybatis-accessor</url>
