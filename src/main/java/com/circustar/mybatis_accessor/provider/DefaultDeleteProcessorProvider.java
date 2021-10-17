@@ -5,6 +5,7 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.provider.command.DeleteByIdCommand;
 import com.circustar.mybatis_accessor.provider.command.DeleteEntityCommand;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.mybatis_accessor.provider.parameter.DefaultEntityProviderParam;
@@ -16,6 +17,7 @@ import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
 import org.springframework.context.ApplicationContext;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,8 +38,9 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
         return this.createUpdateProcessors(relation, dtoClassInfoHelper, ids, options);
     }
 
-    protected Object convertToUpdateTarget(DtoClassInfoHelper dtoClassInfoHelper, DtoClassInfo dtoClassInfo, Object obj) {
-        return dtoClassInfoHelper.convertToEntity(obj);
+    protected Object convertToUpdateTarget(DtoClassInfo dtoClassInfo, Object obj) {
+        Method readMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
+        return FieldUtils.getFieldValue(obj, readMethod);
     }
 
     protected List convertToSubUpdateList(DtoClassInfoHelper dtoClassInfoHelper, DtoClassInfo dtoClassInfo, List obj) {
@@ -46,18 +49,6 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
 
     protected Object getUpdateId(Object obj, DtoField keyField) {
         return FieldUtils.getFieldValue(obj, keyField.getPropertyDescriptor().getReadMethod());
-    }
-
-    protected IUpdateCommand getUpdateCommand() {
-        return DeleteEntityCommand.getInstance();
-    }
-
-    protected Object createUpdateProcessorParam(DtoClassInfo dtoClassInfo, IEntityProviderParam options) {
-        Map<String, Object> map = new HashMap<>();
-        map.put(DeleteEntityCommand.PHYSIC_DELETE, dtoClassInfo.isPhysicDelete());
-        map.put(DeleteEntityCommand.KEY_FIELD_READ_METHOD, dtoClassInfo.getEntityClassInfo()
-                .getKeyField().getPropertyDescriptor().getReadMethod());
-        return map;
     }
 
     protected List<IEntityUpdateProcessor> createUpdateProcessors(EntityDtoServiceRelation relation
@@ -80,13 +71,10 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
         String[] topEntities = this.getTopEntities(dtoClassInfo, children, DEFAULT_DELIMITER);
         DefaultEntityCollectionUpdateProcessor updateProcessor;
         List updateEntityWithNoSubList = new ArrayList();
-        List updateDtoWithNoSubList = new ArrayList();
-        Object updateProcessorParam = createUpdateProcessorParam(dtoClassInfo, options);
 
         if(topEntities == null || topEntities.length == 0) {
-            updateDtoWithNoSubList = dtoList;
             updateEntityWithNoSubList = (List) dtoList.stream()
-                    .map(x -> this.convertToUpdateTarget(dtoClassInfoHelper, dtoClassInfo, x))
+                    .map(x -> this.convertToUpdateTarget(dtoClassInfo, x))
                     .collect(Collectors.toList());
         } else {
             for (Object dto : dtoList) {
@@ -118,20 +106,20 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
                     ));
                 }
                 if(subUpdateEntities.isEmpty()) {
-                    updateDtoWithNoSubList.add(dto);
-                    updateEntityWithNoSubList.add(this.convertToUpdateTarget(dtoClassInfoHelper, dtoClassInfo, dto));
+                    updateEntityWithNoSubList.add(this.convertToUpdateTarget(dtoClassInfo, dto));
                     continue;
                 }
 
                 if(options.isUpdateChildrenOnly()) {
                     result.addAll(subUpdateEntities);
                 } else {
+                    List<Object> updateList = Collections.singletonList(this.convertToUpdateTarget(dtoClassInfo, dto));
                     updateProcessor = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
-                            , getUpdateCommand()
-                            , updateProcessorParam
+                            , DeleteByIdCommand.getInstance()
+                            , dtoClassInfo.isPhysicDelete()
                             , dtoClassInfo
-                            , Collections.singletonList(dto)
-                            , Collections.singletonList(this.convertToUpdateTarget(dtoClassInfoHelper, dtoClassInfo, dto))
+                            , updateList
+                            , updateList
                             , this.getUpdateChildrenFirst()
                             , false);
                     updateProcessor.addSubUpdateEntities(subUpdateEntities);
@@ -141,10 +129,10 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
         }
         if(!options.isUpdateChildrenOnly() && !updateEntityWithNoSubList.isEmpty()) {
             updateProcessor = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
-                    , getUpdateCommand()
-                    , updateProcessorParam
+                    , DeleteByIdCommand.getInstance()
+                    , dtoClassInfo.isPhysicDelete()
                     , dtoClassInfo
-                    , updateDtoWithNoSubList
+                    , updateEntityWithNoSubList
                     , updateEntityWithNoSubList
                     , this.getUpdateChildrenFirst()
                     , false);

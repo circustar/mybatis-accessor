@@ -11,7 +11,5 @@ import java.lang.annotation.*;
 public @interface AfterUpdate {
     String onExpression() default "";
     Class<? extends IAfterUpdateExecutor> afterUpdateExecutor();
-    String[] updateParams();
-    IUpdateCommand.UpdateType[] updateTypes() default {IUpdateCommand.UpdateType.INSERT
-            , IUpdateCommand.UpdateType.UPDATE};
+    String[] updateParams() default "";
 }

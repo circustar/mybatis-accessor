@@ -43,7 +43,7 @@ public class SelectService implements ISelectService {
             return null;
         }
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
-        T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, relationInfo.getDtoClass());
+        T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, dtoClassInfo);
         if(dtoClassInfo.getEntityClassInfo().getKeyField() != null) {
             Serializable id = (Serializable) FieldUtils.getFieldValue(oriEntity
                     , dtoClassInfo.getEntityClassInfo().getKeyField().getPropertyDescriptor().getReadMethod());
@@ -82,8 +82,8 @@ public class SelectService implements ISelectService {
         if (oriEntity == null) {
             return null;
         }
-        T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, relationInfo.getDtoClass());
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, dtoClassInfo);
         if(dtoClassInfo.getEntityClassInfo().getKeyField() != null) {
             Serializable id = (Serializable) FieldUtils.getFieldValue(oriEntity
                     , dtoClassInfo.getEntityClassInfo().getKeyField().getPropertyDescriptor().getReadMethod());
@@ -162,7 +162,8 @@ public class SelectService implements ISelectService {
         if (oriEntity == null) {
             return null;
         }
-        T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, dtoClassInfo);
         setDtoChildren(relationInfo, result, id , includeAllChildren, children);
 
         return result;
@@ -187,7 +188,8 @@ public class SelectService implements ISelectService {
             , Integer page_size
     ) {
         PageInfo entityPage = getEntityPageByAnnotation(relationInfo, object, page_index, page_size);
-        List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityPage.getRecords(), relationInfo.getDtoClass());;
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityPage.getRecords(), dtoClassInfo);;
         return new PageInfo<>(entityPage.getTotal(), entityPage.getSize(), entityPage.getCurrent(), dtoList);    }
 
     @Override
@@ -220,7 +222,8 @@ public class SelectService implements ISelectService {
             , Integer page_size
     ) {
         PageInfo entityPage = getEntityPageByQueryWrapper(relationInfo, object, queryWrapper, page_index, page_size);
-        List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityPage.getRecords(), relationInfo.getDtoClass());;
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityPage.getRecords(), dtoClassInfo);;
         return new PageInfo<>(entityPage.getTotal(), entityPage.getSize(), entityPage.getCurrent(), dtoList);
     }
 
@@ -239,7 +242,8 @@ public class SelectService implements ISelectService {
             , Object object
     ) {
         List entityList = getEntityListByAnnotation(relationInfo, object);
-        List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityList, relationInfo.getDtoClass());;
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityList, dtoClassInfo);;
         return dtoList;
     }
 
@@ -267,7 +271,8 @@ public class SelectService implements ISelectService {
             , QueryWrapper queryWrapper
     ) {
         List entityList = getEntityListByQueryWrapper(relationInfo, object, queryWrapper);
-        List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityList, relationInfo.getDtoClass());;
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityList, dtoClassInfo);;
         return dtoList;
     }
 

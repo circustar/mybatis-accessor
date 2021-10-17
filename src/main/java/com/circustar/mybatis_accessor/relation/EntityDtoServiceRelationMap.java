@@ -60,4 +60,9 @@ public class EntityDtoServiceRelationMap implements IEntityDtoServiceRelationMap
     public IService getServiceBeanByDtoClass(Class clazz) {
         return getByDtoClass(clazz).getServiceBean(this.applicationContext);
     }
+
+    @Override
+    public ApplicationContext getApplicationContext() {
+        return this.applicationContext;
+    }
 }

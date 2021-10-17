@@ -7,14 +7,23 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
+import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class AfterUpdateCountSqlExecutor implements  IAfterUpdateExecutor {
+public class AfterUpdateCountSqlExecutor extends AbstractAfterUpdateExecutor implements  IAfterUpdateExecutor {
     private static final String originalSql = "select count(*) from %s t1 where t1.%s = %s.%s";
 
+    @Override
+    public IUpdateCommand.UpdateType[] getUpdateTypes() {
+        return new IUpdateCommand.UpdateType[]{
+                IUpdateCommand.UpdateType.INSERT, IUpdateCommand.UpdateType.UPDATE
+        };
+    }
+
+    @Override
     protected List<DtoField> parseDtoFieldList(DtoClassInfo dtoClassInfo, String[] params) {
         String mFieldName = params[0];
         String sFieldName = params[1];
@@ -27,6 +36,7 @@ public class AfterUpdateCountSqlExecutor implements  IAfterUpdateExecutor {
         return dtoFields;
     }
 
+    @Override
     protected List<Object> parseParams(List<DtoField> dtoFields, DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, String[] originParams) {
         TableInfo tableInfo = dtoClassInfo.getEntityClassInfo().getTableInfo();
         TableInfo subTableInfo = fieldDtoClassInfo.getEntityClassInfo().getTableInfo();
@@ -51,6 +61,7 @@ public class AfterUpdateCountSqlExecutor implements  IAfterUpdateExecutor {
         return selectSql;
     }
 
+    @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams) {
         DtoField mField = dtoFields.get(0);
         IService serviceBean = dtoClassInfo.getServiceBean();
@@ -67,10 +78,7 @@ public class AfterUpdateCountSqlExecutor implements  IAfterUpdateExecutor {
     }
 
     @Override
-    public void exec(DtoClassInfo dtoClassInfo, List<Object> dtoList, List<Object> entityList, String[] params) {
-        List<DtoField> dtoFields = parseDtoFieldList(dtoClassInfo, params);
-        DtoClassInfo fieldDtoClassInfo = dtoFields.get(1).getFieldDtoClassInfo();
-        List<Object> parsedParams = parseParams(dtoFields, dtoClassInfo, fieldDtoClassInfo, params);
-        execUpdate(dtoClassInfo, fieldDtoClassInfo, entityList, dtoFields, parsedParams);
+    protected DtoClassInfo getFieldDtoClassInfo(List<DtoField> dtoFields) {
+        return dtoFields.get(1).getFieldDtoClassInfo();
     }
 }

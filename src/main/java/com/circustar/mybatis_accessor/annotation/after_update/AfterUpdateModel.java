@@ -9,13 +9,11 @@ public class AfterUpdateModel {
     private String onExpression;
     private IAfterUpdateExecutor afterUpdateExecutor;
     private String[] updateParams;
-    private IUpdateCommand.UpdateType[] updateTypes;
 
-    public AfterUpdateModel(String onExpression, IAfterUpdateExecutor afterUpdateExecutor, String[] updateParams, IUpdateCommand.UpdateType[] updateTypes) {
+    public AfterUpdateModel(String onExpression, IAfterUpdateExecutor afterUpdateExecutor, String[] updateParams) {
         this.onExpression = onExpression;
         this.afterUpdateExecutor = afterUpdateExecutor;
         this.updateParams = updateParams;
-        this.updateTypes = updateTypes;
     }
 
     public String getOnExpression() {
@@ -30,11 +28,7 @@ public class AfterUpdateModel {
         return updateParams;
     }
 
-    public IUpdateCommand.UpdateType[] getUpdateTypes() {
-        return updateTypes;
-    }
-
-    private static Map<Class<? extends IAfterUpdateExecutor>, IAfterUpdateExecutor> afterUpdateExecutorMap = new HashMap<>();
+    private static final Map<Class<? extends IAfterUpdateExecutor>, IAfterUpdateExecutor> afterUpdateExecutorMap = new HashMap<>();
     public static IAfterUpdateExecutor getInstance(Class<? extends IAfterUpdateExecutor> clazz) {
         try {
             if (!afterUpdateExecutorMap.containsKey(clazz)) {

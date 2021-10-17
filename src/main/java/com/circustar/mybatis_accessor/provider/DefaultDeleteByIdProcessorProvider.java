@@ -9,6 +9,7 @@ import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.mybatis_accessor.provider.parameter.IEntityProviderParam;
 import org.springframework.context.ApplicationContext;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,15 +20,16 @@ public class DefaultDeleteByIdProcessorProvider extends DefaultDeleteProcessorPr
     }
 
     @Override
-    protected Object convertToUpdateTarget(DtoClassInfoHelper dtoClassInfoHelper, DtoClassInfo dtoClassInfo, Object obj) {
+    protected Object convertToUpdateTarget(DtoClassInfo dtoClassInfo, Object obj) {
         return obj;
     }
 
     @Override
     protected List convertToSubUpdateList(DtoClassInfoHelper dtoClassInfoHelper, DtoClassInfo dtoClassInfo, List dtoList) {
         List result = new ArrayList();
+        Method readMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
         for(Object obj : dtoList) {
-            result.add(FieldUtils.getFieldValue(obj, dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod()));
+            result.add(FieldUtils.getFieldValue(obj, readMethod));
         }
         return result;
     }
@@ -35,15 +37,5 @@ public class DefaultDeleteByIdProcessorProvider extends DefaultDeleteProcessorPr
     @Override
     protected Object getUpdateId(Object obj, DtoField keyField) {
         return obj;
-    }
-
-    @Override
-    protected IUpdateCommand getUpdateCommand() {
-        return DeleteByIdCommand.getInstance();
-    }
-
-    @Override
-    protected Object createUpdateProcessorParam(DtoClassInfo dtoClassInfo, IEntityProviderParam options) {
-        return dtoClassInfo.isPhysicDelete();
     }
 }

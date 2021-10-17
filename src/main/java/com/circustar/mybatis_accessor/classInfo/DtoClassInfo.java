@@ -10,6 +10,9 @@ import com.circustar.mybatis_accessor.annotation.after_update.AfterUpdate;
 import com.circustar.mybatis_accessor.annotation.after_update.AfterUpdateModel;
 import com.circustar.mybatis_accessor.annotation.after_update.MultiAfterUpdate;
 import com.circustar.mybatis_accessor.annotation.dto.DeleteFlag;
+import com.circustar.mybatis_accessor.annotation.on_change.MultiOnChange;
+import com.circustar.mybatis_accessor.annotation.on_change.OnChange;
+import com.circustar.mybatis_accessor.annotation.on_change.OnChangeModel;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.common_utils.reflection.AnnotationUtils;
@@ -45,6 +48,7 @@ public class DtoClassInfo {
     private boolean physicDelete = false;
     private QueryWrapperCreator queryWrapperCreator;
     private List<AfterUpdateModel> afterUpdateList;
+    private List<OnChangeModel> onChangeList;
     private DtoField idReferenceField;
 
     public DtoClassInfo(IEntityDtoServiceRelationMap relationMap, DtoClassInfoHelper dtoClassInfoHelper, Class<?> clazz, EntityClassInfo entityClassInfo) {
@@ -101,6 +105,7 @@ public class DtoClassInfo {
         });
 
         initAfterUpdateList();
+        initOnChangeList();
     }
 
     protected void initAfterUpdateList() {
@@ -116,7 +121,26 @@ public class DtoClassInfo {
         }
         if(var0!= null & !var0.isEmpty()) {
             this.afterUpdateList = var0.stream().map(x -> new AfterUpdateModel(x.onExpression(),
-                    AfterUpdateModel.getInstance(x.afterUpdateExecutor()), x.updateParams(), x.updateTypes()))
+                    AfterUpdateModel.getInstance(x.afterUpdateExecutor()), x.updateParams()))
+                    .collect(Collectors.toList());
+        }
+    }
+
+    protected void initOnChangeList() {
+        MultiOnChange multiOnChangeAnnotation = this.clazz.getAnnotation(MultiOnChange.class);
+        List<OnChange> var0 = null;
+        if(multiOnChangeAnnotation != null) {
+            var0 = Arrays.asList(multiOnChangeAnnotation.value());
+        } else {
+            OnChange[] annotationsByType = this.clazz.getAnnotationsByType(OnChange.class);
+            if(annotationsByType!=null) {
+                var0 = Arrays.asList(annotationsByType);
+            }
+        }
+        if(var0!= null & !var0.isEmpty()) {
+            this.onChangeList = var0.stream().map(x -> new OnChangeModel(x.changeProperties(),
+                    x.triggerOnAnyChanged(),
+                    OnChangeModel.getInstance(x.onChangeExecutor()), x.updateParams()))
                     .collect(Collectors.toList());
         }
     }
@@ -283,7 +307,42 @@ public class DtoClassInfo {
         return afterUpdateList;
     }
 
+    public List<OnChangeModel> getOnChangeList() {
+        return onChangeList;
+    }
+
     public DtoField getIdReferenceField() {
         return idReferenceField;
+    }
+
+    public static int equalProperties(DtoClassInfo dtoClassInfo, Object obj1, Object obj2, String[] propertyNames) {
+        boolean partEqual = false;
+        boolean allEqual = true;
+        try {
+            if(obj1 == obj2) {
+                return 1;
+            } else if(obj1 == null && obj2 != null) {
+                return -1;
+            } else if(obj1 != null && obj2 == null) {
+                return -1;
+            }
+            for(String propertyName : propertyNames) {
+                DtoField field = dtoClassInfo.getDtoField(propertyName);
+                Object val1 = FieldUtils.getFieldValue(obj1, field.getPropertyDescriptor().getReadMethod());
+                Object val2 = FieldUtils.getFieldValue(obj2, field.getPropertyDescriptor().getReadMethod());
+                if(val1 == null && val2 != null) {
+                    allEqual = false;
+                } else if(val1 != null && val2 == null) {
+                    allEqual = false;
+                } else if(val1 != null && val2 != null && !val1.equals(val2)) {
+                    allEqual = false;
+                } else {
+                    partEqual = true;
+                }
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        return allEqual ? 1 : (partEqual ? 0 : -1);
     }
 }

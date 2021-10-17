@@ -12,10 +12,10 @@ import java.io.Serializable;
 import java.util.*;
 
 public class DtoFields {
-    public static void assignDtoField(DtoClassInfoHelper dtoClassInfoHelper, Object obj, DtoField dtoField, List<Object> values, Class clazz) {
+    public static void assignDtoField(DtoClassInfoHelper dtoClassInfoHelper, Object obj, DtoField dtoField, List<Object> values) {
         if(!dtoField.getCollection()) {
             FieldUtils.setFieldValue(obj, dtoField.getPropertyDescriptor().getWriteMethod(), (values == null || values.isEmpty())?
-                    null : (clazz == null? values.get(0) : dtoClassInfoHelper.convertFromEntity(values.get(0), clazz)));
+                    null : dtoClassInfoHelper.convertFromEntity(values.get(0), dtoField.getFieldDtoClassInfo()));
             return;
         }
         DtoField.SupportGenericType supportGenericType = DtoField.SupportGenericType.getSupportGenericType((Class) dtoField.getOwnClass());
@@ -25,11 +25,7 @@ public class DtoFields {
         try {
             Collection c = supportGenericType.getTargetClass().newInstance();
             for (Object var0 : values) {
-                if (clazz == null) {
-                    c.add(var0);
-                    continue;
-                }
-                c.add(dtoClassInfoHelper.convertFromEntity(var0, clazz));
+                c.add(dtoClassInfoHelper.convertFromEntity(var0, dtoField.getFieldDtoClassInfo()));
             }
             FieldUtils.setFieldValue(obj, dtoField.getPropertyDescriptor().getWriteMethod(), c);
         } catch (Exception ex) {
@@ -74,7 +70,7 @@ public class DtoFields {
             }
             IService service = subDtoClassInfo.getServiceBean();
             List searchResult = service.list(qw);
-            assignDtoField(dtoClassInfo.getDtoClassInfoHelper(), dto, dtoField, searchResult, childInfo.getDtoClass());
+            assignDtoField(dtoClassInfo.getDtoClassInfoHelper(), dto, dtoField, searchResult);
         }
     }
 
@@ -85,15 +81,15 @@ public class DtoFields {
             if(subRelation == null) {
                 continue;
             }
-
-            IService service =  dtoClassInfoHelper.getDtoClassInfo(subRelation.getDtoClass()).getServiceBean();
+            DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(subRelation.getDtoClass());
+            IService service =  subDtoClassInfo.getServiceBean();
             QueryWrapper qw = new QueryWrapper();
 
             dtoField.getSelectors().forEach(x -> x.connector().consume(x.tableColumn(), qw
                     , SPELParser.parseExpression(dto, Arrays.asList(x.valueExpression()))));
 
             List searchResult = service.list(qw);
-            assignDtoField(dtoClassInfoHelper, dto, dtoField, searchResult, subRelation.getDtoClass());
+            assignDtoField(dtoClassInfoHelper, dto, dtoField, searchResult);
         }
     }
 

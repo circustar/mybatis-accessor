@@ -1,6 +1,7 @@
 package com.circustar.mybatis_accessor.relation;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.context.ApplicationContext;
 
 public interface IEntityDtoServiceRelationMap {
 
@@ -15,4 +16,6 @@ public interface IEntityDtoServiceRelationMap {
     String[] getAllDtoClassNames();
 
     IService getServiceBeanByDtoClass(Class clazz);
+
+    ApplicationContext getApplicationContext();
 }

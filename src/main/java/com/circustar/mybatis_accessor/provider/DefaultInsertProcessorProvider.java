@@ -53,7 +53,7 @@ public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider
                         , dtoClassInfo.getVersionField().getPropertyDescriptor().getWriteMethod()
                         , dtoClassInfo.getVersionDefaultValue());
             }
-            Object updateEntity = dtoClassInfoHelper.convertToEntity(value);
+            Object updateEntity = dtoClassInfoHelper.convertToEntity(value, dtoClassInfo);
             updateEntityList.add(updateEntity);
             DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , InsertCommand.getInstance()

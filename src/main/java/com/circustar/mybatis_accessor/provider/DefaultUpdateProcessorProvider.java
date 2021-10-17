@@ -76,7 +76,7 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
         boolean hasChildren = false;
         List<IEntityUpdateProcessor> updateResult = new ArrayList<>();
         for(Object updateDto : updateDtoList) {
-            Object entity = dtoClassInfoHelper.convertToEntity(updateDto);
+            Object entity = dtoClassInfoHelper.convertToEntity(updateDto, dtoClassInfo);
             DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , UpdateByIdCommand.getInstance()
                     , null
@@ -125,7 +125,7 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
                     , null
                     , dtoClassInfo
                     , updateDtoList
-                    , dtoClassInfoHelper.convertToEntityList(updateDtoList)
+                    , dtoClassInfoHelper.convertToEntityList(updateDtoList, dtoClassInfo)
                     , this.getUpdateChildrenFirst()
                     , options.isUpdateChildrenOnly()));
         } else {

@@ -59,4 +59,8 @@ public abstract class AbstractUpdateEntityProvider<P extends IProviderParam> imp
     protected boolean getUpdateChildrenFirst() {
         return false;
     }
+
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
 }
