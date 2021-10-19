@@ -1,27 +1,26 @@
-package com.circustar.mybatis_accessor.annotation.after_update;
+package com.circustar.mybatis_accessor.annotation.listener;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.collection.NumberUtils;
-import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 
-public class AfterUpdateSumExecutor extends AfterUpdateCountExecutor implements  IAfterUpdateExecutor {
+public class UpdateAvgEvent extends UpdateSumEvent implements IUpdateEvent {
 
     @Override
-    protected List<DtoField> parseDtoFieldList(DtoClassInfo dtoClassInfo, String[] params) {
-        List<DtoField> dtoFields = super.parseDtoFieldList(dtoClassInfo, params);
-        String sPartFieldName = params[2];
-        DtoField sPartField = dtoFields.get(1).getFieldDtoClassInfo().getDtoField(sPartFieldName);
-        dtoFields.add(sPartField);
-        return dtoFields;
+    protected List<Object> parseParams(List<DtoField> dtoFields, DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, String[] originParams) {
+        String precision = originParams[3];
+        List<Object> result = new ArrayList<>();
+        result.add(Integer.valueOf(precision));
+        return result;
     }
 
     @Override
@@ -29,7 +28,11 @@ public class AfterUpdateSumExecutor extends AfterUpdateCountExecutor implements 
         EntityFieldInfo entityFieldInfo = dtoFields.get(2).getEntityFieldInfo();
         Method readMethod = entityFieldInfo.getPropertyDescriptor().getReadMethod();
         List valueList = fieldServiceBean.list(queryWrapper);
+        if(valueList.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
         Class<?> type = entityFieldInfo.getField().getType();
-        return NumberUtils.sumListByType(type, valueList, readMethod);
+        BigDecimal sumValue = NumberUtils.sumListByType(type, valueList, readMethod);
+        return sumValue.divide(BigDecimal.valueOf(valueList.size()), (int)parsedParams.get(0), RoundingMode.HALF_DOWN);
     }
 }

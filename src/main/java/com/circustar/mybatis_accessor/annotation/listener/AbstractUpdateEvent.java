@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.annotation.after_update;
+package com.circustar.mybatis_accessor.annotation.listener;
 
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
@@ -6,7 +6,7 @@ import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 
 import java.util.List;
 
-public abstract class AbstractAfterUpdateExecutor implements  IAfterUpdateExecutor {
+public abstract class AbstractUpdateEvent implements IUpdateEvent {
     protected abstract List<DtoField> parseDtoFieldList(DtoClassInfo dtoClassInfo, String[] params);
 
     protected abstract List<Object> parseParams(List<DtoField> dtoFields, DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, String[] originParams);

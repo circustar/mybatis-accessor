@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.annotation.after_update;
+package com.circustar.mybatis_accessor.annotation.listener;
 
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
@@ -6,11 +6,11 @@ import com.circustar.mybatis_accessor.classInfo.DtoField;
 
 import java.util.List;
 
-public class AfterUpdateSumSqlExecutor extends AfterUpdateCountSqlExecutor implements  IAfterUpdateExecutor {
+public class UpdateSumSqlEvent extends UpdateCountSqlEvent implements IUpdateEvent {
     private static final String originalSql = "select sum(t1.%s) from %s t1 where t1.%s = %s.%s";
 
     protected String getOriginalSql(String[] originParams) {
-        return AfterUpdateSumSqlExecutor.originalSql;
+        return UpdateSumSqlEvent.originalSql;
     }
 
     @Override

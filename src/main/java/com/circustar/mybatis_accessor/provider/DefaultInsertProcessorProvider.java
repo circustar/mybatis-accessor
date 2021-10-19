@@ -33,7 +33,7 @@ public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider
         List dtoList = CollectionUtils.convertToList(dto);
         if(dtoList.isEmpty()) {return result;}
 
-        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation);
         boolean includeAllChildren = options.isIncludeAllChildren();
         String[] children;
         if(includeAllChildren) {

@@ -43,7 +43,7 @@ public class DtoFields {
             if(childInfo == null) {
                 continue;
             }
-            DtoClassInfo subDtoClassInfo = dtoClassInfo.getDtoClassInfoHelper().getDtoClassInfo(childInfo.getDtoClass());
+            DtoClassInfo subDtoClassInfo = dtoClassInfo.getDtoClassInfoHelper().getDtoClassInfo(childInfo);
             DtoField subDtoClassInfoDtoField = null;
             DtoField masterDtoClassInfoDtoField = null;
             if(subDtoClassInfo == dtoClassInfo && dtoClassInfo.getIdReferenceField() != null) {
@@ -81,7 +81,7 @@ public class DtoFields {
             if(subRelation == null) {
                 continue;
             }
-            DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(subRelation.getDtoClass());
+            DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(subRelation);
             IService service =  subDtoClassInfo.getServiceBean();
             QueryWrapper qw = new QueryWrapper();
 

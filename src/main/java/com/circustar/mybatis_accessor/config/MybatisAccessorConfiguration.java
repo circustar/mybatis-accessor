@@ -54,7 +54,9 @@ public class MybatisAccessorConfiguration {
         this.entityClassInfoHelper = new EntityClassInfoHelper();
         this.dtoClassInfoHelper = new DtoClassInfoHelper(this.entityDtoServiceRelationMap, this.entityClassInfoHelper);
         this.updateService = new UpdateService(this.dtoClassInfoHelper);
+        this.dtoClassInfoHelper.setUpdateService(this.updateService);
         this.selectService = new SelectService(this.dtoClassInfoHelper);
+        this.dtoClassInfoHelper.setSelectService(this.selectService);
 
         this.defaultDeleteProcessorProvider = new DefaultDeleteProcessorProvider(this.applicationContext);
         this.defaultDeleteByIdProcessorProvider = new DefaultDeleteByIdProcessorProvider(this.applicationContext);

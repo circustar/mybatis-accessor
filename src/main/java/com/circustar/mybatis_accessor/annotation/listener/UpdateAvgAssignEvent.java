@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.annotation.after_update;
+package com.circustar.mybatis_accessor.annotation.listener;
 
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
@@ -6,7 +6,7 @@ import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class AfterUpdateAvgAssignExecutor extends AfterUpdateAssignExecutor implements  IAfterUpdateExecutor {
+public class UpdateAvgAssignEvent extends UpdateAssignEvent implements IUpdateEvent {
     @Override
     protected BigDecimal getTotalWeight(List sEntityList, EntityFieldInfo sWeightEntityField) {
         return BigDecimal.valueOf(sEntityList.size());

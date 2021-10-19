@@ -29,7 +29,7 @@ public class SelectService implements ISelectService {
     public <T> T getEntityByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
     ) {
-        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(object);
         return getEntityByQueryWrapper(relationInfo, object, queryWrapper);
     }
@@ -42,7 +42,7 @@ public class SelectService implements ISelectService {
         if (oriEntity == null) {
             return null;
         }
-        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, dtoClassInfo);
         if(dtoClassInfo.getEntityClassInfo().getKeyField() != null) {
             Serializable id = (Serializable) FieldUtils.getFieldValue(oriEntity
@@ -58,7 +58,7 @@ public class SelectService implements ISelectService {
     public <T> T getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object dto
             , QueryWrapper queryWrapper) {
-        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         IService service = dtoClassInfo.getServiceBean();
         String joinExpression = getJoinExpression(dtoClassInfo, dto);
         T result;
@@ -82,7 +82,7 @@ public class SelectService implements ISelectService {
         if (oriEntity == null) {
             return null;
         }
-        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, dtoClassInfo);
         if(dtoClassInfo.getEntityClassInfo().getKeyField() != null) {
             Serializable id = (Serializable) FieldUtils.getFieldValue(oriEntity
@@ -105,7 +105,7 @@ public class SelectService implements ISelectService {
         } else {
             childList = new HashSet<>(Arrays.asList(children));
         }
-        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         List<DtoField> subFields = null;
         if(includeAllChildren) {
             subFields = dtoClassInfo.getSubDtoFieldList().stream()
@@ -136,7 +136,7 @@ public class SelectService implements ISelectService {
     @Override
     public <T> T getEntityById(EntityDtoServiceRelation relationInfo
             , Serializable id){
-        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         IService service = dtoClassInfo.getServiceBean();
         String joinExpression = getJoinExpression(dtoClassInfo, null);
         T result;
@@ -162,7 +162,7 @@ public class SelectService implements ISelectService {
         if (oriEntity == null) {
             return null;
         }
-        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, dtoClassInfo);
         setDtoChildren(relationInfo, result, id , includeAllChildren, children);
 
@@ -175,7 +175,7 @@ public class SelectService implements ISelectService {
             , Integer page_index
             , Integer page_size
             ) {
-        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(object);
 
         return getEntityPageByQueryWrapper(relationInfo, object, queryWrapper, page_index, page_size);
@@ -188,7 +188,7 @@ public class SelectService implements ISelectService {
             , Integer page_size
     ) {
         PageInfo entityPage = getEntityPageByAnnotation(relationInfo, object, page_index, page_size);
-        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityPage.getRecords(), dtoClassInfo);;
         return new PageInfo<>(entityPage.getTotal(), entityPage.getSize(), entityPage.getCurrent(), dtoList);    }
 
@@ -199,7 +199,7 @@ public class SelectService implements ISelectService {
             , Integer page_index
             , Integer page_size
             ) {
-        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         IService service = dtoClassInfo.getServiceBean();
 
         Page page = new Page(page_index, page_size);
@@ -222,7 +222,7 @@ public class SelectService implements ISelectService {
             , Integer page_size
     ) {
         PageInfo entityPage = getEntityPageByQueryWrapper(relationInfo, object, queryWrapper, page_index, page_size);
-        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityPage.getRecords(), dtoClassInfo);;
         return new PageInfo<>(entityPage.getTotal(), entityPage.getSize(), entityPage.getCurrent(), dtoList);
     }
@@ -231,7 +231,7 @@ public class SelectService implements ISelectService {
     public <T> List<T> getEntityListByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
     ) {
-        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(object);
 
         return getEntityListByQueryWrapper(relationInfo, object, queryWrapper);
@@ -242,7 +242,7 @@ public class SelectService implements ISelectService {
             , Object object
     ) {
         List entityList = getEntityListByAnnotation(relationInfo, object);
-        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityList, dtoClassInfo);;
         return dtoList;
     }
@@ -251,7 +251,7 @@ public class SelectService implements ISelectService {
     public <T> List<T> getEntityListByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object dto, QueryWrapper queryWrapper
     ) {
-        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         IService service = dtoClassInfo.getServiceBean();
         List entityList = null;
         String joinExpression = getJoinExpression(dtoClassInfo, dto);
@@ -271,7 +271,7 @@ public class SelectService implements ISelectService {
             , QueryWrapper queryWrapper
     ) {
         List entityList = getEntityListByQueryWrapper(relationInfo, object, queryWrapper);
-        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityList, dtoClassInfo);;
         return dtoList;
     }
@@ -280,7 +280,7 @@ public class SelectService implements ISelectService {
     public Integer getCountByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
     ){
-        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(object);
 
         return this.getCountByQueryWrapper(relationInfo, object, queryWrapper);
@@ -290,7 +290,7 @@ public class SelectService implements ISelectService {
     public Integer getCountByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object dto, QueryWrapper queryWrapper
     ) {
-        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo.getDtoClass());
+        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         IService service = dtoClassInfo.getServiceBean();
         Integer result;
         String joinExpression = getJoinExpression(dtoClassInfo, dto);

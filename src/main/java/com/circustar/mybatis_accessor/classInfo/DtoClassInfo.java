@@ -6,21 +6,22 @@ import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.common_utils.reflection.FieldUtils;
-import com.circustar.mybatis_accessor.annotation.after_update.AfterUpdate;
-import com.circustar.mybatis_accessor.annotation.after_update.AfterUpdateModel;
-import com.circustar.mybatis_accessor.annotation.after_update.MultiAfterUpdate;
+import com.circustar.mybatis_accessor.annotation.listener.UpdateListener;
+import com.circustar.mybatis_accessor.annotation.listener.UpdateEventModel;
+import com.circustar.mybatis_accessor.annotation.listener.MultiUpdateListener;
 import com.circustar.mybatis_accessor.annotation.dto.DeleteFlag;
-import com.circustar.mybatis_accessor.annotation.on_change.MultiOnChange;
-import com.circustar.mybatis_accessor.annotation.on_change.OnChange;
-import com.circustar.mybatis_accessor.annotation.on_change.OnChangeModel;
+import com.circustar.mybatis_accessor.annotation.listener.property_change.MultiPropertyChangeListener;
+import com.circustar.mybatis_accessor.annotation.listener.property_change.PropertyChangeListener;
+import com.circustar.mybatis_accessor.annotation.listener.property_change.PropertyChangeEventModel;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.common_utils.reflection.AnnotationUtils;
 import com.circustar.mybatis_accessor.model.QueryWrapperCreator;
+import com.circustar.mybatis_accessor.utils.ApplicationContextUtils;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
 import com.circustar.mybatis_accessor.utils.TableJoinColumnPrefixManager;
+import org.springframework.context.ApplicationContext;
 
-import javax.management.remote.rmi._RMIConnection_Stub;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
@@ -47,8 +48,8 @@ public class DtoClassInfo {
     private DtoField deleteFlagField;
     private boolean physicDelete = false;
     private QueryWrapperCreator queryWrapperCreator;
-    private List<AfterUpdateModel> afterUpdateList;
-    private List<OnChangeModel> onChangeList;
+    private List<UpdateEventModel> updateEventList;
+    private List<PropertyChangeEventModel> propertyChangeEventList;
     private DtoField idReferenceField;
 
     public DtoClassInfo(IEntityDtoServiceRelationMap relationMap, DtoClassInfoHelper dtoClassInfoHelper, Class<?> clazz, EntityClassInfo entityClassInfo) {
@@ -56,6 +57,7 @@ public class DtoClassInfo {
         this.entityDtoServiceRelationMap = relationMap;
         this.dtoClassInfoHelper = dtoClassInfoHelper;
         this.entityDtoServiceRelation = this.entityDtoServiceRelationMap.getByDtoClass(this.clazz);
+        this.entityDtoServiceRelation.setDtoClassInfo(this);
         this.entityClassInfo = entityClassInfo;
         this.subDtoFieldList = new ArrayList<>();
         this.childDtoFieldList = new ArrayList<>();
@@ -104,43 +106,45 @@ public class DtoClassInfo {
             }
         });
 
-        initAfterUpdateList();
-        initOnChangeList();
+        initAfterUpdateList(relationMap.getApplicationContext());
+        initOnChangeList(relationMap.getApplicationContext());
     }
 
-    protected void initAfterUpdateList() {
-        MultiAfterUpdate multiAfterUpdateAnnotation = this.clazz.getAnnotation(MultiAfterUpdate.class);
-        List<AfterUpdate> var0 = null;
-        if(multiAfterUpdateAnnotation != null) {
-            var0 = Arrays.asList(multiAfterUpdateAnnotation.value());
+    protected void initAfterUpdateList(ApplicationContext applicationContext) {
+        MultiUpdateListener multiUpdateListenerAnnotation = this.clazz.getAnnotation(MultiUpdateListener.class);
+        List<UpdateListener> var0 = null;
+        if(multiUpdateListenerAnnotation != null) {
+            var0 = Arrays.asList(multiUpdateListenerAnnotation.value());
         } else {
-            AfterUpdate[] annotationsByType = this.clazz.getAnnotationsByType(AfterUpdate.class);
+            UpdateListener[] annotationsByType = this.clazz.getAnnotationsByType(UpdateListener.class);
             if(annotationsByType!=null) {
                 var0 = Arrays.asList(annotationsByType);
             }
         }
         if(var0!= null & !var0.isEmpty()) {
-            this.afterUpdateList = var0.stream().map(x -> new AfterUpdateModel(x.onExpression(),
-                    AfterUpdateModel.getInstance(x.afterUpdateExecutor()), x.updateParams()))
+            this.updateEventList = var0.stream().map(x -> new UpdateEventModel(x.onExpression(),
+                    () -> ApplicationContextUtils.getBeanOrCreate(applicationContext, x.afterUpdateExecutor())
+                    , x.updateParams()))
                     .collect(Collectors.toList());
         }
     }
 
-    protected void initOnChangeList() {
-        MultiOnChange multiOnChangeAnnotation = this.clazz.getAnnotation(MultiOnChange.class);
-        List<OnChange> var0 = null;
-        if(multiOnChangeAnnotation != null) {
-            var0 = Arrays.asList(multiOnChangeAnnotation.value());
+    protected void initOnChangeList(ApplicationContext applicationContext) {
+        MultiPropertyChangeListener multiPropertyChangeListenerAnnotation = this.clazz.getAnnotation(MultiPropertyChangeListener.class);
+        List<PropertyChangeListener> var0 = null;
+        if(multiPropertyChangeListenerAnnotation != null) {
+            var0 = Arrays.asList(multiPropertyChangeListenerAnnotation.value());
         } else {
-            OnChange[] annotationsByType = this.clazz.getAnnotationsByType(OnChange.class);
+            PropertyChangeListener[] annotationsByType = this.clazz.getAnnotationsByType(PropertyChangeListener.class);
             if(annotationsByType!=null) {
                 var0 = Arrays.asList(annotationsByType);
             }
         }
         if(var0!= null & !var0.isEmpty()) {
-            this.onChangeList = var0.stream().map(x -> new OnChangeModel(x.changeProperties(),
+            this.propertyChangeEventList = var0.stream().map(x -> new PropertyChangeEventModel(x.changeProperties(),
                     x.triggerOnAnyChanged(),
-                    OnChangeModel.getInstance(x.onChangeExecutor()), x.updateParams()))
+                    () -> ApplicationContextUtils.getBeanOrCreate(applicationContext, x.onChangeExecutor())
+                    , x.updateParams()))
                     .collect(Collectors.toList());
         }
     }
@@ -303,12 +307,12 @@ public class DtoClassInfo {
         return getEntityDtoServiceRelationMap().getServiceBeanByDtoClass(this.clazz);
     }
 
-    public List<AfterUpdateModel> getAfterUpdateList() {
-        return afterUpdateList;
+    public List<UpdateEventModel> getUpdateEventList() {
+        return updateEventList;
     }
 
-    public List<OnChangeModel> getOnChangeList() {
-        return onChangeList;
+    public List<PropertyChangeEventModel> getPropertyChangeEventList() {
+        return propertyChangeEventList;
     }
 
     public DtoField getIdReferenceField() {

@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.annotation.after_update;
+package com.circustar.mybatis_accessor.annotation.listener;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class AfterUpdateCountSqlExecutor extends AbstractAfterUpdateExecutor implements  IAfterUpdateExecutor {
+public class UpdateCountSqlEvent extends AbstractUpdateEvent implements IUpdateEvent {
     private static final String originalSql = "select count(*) from %s t1 where t1.%s = %s.%s";
 
     @Override
@@ -49,7 +49,7 @@ public class AfterUpdateCountSqlExecutor extends AbstractAfterUpdateExecutor imp
         if(subTableInfo == tableInfo) {
             upperKeyColumn = dtoFields.get(0).getDtoClassInfo().getEntityClassInfo().getIdReferenceFieldInfo().getColumnName();
         }
-        String selectSql = String.format(AfterUpdateCountSqlExecutor.originalSql
+        String selectSql = String.format(UpdateCountSqlEvent.originalSql
                 , subTableInfo.getTableName()
                 , upperKeyColumn
                 , tableInfo.getTableName()

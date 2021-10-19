@@ -78,7 +78,7 @@ public class QueryWrapperCreator {
                 .collect(Collectors.toList());
             ;
             List<QuerySelectModel> joinQueryModels = this.joinTableDtoFields.stream().map(x -> {
-                return this.dtoClassInfo.getDtoClassInfoHelper().getDtoClassInfo(x.getEntityDtoServiceRelation().getDtoClass())
+                return this.dtoClassInfo.getDtoClassInfoHelper().getDtoClassInfo(x.getEntityDtoServiceRelation())
                         .getNormalFieldList().stream()
                         .filter(y -> y.getQuerySelect() != null || y.getEntityFieldInfo() != null)
                         .map(y ->

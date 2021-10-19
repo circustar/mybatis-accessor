@@ -1,12 +1,12 @@
-package com.circustar.mybatis_accessor.annotation.after_update;
+package com.circustar.mybatis_accessor.annotation.listener;
 
-public class AfterUpdateAvgSqlExecutor extends AfterUpdateSumSqlExecutor implements  IAfterUpdateExecutor {
+public class UpdateAvgSqlEvent extends UpdateSumSqlEvent implements IUpdateEvent {
     private static final String precisionStr = "###precision###";
     private static final String originalSql = "select round(sum(t1.%s)/count(*), " + precisionStr + ") from %s t1 where t1.%s = %s.%s";
 
     @Override
     protected String getOriginalSql(String[] originParams) {
         String precision = originParams[3];
-        return AfterUpdateAvgSqlExecutor.originalSql.replace(AfterUpdateAvgSqlExecutor.precisionStr, precision);
+        return UpdateAvgSqlEvent.originalSql.replace(UpdateAvgSqlEvent.precisionStr, precision);
     }
 }

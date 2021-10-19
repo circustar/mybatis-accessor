@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.annotation.after_update;
+package com.circustar.mybatis_accessor.annotation.listener;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -19,7 +19,7 @@ import java.util.List;
 // 参数4：精度
 // 参数5：分配权重对应的变量名
 
-public class AfterUpdateAssignSqlExecutor extends AfterUpdateAvgSqlExecutor implements  IAfterUpdateExecutor {
+public class UpdateAssignSqlEvent extends UpdateAvgSqlEvent implements IUpdateEvent {
     protected static final String selectSql = "Round((sum(%s) over (partition by %s order by %s)) / (sum(%s) over (partition by %s)) * %s, %s) " +
             "- Round(((sum(%s) over (partition by %s order by %s)) - %s) / (sum(%s) over (partition by %s)) * %s, %s) as %s";
 

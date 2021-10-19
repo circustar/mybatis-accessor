@@ -1,28 +1,23 @@
-package com.circustar.mybatis_accessor.annotation.after_update;
+package com.circustar.mybatis_accessor.annotation.listener;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.collection.NumberUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
-import com.sun.org.apache.bcel.internal.generic.BIPUSH;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class AfterUpdateAssignExecutor extends AfterUpdateAvgExecutor implements  IAfterUpdateExecutor {
+public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent {
     @Override
     protected List<DtoField> parseDtoFieldList(DtoClassInfo dtoClassInfo, String[] params) {
         List<DtoField> dtoFields = super.parseDtoFieldList(dtoClassInfo, params);
@@ -59,7 +54,6 @@ public class AfterUpdateAssignExecutor extends AfterUpdateAvgExecutor implements
         Method mFieldReadMethod = mEntityField.getPropertyDescriptor().getReadMethod();
 
         TableInfo sTableInfo = fieldDtoClassInfo.getEntityClassInfo().getTableInfo();
-        TableFieldInfo sTableLogicDeleteFieldInfo = sTableInfo.getLogicDeleteFieldInfo();
 
         EntityFieldInfo sKeyField = fieldDtoClassInfo.getKeyField().getEntityFieldInfo();
         Method sKeyFieldReadMethod = sKeyField.getPropertyDescriptor().getReadMethod();
@@ -90,9 +84,6 @@ public class AfterUpdateAssignExecutor extends AfterUpdateAvgExecutor implements
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq(upperKeyField.getColumnName(), mKeyValue);
 
-            if(sTableLogicDeleteFieldInfo!= null) {
-                queryWrapper.eq(sTableLogicDeleteFieldInfo.getColumn(), sTableLogicDeleteFieldInfo.getLogicNotDeleteValue());
-            }
             List sEntityList = sServiceBean.list(queryWrapper);
             BigDecimal allWeightValue = this.getTotalWeight(sEntityList, sWeightEntityField);
             BigDecimal sumAssignValue = BigDecimal.ZERO;

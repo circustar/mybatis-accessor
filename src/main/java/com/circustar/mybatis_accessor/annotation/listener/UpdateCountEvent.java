@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.annotation.after_update;
+package com.circustar.mybatis_accessor.annotation.listener;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -10,15 +10,12 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
-import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class AfterUpdateCountExecutor extends AfterUpdateCountSqlExecutor implements IAfterUpdateExecutor {
+public class UpdateCountEvent extends UpdateCountSqlEvent implements IUpdateEvent {
 
     @Override
     protected List<Object> parseParams(List<DtoField> dtoFields, DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, String[] params) {
@@ -34,7 +31,6 @@ public class AfterUpdateCountExecutor extends AfterUpdateCountSqlExecutor implem
         IService serviceBean = dtoClassInfo.getServiceBean();
         IService fieldServiceBean = fieldDtoClassInfo.getServiceBean();
         TableInfo fieldTableInfo = fieldDtoClassInfo.getEntityClassInfo().getTableInfo();
-        TableFieldInfo fieldLogicDeleteFieldInfo = fieldTableInfo.getLogicDeleteFieldInfo();
         DtoField mField = dtoFields.get(0);
         EntityFieldInfo mKeyField = dtoClassInfo.getEntityClassInfo().getKeyField();
         Method mKeyFieldReadMethod = mKeyField.getPropertyDescriptor().getReadMethod();
@@ -49,10 +45,6 @@ public class AfterUpdateCountExecutor extends AfterUpdateCountSqlExecutor implem
             Object mKeyValue = FieldUtils.getFieldValue(entityList.get(i), mKeyFieldReadMethod);
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq(upperKeyField.getColumnName(), mKeyValue);
-
-            if(fieldLogicDeleteFieldInfo!= null) {
-                queryWrapper.eq(fieldLogicDeleteFieldInfo.getColumn(), fieldLogicDeleteFieldInfo.getLogicNotDeleteValue());
-            }
 
             BigDecimal decimalValue = getValue(queryWrapper, fieldServiceBean, dtoFields, parsedParams);
             Object updateValue = NumberUtils.castFromBigDecimal(type, decimalValue);

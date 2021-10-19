@@ -58,7 +58,7 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
         List dtoList = CollectionUtils.convertToList(dtoParam);
         if(dtoList.isEmpty()) {return result;}
 
-        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation.getDtoClass());
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation);
         String[] children;
         if(options.isIncludeAllChildren()) {
             children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getChildDtoFieldList().stream().map(x -> x.getField().getName()));

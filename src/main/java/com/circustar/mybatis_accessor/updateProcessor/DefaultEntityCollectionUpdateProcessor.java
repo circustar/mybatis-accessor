@@ -2,9 +2,9 @@ package com.circustar.mybatis_accessor.updateProcessor;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.common_utils.parser.SPELParser;
-import com.circustar.mybatis_accessor.annotation.after_update.AfterUpdateModel;
-import com.circustar.mybatis_accessor.annotation.after_update.ExecuteTiming;
-import com.circustar.mybatis_accessor.annotation.on_change.OnChangeModel;
+import com.circustar.mybatis_accessor.annotation.listener.UpdateEventModel;
+import com.circustar.mybatis_accessor.annotation.listener.ExecuteTiming;
+import com.circustar.mybatis_accessor.annotation.listener.property_change.PropertyChangeEventModel;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.EntityClassInfo;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
@@ -13,7 +13,6 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Supplier;
@@ -118,23 +117,23 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         }
         if (!updateChildrenOnly) {
             List dtoListBeforeUpdate = getDtoListBeforeUpdate(this.updateCommand.getUpdateType()
-                    ,this.dtoClassInfo, this.dtoClassInfo.getOnChangeList()
+                    ,this.dtoClassInfo, this.dtoClassInfo.getPropertyChangeEventList()
                     , this.updateDtoList);
-            executeOnChangeExecutor(Arrays.asList(ExecuteTiming.BEFORE_UPDATE, ExecuteTiming.BEFORE_SUB_ENTITY_UPDATE)
+            executePropertyChangeEvent(Arrays.asList(ExecuteTiming.BEFORE_UPDATE, ExecuteTiming.BEFORE_SUB_ENTITY_UPDATE)
                     , this.updateCommand.getUpdateType()
-                    , this.dtoClassInfo, this.dtoClassInfo.getOnChangeList()
+                    , this.dtoClassInfo, this.dtoClassInfo.getPropertyChangeEventList()
                     , this.updateDtoList, dtoListBeforeUpdate);
-            executeAfterUpdateExecutor(ExecuteTiming.BEFORE_UPDATE, updateCommand.getUpdateType()
-                    , dtoClassInfo, this.dtoClassInfo.getAfterUpdateList()
+            executeUpdateEvent(ExecuteTiming.BEFORE_UPDATE, updateCommand.getUpdateType()
+                    , dtoClassInfo, this.dtoClassInfo.getUpdateEventList()
                     , this.updateDtoList, this.updateEntityList);
             result = this.updateCommand.update(this.service, this.updateEntityList, option);
             if (!result) return false;
-            executeOnChangeExecutor(Arrays.asList(ExecuteTiming.AFTER_UPDATE, ExecuteTiming.AFTER_SUB_ENTITY_UPDATE)
+            executePropertyChangeEvent(Arrays.asList(ExecuteTiming.AFTER_UPDATE, ExecuteTiming.AFTER_SUB_ENTITY_UPDATE)
                     , this.updateCommand.getUpdateType()
-                    , this.dtoClassInfo, this.dtoClassInfo.getOnChangeList()
+                    , this.dtoClassInfo, this.dtoClassInfo.getPropertyChangeEventList()
                     , this.updateDtoList, dtoListBeforeUpdate);
-            executeAfterUpdateExecutor(ExecuteTiming.AFTER_UPDATE, updateCommand.getUpdateType()
-                    , dtoClassInfo, this.dtoClassInfo.getAfterUpdateList()
+            executeUpdateEvent(ExecuteTiming.AFTER_UPDATE, updateCommand.getUpdateType()
+                    , dtoClassInfo, this.dtoClassInfo.getUpdateEventList()
                     , this.updateDtoList, this.updateEntityList);
         }
 
@@ -157,15 +156,15 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
 
     private boolean execSubEntityUpdate(Map<String, Object> keyMap, List<Supplier<Integer>> consumerList
             , int level) {
-        List<AfterUpdateModel> afterUpdateList = this.dtoClassInfo.getAfterUpdateList();
-        executeAfterUpdateExecutor(ExecuteTiming.BEFORE_SUB_ENTITY_UPDATE, this.updateCommand.getUpdateType()
-                , this.dtoClassInfo, afterUpdateList
+        List<UpdateEventModel> updateEventList = this.dtoClassInfo.getUpdateEventList();
+        executeUpdateEvent(ExecuteTiming.BEFORE_SUB_ENTITY_UPDATE, this.updateCommand.getUpdateType()
+                , this.dtoClassInfo, updateEventList
                 , this.updateDtoList, this.updateEntityList);
         if(this.subUpdateEntities != null && !this.subUpdateEntities.isEmpty()) {
-            if(afterUpdateList != null && !afterUpdateList.isEmpty()) {
+            if(updateEventList != null && !updateEventList.isEmpty()) {
                 consumerList.add(() -> {
-                    executeAfterUpdateExecutor(ExecuteTiming.AFTER_SUB_ENTITY_UPDATE, this.updateCommand.getUpdateType()
-                            , this.dtoClassInfo, afterUpdateList
+                    executeUpdateEvent(ExecuteTiming.AFTER_SUB_ENTITY_UPDATE, this.updateCommand.getUpdateType()
+                            , this.dtoClassInfo, updateEventList
                             , this.updateDtoList, this.updateEntityList);
                     return level;
                 });
@@ -186,18 +185,18 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         return true;
     }
 
-    private void executeAfterUpdateExecutor( ExecuteTiming executeTiming, IUpdateCommand.UpdateType updateType
+    private void executeUpdateEvent(ExecuteTiming executeTiming, IUpdateCommand.UpdateType updateType
             , DtoClassInfo dtoClassInfo
-            , List<AfterUpdateModel> afterUpdateList
+            , List<UpdateEventModel> updateEventList
             , List updateDtoList, List updateEntityList) {
-        if(this.updateChildrenOnly || (afterUpdateList == null || afterUpdateList.isEmpty())) {
+        if(this.updateChildrenOnly || (updateEventList == null || updateEventList.isEmpty())) {
             return;
         }
-        List<AfterUpdateModel> updateModelList = afterUpdateList.stream()
-                .filter(x -> executeTiming.equals(x.getAfterUpdateExecutor().getExecuteTiming()))
-                .filter(x -> Arrays.stream(x.getAfterUpdateExecutor().getUpdateTypes()).anyMatch(y -> updateType.equals(y)))
+        List<UpdateEventModel> updateModelList = updateEventList.stream()
+                .filter(x -> executeTiming.equals(x.getUpdateEvent().getExecuteTiming()))
+                .filter(x -> Arrays.stream(x.getUpdateEvent().getUpdateTypes()).anyMatch(y -> updateType.equals(y)))
                 .collect(Collectors.toList());
-        for(AfterUpdateModel m : updateModelList) {
+        for(UpdateEventModel m : updateModelList) {
             List executeDtoList = new ArrayList();
             List executeEntityList = new ArrayList();
             for(int i = 0 ; i < updateDtoList.size(); i++) {
@@ -212,18 +211,18 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                 executeEntityList.add(updateEntityList.get(i));
             }
             if(!executeDtoList.isEmpty()) {
-                m.getAfterUpdateExecutor().exec(this.updateCommand.getUpdateType(),
+                m.getUpdateEvent().exec(this.updateCommand.getUpdateType(),
                         dtoClassInfo, executeDtoList, executeEntityList, m.getUpdateParams());
             }
         }
     }
 
     private List getDtoListBeforeUpdate(IUpdateCommand.UpdateType updateType
-            , DtoClassInfo dtoClassInfo, List<OnChangeModel> onChangeList, List updateDtoList) {
+            , DtoClassInfo dtoClassInfo, List<PropertyChangeEventModel> onChangeList, List updateDtoList) {
         if(onChangeList == null || onChangeList.isEmpty()) {
             return null;
         }
-        if(!onChangeList.stream().flatMap(x -> Arrays.stream(x.getOnChangeExecutor().getUpdateTypes()))
+        if(!onChangeList.stream().flatMap(x -> Arrays.stream(x.getPropertyChangeEvent().getUpdateTypes()))
                 .anyMatch(x -> updateType.equals(x))) {
             return null;
         }
@@ -247,33 +246,33 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         return result;
     }
 
-    private void executeOnChangeExecutor(List<ExecuteTiming> executeTimingList, IUpdateCommand.UpdateType updateType
-            , DtoClassInfo dtoClassInfo, List<OnChangeModel> onChangeList
+    private void executePropertyChangeEvent(List<ExecuteTiming> executeTimingList, IUpdateCommand.UpdateType updateType
+            , DtoClassInfo dtoClassInfo, List<PropertyChangeEventModel> onChangeList
             , List updateDtoList, List oldDtoList) {
         if(onChangeList == null || onChangeList.isEmpty() || oldDtoList == null || oldDtoList.isEmpty()) {
             return;
         }
-        for(OnChangeModel onChangeModel: onChangeList) {
-            if(!executeTimingList.stream().anyMatch(x -> x.equals(onChangeModel.getOnChangeExecutor().getExecuteTiming()))) {
+        for(PropertyChangeEventModel propertyChangeEventModel : onChangeList) {
+            if(!executeTimingList.stream().anyMatch(x -> x.equals(propertyChangeEventModel.getPropertyChangeEvent().getExecuteTiming()))) {
                 continue;
             }
-            if(!Arrays.stream(onChangeModel.getOnChangeExecutor().getUpdateTypes()).anyMatch(x -> updateType.equals(x))) {
+            if(!Arrays.stream(propertyChangeEventModel.getPropertyChangeEvent().getUpdateTypes()).anyMatch(x -> updateType.equals(x))) {
                 continue;
             }
             for(int i = 0; i < updateDtoList.size(); i++) {
                 Object newDto = updateDtoList.get(i);
                 Object oldDto = oldDtoList.get(i);
                 int compareResult = DtoClassInfo.equalProperties(dtoClassInfo
-                        , newDto, oldDto, onChangeModel.getChangePropertyNames());
+                        , newDto, oldDto, propertyChangeEventModel.getChangePropertyNames());
                 boolean execFlag;
-                if(onChangeModel.isTriggerOnAnyChanged()) {
+                if(propertyChangeEventModel.isTriggerOnAnyChanged()) {
                     execFlag = compareResult <= 0;
                 } else {
                     execFlag = compareResult < 0;
                 }
                 if(execFlag) {
-                    onChangeModel.getOnChangeExecutor().exec(updateType
-                            , dtoClassInfo, newDto, oldDto, onChangeModel.getUpdateParams());
+                    propertyChangeEventModel.getPropertyChangeEvent().exec(updateType
+                            , dtoClassInfo, newDto, oldDto, propertyChangeEventModel.getUpdateParams());
                 }
             }
         }

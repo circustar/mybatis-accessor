@@ -19,14 +19,15 @@ import java.io.Serializable;
 import java.util.*;
 
 // TODO List:
-// 3.提供数字汇总和分拆的能力
-// 1.设置更新内容监听
-// 2.更新后监听
-// 0.UpdateExpression
+// 1.After Update Auto Fill
+// 3.Dto converter
+// 4.UpdateListener -> register as bean -- OK 1019
+// 5.UpdateListener -> name change -- OK 1019
+// 6.UpdateListener -> use selectservice, use dto instead of entity
 public class MybatisAccessorService {
-    protected IUpdateService updateService = null;
-    protected ISelectService selectService = null;
-    protected IEntityDtoServiceRelationMap entityDtoServiceRelationMap = null;
+    protected IUpdateService updateService;
+    protected ISelectService selectService;
+    protected IEntityDtoServiceRelationMap entityDtoServiceRelationMap;
     protected DefaultInsertProcessorProvider defaultInsertProcessorProvider;
     protected DefaultDeleteByIdProcessorProvider defaultDeleteByIdProcessorProvider;
     protected DefaultUpdateProcessorProvider defaultUpdateProcessorProvider;

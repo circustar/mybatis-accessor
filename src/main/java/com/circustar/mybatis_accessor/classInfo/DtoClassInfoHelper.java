@@ -1,7 +1,10 @@
 package com.circustar.mybatis_accessor.classInfo;
 
+import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.common_utils.reflection.FieldUtils;
+import com.circustar.mybatis_accessor.service.ISelectService;
+import com.circustar.mybatis_accessor.service.IUpdateService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationContext;
 
@@ -17,9 +20,19 @@ public class DtoClassInfoHelper {
 
     private EntityClassInfoHelper entityClassInfoHelper;
 
+    private ISelectService selectService;
+
+    private IUpdateService updateService;
+
     public DtoClassInfoHelper(IEntityDtoServiceRelationMap relationMap,EntityClassInfoHelper entityClassInfoHelper) {
         this.entityDtoServiceRelationMap = relationMap;
         this.entityClassInfoHelper = entityClassInfoHelper;
+    }
+    public DtoClassInfo getDtoClassInfo(EntityDtoServiceRelation relation) {
+        if(relation.getDtoClassInfo() != null) {
+            return relation.getDtoClassInfo();
+        }
+        return getDtoClassInfo(relation.getDtoClass());
     }
     public DtoClassInfo getDtoClassInfo(Class<?> clazz) {
         if(dtoClassInfoMap.containsKey(clazz)) {
@@ -30,6 +43,22 @@ public class DtoClassInfoHelper {
         dtoClassInfo = tryPut(clazz, dtoClassInfo);
         dtoClassInfo.initJoinTableInfo(this);
         return dtoClassInfo;
+    }
+
+    public void setSelectService(ISelectService selectService) {
+        this.selectService = selectService;
+    }
+
+    public void setUpdateService(IUpdateService updateService) {
+        this.updateService = updateService;
+    }
+
+    public ISelectService getSelectService() {
+        return selectService;
+    }
+
+    public IUpdateService getUpdateService() {
+        return updateService;
     }
 
     private DtoClassInfo tryPut(Class<?> clazz, DtoClassInfo dtoClassInfo) {
