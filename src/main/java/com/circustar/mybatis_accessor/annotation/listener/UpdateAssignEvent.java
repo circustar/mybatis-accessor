@@ -1,15 +1,14 @@
 package com.circustar.mybatis_accessor.annotation.listener;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
-import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.collection.NumberUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
+import com.circustar.mybatis_accessor.service.ISelectService;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -27,22 +26,22 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent {
         return dtoFields;
     }
 
-    protected BigDecimal getTotalWeight(List sEntityList, EntityFieldInfo sWeightEntityField) {
-        Class sWeightEntityClass = (Class) sWeightEntityField.getActualType();
+    protected BigDecimal getTotalWeight(List sEntityList, DtoField sWeightEntityField) {
+        Class sWeightEntityClass = sWeightEntityField.getActualClass();
         BigDecimal allWeightValue = NumberUtils.sumListByType(sWeightEntityClass, sEntityList
                 , sWeightEntityField.getPropertyDescriptor().getReadMethod());
         return allWeightValue;
     }
 
-    protected BigDecimal getNextWeight(Object sEntity, EntityFieldInfo sWeightEntityField) {
-        Class sWeightEntityClass = (Class) sWeightEntityField.getActualType();
+    protected BigDecimal getNextWeight(Object sEntity, DtoField sWeightEntityField) {
+        Class sWeightEntityClass = sWeightEntityField.getActualClass();
         BigDecimal bigDecimal = NumberUtils.readDecimalValue(sWeightEntityClass, sEntity
                 , sWeightEntityField.getPropertyDescriptor().getReadMethod());
         return bigDecimal;
     }
 
-    protected EntityFieldInfo getWeightEntityField(List<DtoField> dtoFields) {
-        return dtoFields.get(3).getEntityFieldInfo();
+    protected DtoField getWeightEntityField(List<DtoField> dtoFields) {
+        return dtoFields.get(3);
     }
 
     @Override
@@ -50,55 +49,48 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent {
         EntityFieldInfo mKeyField = dtoClassInfo.getEntityClassInfo().getKeyField();
         Method mKeyFieldReadMethod = mKeyField.getPropertyDescriptor().getReadMethod();
 
-        EntityFieldInfo mEntityField = dtoFields.get(0).getEntityFieldInfo();
-        Method mFieldReadMethod = mEntityField.getPropertyDescriptor().getReadMethod();
+        DtoField mField = dtoFields.get(0);
+        Method mFieldReadMethod = mField.getPropertyDescriptor().getReadMethod();
+        DtoField sField = dtoFields.get(1);
+        Method sFieldReadMethod = sField.getPropertyDescriptor().getReadMethod();
 
-        TableInfo sTableInfo = fieldDtoClassInfo.getEntityClassInfo().getTableInfo();
+        DtoField assignField = dtoFields.get(2);
+        Class sAssignFieldType = assignField.getActualClass();
+        String sAssignColumnName = assignField.getEntityFieldInfo().getColumnName();
 
-        EntityFieldInfo sKeyField = fieldDtoClassInfo.getKeyField().getEntityFieldInfo();
+        DtoField sWeightField = this.getWeightEntityField(dtoFields);
+        DtoField sKeyField = fieldDtoClassInfo.getKeyField();
         Method sKeyFieldReadMethod = sKeyField.getPropertyDescriptor().getReadMethod();
 
-        EntityFieldInfo sWeightEntityField = this.getWeightEntityField(dtoFields);
-
-        EntityFieldInfo sAssignEntityFieldInfo = dtoFields.get(2).getEntityFieldInfo();
-        Class sAssignFieldType = sAssignEntityFieldInfo.getField().getType();
-        String sAssignColumnName = sAssignEntityFieldInfo.getColumnName();
-
-        IService mServiceBean = dtoClassInfo.getServiceBean();
         IService sServiceBean = fieldDtoClassInfo.getServiceBean();
+        ISelectService selectService = dtoClassInfo.getDtoClassInfoHelper().getSelectService();
         int scale = (int)parsedParams.get(0);
 
-        EntityFieldInfo upperKeyField = mKeyField;
-        if(fieldDtoClassInfo.getEntityClassInfo() == dtoClassInfo.getEntityClassInfo()) {
-            upperKeyField = dtoClassInfo.getEntityClassInfo().getIdReferenceFieldInfo();
-        }
-
         for(Object o : entityList) {
-            Object mKeyValue = FieldUtils.getFieldValue(o, mKeyFieldReadMethod);
-            Object entity = mServiceBean.getById((Serializable) mKeyValue);
-            BigDecimal mSumValue = NumberUtils.readDecimalValue((Class) mEntityField.getActualType(), entity, mFieldReadMethod);
+            Serializable mKeyValue = (Serializable) FieldUtils.getFieldValue(o, mKeyFieldReadMethod);
+            Object dtoUpdated = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(), mKeyValue
+                    , false, new String[]{sField.getField().getName()});
+
+            BigDecimal mSumValue = NumberUtils.readDecimalValue(mField.getActualClass(), dtoUpdated, mFieldReadMethod);
             if(mSumValue == null) {
                 continue;
             }
-
-            QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq(upperKeyField.getColumnName(), mKeyValue);
-
-            List sEntityList = sServiceBean.list(queryWrapper);
-            BigDecimal allWeightValue = this.getTotalWeight(sEntityList, sWeightEntityField);
+            Object fieldValue = FieldUtils.getFieldValue(dtoUpdated, sFieldReadMethod);
+            List sFieldValueList = CollectionUtils.convertToList(fieldValue);
+            BigDecimal allWeightValue = this.getTotalWeight(sFieldValueList, sWeightField);
             BigDecimal sumAssignValue = BigDecimal.ZERO;
             BigDecimal sumWeightValue = BigDecimal.ZERO;
 
             BigDecimal nextSumWeightValue;
             BigDecimal nextSumAssignValue;
-            for(Object sEntity : sEntityList) {
+            for(Object sEntity : sFieldValueList) {
                 Object sKeyValue = FieldUtils.getFieldValue(sEntity, sKeyFieldReadMethod);
-                nextSumWeightValue = sumWeightValue.add(this.getNextWeight(sEntity, sWeightEntityField));
+                nextSumWeightValue = sumWeightValue.add(this.getNextWeight(sEntity, sWeightField));
                 nextSumAssignValue = mSumValue.multiply(nextSumWeightValue).divide(allWeightValue, scale, RoundingMode.HALF_DOWN);
                 Object assignValue = NumberUtils.castFromBigDecimal(sAssignFieldType, nextSumAssignValue.subtract(sumAssignValue));
 
                 UpdateWrapper uw = new UpdateWrapper();
-                uw.eq(sKeyField.getColumnName(), sKeyValue);
+                uw.eq(sKeyField.getEntityFieldInfo().getColumnName(), sKeyValue);
                 uw.set(sAssignColumnName, assignValue);
                 sServiceBean.update(uw);
 

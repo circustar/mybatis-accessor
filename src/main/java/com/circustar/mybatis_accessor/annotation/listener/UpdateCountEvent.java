@@ -1,56 +1,55 @@
 package com.circustar.mybatis_accessor.annotation.listener;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
-import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.collection.NumberUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
+import com.circustar.mybatis_accessor.service.ISelectService;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 public class UpdateCountEvent extends UpdateCountSqlEvent implements IUpdateEvent {
 
     @Override
     protected List<Object> parseParams(List<DtoField> dtoFields, DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, String[] params) {
-        return null;
+        return Arrays.asList(params);
     }
 
-    protected BigDecimal getValue(QueryWrapper queryWrapper, IService fieldServiceBean, List<DtoField> dtoFields, List<Object> parsedParams) {
-        return BigDecimal.valueOf(fieldServiceBean.count(queryWrapper));
+    protected BigDecimal getValue(Object dtoUpdated, List<DtoField> dtoFields, List<Object> parsedParams) {
+        Object fieldValue = FieldUtils.getFieldValue(dtoUpdated, dtoFields.get(1).getPropertyDescriptor().getReadMethod());
+        int count = 0;
+        if(fieldValue != null) {
+            count = CollectionUtils.convertToList(fieldValue).size();
+        }
+        return BigDecimal.valueOf(count);
     }
 
     @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams) {
         IService serviceBean = dtoClassInfo.getServiceBean();
-        IService fieldServiceBean = fieldDtoClassInfo.getServiceBean();
-        TableInfo fieldTableInfo = fieldDtoClassInfo.getEntityClassInfo().getTableInfo();
+        ISelectService selectService = dtoClassInfo.getDtoClassInfoHelper().getSelectService();
         DtoField mField = dtoFields.get(0);
+        DtoField sField = dtoFields.get(1);
         EntityFieldInfo mKeyField = dtoClassInfo.getEntityClassInfo().getKeyField();
         Method mKeyFieldReadMethod = mKeyField.getPropertyDescriptor().getReadMethod();
 
-        EntityFieldInfo upperKeyField = mKeyField;
-        if(fieldDtoClassInfo == dtoClassInfo) {
-            upperKeyField = dtoClassInfo.getEntityClassInfo().getIdReferenceFieldInfo();
-        }
-        Class<?> type = mField.getEntityFieldInfo().getField().getType();
-
         for(int i = 0; i< entityList.size(); i++) {
-            Object mKeyValue = FieldUtils.getFieldValue(entityList.get(i), mKeyFieldReadMethod);
-            QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq(upperKeyField.getColumnName(), mKeyValue);
-
-            BigDecimal decimalValue = getValue(queryWrapper, fieldServiceBean, dtoFields, parsedParams);
-            Object updateValue = NumberUtils.castFromBigDecimal(type, decimalValue);
+            Serializable mKeyValue = (Serializable) FieldUtils.getFieldValue(entityList.get(i), mKeyFieldReadMethod);
+            Object dtoUpdated = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(), mKeyValue
+                    , false, new String[]{sField.getField().getName()});
+            Object count = NumberUtils.castFromBigDecimal(mField.getActualClass()
+                    , getValue(dtoUpdated, dtoFields, parsedParams)) ;
 
             UpdateWrapper uw = new UpdateWrapper();
-            uw.set(mField.getEntityFieldInfo().getColumnName(), updateValue);
+            uw.set(mField.getEntityFieldInfo().getColumnName(), count);
             uw.eq(mKeyField.getColumnName(), mKeyValue);
             serviceBean.update(uw);
         }

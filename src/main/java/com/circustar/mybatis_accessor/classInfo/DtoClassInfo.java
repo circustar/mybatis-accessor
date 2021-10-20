@@ -13,6 +13,7 @@ import com.circustar.mybatis_accessor.annotation.dto.DeleteFlag;
 import com.circustar.mybatis_accessor.annotation.listener.property_change.MultiPropertyChangeListener;
 import com.circustar.mybatis_accessor.annotation.listener.property_change.PropertyChangeListener;
 import com.circustar.mybatis_accessor.annotation.listener.property_change.PropertyChangeEventModel;
+import com.circustar.mybatis_accessor.converter.IConverter;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.common_utils.reflection.AnnotationUtils;
@@ -51,6 +52,8 @@ public class DtoClassInfo {
     private List<UpdateEventModel> updateEventList;
     private List<PropertyChangeEventModel> propertyChangeEventList;
     private DtoField idReferenceField;
+    private IConverter convertDtoToEntity;
+    private IConverter convertEntityToDto;
 
     public DtoClassInfo(IEntityDtoServiceRelationMap relationMap, DtoClassInfoHelper dtoClassInfoHelper, Class<?> clazz, EntityClassInfo entityClassInfo) {
         this.clazz = clazz;
@@ -106,8 +109,17 @@ public class DtoClassInfo {
             }
         });
 
-        initAfterUpdateList(relationMap.getApplicationContext());
-        initOnChangeList(relationMap.getApplicationContext());
+        ApplicationContext applicationContext = dtoClassInfoHelper.getApplicationContext();
+        initAfterUpdateList(applicationContext);
+        initOnChangeList(applicationContext);
+        initConverter(applicationContext);
+    }
+
+    protected void initConverter(ApplicationContext applicationContext) {
+        this.convertDtoToEntity = ApplicationContextUtils.getBeanOrCreate(applicationContext
+                , this.entityDtoServiceRelation.getConvertDtoToEntityClass());
+        this.convertEntityToDto = ApplicationContextUtils.getBeanOrCreate(applicationContext
+                , this.entityDtoServiceRelation.getConvertEntityToDtoClass());
     }
 
     protected void initAfterUpdateList(ApplicationContext applicationContext) {
@@ -189,7 +201,7 @@ public class DtoClassInfo {
         this.joinColumns = (StringUtils.isBlank(this.joinColumns) ? "" : ",") + this.joinColumns;
     }
 
-    public Class<?> getClazz() {
+    public Class<?> getDtoClass() {
         return clazz;
     }
 
@@ -317,6 +329,22 @@ public class DtoClassInfo {
 
     public DtoField getIdReferenceField() {
         return idReferenceField;
+    }
+
+    public IConverter getConvertDtoToEntity() {
+        return convertDtoToEntity;
+    }
+
+    public IConverter getConvertEntityToDto() {
+        return convertEntityToDto;
+    }
+
+    public Object convertToEntity(Object dto) {
+        return this.convertDtoToEntity.convert(this.getEntityClassInfo().getEntityClass(), dto);
+    }
+
+    public Object convertFromEntity(Object entity) {
+        return this.convertEntityToDto.convert(this.getDtoClass(), entity);
     }
 
     public static int equalProperties(DtoClassInfo dtoClassInfo, Object obj1, Object obj2, String[] propertyNames) {

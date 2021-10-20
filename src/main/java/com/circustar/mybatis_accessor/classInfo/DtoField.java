@@ -42,7 +42,7 @@ public class DtoField {
         this.dtoClassInfo = dtoClassInfo;
 
         this.propertyDescriptor = propertyDescriptor;
-        this.field = FieldUtils.getField(dtoClassInfo.getClazz(), propertyDescriptor.getName());
+        this.field = FieldUtils.getField(dtoClassInfo.getDtoClass(), propertyDescriptor.getName());
 
         this.querySelect = this.field.getAnnotation(QuerySelect.class);
         this.queryJoin = this.field.getAnnotation(QueryJoin.class);

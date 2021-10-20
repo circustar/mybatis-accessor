@@ -230,7 +230,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         Method keyFieldReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
         for(int i = 0 ; i < updateDtoList.size(); i++) {
             Object updateDto = updateDtoList.get(i);
-            if(dtoClassInfo.getClazz().isAssignableFrom(updateDto.getClass())) {
+            if(dtoClassInfo.getDtoClass().isAssignableFrom(updateDto.getClass())) {
                 Serializable key = (Serializable) FieldUtils.getFieldValue(updateDto, keyFieldReadMethod);
                 if(key == null) {
                     result.add(null);

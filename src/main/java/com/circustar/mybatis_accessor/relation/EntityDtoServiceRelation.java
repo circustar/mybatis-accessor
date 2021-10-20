@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
+import com.circustar.mybatis_accessor.converter.IConverter;
 import org.springframework.context.ApplicationContext;
 
 public class EntityDtoServiceRelation {
@@ -15,6 +16,10 @@ public class EntityDtoServiceRelation {
     private Class<? extends  IService> serviceClass;
 
     private IService service = null;
+
+    private Class<? extends IConverter> convertDtoToEntityClass;
+
+    private Class<? extends IConverter> convertEntityToDtoClass;
 
     private DtoClassInfo dtoClassInfo;
 
@@ -46,10 +51,13 @@ public class EntityDtoServiceRelation {
         return tableInfo;
     }
 
-    public EntityDtoServiceRelation(Class dtoClass, Class entityClass, Class<? extends  IService> serviceClass) {
+    public EntityDtoServiceRelation(Class dtoClass, Class entityClass, Class<? extends  IService> serviceClass
+            , Class<? extends IConverter> convertDtoToEntityClass, Class<? extends IConverter> convertEntityToDtoClass) {
         this.entityClass = entityClass;
         this.dtoClass = dtoClass;
         this.serviceClass = serviceClass;
+        this.convertDtoToEntityClass = convertDtoToEntityClass;
+        this.convertEntityToDtoClass = convertEntityToDtoClass;
         this.tableInfo = TableInfoHelper.getTableInfo(entityClass);
     }
 
@@ -66,5 +74,13 @@ public class EntityDtoServiceRelation {
 
     public void setDtoClassInfo(DtoClassInfo dtoClassInfo) {
         this.dtoClassInfo = dtoClassInfo;
+    }
+
+    public Class<? extends IConverter> getConvertDtoToEntityClass() {
+        return convertDtoToEntityClass;
+    }
+
+    public Class<? extends IConverter> getConvertEntityToDtoClass() {
+        return convertEntityToDtoClass;
     }
 }

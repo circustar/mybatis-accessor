@@ -1,11 +1,10 @@
 package com.circustar.mybatis_accessor.annotation.listener;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.collection.NumberUtils;
+import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
-import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -23,11 +22,12 @@ public class UpdateSumEvent extends UpdateCountEvent implements IUpdateEvent {
     }
 
     @Override
-    protected BigDecimal getValue(QueryWrapper queryWrapper, IService fieldServiceBean, List<DtoField> dtoFields, List<Object> parsedParams) {
-        EntityFieldInfo entityFieldInfo = dtoFields.get(2).getEntityFieldInfo();
-        Method readMethod = entityFieldInfo.getPropertyDescriptor().getReadMethod();
-        List valueList = fieldServiceBean.list(queryWrapper);
-        Class<?> type = entityFieldInfo.getField().getType();
+    protected BigDecimal getValue(Object dtoUpdated, List<DtoField> dtoFields, List<Object> parsedParams) {
+        Object subFieldValue = FieldUtils.getFieldValue(dtoUpdated, dtoFields.get(1).getPropertyDescriptor().getReadMethod());
+        List valueList = CollectionUtils.convertToList(subFieldValue);
+        DtoField sumField = dtoFields.get(2);
+        Class type = sumField.getActualClass();
+        Method readMethod = sumField.getPropertyDescriptor().getReadMethod();
         return NumberUtils.sumListByType(type, valueList, readMethod);
     }
 }

@@ -1,7 +1,8 @@
 package com.circustar.mybatis_accessor.annotation.scan;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.mybatis_accessor.provider.*;
+import com.circustar.mybatis_accessor.converter.DefaultConverter;
+import com.circustar.mybatis_accessor.converter.IConverter;
 
 import java.lang.annotation.*;
 
@@ -13,6 +14,6 @@ public @interface DtoEntityRelation {
     Class dtoClass() default Void.class;
     Class entityClass() default Void.class;
     Class<? extends IService> service() default IService.class;
-    Class<? extends IUpdateProcessorProvider>[] updateObjectProviders() default {
-    };
+    Class<? extends IConverter> convertDtoToEntityClazz() default DefaultConverter.class;
+    Class<? extends IConverter> convertEntityToDtoClazz() default DefaultConverter.class;
 }

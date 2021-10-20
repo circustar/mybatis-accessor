@@ -3,6 +3,7 @@ package com.circustar.mybatis_accessor.config;
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.EntityClassInfoHelper;
+import com.circustar.mybatis_accessor.converter.DefaultConverter;
 import com.circustar.mybatis_accessor.provider.DefaultDeleteByIdProcessorProvider;
 import com.circustar.mybatis_accessor.provider.DefaultDeleteProcessorProvider;
 import com.circustar.mybatis_accessor.provider.DefaultInsertProcessorProvider;
@@ -46,13 +47,16 @@ public class MybatisAccessorConfiguration {
     private DefaultDeleteProcessorProvider defaultDeleteProcessorProvider;
     private DefaultInsertProcessorProvider defaultInsertProcessorProvider;
     private DefaultUpdateProcessorProvider defaultUpdateProcessorProvider;
+    private DefaultConverter defaultConverter;
 
     public MybatisAccessorConfiguration(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         this.enhanceSqlInjector = new EnhanceSqlInjector();
         this.entityDtoServiceRelationMap = new EntityDtoServiceRelationMap(this.applicationContext);
         this.entityClassInfoHelper = new EntityClassInfoHelper();
-        this.dtoClassInfoHelper = new DtoClassInfoHelper(this.entityDtoServiceRelationMap, this.entityClassInfoHelper);
+        this.defaultConverter = new DefaultConverter();
+        this.dtoClassInfoHelper = new DtoClassInfoHelper(this.applicationContext
+                , this.entityDtoServiceRelationMap, this.entityClassInfoHelper);
         this.updateService = new UpdateService(this.dtoClassInfoHelper);
         this.dtoClassInfoHelper.setUpdateService(this.updateService);
         this.selectService = new SelectService(this.dtoClassInfoHelper);
@@ -142,5 +146,10 @@ public class MybatisAccessorConfiguration {
     @Bean
     public MybatisAccessorUpdateManager getMybatisAccessorUpdateManager() {
         return this.updateManager;
+    }
+
+    @Bean
+    public DefaultConverter getDefaultConverter() {
+        return this.defaultConverter;
     }
 }

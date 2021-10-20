@@ -5,7 +5,6 @@ import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.service.ISelectService;
 import com.circustar.mybatis_accessor.service.IUpdateService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Collection;
@@ -24,7 +23,11 @@ public class DtoClassInfoHelper {
 
     private IUpdateService updateService;
 
-    public DtoClassInfoHelper(IEntityDtoServiceRelationMap relationMap,EntityClassInfoHelper entityClassInfoHelper) {
+    private ApplicationContext applicationContext;
+
+    public DtoClassInfoHelper(ApplicationContext applicationContext
+            , IEntityDtoServiceRelationMap relationMap, EntityClassInfoHelper entityClassInfoHelper) {
+        this.applicationContext = applicationContext;
         this.entityDtoServiceRelationMap = relationMap;
         this.entityClassInfoHelper = entityClassInfoHelper;
     }
@@ -77,17 +80,14 @@ public class DtoClassInfoHelper {
         if(Collection.class.isAssignableFrom(object.getClass())) {
             return convertToEntityList((Collection)object, dtoClassInfo);
         } else {
-            return convertToSingleObject(object, dtoClassInfo);
+            return convertToSingleEntity(object, dtoClassInfo);
         }
     }
 
-    public Object convertToSingleObject(Object object, DtoClassInfo dtoClassInfo) {
+    public Object convertToSingleEntity(Object object, DtoClassInfo dtoClassInfo) {
         try {
-            Class targetClass = dtoClassInfo.getEntityDtoServiceRelation().getEntityClass();
+            Object entity = dtoClassInfo.convertToEntity(object);
             EntityClassInfo entityClassInfo = dtoClassInfo.getEntityClassInfo();
-
-            Object entity = targetClass.newInstance();
-            BeanUtils.copyProperties(object, entity);
             for (DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
                 EntityFieldInfo entityEntityFieldInfo = entityClassInfo.getFieldByName(dtoField.getField().getName());
                 if (entityEntityFieldInfo == null) {
@@ -110,14 +110,12 @@ public class DtoClassInfoHelper {
             throw new RuntimeException("Collection type not Support!");
         }
         try {
-            EntityClassInfo entityClassInfo = dtoClassInfo.getEntityClassInfo();
             Collection childList = implementClass.newInstance();
             Iterator it = objects.iterator();
             while (it.hasNext()) {
                 Object object = it.next();
                 if (object == null) continue;
-                Object child = entityClassInfo.getEntityClass().newInstance();
-                BeanUtils.copyProperties(object, child);
+                Object child = dtoClassInfo.convertToEntity(object);
                 childList.add(child);
             }
             for (DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
@@ -147,15 +145,14 @@ public class DtoClassInfoHelper {
         if(Collection.class.isAssignableFrom(entity.getClass())) {
             return convertFromEntityList((Collection)entity, dtoClassInfo);
         } else {
-            return convertFromSingleObject(entity, dtoClassInfo);
+            return convertFromSingleEntity(entity, dtoClassInfo);
         }
     }
 
 
-    public <T> T convertFromSingleObject(Object entity, DtoClassInfo dtoClassInfo)  {
+    public Object convertFromSingleEntity(Object entity, DtoClassInfo dtoClassInfo)  {
         try {
-            T object = (T) dtoClassInfo.getClazz().newInstance();
-            BeanUtils.copyProperties(entity, object);
+            Object object = dtoClassInfo.convertFromEntity(entity);
             for (DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
                 if (dtoField.getEntityFieldInfo() == null) {
                     continue;
@@ -186,8 +183,7 @@ public class DtoClassInfoHelper {
                     objectList.add(null);
                     continue;
                 }
-                Object object = dtoClassInfo.getClazz().newInstance();
-                BeanUtils.copyProperties(entity, object);
+                Object object = dtoClassInfo.convertFromEntity(entity);
                 objectList.add(object);
             }
             for (DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
@@ -223,6 +219,6 @@ public class DtoClassInfoHelper {
     }
 
     public ApplicationContext getApplicationContext() {
-        return this.entityDtoServiceRelationMap.getApplicationContext();
+        return this.applicationContext;
     }
 }

@@ -20,10 +20,10 @@ import java.util.*;
 
 // TODO List:
 // 1.After Update Auto Fill
-// 3.Dto converter
+// 3.Dto converter -- OK 1020
 // 4.UpdateListener -> register as bean -- OK 1019
 // 5.UpdateListener -> name change -- OK 1019
-// 6.UpdateListener -> use selectservice, use dto instead of entity
+// 6.UpdateListener -> use selectservice, use dto instead of entity -- OK 1020
 public class MybatisAccessorService {
     protected IUpdateService updateService;
     protected ISelectService selectService;
