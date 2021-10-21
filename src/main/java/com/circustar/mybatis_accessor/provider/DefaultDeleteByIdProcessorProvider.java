@@ -4,9 +4,6 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
-import com.circustar.mybatis_accessor.provider.command.DeleteByIdCommand;
-import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
-import com.circustar.mybatis_accessor.provider.parameter.IEntityProviderParam;
 import org.springframework.context.ApplicationContext;
 
 import java.lang.reflect.Method;

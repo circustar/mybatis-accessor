@@ -1,5 +1,5 @@
 package com.circustar.mybatis_accessor.converter;
 
-public interface IConverter<T, R> {
-    public R convert(Class<R> clazz, T t) ;
+public interface IConverter<S, T> {
+    T convert(Class<T> clazz, S s) ;
 }

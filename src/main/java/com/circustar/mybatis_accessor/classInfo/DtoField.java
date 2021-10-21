@@ -36,6 +36,7 @@ public class DtoField {
     private DtoClassInfo fieldDtoClassInfo = null;
 
     private boolean deleteAndInsertNewOnUpdate = false;
+    private boolean deleteEvenIfEmpty = false;
 
     public DtoField(PropertyDescriptor propertyDescriptor, EntityFieldInfo entityFieldInfo, DtoClassInfo dtoClassInfo, IEntityDtoServiceRelationMap relationMap) {
         this.entityFieldInfo = entityFieldInfo;
@@ -156,10 +157,13 @@ public class DtoField {
         return deleteAndInsertNewOnUpdate;
     }
 
+    public boolean isDeleteEvenIfEmpty() { return deleteEvenIfEmpty; }
+
     public void retrieveDeleteAndInsertNewOnUpdate() {
         DeleteAndInsertNewOnUpdate deleteAndInsertAnnotation = this.field.getAnnotation(DeleteAndInsertNewOnUpdate.class);
         if(deleteAndInsertAnnotation != null) {
             this.deleteAndInsertNewOnUpdate = deleteAndInsertAnnotation.value();
+            this.deleteEvenIfEmpty = deleteAndInsertAnnotation.deleteEvenIfEmpty();
         }
     }
 

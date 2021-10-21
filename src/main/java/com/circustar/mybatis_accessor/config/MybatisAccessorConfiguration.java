@@ -65,7 +65,7 @@ public class MybatisAccessorConfiguration {
         this.defaultDeleteProcessorProvider = new DefaultDeleteProcessorProvider(this.applicationContext);
         this.defaultDeleteByIdProcessorProvider = new DefaultDeleteByIdProcessorProvider(this.applicationContext);
         this.defaultInsertProcessorProvider = new DefaultInsertProcessorProvider(this.applicationContext);
-        this.defaultUpdateProcessorProvider = new DefaultUpdateProcessorProvider(this.applicationContext);
+        this.defaultUpdateProcessorProvider = new DefaultUpdateProcessorProvider(this.applicationContext, this.selectService);
 
         this.mybatisAccessorService = new MybatisAccessorService(this.entityDtoServiceRelationMap
                 , this.selectService, this.updateService

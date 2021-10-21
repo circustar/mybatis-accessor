@@ -6,8 +6,6 @@ import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.provider.command.DeleteByIdCommand;
-import com.circustar.mybatis_accessor.provider.command.DeleteEntityCommand;
-import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.mybatis_accessor.provider.parameter.DefaultEntityProviderParam;
 import com.circustar.mybatis_accessor.provider.parameter.IEntityProviderParam;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
@@ -77,6 +75,7 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
                     .map(x -> this.convertToUpdateTarget(dtoClassInfo, x))
                     .collect(Collectors.toList());
         } else {
+            List<DtoField> dtoFields = Arrays.stream(topEntities).map(x -> dtoClassInfo.getDtoField(x)).collect(Collectors.toList());
             for (Object dto : dtoList) {
                 Serializable id = (Serializable) getUpdateId(dto, dtoClassInfo.getKeyField());
                 if(id == null) {
@@ -89,8 +88,7 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
                     throw new RuntimeException(relation.getEntityClass().getSimpleName()
                             + " delete exception : key not found : " + id);
                 }
-                for (String entityName : topEntities) {
-                    DtoField subDtoField = dtoClassInfo.getDtoField(entityName);
+                for (DtoField subDtoField : dtoFields) {
                     Object subDto = FieldUtils.getFieldValue(object, subDtoField.getPropertyDescriptor().getReadMethod());
                     if (subDto == null) { continue; }
                     DtoClassInfo subDtoClassInfo = subDtoField.getFieldDtoClassInfo();
@@ -99,7 +97,7 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
                     if(childList.isEmpty()) {continue;}
                     IEntityProviderParam subOptions = new DefaultEntityProviderParam(false
                             , options.isIncludeAllChildren(), this.getChildren(children
-                            , entityName, DEFAULT_DELIMITER));
+                            , subDtoField.getField().getName(), DEFAULT_DELIMITER));
                     subUpdateEntities.addAll(this.createUpdateEntities(
                             subDtoField.getEntityDtoServiceRelation()
                             , dtoClassInfoHelper, childList, subOptions

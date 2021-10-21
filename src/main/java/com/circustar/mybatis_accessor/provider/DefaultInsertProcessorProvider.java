@@ -14,6 +14,7 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import org.springframework.context.ApplicationContext;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider<IEntityProviderParam> {
 
@@ -47,6 +48,7 @@ public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider
         boolean hasChildren = false;
 
         List<Object> updateEntityList = new ArrayList<>();
+        List<DtoField> dtoFields = Arrays.stream(topEntities).map(x -> dtoClassInfo.getDtoField(x)).collect(Collectors.toList());
         for(Object value : dtoList) {
             if(dtoClassInfo.getVersionField() != null) {
                 FieldUtils.setFieldValue(value
@@ -63,15 +65,14 @@ public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider
                     , Collections.singletonList(updateEntity)
                     , this.getUpdateChildrenFirst()
                     , updateChildrenOnly);
-            for(String entityName : topEntities) {
-                DtoField dtoField = dtoClassInfo.getDtoField(entityName);
+            for(DtoField dtoField : dtoFields) {
                 Object subValue = FieldUtils.getFieldValue(value, dtoField.getPropertyDescriptor().getReadMethod());
                 if(subValue == null) {continue;}
                 Collection childList = CollectionUtils.convertToList(subValue);
                 if(childList.isEmpty()) {continue;}
                 hasChildren = true;
                 IEntityProviderParam subOptions = new DefaultEntityProviderParam(false, includeAllChildren, this.getChildren(children
-                        , entityName, DEFAULT_DELIMITER));
+                        , dtoField.getField().getName(), DEFAULT_DELIMITER));
                 defaultEntityCollectionUpdater.addSubUpdateEntities(this.createUpdateProcessors(
                         dtoField.getEntityDtoServiceRelation()
                         , dtoClassInfoHelper, childList, subOptions));

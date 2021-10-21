@@ -7,4 +7,5 @@ import java.lang.annotation.*;
 @Target(value = {ElementType.FIELD})
 public @interface DeleteAndInsertNewOnUpdate {
     boolean value() default false;
+    boolean deleteEvenIfEmpty() default false;
 }
