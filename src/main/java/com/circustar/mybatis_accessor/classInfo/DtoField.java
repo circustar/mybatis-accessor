@@ -37,6 +37,7 @@ public class DtoField {
 
     private boolean deleteAndInsertNewOnUpdate = false;
     private boolean deleteEvenIfEmpty = false;
+    private boolean updateCascade = true;
 
     public DtoField(PropertyDescriptor propertyDescriptor, EntityFieldInfo entityFieldInfo, DtoClassInfo dtoClassInfo, IEntityDtoServiceRelationMap relationMap) {
         this.entityFieldInfo = entityFieldInfo;
@@ -68,6 +69,9 @@ public class DtoField {
         }
         this.entityDtoServiceRelation = relationMap.getByDtoClass(actualClass);
         this.isIdReference = this.entityFieldInfo != null && this.entityFieldInfo.getIdReference() != null;
+        this.retrieveDeleteAndInsertNewOnUpdate();
+        this.retrieveUpdateCascade();
+
     }
 
     public EntityFieldInfo getEntityFieldInfo() {
@@ -159,7 +163,7 @@ public class DtoField {
 
     public boolean isDeleteEvenIfEmpty() { return deleteEvenIfEmpty; }
 
-    public void retrieveDeleteAndInsertNewOnUpdate() {
+    private void retrieveDeleteAndInsertNewOnUpdate() {
         DeleteAndInsertNewOnUpdate deleteAndInsertAnnotation = this.field.getAnnotation(DeleteAndInsertNewOnUpdate.class);
         if(deleteAndInsertAnnotation != null) {
             this.deleteAndInsertNewOnUpdate = deleteAndInsertAnnotation.value();
@@ -167,8 +171,19 @@ public class DtoField {
         }
     }
 
+    private void retrieveUpdateCascade() {
+        UpdateCascade updateCascade = this.field.getAnnotation(UpdateCascade.class);
+        if(updateCascade != null) {
+            this.updateCascade = updateCascade.value();
+        }
+    }
+
     public boolean isIdReference() {
         return isIdReference;
+    }
+
+    public boolean isUpdateCascade() {
+        return updateCascade;
     }
 
     enum SupportGenericType{

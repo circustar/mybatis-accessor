@@ -38,7 +38,7 @@ public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider
         boolean includeAllChildren = options.isIncludeAllChildren();
         String[] children;
         if(includeAllChildren) {
-            children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getChildDtoFieldList().stream().map(x -> x.getField().getName()));
+            children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getUpdateCascadeDtoFieldList().stream().map(x -> x.getField().getName()));
         } else {
             children = options.getUpdateChildrenNames();
         }

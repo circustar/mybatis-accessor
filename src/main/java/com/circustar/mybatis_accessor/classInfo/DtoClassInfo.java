@@ -24,7 +24,6 @@ import com.circustar.mybatis_accessor.utils.TableJoinColumnPrefixManager;
 import org.springframework.context.ApplicationContext;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -36,7 +35,7 @@ public class DtoClassInfo {
     private DtoClassInfoHelper dtoClassInfoHelper;
     private EntityDtoServiceRelation entityDtoServiceRelation;
     private List<DtoField> subDtoFieldList;
-    private List<DtoField> childDtoFieldList;
+    private List<DtoField> updateCascadeDtoFieldList;
     private List<DtoField> normalFieldList;
     private List<DtoField> allFieldList;
     private Map<String, DtoField> dtoFieldMap;
@@ -54,6 +53,7 @@ public class DtoClassInfo {
     private DtoField idReferenceField;
     private IConverter convertDtoToEntity;
     private IConverter convertEntityToDto;
+    private boolean containUpdateField;
 
     public DtoClassInfo(IEntityDtoServiceRelationMap relationMap, DtoClassInfoHelper dtoClassInfoHelper, Class<?> clazz, EntityClassInfo entityClassInfo) {
         this.clazz = clazz;
@@ -63,7 +63,6 @@ public class DtoClassInfo {
         this.entityDtoServiceRelation.setDtoClassInfo(this);
         this.entityClassInfo = entityClassInfo;
         this.subDtoFieldList = new ArrayList<>();
-        this.childDtoFieldList = new ArrayList<>();
         this.normalFieldList = new ArrayList<>();
         this.allFieldList = new ArrayList<>();
         this.dtoFieldMap = new HashMap<>();
@@ -92,11 +91,6 @@ public class DtoClassInfo {
             this.dtoFieldMap.put(property.getName(), dtoField);
             if(dtoField.getEntityDtoServiceRelation() != null) {
                 subDtoFieldList.add(dtoField);
-                Field parentKeyField = FieldUtils.getField(dtoField.getEntityDtoServiceRelation().getDtoClass(), keyProperty);
-                if(parentKeyField != null) {
-                    dtoField.retrieveDeleteAndInsertNewOnUpdate();
-                    this.childDtoFieldList.add(dtoField);
-                }
             } else if(TableInfoUtils.isMybatisSupportType(dtoField.getActualClass())) {
                 normalFieldList.add(dtoField);
                 if(property.getName().equals(finalVersionPropertyName)) {
@@ -108,6 +102,12 @@ public class DtoClassInfo {
                 this.idReferenceField = dtoField;
             }
         });
+
+        this.updateCascadeDtoFieldList = this.subDtoFieldList.stream().filter(x -> x.isUpdateCascade()).collect(Collectors.toList());
+        this.containUpdateField = this.normalFieldList.stream().filter(x -> x!= keyField && x != versionField
+                && x.getEntityFieldInfo() != null
+                && (x.getEntityFieldInfo().getTableField() == null || x.getEntityFieldInfo().getTableField().exist()))
+                .findAny().isPresent();
 
         ApplicationContext applicationContext = dtoClassInfoHelper.getApplicationContext();
         initAfterUpdateList(applicationContext);
@@ -209,8 +209,8 @@ public class DtoClassInfo {
         return subDtoFieldList;
     }
 
-    public List<DtoField> getChildDtoFieldList() {
-        return childDtoFieldList;
+    public List<DtoField> getUpdateCascadeDtoFieldList() {
+        return updateCascadeDtoFieldList;
     }
 
     public List<DtoField> getNormalFieldList() {
@@ -345,6 +345,10 @@ public class DtoClassInfo {
 
     public Object convertFromEntity(Object entity) {
         return this.convertEntityToDto.convert(this.getDtoClass(), entity);
+    }
+
+    public boolean isContainUpdateField() {
+        return containUpdateField;
     }
 
     public static int equalProperties(DtoClassInfo dtoClassInfo, Object obj1, Object obj2, String[] propertyNames) {

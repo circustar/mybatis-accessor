@@ -5,7 +5,6 @@ import java.lang.annotation.*;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.FIELD})
-public @interface DeleteAndInsertNewOnUpdate {
+public @interface UpdateCascade {
     boolean value() default true;
-    boolean deleteEvenIfEmpty() default false;
 }

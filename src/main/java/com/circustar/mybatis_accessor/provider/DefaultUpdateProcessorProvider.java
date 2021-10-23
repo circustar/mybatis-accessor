@@ -43,7 +43,7 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation);
         String[] children;
         if(options.isIncludeAllChildren()) {
-            children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getSubDtoFieldList().stream().map(x -> x.getField().getName()));
+            children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getUpdateCascadeDtoFieldList().stream().map(x -> x.getField().getName()));
         } else {
             children = options.getUpdateChildrenNames();
         }
