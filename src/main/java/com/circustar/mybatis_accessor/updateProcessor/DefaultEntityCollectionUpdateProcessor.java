@@ -211,8 +211,8 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                 executeEntityList.add(updateEntityList.get(i));
             }
             if(!executeDtoList.isEmpty()) {
-                m.getUpdateEvent().exec(this.updateCommand.getUpdateType(),
-                        dtoClassInfo, executeDtoList, executeEntityList, m.getUpdateParams());
+                m.getUpdateEvent().exec(m, this.updateCommand.getUpdateType(),
+                        dtoClassInfo, executeDtoList, executeEntityList);
             }
         }
     }

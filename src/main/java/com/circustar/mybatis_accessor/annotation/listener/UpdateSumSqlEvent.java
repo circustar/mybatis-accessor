@@ -6,7 +6,7 @@ import com.circustar.mybatis_accessor.classInfo.DtoField;
 
 import java.util.List;
 
-public class UpdateSumSqlEvent extends UpdateCountSqlEvent implements IUpdateEvent {
+public class UpdateSumSqlEvent extends UpdateCountSqlEvent implements IUpdateEvent<UpdateEventModel> {
     private static final String originalSql = "select sum(t1.%s) from %s t1 where t1.%s = %s.%s";
 
     protected String getOriginalSql(String[] originParams) {
@@ -14,17 +14,19 @@ public class UpdateSumSqlEvent extends UpdateCountSqlEvent implements IUpdateEve
     }
 
     @Override
-    protected List<DtoField> parseDtoFieldList(DtoClassInfo dtoClassInfo, String[] params) {
-        List<DtoField> dtoFields = super.parseDtoFieldList(dtoClassInfo, params);
-        String sPartFieldName = params[2];
+    protected List<DtoField> parseDtoFieldList(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo) {
+        List<DtoField> dtoFields = super.parseDtoFieldList(updateEventModel, dtoClassInfo);
+        String sPartFieldName = updateEventModel.getUpdateParams()[2];
         DtoField sPartField = dtoFields.get(1).getFieldDtoClassInfo().getDtoField(sPartFieldName);
         dtoFields.add(sPartField);
         return dtoFields;
     }
 
     @Override
-    protected String CreateSqlPart(DtoClassInfo dtoClassInfo, TableInfo tableInfo, DtoClassInfo subDtoClassInfo, TableInfo subTableInfo, List<DtoField> dtoFields, String[] originParams) {
-        String selectSql = String.format(getOriginalSql(originParams)
+    protected String CreateSqlPart(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo
+            , TableInfo tableInfo, DtoClassInfo subDtoClassInfo
+            , TableInfo subTableInfo, List<DtoField> dtoFields) {
+        String selectSql = String.format(getOriginalSql(updateEventModel.getUpdateParams())
                 , dtoFields.get(2).getEntityFieldInfo().getColumnName()
                 , subTableInfo.getTableName()
                 , tableInfo.getKeyColumn()

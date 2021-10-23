@@ -6,21 +6,22 @@ import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 
 import java.util.List;
 
-public abstract class AbstractUpdateEvent implements IUpdateEvent {
-    protected abstract List<DtoField> parseDtoFieldList(DtoClassInfo dtoClassInfo, String[] params);
+public abstract class AbstractUpdateEvent<T> implements IUpdateEvent<T> {
+    protected abstract List<DtoField> parseDtoFieldList(T updateEvent, DtoClassInfo dtoClassInfo);
 
-    protected abstract List<Object> parseParams(List<DtoField> dtoFields, DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, String[] originParams);
+    protected abstract List<Object> parseParams(T updateEvent, List<DtoField> dtoFields, DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo);
 
-    protected abstract void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams);
+    protected abstract void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
+            , List<Object> dtoList,  List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams);
 
     protected abstract DtoClassInfo getFieldDtoClassInfo(List<DtoField> dtoFields);
 
     @Override
-    public void exec(IUpdateCommand.UpdateType updateType
-            , DtoClassInfo dtoClassInfo, List<Object> dtoList, List<Object> entityList, String[] params) {
-        List<DtoField> dtoFields = parseDtoFieldList(dtoClassInfo, params);
+    public void exec(T updateEvent, IUpdateCommand.UpdateType updateType
+            , DtoClassInfo dtoClassInfo, List<Object> dtoList, List<Object> entityList) {
+        List<DtoField> dtoFields = parseDtoFieldList(updateEvent, dtoClassInfo);
         DtoClassInfo fieldDtoClassInfo = getFieldDtoClassInfo(dtoFields);
-        List<Object> parsedParams = parseParams(dtoFields, dtoClassInfo, fieldDtoClassInfo, params);
-        execUpdate(dtoClassInfo, fieldDtoClassInfo, entityList, dtoFields, parsedParams);
+        List<Object> parsedParams = parseParams(updateEvent, dtoFields, dtoClassInfo, fieldDtoClassInfo);
+        execUpdate(dtoClassInfo, fieldDtoClassInfo, dtoList, entityList, dtoFields, parsedParams);
     }
 }

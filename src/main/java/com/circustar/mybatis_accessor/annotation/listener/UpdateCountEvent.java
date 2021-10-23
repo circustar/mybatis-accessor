@@ -1,5 +1,6 @@
 package com.circustar.mybatis_accessor.annotation.listener;
 
+import com.baomidou.mybatisplus.core.conditions.update.Update;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.common_utils.collection.CollectionUtils;
@@ -16,11 +17,12 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
-public class UpdateCountEvent extends UpdateCountSqlEvent implements IUpdateEvent {
+public class UpdateCountEvent extends UpdateCountSqlEvent implements IUpdateEvent<UpdateEventModel> {
 
     @Override
-    protected List<Object> parseParams(List<DtoField> dtoFields, DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, String[] params) {
-        return Arrays.asList(params);
+    protected List<Object> parseParams(UpdateEventModel updateEventModel, List<DtoField> dtoFields
+            , DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo) {
+        return Arrays.asList(updateEventModel.getUpdateParams());
     }
 
     protected BigDecimal getValue(Object dtoUpdated, List<DtoField> dtoFields, List<Object> parsedParams) {
@@ -33,7 +35,8 @@ public class UpdateCountEvent extends UpdateCountSqlEvent implements IUpdateEven
     }
 
     @Override
-    protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams) {
+    protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
+            , List<Object> dtoList, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams) {
         IService serviceBean = dtoClassInfo.getServiceBean();
         ISelectService selectService = dtoClassInfo.getDtoClassInfoHelper().getSelectService();
         DtoField mField = dtoFields.get(0);

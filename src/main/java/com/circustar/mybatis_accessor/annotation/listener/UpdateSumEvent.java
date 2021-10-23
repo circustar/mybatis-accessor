@@ -10,12 +10,12 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class UpdateSumEvent extends UpdateCountEvent implements IUpdateEvent {
+public class UpdateSumEvent extends UpdateCountEvent implements IUpdateEvent<UpdateEventModel> {
 
     @Override
-    protected List<DtoField> parseDtoFieldList(DtoClassInfo dtoClassInfo, String[] params) {
-        List<DtoField> dtoFields = super.parseDtoFieldList(dtoClassInfo, params);
-        String sPartFieldName = params[2];
+    protected List<DtoField> parseDtoFieldList(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo) {
+        List<DtoField> dtoFields = super.parseDtoFieldList(updateEventModel, dtoClassInfo);
+        String sPartFieldName = updateEventModel.getUpdateParams()[2];
         DtoField sPartField = dtoFields.get(1).getFieldDtoClassInfo().getDtoField(sPartFieldName);
         dtoFields.add(sPartField);
         return dtoFields;

@@ -16,11 +16,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent {
+public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<UpdateEventModel> {
     @Override
-    protected List<DtoField> parseDtoFieldList(DtoClassInfo dtoClassInfo, String[] params) {
-        List<DtoField> dtoFields = super.parseDtoFieldList(dtoClassInfo, params);
-        String sWeightFieldName = params[4];
+    protected List<DtoField> parseDtoFieldList(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo) {
+        List<DtoField> dtoFields = super.parseDtoFieldList(updateEventModel, dtoClassInfo);
+        String sWeightFieldName = updateEventModel.getUpdateParams()[4];
         DtoField sWeightField = dtoFields.get(1).getFieldDtoClassInfo().getDtoField(sWeightFieldName);
         dtoFields.add(sWeightField);
         return dtoFields;
@@ -45,7 +45,8 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent {
     }
 
     @Override
-    protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams) {
+    protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
+            , List<Object> dtoList, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams) {
         EntityFieldInfo mKeyField = dtoClassInfo.getEntityClassInfo().getKeyField();
         Method mKeyFieldReadMethod = mKeyField.getPropertyDescriptor().getReadMethod();
 

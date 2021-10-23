@@ -5,8 +5,9 @@ import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 
 import java.util.List;
 
-public interface IUpdateEvent {
+public interface IUpdateEvent<T> {
     default ExecuteTiming getExecuteTiming() {return ExecuteTiming.AFTER_SUB_ENTITY_UPDATE;}
     IUpdateCommand.UpdateType[] getUpdateTypes();
-    void exec(IUpdateCommand.UpdateType updateType, DtoClassInfo dtoClassInfo, List<Object> dtoList, List<Object> entityList, String[] params);
+    void exec(T model, IUpdateCommand.UpdateType updateType
+            , DtoClassInfo dtoClassInfo, List<Object> dtoList, List<Object> entityList);
 }

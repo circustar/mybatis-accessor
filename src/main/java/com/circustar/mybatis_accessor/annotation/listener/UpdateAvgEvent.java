@@ -12,11 +12,12 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpdateAvgEvent extends UpdateSumEvent implements IUpdateEvent {
+public class UpdateAvgEvent extends UpdateSumEvent implements IUpdateEvent<UpdateEventModel> {
 
     @Override
-    protected List<Object> parseParams(List<DtoField> dtoFields, DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, String[] originParams) {
-        String precision = originParams[3];
+    protected List<Object> parseParams(UpdateEventModel updateEventModel, List<DtoField> dtoFields
+            , DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo) {
+        String precision = updateEventModel.getUpdateParams()[3];
         List<Object> result = new ArrayList<>();
         result.add(Integer.valueOf(precision));
         return result;

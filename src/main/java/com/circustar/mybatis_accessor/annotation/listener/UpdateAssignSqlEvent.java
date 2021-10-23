@@ -19,21 +19,22 @@ import java.util.List;
 // 参数4：精度
 // 参数5：分配权重对应的变量名
 
-public class UpdateAssignSqlEvent extends UpdateAvgSqlEvent implements IUpdateEvent {
+public class UpdateAssignSqlEvent extends UpdateAvgSqlEvent implements IUpdateEvent<UpdateEventModel> {
     protected static final String selectSql = "Round((sum(%s) over (partition by %s order by %s)) / (sum(%s) over (partition by %s)) * %s, %s) " +
             "- Round(((sum(%s) over (partition by %s order by %s)) - %s) / (sum(%s) over (partition by %s)) * %s, %s) as %s";
 
     @Override
-    protected List<DtoField> parseDtoFieldList(DtoClassInfo dtoClassInfo, String[] params) {
-        List<DtoField> dtoFields = super.parseDtoFieldList(dtoClassInfo, params);
-        String sWeightFieldName = params[4];
+    protected List<DtoField> parseDtoFieldList(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo) {
+        List<DtoField> dtoFields = super.parseDtoFieldList(updateEventModel, dtoClassInfo);
+        String sWeightFieldName = updateEventModel.getUpdateParams()[4];
         DtoField sWeightField = dtoFields.get(1).getFieldDtoClassInfo().getDtoField(sWeightFieldName);
         dtoFields.add(sWeightField);
         return dtoFields;
     }
 
     @Override
-    protected String CreateSqlPart(DtoClassInfo dtoClassInfo, TableInfo tableInfo, DtoClassInfo subDtoClassInfo, TableInfo subTableInfo, List<DtoField> dtoFields, String[] originParams) {
+    protected String CreateSqlPart(UpdateEventModel updateEventModel,DtoClassInfo dtoClassInfo, TableInfo tableInfo
+            , DtoClassInfo subDtoClassInfo, TableInfo subTableInfo, List<DtoField> dtoFields) {
         String mTableId = tableInfo.getKeyColumn();
         String sTableId = subTableInfo.getKeyColumn();
         if(tableInfo == subTableInfo) {
@@ -41,7 +42,7 @@ public class UpdateAssignSqlEvent extends UpdateAvgSqlEvent implements IUpdateEv
         }
         String sAssignColumnName = dtoFields.get(2).getEntityFieldInfo().getColumnName();
         String sWeightColumnName = dtoFields.get(3).getEntityFieldInfo().getColumnName();
-        String precision = originParams[3];
+        String precision = updateEventModel.getUpdateParams()[3];
 
         return String.format(selectSql
                 , sWeightColumnName, mTableId, sTableId, sWeightColumnName
@@ -52,7 +53,8 @@ public class UpdateAssignSqlEvent extends UpdateAvgSqlEvent implements IUpdateEv
     }
 
     @Override
-    protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams) {
+    protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
+            , List<Object> dtoList, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams) {
         TableInfo tableInfo = dtoClassInfo.getEntityClassInfo().getTableInfo();
         TableInfo subTableInfo = fieldDtoClassInfo.getEntityClassInfo().getTableInfo();
         Method mKeyFieldReadMethod = dtoClassInfo.getEntityClassInfo().getKeyField().getPropertyDescriptor().getReadMethod();
