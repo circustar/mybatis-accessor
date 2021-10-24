@@ -5,6 +5,6 @@
 -- 4.UpdateEvent类先在ApplicationContext中寻找，如果ApplicationContext中没有，则实例化
 -- 5.PropertyChangeListener更新时使用selectservice获得更新前的状态
 -- 6.修改DeleteAndInsertNewOnUpdate注解，增加即使数据为空也删除的选项deleteEvenIfEmpty
--- 7.DefaultConverter支持对带参数的构造方法的实例化
+-- 7.DefaultConverter支持带参数构造方法的实例化
 -- 8.UpdateListener入参优化
 -- 9.其他一些优化
