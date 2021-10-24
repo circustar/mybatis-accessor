@@ -134,8 +134,8 @@ public class DtoClassInfo {
             }
         }
         if(var0!= null & !var0.isEmpty()) {
-            this.updateEventList = var0.stream().map(x -> new UpdateEventModel(x.onExpression(),
-                    () -> ApplicationContextUtils.getBeanOrCreate(applicationContext, x.afterUpdateExecutor())
+            this.updateEventList = var0.stream().map(x -> new UpdateEventModel(x.onExpression(), x.updateEventClass(),
+                    () -> ApplicationContextUtils.getBeanOrCreate(applicationContext, x.updateEventClass())
                     , x.updateParams()))
                     .collect(Collectors.toList());
         }

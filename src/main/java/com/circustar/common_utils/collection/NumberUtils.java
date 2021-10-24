@@ -97,4 +97,14 @@ public class NumberUtils {
         }
         throw new RuntimeException("not support type for summary : " + clazz.getSimpleName());
     }
+
+    public static boolean isNumber(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (Exception ex) {
+        }
+        return false;
+    }
+
 }

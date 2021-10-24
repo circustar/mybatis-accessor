@@ -1,9 +1,12 @@
-package com.circustar.mybatis_accessor.annotation.listener;
+package com.circustar.mybatis_accessor.annotation.listener.summary;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.common_utils.reflection.FieldUtils;
+import com.circustar.mybatis_accessor.annotation.listener.AbstractUpdateEvent;
+import com.circustar.mybatis_accessor.annotation.listener.IUpdateEvent;
+import com.circustar.mybatis_accessor.annotation.listener.UpdateEventModel;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
@@ -68,8 +71,8 @@ public class UpdateCountSqlEvent extends AbstractUpdateEvent<UpdateEventModel> i
         DtoField mField = dtoFields.get(0);
         IService serviceBean = dtoClassInfo.getServiceBean();
         String execSelectSql = parsedParams.get(0).toString();
+        EntityFieldInfo keyField = dtoClassInfo.getEntityClassInfo().getKeyField();
         for(int i = 0; i< entityList.size(); i++) {
-            EntityFieldInfo keyField = dtoClassInfo.getEntityClassInfo().getKeyField();
             Object keyValue = FieldUtils.getFieldValue(entityList.get(i), keyField.getPropertyDescriptor().getReadMethod());
 
             UpdateWrapper uw = new UpdateWrapper();

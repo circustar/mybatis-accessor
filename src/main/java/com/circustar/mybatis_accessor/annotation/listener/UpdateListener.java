@@ -8,6 +8,6 @@ import java.lang.annotation.*;
 @Repeatable(MultiUpdateListener.class)
 public @interface UpdateListener {
     String onExpression() default "";
-    Class<? extends IUpdateEvent> afterUpdateExecutor();
+    Class<? extends IUpdateEvent> updateEventClass();
     String[] updateParams() default "";
 }

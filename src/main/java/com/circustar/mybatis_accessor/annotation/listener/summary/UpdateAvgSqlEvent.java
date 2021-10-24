@@ -1,4 +1,7 @@
-package com.circustar.mybatis_accessor.annotation.listener;
+package com.circustar.mybatis_accessor.annotation.listener.summary;
+
+import com.circustar.mybatis_accessor.annotation.listener.IUpdateEvent;
+import com.circustar.mybatis_accessor.annotation.listener.UpdateEventModel;
 
 public class UpdateAvgSqlEvent extends UpdateSumSqlEvent implements IUpdateEvent<UpdateEventModel> {
     private static final String precisionStr = "###precision###";

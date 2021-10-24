@@ -6,5 +6,4 @@
 // 6.Add annotation for deleteBeforeUpdate -- OK 1021
 // 7.DefaultConverter with constructor parameter -- OK 1021
 // 8.use annotation instead of Update params -- OK 1022
-// 9.PropertyChangeListener enable after_sub_entity_updated
-// 10.UpdateListener input param change -- OK 1023
+// 9.UpdateListener input param change -- OK 1023
