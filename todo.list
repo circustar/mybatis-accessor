@@ -1,9 +1,0 @@
-// 1.After Update Auto Fill  -- fill amount - this_time_filled, all_filled, order, scale
-// 2.Dto converter -- OK 1020
-// 3.UpdateListener -> register as bean -- OK 1019
-// 4.UpdateListener -> name change -- OK 1019
-// 5.UpdateListener -> use selectservice, use dto instead of entity -- OK 1020
-// 6.Add annotation for deleteBeforeUpdate -- OK 1021
-// 7.DefaultConverter with constructor parameter -- OK 1021
-// 8.use annotation instead of Update params -- OK 1022
-// 9.UpdateListener input param change -- OK 1023

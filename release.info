@@ -1,0 +1,10 @@
+1.2.0 Release note
+-- 1.增加自动填充事件FillEvent
+-- 2.增加Dto converter,提供DTO与ENTITY之间的转换类
+-- 3.AfterUpdate改名为UpdateListener
+-- 4.UpdateEvent类先在ApplicationContext中寻找，如果ApplicationContext中没有，则实例化
+-- 5.PropertyChangeListener更新时使用selectservice获得更新前的状态
+-- 6.修改DeleteAndInsertNewOnUpdate注解，增加即使数据为空也删除的选项deleteEvenIfEmpty
+-- 7.DefaultConverter支持对带参数的构造方法的实例化
+-- 8.UpdateListener入参优化
+-- 9.其他一些优化

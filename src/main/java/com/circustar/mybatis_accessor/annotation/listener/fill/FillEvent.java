@@ -77,7 +77,6 @@ public class FillEvent extends AbstractUpdateEvent<UpdateEventModel> implements 
         Method keyFieldReadMethod = dtoClassInfo.getEntityClassInfo().getKeyField().getPropertyDescriptor().getReadMethod();
         Method sKeyFieldReadMethod = fieldDtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
         ISelectService selectService = dtoClassInfo.getDtoClassInfoHelper().getSelectService();
-        IService serviceBean = fieldDtoClassInfo.getServiceBean();
         boolean isAsc = (boolean) parsedParams.get(0);
         BigDecimal paramLimitValue = (BigDecimal) parsedParams.get(1);
         for(int i = 0; i< entityList.size(); i++) {
@@ -125,10 +124,16 @@ public class FillEvent extends AbstractUpdateEvent<UpdateEventModel> implements 
                 UpdateWrapper uw = new UpdateWrapper();
                 uw.set(sFillField.getEntityFieldInfo().getColumnName(), resultValue);
                 uw.eq(fieldDtoClassInfo.getEntityClassInfo().getKeyField().getColumnName(), subId);
-                serviceBean.update(uw);
+                fieldDtoClassInfo.getServiceBean().update(uw);
             }
             Object remainObjectValue = NumberUtils.castFromBigDecimal(mAssignField.getActualClass(), remainFillValue);
             FieldUtils.setFieldValue(dtoList.get(i), mRemainField.getPropertyDescriptor().getWriteMethod(), remainObjectValue);
+            if (mRemainField.getEntityFieldInfo() != null) {
+                UpdateWrapper uw = new UpdateWrapper();
+                uw.set(mRemainField.getEntityFieldInfo().getColumnName(), remainObjectValue);
+                uw.eq(dtoClassInfo.getEntityClassInfo().getKeyField().getColumnName(), keyValue);
+                dtoClassInfo.getServiceBean().update(uw);
+            }
         }
     }
 
