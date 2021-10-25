@@ -99,7 +99,7 @@ public class MybatisAccessorService {
     public <T> T getDtoById(String dtoName
             , Serializable id
             , boolean includeAllChildren
-            , String[] children)  {
+            , List<String> children)  {
         EntityDtoServiceRelation relationInfo = this.getRelation(null, dtoName);
         return this.getDtoById(relationInfo, id, includeAllChildren, children);
     }
@@ -107,7 +107,7 @@ public class MybatisAccessorService {
     public <T> T getDtoById(Class dtoClass
             , Serializable id
             , boolean includeAllChildren
-            , String[] children)  {
+            , List<String> children)  {
         EntityDtoServiceRelation relationInfo = this.getRelation(dtoClass, null);
         return this.getDtoById(relationInfo, id, includeAllChildren, children);
     }
@@ -115,14 +115,14 @@ public class MybatisAccessorService {
     public <T> T getDtoById(EntityDtoServiceRelation relationInfo
             , Serializable id
             , boolean includeAllChildren
-            , String[] children)  {
+            , List<String> children)  {
         return this.selectService.getDtoById(relationInfo, id, includeAllChildren, children);
     }
 
     public <T> T getDtoByQueryWrapper(Object dto
             , QueryWrapper queryWrapper
             , boolean includeAllChildren
-            , String[] children)  {
+            , List<String> children)  {
         EntityDtoServiceRelation relationInfo = this.getRelation(dto.getClass(), null);
         return this.getDtoByQueryWrapper(relationInfo, dto, queryWrapper, includeAllChildren, children);
     }
@@ -131,13 +131,13 @@ public class MybatisAccessorService {
             , Object dto
             , QueryWrapper queryWrapper
             , boolean includeAllChildren
-            , String[] children)  {
+            , List<String> children)  {
         return this.selectService.getDtoByQueryWrapper(relationInfo, dto, queryWrapper, includeAllChildren, children);
     }
 
     public <T> T getDtoByAnnotation(Object object
             , boolean includeAllChildren
-            , String[] children)  {
+            , List<String> children)  {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
         return this.getDtoByAnnotation(relationInfo, object, includeAllChildren, children);
     }
@@ -145,7 +145,7 @@ public class MybatisAccessorService {
     public <T> T getDtoByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
             , boolean includeAllChildren
-            , String[] children)  {
+            , List<String> children)  {
         return this.selectService.getDtoByAnnotation(relationInfo, object, includeAllChildren, children);
     }
 
@@ -295,7 +295,7 @@ public class MybatisAccessorService {
 
     public <T> T save(Object object
             , boolean includeAllChildren
-            , String[] children
+            , List<String> children
             , boolean updateChildrenOnly)  {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
         return this.save(relationInfo, object, includeAllChildren, children, updateChildrenOnly);
@@ -304,7 +304,7 @@ public class MybatisAccessorService {
     public <T> T save(EntityDtoServiceRelation relation
             , Object object
             , boolean includeAllChildren
-            , String[] children
+            , List<String> children
             , boolean updateChildrenOnly)  {
         if(object == null) {
             return null;
@@ -318,7 +318,7 @@ public class MybatisAccessorService {
 
     public <T> List<T> saveList(List objects
             , boolean includeAllChildren
-            , String[] children
+            , List<String> children
             , boolean updateChildrenOnly)  {
         if(objects.isEmpty()) {
             return null;
@@ -331,7 +331,7 @@ public class MybatisAccessorService {
     public <T> List<T> saveList(EntityDtoServiceRelation relation
             , List objectList
             , boolean includeAllChildren
-            , String[] children
+            , List<String> children
             , boolean updateChildrenOnly)  {
         if(objectList == null || objectList.isEmpty()) {
             return null;
@@ -343,7 +343,7 @@ public class MybatisAccessorService {
 
     public <T> T update(Object object
             , boolean includeAllChildren
-            , String[] children
+            , List<String> children
             , boolean updateChildrenOnly)  {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
         return this.update(relationInfo, object
@@ -354,7 +354,7 @@ public class MybatisAccessorService {
     public <T> T update(EntityDtoServiceRelation relation
             , Object object
             , boolean includeAllChildren
-            , String[] children
+            , List<String> children
             , boolean updateChildrenOnly)  {
         IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
         List<T> result = updateWithOptions(object, relation, defaultUpdateProcessorProvider
@@ -365,7 +365,7 @@ public class MybatisAccessorService {
 
     public <T> List<T> updateList(List objects
             , boolean includeAllChildren
-            , String[] children
+            , List<String> children
             , boolean updateChildrenOnly)  {
         if(objects == null || objects.isEmpty()) {
             return null;
@@ -378,7 +378,7 @@ public class MybatisAccessorService {
 
     public <T> List<T> updateList(EntityDtoServiceRelation relation, List objectList
             , boolean includeAllChildren
-            , String[] children
+            , List<String> children
             , boolean updateChildrenOnly)  {
         if(objectList == null || objectList.isEmpty()) {
             return null;
@@ -392,7 +392,7 @@ public class MybatisAccessorService {
     public <T> List<T> deleteByIds(Class dtoClass
             , Set<Serializable> ids
             , boolean includeAllChildren
-            , String[] children
+            , List<String> children
             , boolean updateChildrenOnly) {
         EntityDtoServiceRelation relationInfo = this.getRelation(dtoClass, null);
         return deleteByIds(relationInfo, ids, includeAllChildren, children, updateChildrenOnly);
@@ -401,7 +401,7 @@ public class MybatisAccessorService {
     public <T> List<T> deleteByIds(String dtoName
             , Set<Serializable> ids
             , boolean includeAllChildren
-            , String[] children
+            , List<String> children
             , boolean updateChildrenOnly) {
         EntityDtoServiceRelation relationInfo = this.getRelation(null, dtoName);
         return deleteByIds(relationInfo, ids, includeAllChildren, children, updateChildrenOnly);
@@ -410,7 +410,7 @@ public class MybatisAccessorService {
     public <T> List<T> deleteByIds(EntityDtoServiceRelation relationInfo
             , Set<Serializable> ids
             , boolean includeAllChildren
-            , String[] children
+            , List<String> children
             , boolean updateChildrenOnly) {
         IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
         return updateWithOptions(ids, relationInfo, defaultDeleteByIdProcessorProvider

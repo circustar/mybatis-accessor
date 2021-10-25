@@ -1,15 +1,18 @@
 package com.circustar.mybatis_accessor.provider.parameter;
 
+import java.util.List;
+
 public abstract class DefaultAbstractUpdateProviderParam implements IEntityProviderParam {
     private boolean updateChildrenOnly = false;
     private boolean includeAllChildren = false;
-    private String[] updateChildrenNames = null;
+    private List<String> updateChildrenNames = null;
 
     public DefaultAbstractUpdateProviderParam(DefaultAbstractUpdateProviderParam another) {
         this(another.isUpdateChildrenOnly(), another.isIncludeAllChildren(), another.getUpdateChildrenNames());
     }
 
-    public DefaultAbstractUpdateProviderParam(boolean updateChildrenOnly, boolean includeAllChildren, String[] updateChildrenNames) {
+    public DefaultAbstractUpdateProviderParam(boolean updateChildrenOnly, boolean includeAllChildren
+            , List<String> updateChildrenNames) {
         this.updateChildrenOnly = updateChildrenOnly;
         this.includeAllChildren = includeAllChildren;
         this.updateChildrenNames = updateChildrenNames;
@@ -38,12 +41,12 @@ public abstract class DefaultAbstractUpdateProviderParam implements IEntityProvi
     }
 
     @Override
-    public String[] getUpdateChildrenNames() {
+    public List<String> getUpdateChildrenNames() {
         return updateChildrenNames;
     }
 
     @Override
-    public DefaultAbstractUpdateProviderParam setUpdateChildrenNames(String[] updateChildrenNames) {
+    public DefaultAbstractUpdateProviderParam setUpdateChildrenNames(List<String> updateChildrenNames) {
         this.updateChildrenNames = updateChildrenNames;
         return this;
     }

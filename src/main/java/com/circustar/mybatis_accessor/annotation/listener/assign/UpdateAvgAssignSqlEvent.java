@@ -9,19 +9,19 @@ import com.circustar.mybatis_accessor.classInfo.DtoField;
 import java.util.List;
 public class UpdateAvgAssignSqlEvent extends UpdateAssignSqlEvent implements IUpdateEvent<UpdateEventModel> {
     @Override
-    protected String CreateSqlPart(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo, TableInfo tableInfo, DtoClassInfo subDtoClassInfo
+    protected String createSqlPart(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo, TableInfo tableInfo, DtoClassInfo subDtoClassInfo
             , TableInfo subTableInfo, List<DtoField> dtoFields) {
-        String mTableId = tableInfo.getKeyColumn();
+        String mainTableId = tableInfo.getKeyColumn();
         String sTableId = subTableInfo.getKeyColumn();
         String sAssignColumnName = dtoFields.get(2).getEntityFieldInfo().getColumnName();
         String sWeightColumnName = "1";
-        String precision = updateEventModel.getUpdateParams()[3];
+        String precision = updateEventModel.getUpdateParams().get(3);
 
         return String.format(selectSql
-                , sWeightColumnName, mTableId, sTableId, sWeightColumnName
-                , mTableId, "%s", precision
-                , sWeightColumnName, mTableId, sTableId, sWeightColumnName
-                , sWeightColumnName, mTableId, "%s", precision
+                , sWeightColumnName, mainTableId, sTableId, sWeightColumnName
+                , mainTableId, "%s", precision
+                , sWeightColumnName, mainTableId, sTableId, sWeightColumnName
+                , sWeightColumnName, mainTableId, "%s", precision
                 , sAssignColumnName);
     }
 }

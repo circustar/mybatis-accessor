@@ -1,18 +1,20 @@
 package com.circustar.mybatis_accessor.annotation.listener;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class UpdateEventModel {
     private String onExpression;
     private IUpdateEvent updateEvent;
-    private String[] updateParams;
+    private List<String> updateParams;
     private Class<? extends IUpdateEvent> updateEventClass;
     private Supplier<IUpdateEvent> supplier;
 
     public UpdateEventModel(String onExpression
             , Class<? extends IUpdateEvent> updateEventClass
             , Supplier<IUpdateEvent> supplier
-            , String[] updateParams
+            , List<String> updateParams
             ) {
         this.onExpression = onExpression;
         this.updateEventClass = updateEventClass;
@@ -32,7 +34,7 @@ public class UpdateEventModel {
         return updateEvent;
     }
 
-    public String[] getUpdateParams() {
+    public List<String> getUpdateParams() {
         return updateParams;
     }
 

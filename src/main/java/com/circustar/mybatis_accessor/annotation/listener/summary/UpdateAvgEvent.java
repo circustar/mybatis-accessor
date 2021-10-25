@@ -19,7 +19,7 @@ public class UpdateAvgEvent extends UpdateSumEvent implements IUpdateEvent<Updat
     @Override
     protected List<Object> parseParams(UpdateEventModel updateEventModel, List<DtoField> dtoFields
             , DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo) {
-        String precision = updateEventModel.getUpdateParams()[3];
+        String precision = updateEventModel.getUpdateParams().get(3);
         List<Object> result = new ArrayList<>();
         result.add(Integer.valueOf(precision));
         return result;

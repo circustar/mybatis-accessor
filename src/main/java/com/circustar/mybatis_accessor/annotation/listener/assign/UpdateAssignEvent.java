@@ -17,13 +17,14 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collections;
 import java.util.List;
 
 public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<UpdateEventModel> {
     @Override
     protected List<DtoField> parseDtoFieldList(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo) {
         List<DtoField> dtoFields = super.parseDtoFieldList(updateEventModel, dtoClassInfo);
-        String sWeightFieldName = updateEventModel.getUpdateParams()[4];
+        String sWeightFieldName = updateEventModel.getUpdateParams().get(4);
         DtoField sWeightField = dtoFields.get(1).getFieldDtoClassInfo().getDtoField(sWeightFieldName);
         dtoFields.add(sWeightField);
         return dtoFields;
@@ -73,7 +74,7 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
         for(Object o : entityList) {
             Serializable mKeyValue = (Serializable) FieldUtils.getFieldValue(o, mKeyFieldReadMethod);
             Object dtoUpdated = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(), mKeyValue
-                    , false, new String[]{sField.getField().getName()});
+                    , false, Collections.singletonList(sField.getField().getName()));
 
             BigDecimal mSumValue = NumberUtils.readDecimalValue(mField.getActualClass(), dtoUpdated, mFieldReadMethod);
             if(mSumValue == null) {

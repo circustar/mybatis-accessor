@@ -1,5 +1,7 @@
 package com.circustar.mybatis_accessor.provider.parameter;
 
+import java.util.List;
+
 public interface IEntityProviderParam extends IProviderParam {
     boolean isUpdateChildrenOnly();
 
@@ -9,7 +11,7 @@ public interface IEntityProviderParam extends IProviderParam {
 
     IEntityProviderParam setIncludeAllChildren(boolean includeAllChildren);
 
-    String[] getUpdateChildrenNames();
+    List<String> getUpdateChildrenNames();
 
-    IEntityProviderParam setUpdateChildrenNames(String[] updateChildrenNames);
+    IEntityProviderParam setUpdateChildrenNames(List<String> updateChildrenNames);
 }

@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,17 +33,17 @@ public class FillEvent extends AbstractUpdateEvent<UpdateEventModel> implements 
 
     @Override
     protected List<DtoField> parseDtoFieldList(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo) {
-        DtoField mAssignField = dtoClassInfo.getDtoField(updateEventModel.getUpdateParams()[0]);
-        DtoField mRemainField = dtoClassInfo.getDtoField(updateEventModel.getUpdateParams()[1]);
-        DtoField sField = dtoClassInfo.getDtoField(updateEventModel.getUpdateParams()[2]);
-        DtoField sFillField = sField.getFieldDtoClassInfo().getDtoField(updateEventModel.getUpdateParams()[3]);
+        DtoField mAssignField = dtoClassInfo.getDtoField(updateEventModel.getUpdateParams().get(0));
+        DtoField mRemainField = dtoClassInfo.getDtoField(updateEventModel.getUpdateParams().get(1));
+        DtoField sField = dtoClassInfo.getDtoField(updateEventModel.getUpdateParams().get(2));
+        DtoField sFillField = sField.getFieldDtoClassInfo().getDtoField(updateEventModel.getUpdateParams().get(3));
         DtoField sLimitField = null;
-        if(!NumberUtils.isNumber(updateEventModel.getUpdateParams()[4])) {
-            sLimitField = sField.getFieldDtoClassInfo().getDtoField(updateEventModel.getUpdateParams()[4]);
+        if(!NumberUtils.isNumber(updateEventModel.getUpdateParams().get(4))) {
+            sLimitField = sField.getFieldDtoClassInfo().getDtoField(updateEventModel.getUpdateParams().get(4));
         }
         DtoField sOrderField = null;
-        if(StringUtils.hasLength(updateEventModel.getUpdateParams()[5])) {
-            sOrderField = sField.getFieldDtoClassInfo().getDtoField(updateEventModel.getUpdateParams()[5]);
+        if(StringUtils.hasLength(updateEventModel.getUpdateParams().get(5))) {
+            sOrderField = sField.getFieldDtoClassInfo().getDtoField(updateEventModel.getUpdateParams().get(5));
         }
 
         return Arrays.asList(mAssignField, mRemainField, sField, sFillField, sLimitField, sOrderField);
@@ -51,14 +52,14 @@ public class FillEvent extends AbstractUpdateEvent<UpdateEventModel> implements 
     @Override
     protected List<Object> parseParams(UpdateEventModel updateEventModel, List<DtoField> dtoFields, DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo) {
         boolean isAsc = true;
-        if(updateEventModel.getUpdateParams().length > 6) {
-            if(QueryOrder.ORDER_DESC.equals(updateEventModel.getUpdateParams()[6].toLowerCase())) {
+        if(updateEventModel.getUpdateParams().size() > 6) {
+            if(QueryOrder.ORDER_DESC.equals(updateEventModel.getUpdateParams().get(6).toLowerCase())) {
                 isAsc = false;
             }
         }
         BigDecimal limitValue = BigDecimal.ZERO;
-        if(NumberUtils.isNumber(updateEventModel.getUpdateParams()[4])) {
-            limitValue = BigDecimal.valueOf(Double.valueOf(updateEventModel.getUpdateParams()[4]));
+        if(NumberUtils.isNumber(updateEventModel.getUpdateParams().get(4))) {
+            limitValue = BigDecimal.valueOf(Double.valueOf(updateEventModel.getUpdateParams().get(4)));
         }
         return Arrays.asList(isAsc, limitValue);
     }
@@ -82,7 +83,7 @@ public class FillEvent extends AbstractUpdateEvent<UpdateEventModel> implements 
         for(int i = 0; i< entityList.size(); i++) {
             Serializable keyValue = (Serializable)FieldUtils.getFieldValue(entityList.get(i), keyFieldReadMethod);
             Object dtoById = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(), keyValue, false
-                    , new String[]{sFieldName});
+                    , Collections.singletonList(sFieldName));
             BigDecimal remainFillValue = NumberUtils.readDecimalValue(mAssignField.getActualClass(), dtoById, mAssignField.getPropertyDescriptor().getReadMethod());
             if(remainFillValue.compareTo(BigDecimal.ZERO) <= 0) {
                 return;
@@ -128,7 +129,9 @@ public class FillEvent extends AbstractUpdateEvent<UpdateEventModel> implements 
             }
             Object remainObjectValue = NumberUtils.castFromBigDecimal(mAssignField.getActualClass(), remainFillValue);
             FieldUtils.setFieldValue(dtoList.get(i), mRemainField.getPropertyDescriptor().getWriteMethod(), remainObjectValue);
-            if (mRemainField.getEntityFieldInfo() != null) {
+            if (mRemainField.getEntityFieldInfo() != null
+                    && (mRemainField.getEntityFieldInfo().getTableField() == null
+                    || mRemainField.getEntityFieldInfo().getTableField().exist())) {
                 UpdateWrapper uw = new UpdateWrapper();
                 uw.set(mRemainField.getEntityFieldInfo().getColumnName(), remainObjectValue);
                 uw.eq(dtoClassInfo.getEntityClassInfo().getKeyField().getColumnName(), keyValue);

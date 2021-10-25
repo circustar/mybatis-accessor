@@ -36,7 +36,7 @@ public class SelectService implements ISelectService {
 
     @Override
     public <T> T getDtoByAnnotation(EntityDtoServiceRelation relationInfo
-            , Object object, boolean includeAllChildren, String[] children
+            , Object object, boolean includeAllChildren, List<String> children
     ){
         Object oriEntity = this.getEntityByAnnotation(relationInfo, object);
         if (oriEntity == null) {
@@ -77,7 +77,7 @@ public class SelectService implements ISelectService {
             , Object dto
             , QueryWrapper queryWrapper
             , boolean includeAllChildren
-            , String[] children) {
+            , List<String> children) {
         Object oriEntity = getEntityByQueryWrapper(relationInfo, dto, queryWrapper);
         if (oriEntity == null) {
             return null;
@@ -98,12 +98,12 @@ public class SelectService implements ISelectService {
             , Object dto
             , Serializable id
             , boolean includeAllChildren
-            , String[] children) {
+            , List<String> children) {
         Set<String> childList;
         if(children == null) {
             childList = Collections.emptySet();
         } else {
-            childList = new HashSet<>(Arrays.asList(children));
+            childList = new HashSet<>(children);
         }
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         List<DtoField> subFields = null;
@@ -157,7 +157,7 @@ public class SelectService implements ISelectService {
     public <T> T getDtoById(EntityDtoServiceRelation relationInfo
             , Serializable id
             , boolean includeAllChildren
-            , String[] children) {
+            , List<String> children) {
         Object oriEntity = getEntityById(relationInfo, id);
         if (oriEntity == null) {
             return null;

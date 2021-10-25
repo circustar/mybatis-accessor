@@ -16,6 +16,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class UpdateCountEvent extends UpdateCountSqlEvent implements IUpdateEvent<UpdateEventModel> {
@@ -48,7 +49,7 @@ public class UpdateCountEvent extends UpdateCountSqlEvent implements IUpdateEven
         for(int i = 0; i< entityList.size(); i++) {
             Serializable mKeyValue = (Serializable) FieldUtils.getFieldValue(entityList.get(i), mKeyFieldReadMethod);
             Object dtoUpdated = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(), mKeyValue
-                    , false, new String[]{sField.getField().getName()});
+                    , false, Collections.singletonList(sField.getField().getName()));
             Object count = NumberUtils.castFromBigDecimal(mField.getActualClass()
                     , getValue(dtoUpdated, dtoFields, parsedParams)) ;
 

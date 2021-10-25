@@ -265,7 +265,7 @@ public class StudentDto2 {
 
 * 使用
 ```java
-    StudentDto2 entity = (StudentDto2) mybatisAccessorService.getDtoById(StudentDto2.class, 1, false, new String[]{"scoreList"});
+    StudentDto2 entity = (StudentDto2) mybatisAccessorService.getDtoById(StudentDto2.class, 1, false, Arrays.asList("scoreList"));
 ```
 
 #### 8.9.分页
@@ -317,5 +317,5 @@ public class StudentDto2 {
 ```java
     // 删除主表Student以及子表Score,Course
     mybatisAccessorService.deleteByIds(StudentDto.class
-        , idList, new String[]{"scoreList","courseList"}, false);
+        , idList, Arrays.asList("scoreList","courseList"), false);
 ```

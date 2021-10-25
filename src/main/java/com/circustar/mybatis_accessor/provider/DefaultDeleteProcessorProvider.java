@@ -57,30 +57,30 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
         if(dtoList.isEmpty()) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation);
-        String[] children;
+        List<String> children;
         if(options.isIncludeAllChildren()) {
-            children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getUpdateCascadeDtoFieldList().stream().map(x -> x.getField().getName()));
+            children = dtoClassInfo.getUpdateCascadeDtoFieldList().stream().map(x -> x.getField().getName()).collect(Collectors.toList());
         } else {
             children = options.getUpdateChildrenNames();
         }
 
         ISelectService selectService = this.getSelectService();
 
-        String[] topEntities = this.getTopEntities(dtoClassInfo, children, DEFAULT_DELIMITER);
+        List<String> topEntities = this.getTopEntities(dtoClassInfo, children, DEFAULT_DELIMITER);
         DefaultEntityCollectionUpdateProcessor updateProcessor;
         List updateEntityWithNoSubList = new ArrayList();
 
-        if(topEntities == null || topEntities.length == 0) {
+        if(topEntities == null || topEntities.size() == 0) {
             updateEntityWithNoSubList = (List) dtoList.stream()
                     .map(x -> this.convertToUpdateTarget(dtoClassInfo, x))
                     .collect(Collectors.toList());
         } else {
-            List<DtoField> dtoFields = Arrays.stream(topEntities).map(x -> dtoClassInfo.getDtoField(x)).collect(Collectors.toList());
+            List<DtoField> dtoFields = topEntities.stream().map(x -> dtoClassInfo.getDtoField(x)).collect(Collectors.toList());
             for (Object dto : dtoList) {
                 Serializable id = (Serializable) getUpdateId(dto, dtoClassInfo.getKeyField());
                 if(id == null) {
                     throw new RuntimeException(relation.getEntityClass().getSimpleName()
-                            + " delete exception : id could not be null : " + id);
+                            + " delete exception : id could not be null : " + dtoClassInfo.getClass().getSimpleName());
                 }
                 List<IEntityUpdateProcessor> subUpdateEntities = new ArrayList<>();
                 Object object = selectService.getDtoById(relation, id,false , topEntities);

@@ -13,14 +13,14 @@ public interface ISelectService {
     );
 
     <T> T getDtoByAnnotation(EntityDtoServiceRelation relationInfo
-            , Object object, boolean includeAllChildren, String[] children
+            , Object object, boolean includeAllChildren, List<String> children
     );
 
     <T> T getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object dto, QueryWrapper queryWrapper);
 
     <T> T getDtoByQueryWrapper(EntityDtoServiceRelation relationInfo
-            , Object dto, QueryWrapper queryWrapper, boolean includeAllChildren, String[] children);
+            , Object dto, QueryWrapper queryWrapper, boolean includeAllChildren, List<String> children);
 
     <T> T getEntityById(EntityDtoServiceRelation relationInfo
             , Serializable id);
@@ -28,7 +28,7 @@ public interface ISelectService {
     <T> T getDtoById(EntityDtoServiceRelation relationInfo
             , Serializable id
             , boolean includeAllChildren
-            , String[] children);
+            , List<String> children);
 
     <T> PageInfo<T> getEntityPageByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object

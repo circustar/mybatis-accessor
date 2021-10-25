@@ -36,19 +36,19 @@ public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation);
         boolean includeAllChildren = options.isIncludeAllChildren();
-        String[] children;
+        List<String> children;
         if(includeAllChildren) {
-            children = CollectionUtils.convertStreamToStringArray(dtoClassInfo.getUpdateCascadeDtoFieldList().stream().map(x -> x.getField().getName()));
+            children = dtoClassInfo.getUpdateCascadeDtoFieldList().stream().map(x -> x.getField().getName()).collect(Collectors.toList());
         } else {
             children = options.getUpdateChildrenNames();
         }
         boolean updateChildrenOnly = options.isUpdateChildrenOnly();
 
-        String[] topEntities = this.getTopEntities(dtoClassInfo, children, DEFAULT_DELIMITER);
+        List<String> topEntities = this.getTopEntities(dtoClassInfo, children, DEFAULT_DELIMITER);
         boolean hasChildren = false;
 
         List<Object> updateEntityList = new ArrayList<>();
-        List<DtoField> dtoFields = Arrays.stream(topEntities).map(x -> dtoClassInfo.getDtoField(x)).collect(Collectors.toList());
+        List<DtoField> dtoFields = topEntities.stream().map(x -> dtoClassInfo.getDtoField(x)).collect(Collectors.toList());
         for(Object value : dtoList) {
             if(dtoClassInfo.getVersionField() != null) {
                 FieldUtils.setFieldValue(value

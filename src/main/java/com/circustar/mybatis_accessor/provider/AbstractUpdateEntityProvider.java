@@ -13,9 +13,12 @@ import java.util.stream.Collectors;
 public abstract class AbstractUpdateEntityProvider<P extends IProviderParam> implements IUpdateProcessorProvider<P> {
     protected ApplicationContext applicationContext;
     protected ISelectService selectService = null;
-    private static final String[] EMPTY_ARRAY = new String[0];
     protected static final String DEFAULT_DELIMITER = ".";
-    protected final static Map<Class, AbstractUpdateEntityProvider> PROVIDER_MAP = new HashMap<>();
+    private final static Map<Class, AbstractUpdateEntityProvider> PROVIDER_MAP = new HashMap<>();
+
+    protected Map<Class, AbstractUpdateEntityProvider> getProviderMap() {
+        return PROVIDER_MAP;
+    }
 
     public AbstractUpdateEntityProvider(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -30,26 +33,26 @@ public abstract class AbstractUpdateEntityProvider<P extends IProviderParam> imp
         return this.selectService;
     }
 
-    protected String[] getChildren(String[] entities, String prefix, String delimiter) {
-        List<String> entityList = Arrays.stream(entities)
+    protected List<String> getChildren(List<String> entities, String prefix, String delimiter) {
+        List<String> entityList = entities.stream()
                 .filter(x -> StringUtils.hasLength(x) && x.startsWith(prefix + delimiter))
                 .map(x -> x.substring((prefix + delimiter).length()))
                 .collect(Collectors.toList());
-        return entityList.toArray(new String[0]);
+        return entityList;
     }
 
-    protected String[] getTopEntities(DtoClassInfo dtoClassInfo, String[] entities, String delimiter) {
+    protected List<String> getTopEntities(DtoClassInfo dtoClassInfo, List<String> entities, String delimiter) {
         if(entities == null) {
-            return EMPTY_ARRAY;
+            return Collections.emptyList();
         }
-        List<String> entityList = Arrays.stream(entities)
+        List<String> entityList = entities.stream()
                 .filter(x -> StringUtils.hasLength(x) && !x.contains(delimiter))
                 .map(x -> dtoClassInfo.getDtoField(x))
                 .sorted(Comparator.comparingInt((DtoField x) -> x.getFieldDtoClassInfo().getUpdateOrder())
                         .thenComparing(x -> x.getFieldDtoClassInfo().getEntityClassInfo().getEntityClass().getSimpleName()))
                 .map(x -> x.getField().getName())
                 .collect(Collectors.toList());
-        return entityList.toArray(new String[0]);
+        return entityList;
     }
 
     protected boolean getUpdateChildrenFirst() {

@@ -17,7 +17,7 @@ public class UpdateSumEvent extends UpdateCountEvent implements IUpdateEvent<Upd
     @Override
     protected List<DtoField> parseDtoFieldList(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo) {
         List<DtoField> dtoFields = super.parseDtoFieldList(updateEventModel, dtoClassInfo);
-        String sPartFieldName = updateEventModel.getUpdateParams()[2];
+        String sPartFieldName = updateEventModel.getUpdateParams().get(2);
         DtoField sPartField = dtoFields.get(1).getFieldDtoClassInfo().getDtoField(sPartFieldName);
         dtoFields.add(sPartField);
         return dtoFields;

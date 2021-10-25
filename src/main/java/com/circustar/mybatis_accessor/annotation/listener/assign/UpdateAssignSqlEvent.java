@@ -29,29 +29,29 @@ public class UpdateAssignSqlEvent extends UpdateAvgSqlEvent implements IUpdateEv
     @Override
     protected List<DtoField> parseDtoFieldList(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo) {
         List<DtoField> dtoFields = super.parseDtoFieldList(updateEventModel, dtoClassInfo);
-        String sWeightFieldName = updateEventModel.getUpdateParams()[4];
+        String sWeightFieldName = updateEventModel.getUpdateParams().get(4);
         DtoField sWeightField = dtoFields.get(1).getFieldDtoClassInfo().getDtoField(sWeightFieldName);
         dtoFields.add(sWeightField);
         return dtoFields;
     }
 
     @Override
-    protected String CreateSqlPart(UpdateEventModel updateEventModel,DtoClassInfo dtoClassInfo, TableInfo tableInfo
+    protected String createSqlPart(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo, TableInfo tableInfo
             , DtoClassInfo subDtoClassInfo, TableInfo subTableInfo, List<DtoField> dtoFields) {
-        String mTableId = tableInfo.getKeyColumn();
+        String mainTableId = tableInfo.getKeyColumn();
         String sTableId = subTableInfo.getKeyColumn();
         if(tableInfo == subTableInfo) {
-            mTableId = dtoClassInfo.getEntityClassInfo().getIdReferenceFieldInfo().getColumnName();
+            mainTableId = dtoClassInfo.getEntityClassInfo().getIdReferenceFieldInfo().getColumnName();
         }
         String sAssignColumnName = dtoFields.get(2).getEntityFieldInfo().getColumnName();
         String sWeightColumnName = dtoFields.get(3).getEntityFieldInfo().getColumnName();
-        String precision = updateEventModel.getUpdateParams()[3];
+        String precision = updateEventModel.getUpdateParams().get(3);
 
         return String.format(selectSql
-                , sWeightColumnName, mTableId, sTableId, sWeightColumnName
-                , mTableId, "%s", precision
-                , sWeightColumnName, mTableId, sTableId, sWeightColumnName
-                , sWeightColumnName, mTableId, "%s", precision
+                , sWeightColumnName, mainTableId, sTableId, sWeightColumnName
+                , mainTableId, "%s", precision
+                , sWeightColumnName, mainTableId, sTableId, sWeightColumnName
+                , sWeightColumnName, mainTableId, "%s", precision
                 , sAssignColumnName);
     }
 

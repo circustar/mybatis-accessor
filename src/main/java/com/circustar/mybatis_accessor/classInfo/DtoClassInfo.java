@@ -133,10 +133,10 @@ public class DtoClassInfo {
                 var0 = Arrays.asList(annotationsByType);
             }
         }
-        if(var0!= null & !var0.isEmpty()) {
+        if(var0!= null && !var0.isEmpty()) {
             this.updateEventList = var0.stream().map(x -> new UpdateEventModel(x.onExpression(), x.updateEventClass(),
                     () -> ApplicationContextUtils.getBeanOrCreate(applicationContext, x.updateEventClass())
-                    , x.updateParams()))
+                    , Arrays.asList(x.updateParams())))
                     .collect(Collectors.toList());
         }
     }
@@ -152,7 +152,7 @@ public class DtoClassInfo {
                 var0 = Arrays.asList(annotationsByType);
             }
         }
-        if(var0!= null & !var0.isEmpty()) {
+        if(var0!= null && !var0.isEmpty()) {
             this.propertyChangeEventList = var0.stream().map(x -> new PropertyChangeEventModel(x.changeProperties(),
                     x.triggerOnAnyChanged(),
                     () -> ApplicationContextUtils.getBeanOrCreate(applicationContext, x.onChangeExecutor())
@@ -351,7 +351,7 @@ public class DtoClassInfo {
         return containUpdateField;
     }
 
-    public static int equalProperties(DtoClassInfo dtoClassInfo, Object obj1, Object obj2, String[] propertyNames) {
+    public static int equalProperties(DtoClassInfo dtoClassInfo, Object obj1, Object obj2, List<String> propertyNames) {
         boolean partEqual = false;
         boolean allEqual = true;
         try {

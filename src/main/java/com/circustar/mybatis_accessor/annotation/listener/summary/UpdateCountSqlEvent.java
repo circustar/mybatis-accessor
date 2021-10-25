@@ -28,8 +28,8 @@ public class UpdateCountSqlEvent extends AbstractUpdateEvent<UpdateEventModel> i
 
     @Override
     protected List<DtoField> parseDtoFieldList(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo) {
-        String mFieldName = updateEventModel.getUpdateParams()[0];
-        String sFieldName = updateEventModel.getUpdateParams()[1];
+        String mFieldName = updateEventModel.getUpdateParams().get(0);
+        String sFieldName = updateEventModel.getUpdateParams().get(1);
         DtoField mField = dtoClassInfo.getDtoField(mFieldName);
         DtoField sField = dtoClassInfo.getDtoField(sFieldName);
 
@@ -43,11 +43,11 @@ public class UpdateCountSqlEvent extends AbstractUpdateEvent<UpdateEventModel> i
     protected List<Object> parseParams(UpdateEventModel updateEventModel, List<DtoField> dtoFields, DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo) {
         TableInfo tableInfo = dtoClassInfo.getEntityClassInfo().getTableInfo();
         TableInfo subTableInfo = fieldDtoClassInfo.getEntityClassInfo().getTableInfo();
-        String selectSql = CreateSqlPart(updateEventModel, dtoClassInfo, tableInfo, fieldDtoClassInfo, subTableInfo, dtoFields);
+        String selectSql = createSqlPart(updateEventModel, dtoClassInfo, tableInfo, fieldDtoClassInfo, subTableInfo, dtoFields);
         return Collections.singletonList(selectSql);
     }
 
-    protected String CreateSqlPart(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo, TableInfo tableInfo
+    protected String createSqlPart(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo, TableInfo tableInfo
             , DtoClassInfo subDtoClassInfo, TableInfo subTableInfo, List<DtoField> dtoFields) {
         String upperKeyColumn = tableInfo.getKeyColumn();
         if(subTableInfo == tableInfo) {

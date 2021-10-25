@@ -1,24 +1,26 @@
 package com.circustar.mybatis_accessor.annotation.listener.property_change;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class PropertyChangeEventModel {
-    private String[] changePropertyNames;
+    private List<String> changePropertyNames;
     private boolean triggerOnAnyChanged;
     private IPropertyChangeEvent propertyChangeEvent;
-    private String[] updateParams;
+    private List<String> updateParams;
     private Supplier<IPropertyChangeEvent> supplier;
 
     public PropertyChangeEventModel(String[] changePropertyNames, boolean triggerOnAnyChanged
             , Supplier<IPropertyChangeEvent> supplier
             , String[] updateParams) {
-        this.changePropertyNames = changePropertyNames;
+        this.changePropertyNames = Arrays.asList(changePropertyNames);
         this.triggerOnAnyChanged = triggerOnAnyChanged;
-        this.updateParams = updateParams;
+        this.updateParams = Arrays.asList(updateParams);
         this.supplier = supplier;
     }
 
-    public String[] getChangePropertyNames() {
+    public List<String> getChangePropertyNames() {
         return changePropertyNames;
     }
 
@@ -33,7 +35,7 @@ public class PropertyChangeEventModel {
         return propertyChangeEvent;
     }
 
-    public String[] getUpdateParams() {
+    public List<String> getUpdateParams() {
         return updateParams;
     }
 }

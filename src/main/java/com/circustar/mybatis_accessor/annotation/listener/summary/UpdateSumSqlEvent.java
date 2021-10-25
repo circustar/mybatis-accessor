@@ -11,21 +11,21 @@ import java.util.List;
 public class UpdateSumSqlEvent extends UpdateCountSqlEvent implements IUpdateEvent<UpdateEventModel> {
     private static final String originalSql = "select sum(t1.%s) from %s t1 where t1.%s = %s.%s";
 
-    protected String getOriginalSql(String[] originParams) {
+    protected String getOriginalSql(List<String> originParams) {
         return UpdateSumSqlEvent.originalSql;
     }
 
     @Override
     protected List<DtoField> parseDtoFieldList(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo) {
         List<DtoField> dtoFields = super.parseDtoFieldList(updateEventModel, dtoClassInfo);
-        String sPartFieldName = updateEventModel.getUpdateParams()[2];
+        String sPartFieldName = updateEventModel.getUpdateParams().get(2);
         DtoField sPartField = dtoFields.get(1).getFieldDtoClassInfo().getDtoField(sPartFieldName);
         dtoFields.add(sPartField);
         return dtoFields;
     }
 
     @Override
-    protected String CreateSqlPart(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo
+    protected String createSqlPart(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo
             , TableInfo tableInfo, DtoClassInfo subDtoClassInfo
             , TableInfo subTableInfo, List<DtoField> dtoFields) {
         String selectSql = String.format(getOriginalSql(updateEventModel.getUpdateParams())
