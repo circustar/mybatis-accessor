@@ -52,22 +52,14 @@ public class UpdateExecuteExpressionEvent implements IUpdateEvent<UpdateEventMod
             }
             sqlExpressions.add(sql);
         }
-        try(SqlSession sqlSession = sqlSessionFactory.openSession()) {
-            try(Connection connection = sqlSession.getConnection()) {
-                Statement statement = null;
-                try {
-                    statement = connection.createStatement();
-                    for(String sql : sqlExpressions) {
-                        statement.execute(sql);
-                    }
-                } finally {
-                    if(statement != null) {
-                        statement.close();
-                    }
-                }
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
+        try(SqlSession sqlSession = sqlSessionFactory.openSession();
+            Connection connection = sqlSession.getConnection();
+            Statement statement = connection.createStatement()) {
+            for(String sql : sqlExpressions) {
+                statement.execute(sql);
             }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
     }
 }

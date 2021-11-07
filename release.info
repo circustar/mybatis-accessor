@@ -10,7 +10,5 @@
 -- 9.其他一些优化
 
 1.2.1
--- 1.更新readme
--- 2.使用EventContext
--- 3.使用注解关联Dto与Entity
--- 4.DtoConverter
+-- 1.使用EventContext
+-- 2.增加UpdateExecuteExpressionEvent
