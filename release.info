@@ -8,3 +8,9 @@
 -- 7.DefaultConverter支持带参数构造方法的实例化
 -- 8.UpdateListener入参优化
 -- 9.其他一些优化
+
+1.2.1
+-- 1.更新readme
+-- 2.使用EventContext
+-- 3.使用注解关联Dto与Entity
+-- 4.DtoConverter

@@ -1,24 +1,22 @@
 package com.circustar.mybatis_accessor.updateProcessor;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.common_utils.parser.SPELParser;
-import com.circustar.mybatis_accessor.annotation.listener.UpdateEventModel;
-import com.circustar.mybatis_accessor.annotation.listener.ExecuteTiming;
-import com.circustar.mybatis_accessor.annotation.listener.property_change.PropertyChangeEventModel;
+import com.circustar.common_utils.listener.IListener;
+import com.circustar.common_utils.listener.IListenerContext;
+import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.EntityClassInfo;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
+import com.circustar.mybatis_accessor.listener.UpdateProcessorPropertyChangeListener;
+import com.circustar.mybatis_accessor.listener.UpdateProcessorUpdateListener;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.common_utils.reflection.FieldUtils;
-import org.springframework.util.StringUtils;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
-public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProcessor<Collection> {
+public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProcessor<Collection>, IListenerContext<DefaultEntityCollectionUpdateProcessor> {
     public DefaultEntityCollectionUpdateProcessor(IService service
             , IUpdateCommand updateCommand
             , Object option
@@ -78,6 +76,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
 
     @Override
     public boolean execUpdate(Map<String, Object> keyMap, List<Supplier<Integer>> consumerList, int level) {
+        init(this);
         boolean result;
         if (updateChildFirst) {
             result = execSubEntityUpdate(keyMap, consumerList, level);
@@ -116,25 +115,10 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
             }
         }
         if (!updateChildrenOnly) {
-            List dtoListBeforeUpdate = getDtoListBeforeUpdate(this.updateCommand.getUpdateType()
-                    ,this.dtoClassInfo, this.dtoClassInfo.getPropertyChangeEventList()
-                    , this.updateDtoList);
-            executePropertyChangeEvent(ExecuteTiming.BEFORE_UPDATE
-                    , this.updateCommand.getUpdateType()
-                    , this.dtoClassInfo, this.dtoClassInfo.getPropertyChangeEventList()
-                    , this.updateDtoList, dtoListBeforeUpdate);
-            executeUpdateEvent(ExecuteTiming.BEFORE_UPDATE, updateCommand.getUpdateType()
-                    , dtoClassInfo, this.dtoClassInfo.getUpdateEventList()
-                    , this.updateDtoList, this.updateEntityList);
+            this.execListeners(ExecuteTiming.BEFORE_UPDATE);
             result = this.updateCommand.update(this.service, this.updateEntityList, option);
             if (!result) return false;
-            executeUpdateEvent(ExecuteTiming.AFTER_UPDATE, updateCommand.getUpdateType()
-                    , dtoClassInfo, this.dtoClassInfo.getUpdateEventList()
-                    , this.updateDtoList, this.updateEntityList);
-            executePropertyChangeEvent(ExecuteTiming.AFTER_UPDATE
-                    , this.updateCommand.getUpdateType()
-                    , this.dtoClassInfo, this.dtoClassInfo.getPropertyChangeEventList()
-                    , this.updateDtoList, dtoListBeforeUpdate);
+            this.execListeners(ExecuteTiming.AFTER_UPDATE);
         }
 
         if (entityClassInfo != null && firstEntity.isPresent()
@@ -151,21 +135,17 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
             result = execSubEntityUpdate(keyMap, consumerList, level);
             if(!result){return false;}
         }
+        this.dispose();
         return true;
     }
 
     private boolean execSubEntityUpdate(Map<String, Object> keyMap, List<Supplier<Integer>> consumerList
             , int level) {
-        List<UpdateEventModel> updateEventList = this.dtoClassInfo.getUpdateEventList();
-        executeUpdateEvent(ExecuteTiming.BEFORE_SUB_ENTITY_UPDATE, this.updateCommand.getUpdateType()
-                , this.dtoClassInfo, updateEventList
-                , this.updateDtoList, this.updateEntityList);
+        this.execListeners(ExecuteTiming.BEFORE_SUB_ENTITY_UPDATE);
         if(this.subUpdateEntities != null && !this.subUpdateEntities.isEmpty()) {
-            if(updateEventList != null && !updateEventList.isEmpty()) {
+            if(!this.skipAllListener(ExecuteTiming.AFTER_SUB_ENTITY_UPDATE)) {
                 consumerList.add(() -> {
-                    executeUpdateEvent(ExecuteTiming.AFTER_SUB_ENTITY_UPDATE, this.updateCommand.getUpdateType()
-                            , this.dtoClassInfo, updateEventList
-                            , this.updateDtoList, this.updateEntityList);
+                    this.execListeners(ExecuteTiming.AFTER_SUB_ENTITY_UPDATE);
                     return level;
                 });
             }
@@ -176,106 +156,38 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                 }
             }
         }
+
         if(level == 0) {
             int size = consumerList.size();
             for(int i = 0; i < size; i++) {
-                consumerList.remove(0).get();
+                consumerList.get(i).get();
             }
         }
         return true;
     }
 
-    private void executeUpdateEvent(ExecuteTiming executeTiming, IUpdateCommand.UpdateType updateType
-            , DtoClassInfo dtoClassInfo
-            , List<UpdateEventModel> updateEventList
-            , List updateDtoList, List updateEntityList) {
-        if(this.updateChildrenOnly || (updateEventList == null || updateEventList.isEmpty())) {
-            return;
-        }
-        List<UpdateEventModel> updateModelList = updateEventList.stream()
-                .filter(x -> executeTiming.equals(x.getUpdateEvent().getExecuteTiming()))
-                .filter(x -> Arrays.stream(x.getUpdateEvent().getUpdateTypes()).anyMatch(y -> updateType.equals(y)))
-                .collect(Collectors.toList());
-        for(UpdateEventModel m : updateModelList) {
-            List executeDtoList = new ArrayList();
-            List executeEntityList = new ArrayList();
-            for(int i = 0 ; i < updateDtoList.size(); i++) {
-                boolean execFlag = true;
-                if(StringUtils.hasLength(m.getOnExpression())) {
-                    execFlag = (boolean) SPELParser.parseExpression(updateDtoList.get(i),m.getOnExpression());
-                }
-                if(!execFlag) {
-                    continue;
-                }
-                executeDtoList.add(updateDtoList.get(i));
-                executeEntityList.add(updateEntityList.get(i));
-            }
-            if(!executeDtoList.isEmpty()) {
-                m.getUpdateEvent().exec(m, this.updateCommand.getUpdateType(),
-                        dtoClassInfo, executeDtoList, executeEntityList);
-            }
-        }
+    private List<IListener<DefaultEntityCollectionUpdateProcessor>> listenerList = null;
+
+    @Override
+    public void init(DefaultEntityCollectionUpdateProcessor target) {
+        UpdateProcessorUpdateListener updateListener = new UpdateProcessorUpdateListener(
+                this.dtoClassInfo.getUpdateEventList(), this.updateCommand, this.dtoClassInfo
+                ,this.updateDtoList, this.updateEntityList, this.updateChildrenOnly, this.subUpdateEntities
+        );
+        UpdateProcessorPropertyChangeListener changeListener = new UpdateProcessorPropertyChangeListener(
+                this.dtoClassInfo.getPropertyChangeEventList(), this.updateCommand, this.dtoClassInfo
+                ,this.updateDtoList
+        );
+        this.listenerList = Arrays.asList(updateListener, changeListener);
     }
 
-    private List getDtoListBeforeUpdate(IUpdateCommand.UpdateType updateType
-            , DtoClassInfo dtoClassInfo, List<PropertyChangeEventModel> onChangeList, List updateDtoList) {
-        if(onChangeList == null || onChangeList.isEmpty()) {
-            return null;
-        }
-        if(!onChangeList.stream().flatMap(x -> Arrays.stream(x.getPropertyChangeEvent().getUpdateTypes()))
-                .anyMatch(x -> updateType.equals(x))) {
-            return null;
-        }
-        List result = new ArrayList();
-        Method keyFieldReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
-        for(int i = 0 ; i < updateDtoList.size(); i++) {
-            Object updateDto = updateDtoList.get(i);
-            if(dtoClassInfo.getDtoClass().isAssignableFrom(updateDto.getClass())) {
-                Serializable key = (Serializable) FieldUtils.getFieldValue(updateDto, keyFieldReadMethod);
-                if(key == null) {
-                    result.add(null);
-                } else {
-                    Object oldDto = dtoClassInfo.getDtoClassInfoHelper().getSelectService()
-                            .getDtoById(dtoClassInfo.getEntityDtoServiceRelation(),key
-                                    ,false, null);
-                    result.add(oldDto);
-                }
-            } else {
-                result.add(null);
-            }
-        }
-        return result;
+    @Override
+    public DefaultEntityCollectionUpdateProcessor getListenTarget() {
+        return this;
     }
 
-    private void executePropertyChangeEvent(ExecuteTiming executeTiming, IUpdateCommand.UpdateType updateType
-            , DtoClassInfo dtoClassInfo, List<PropertyChangeEventModel> onChangeList
-            , List updateDtoList, List oldDtoList) {
-        if(onChangeList == null || onChangeList.isEmpty() || oldDtoList == null || oldDtoList.isEmpty()) {
-            return;
-        }
-        for(PropertyChangeEventModel propertyChangeEventModel : onChangeList) {
-            if(!executeTiming.equals(propertyChangeEventModel.getPropertyChangeEvent().getExecuteTiming())) {
-                continue;
-            }
-            if(!Arrays.stream(propertyChangeEventModel.getPropertyChangeEvent().getUpdateTypes()).anyMatch(x -> updateType.equals(x))) {
-                continue;
-            }
-            for(int i = 0; i < updateDtoList.size(); i++) {
-                Object newDto = updateDtoList.get(i);
-                Object oldDto = oldDtoList.get(i);
-                int compareResult = DtoClassInfo.equalProperties(dtoClassInfo
-                        , newDto, oldDto, propertyChangeEventModel.getChangePropertyNames());
-                boolean execFlag;
-                if(propertyChangeEventModel.isTriggerOnAnyChanged()) {
-                    execFlag = compareResult <= 0;
-                } else {
-                    execFlag = compareResult < 0;
-                }
-                if(execFlag) {
-                    propertyChangeEventModel.getPropertyChangeEvent().exec(updateType
-                            , dtoClassInfo, newDto, oldDto, propertyChangeEventModel.getUpdateParams());
-                }
-            }
-        }
+    @Override
+    public List<IListener<DefaultEntityCollectionUpdateProcessor>> getListenerList() {
+        return this.listenerList;
     }
 }

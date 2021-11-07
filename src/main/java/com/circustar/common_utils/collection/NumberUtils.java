@@ -50,7 +50,7 @@ public class NumberUtils {
     }
 
     public static BigDecimal readDecimalValue(Class clazz, Object obj, Method readMethod) {
-        BigDecimal result = null;
+        BigDecimal result;
         if(BigDecimal.class.isAssignableFrom(clazz)) {
             BigDecimal res = (BigDecimal)FieldUtils.getFieldValue(obj, readMethod);
             if(res == null) { return BigDecimal.ZERO; }
