@@ -3,32 +3,35 @@ package com.circustar.mybatis_accessor.listener;
 import com.circustar.common_utils.listener.IListener;
 import com.circustar.common_utils.listener.IListenerTiming;
 import com.circustar.common_utils.parser.SPELParser;
-import com.circustar.mybatis_accessor.listener.event.update.UpdateEventModel;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
+import com.circustar.mybatis_accessor.listener.event.decode.DecodeEventModel;
+import com.circustar.mybatis_accessor.listener.event.update.UpdateEventModel;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
 import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
-public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCollectionUpdateProcessor> {
-    private List<UpdateEventModel> updateEventList;
+public class UpdateProcessorDecodeListener implements IListener<DefaultEntityCollectionUpdateProcessor> {
+    private List<DecodeEventModel> decodeEventModelList;
     private boolean updateChildrenOnly;
     private IUpdateCommand updateCommand;
     private DtoClassInfo dtoClassInfo;
     private List updateDtoList;
     private List updateEntityList;
     private Collection<IEntityUpdateProcessor> subUpdateEntities;
-    public UpdateProcessorUpdateListener(List<UpdateEventModel> updateEventList
+    public UpdateProcessorDecodeListener(List<DecodeEventModel> decodeEventModelList
             , IUpdateCommand updateCommand
             , DtoClassInfo dtoClassInfo
             , List updateDtoList
             , List updateEntityList
-            , boolean updateChildrenOnly
             , Collection<IEntityUpdateProcessor> subUpdateEntities) {
-        this.updateEventList = updateEventList;
+        this.decodeEventModelList = decodeEventModelList;
         this.updateChildrenOnly = updateChildrenOnly;
         this.updateCommand = updateCommand;
         this.dtoClassInfo = dtoClassInfo;
@@ -37,13 +40,13 @@ public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCol
         this.subUpdateEntities = subUpdateEntities;
     }
 
-    public List<UpdateEventModel> getUpdateEventList() {
-        return updateEventList;
+    public List<DecodeEventModel> getDecodeEventModelList() {
+        return decodeEventModelList;
     }
 
     @Override
     public boolean skipListener(IListenerTiming eventTiming) {
-        if(this.updateEventList == null || this.updateEventList.isEmpty()) {
+        if(this.decodeEventModelList == null || this.decodeEventModelList.isEmpty()) {
             return true;
         }
         if(!this.matchExecuteTiming(eventTiming)) {
@@ -53,7 +56,7 @@ public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCol
                 && this.updateChildrenOnly) {
             return true;
         }
-        if(!updateEventList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming()))
+        if(!decodeEventModelList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming()))
                 .anyMatch(x -> x.getUpdateTypes().stream()
                         .anyMatch(y -> updateCommand.getUpdateType().equals(y)))) {
             return true;
@@ -64,18 +67,16 @@ public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCol
     @Override
     public List<IListenerTiming> getExecuteTimingList() {
         return Arrays.asList(ExecuteTiming.BEFORE_SUB_ENTITY_UPDATE
-                , ExecuteTiming.BEFORE_UPDATE
-                , ExecuteTiming.AFTER_UPDATE
-                , ExecuteTiming.AFTER_SUB_ENTITY_UPDATE);
+                , ExecuteTiming.BEFORE_UPDATE);
     }
 
     @Override
     public void listenerExec(DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdateProcessor, IListenerTiming eventTiming) {
-        List<UpdateEventModel> updateModelList = updateEventList.stream()
+        List<DecodeEventModel> updateModelList = this.decodeEventModelList.stream()
                 .filter(x -> eventTiming.equals(x.getExecuteTiming()))
                 .filter(x -> x.getUpdateTypes().stream().anyMatch(y -> updateCommand.getUpdateType().equals(y)))
                 .collect(Collectors.toList());
-        for(UpdateEventModel m : updateModelList) {
+        for(DecodeEventModel m : updateModelList) {
             List executeDtoList = new ArrayList();
             List executeEntityList = new ArrayList();
             for(int i = 0 ; i < updateDtoList.size(); i++) {
@@ -90,7 +91,7 @@ public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCol
                 executeEntityList.add(updateEntityList.get(i));
             }
             if(!executeDtoList.isEmpty()) {
-                m.getUpdateEvent().exec(m, this.updateCommand.getUpdateType(),
+                m.getDefaultDecodeEvent().exec(m, this.updateCommand.getUpdateType(),
                         dtoClassInfo, executeDtoList, executeEntityList);
             }
         }

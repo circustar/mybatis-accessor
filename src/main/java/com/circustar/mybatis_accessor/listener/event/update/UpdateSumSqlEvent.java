@@ -1,8 +1,7 @@
-package com.circustar.mybatis_accessor.listener.event.update_event;
+package com.circustar.mybatis_accessor.listener.event.update;
 
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
-import com.circustar.mybatis_accessor.listener.event.IUpdateEvent;
-import com.circustar.mybatis_accessor.listener.event.UpdateEventModel;
+import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 

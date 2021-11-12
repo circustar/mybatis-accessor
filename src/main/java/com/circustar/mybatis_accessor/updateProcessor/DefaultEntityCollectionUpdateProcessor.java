@@ -7,6 +7,7 @@ import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.EntityClassInfo;
 import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
+import com.circustar.mybatis_accessor.listener.UpdateProcessorDecodeListener;
 import com.circustar.mybatis_accessor.listener.UpdateProcessorPropertyChangeListener;
 import com.circustar.mybatis_accessor.listener.UpdateProcessorUpdateListener;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
@@ -118,6 +119,15 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
             this.execListeners(ExecuteTiming.BEFORE_UPDATE);
             result = this.updateCommand.update(this.service, this.updateEntityList, option);
             if (!result) return false;
+            if(IUpdateCommand.UpdateType.INSERT.equals(this.updateCommand.getUpdateType())) {
+                Method keyFieldWriteMethod = this.dtoClassInfo.getKeyField().getPropertyDescriptor().getWriteMethod();
+                final Method keyFieldReadMethod = entityClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
+                for(int i = 0; i < this.updateEntityList.size(); i++) {
+                    FieldUtils.setFieldValue(this.updateDtoList.get(i)
+                            , keyFieldWriteMethod
+                            , FieldUtils.getFieldValue(updateEntityList.get(i), keyFieldReadMethod));
+                }
+            }
             this.execListeners(ExecuteTiming.AFTER_UPDATE);
         }
 
@@ -127,11 +137,13 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
             if (keyField != null) {
                 Object masterKeyValue = FieldUtils.getFieldValue(firstEntity.get()
                         , keyField.getPropertyDescriptor().getReadMethod());
-                keyMap.put(keyField.getField().getName(), masterKeyValue);
+                if(masterKeyValue != null) {
+                    keyMap.put(keyField.getField().getName(), masterKeyValue);
+                }
             }
         }
 
-        if ((!updateChildFirst)) {
+        if (!updateChildFirst) {
             result = execSubEntityUpdate(keyMap, consumerList, level);
             if(!result){return false;}
         }
@@ -177,6 +189,10 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         UpdateProcessorPropertyChangeListener changeListener = new UpdateProcessorPropertyChangeListener(
                 this.dtoClassInfo.getPropertyChangeEventList(), this.updateCommand, this.dtoClassInfo
                 ,this.updateDtoList
+        );
+        UpdateProcessorDecodeListener decodeListener = new UpdateProcessorDecodeListener(
+                this.dtoClassInfo.getDecodeEventModelList(), this.updateCommand, this.dtoClassInfo
+                ,this.updateDtoList, this.updateEntityList, this.subUpdateEntities
         );
         this.listenerList = Arrays.asList(updateListener, changeListener);
     }

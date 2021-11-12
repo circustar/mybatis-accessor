@@ -8,12 +8,15 @@ import java.lang.annotation.*;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.TYPE})
-@Repeatable(MultiPropertyChangeEvent.class)
-public @interface PropertyChangeEvent {
-    String[] changeProperties();
-    boolean triggerOnAnyChanged() default true;
-    Class<? extends IPropertyChangeEvent> onChangeExecutor();
-    String[] updateParams() default "";
+@Repeatable(MultiDecodeEvent.class)
+public @interface DecodeEvent {
+    String onExpression();
+    String targetProperty();
+    String[] matchProperties();
+    Class sourceDtoClass();
+    String sourceProperty();
+    String[] matchSourceProperties() default {};
+    boolean errorWhenNotExist() default true;
     IUpdateCommand.UpdateType[] updateType() default {};
     ExecuteTiming executeTiming() default ExecuteTiming.NONE;
 }

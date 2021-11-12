@@ -3,7 +3,7 @@ package com.circustar.mybatis_accessor.listener;
 import com.circustar.common_utils.listener.IListener;
 import com.circustar.common_utils.listener.IListenerTiming;
 import com.circustar.common_utils.reflection.FieldUtils;
-import com.circustar.mybatis_accessor.listener.event.PropertyChangeEventModel;
+import com.circustar.mybatis_accessor.listener.event.property_change.PropertyChangeEventModel;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;

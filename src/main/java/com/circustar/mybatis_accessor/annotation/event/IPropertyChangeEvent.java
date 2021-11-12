@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.listener.event;
+package com.circustar.mybatis_accessor.annotation.event;
 
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;

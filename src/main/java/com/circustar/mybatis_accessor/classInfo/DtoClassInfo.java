@@ -6,13 +6,11 @@ import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.common_utils.reflection.FieldUtils;
-import com.circustar.mybatis_accessor.annotation.event.UpdateEvent;
-import com.circustar.mybatis_accessor.listener.event.UpdateEventModel;
-import com.circustar.mybatis_accessor.annotation.event.MultiUpdateEvent;
+import com.circustar.mybatis_accessor.annotation.event.*;
+import com.circustar.mybatis_accessor.listener.event.decode.DecodeEventModel;
+import com.circustar.mybatis_accessor.listener.event.update.UpdateEventModel;
 import com.circustar.mybatis_accessor.annotation.dto.DeleteFlag;
-import com.circustar.mybatis_accessor.annotation.event.MultiPropertyChangeEvent;
-import com.circustar.mybatis_accessor.annotation.event.PropertyChangeEvent;
-import com.circustar.mybatis_accessor.listener.event.PropertyChangeEventModel;
+import com.circustar.mybatis_accessor.listener.event.property_change.PropertyChangeEventModel;
 import com.circustar.mybatis_accessor.converter.IConverter;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
@@ -50,6 +48,7 @@ public class DtoClassInfo {
     private QueryWrapperCreator queryWrapperCreator;
     private List<UpdateEventModel> updateEventList;
     private List<PropertyChangeEventModel> propertyChangeEventList;
+    private List<DecodeEventModel> decodeEventModelList;
     private DtoField idReferenceField;
     private IConverter convertDtoToEntity;
     private IConverter convertEntityToDto;
@@ -113,6 +112,7 @@ public class DtoClassInfo {
         initAfterUpdateList(applicationContext);
         initOnChangeList(applicationContext);
         initConverter(applicationContext);
+        initDecodeEventList(applicationContext);
     }
 
     protected void initConverter(ApplicationContext applicationContext) {
@@ -159,6 +159,29 @@ public class DtoClassInfo {
                     x.triggerOnAnyChanged(),
                     () -> ApplicationContextUtils.getBeanOrCreate(applicationContext, x.onChangeExecutor())
                     , x.updateParams()
+                    , Arrays.asList(x.updateType())
+                    , x.executeTiming()))
+                    .collect(Collectors.toList());
+        }
+    }
+
+    protected void initDecodeEventList(ApplicationContext applicationContext) {
+        MultiDecodeEvent multiDecodeEventAnnotation = this.clazz.getAnnotation(MultiDecodeEvent.class);
+        List<DecodeEvent> var0 = null;
+        if(multiDecodeEventAnnotation != null) {
+            var0 = Arrays.asList(multiDecodeEventAnnotation.value());
+        } else {
+            DecodeEvent[] annotationsByType = this.clazz.getAnnotationsByType(DecodeEvent.class);
+            if(annotationsByType!=null) {
+                var0 = Arrays.asList(annotationsByType);
+            }
+        }
+        if(var0!= null && !var0.isEmpty()) {
+            this.decodeEventModelList = var0.stream().map(x -> new DecodeEventModel(this
+                    , x.onExpression()
+                    , x.targetProperty(), x.matchProperties()
+                    , x.sourceDtoClass(), x.sourceProperty(), x.matchSourceProperties()
+                    , x.errorWhenNotExist()
                     , Arrays.asList(x.updateType())
                     , x.executeTiming()))
                     .collect(Collectors.toList());
@@ -329,6 +352,10 @@ public class DtoClassInfo {
 
     public List<PropertyChangeEventModel> getPropertyChangeEventList() {
         return propertyChangeEventList;
+    }
+
+    public List<DecodeEventModel> getDecodeEventModelList() {
+        return decodeEventModelList;
     }
 
     public DtoField getIdReferenceField() {

@@ -1,5 +1,6 @@
-package com.circustar.mybatis_accessor.listener.event;
+package com.circustar.mybatis_accessor.listener.event.update;
 
+import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 
