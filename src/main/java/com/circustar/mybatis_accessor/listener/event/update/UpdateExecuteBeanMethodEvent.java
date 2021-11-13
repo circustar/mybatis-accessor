@@ -3,11 +3,11 @@ package com.circustar.mybatis_accessor.listener.event.update;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
+import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import org.springframework.context.ApplicationContext;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
 
     @Override
     public void exec(UpdateEventModel model, IUpdateCommand.UpdateType updateType, DtoClassInfo dtoClassInfo
-            , List<Object> dtoList, List<Object> entityList) {
+            , List<Object> dtoList) {
         if(UpdateExecuteBeanMethodEvent.applicationContext == null) {
             setApplicationContext(dtoClassInfo.getDtoClassInfoHelper().getApplicationContext());
         }
@@ -39,18 +39,25 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
             String beanName = model.getUpdateParams().get(0);
             Object bean = applicationContext.getBean(beanName);
             String methodName = model.getUpdateParams().get(1);
-            Method method = bean.getClass().getDeclaredMethod(methodName);
 
-            List<Field> paramField = new ArrayList<>();
-            for (int j = 2; j < model.getUpdateParams().size(); j++) {
-                paramField.add(FieldUtils.getField(dtoClassInfo.getDtoClass(), model.getUpdateParams().get(j)));
+            List<DtoField> paramField = new ArrayList<>();
+            List<Class> paramClassList = new ArrayList<>();
+            if(model.getUpdateParams().size() > 2) {
+                for (int j = 2; j < model.getUpdateParams().size(); j++) {
+                    DtoField dtoField = dtoClassInfo.getDtoField(model.getUpdateParams().get(j));
+                    paramField.add(dtoField);
+                    paramClassList.add(dtoField.getOwnClass());
+                }
+            } else {
+                paramClassList.add(dtoClassInfo.getDtoClass());
             }
+            Method method = bean.getClass().getDeclaredMethod(methodName, paramClassList.toArray(new Class[0]));
 
             for(Object dto : dtoList) {
                 List<Object> methodParams = new ArrayList<>();
-                if(paramField.size() > 0) {
+                if(model.getUpdateParams().size() > 2) {
                     for (int j = 0; j < paramField.size(); j++) {
-                        methodParams.add(paramField.get(j).get(dto));
+                        methodParams.add(FieldUtils.getFieldValue(dto, paramField.get(j).getPropertyDescriptor().getReadMethod()));
                     }
                 } else {
                     methodParams.add(dto);

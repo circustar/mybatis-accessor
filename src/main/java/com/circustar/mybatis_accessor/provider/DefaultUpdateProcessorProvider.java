@@ -85,13 +85,12 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
         List<String> deleteAndInsertFieldNames = deleteAndInsertFields.stream().map(x -> x.getField().getName()).collect(Collectors.toList());
         List<DtoField> updateFields = dtoFields.stream().filter(x -> !x.isDeleteAndInsertNewOnUpdate()).collect(Collectors.toList());
         for(Object updateDto : updateDtoList) {
-            Object entity = dtoClassInfoHelper.convertToEntity(updateDto, dtoClassInfo);
             DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , UpdateByIdCommand.getInstance()
                     , null
                     , dtoClassInfo
                     , Collections.singletonList(updateDto)
-                    , Collections.singletonList(entity)
+                    , true
                     , this.getUpdateChildrenFirst()
                     , options.isUpdateChildrenOnly());
 
@@ -146,7 +145,7 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
                     , null
                     , dtoClassInfo
                     , updateDtoList
-                    , dtoClassInfoHelper.convertToEntityList(updateDtoList, dtoClassInfo)
+                    , true
                     , this.getUpdateChildrenFirst()
                     , options.isUpdateChildrenOnly()));
         } else {

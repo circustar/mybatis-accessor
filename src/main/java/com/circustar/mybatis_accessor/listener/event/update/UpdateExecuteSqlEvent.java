@@ -36,7 +36,7 @@ public class UpdateExecuteSqlEvent implements IUpdateEvent<UpdateEventModel> {
 
     @Override
     public void exec(UpdateEventModel model, IUpdateCommand.UpdateType updateType, DtoClassInfo dtoClassInfo
-            , List<Object> dtoList, List<Object> entityList) {
+            , List<Object> dtoList) {
         if(UpdateExecuteSqlEvent.sqlSessionFactory == null) {
             initSqlSessionFactory(dtoClassInfo.getDtoClassInfoHelper().getApplicationContext());
         }
@@ -44,7 +44,7 @@ public class UpdateExecuteSqlEvent implements IUpdateEvent<UpdateEventModel> {
             throw new RuntimeException("sqlSessionFactory not found in ApplicationContext");
         }
         final List<String> sqlExpressions = new ArrayList<>();
-        for(int i = 0; i < entityList.size(); i++) {
+        for(int i = 0; i < dtoList.size(); i++) {
             String sql = model.getUpdateParams().get(0);
             if(sql.contains("#{")) {
                 sql = SPELParser.parseExpression(dtoList.get(i), sql).toString();

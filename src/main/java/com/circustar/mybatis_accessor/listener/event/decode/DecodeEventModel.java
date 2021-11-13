@@ -6,17 +6,19 @@ import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DecodeEventModel {
     private String onExpression;
-    private String targetProperty;
+    private List<String> targetProperties;
     private List<String> matchProperties;
     private Class sourceDtoClass;
-    private String sourceProperty;
+    private List<String> sourceProperties;
     private List<String> matchSourceProperties;
     private List<IUpdateCommand.UpdateType> updateTypes;
     private ExecuteTiming executeTiming;
@@ -25,31 +27,37 @@ public class DecodeEventModel {
 
     private DtoClassInfo dtoClassInfo;
     private DtoClassInfo sourceDtoClassInfo;
-    private DtoField targetPropertyDtoField;
-    private DtoField sourcePropertyDtoField;
+    private List<DtoField> targetPropertyDtoFieldList;
+    private List<DtoField> sourcePropertyDtoFieldList;
     private List<DtoField> matchSourcePropertyDtoFields;
     private List<DtoField> matchPropertyDtoFields;
 
     public DecodeEventModel(DtoClassInfo dtoClassInfo
             , String onExpression
-            , String targetProperty
-            , String[] matchProperties, Class sourceDtoClass, String sourceProperty
+            , String[] targetProperties
+            , String[] matchProperties, Class sourceDtoClass, String[] sourceProperties
             , String[] matchSourceProperties, boolean errorWhenNotExist
-            , List<IUpdateCommand.UpdateType> updateTypes
+            , IUpdateCommand.UpdateType[] updateTypes
             , ExecuteTiming executeTiming) {
         this.dtoClassInfo = dtoClassInfo;
         this.onExpression = onExpression;
-        this.targetProperty = targetProperty;
+        this.targetProperties = Arrays.asList(targetProperties);
         this.matchProperties = Arrays.asList(matchProperties);
         this.sourceDtoClass = sourceDtoClass;
-        this.sourceProperty = sourceProperty;
+        if(sourceProperties == null || sourceProperties.length == 0
+                || !StringUtils.hasLength(sourceProperties[0])) {
+            this.sourceProperties = this.targetProperties;
+        } else {
+            this.sourceProperties = Arrays.asList(sourceProperties);
+        }
         this.errorWhenNotExist = errorWhenNotExist;
-        if(matchSourceProperties == null || matchSourceProperties.length == 0) {
+        if(matchSourceProperties == null || matchSourceProperties.length == 0
+                || !StringUtils.hasLength(matchSourceProperties[0])) {
             this.matchSourceProperties = this.matchProperties;
         } else {
             this.matchSourceProperties = Arrays.asList(matchSourceProperties);
         }
-        this.updateTypes = updateTypes;
+        this.updateTypes = Arrays.asList(updateTypes);
         this.executeTiming = executeTiming;
         this.defaultDecodeEvent = DefaultDecodeEvent.getInstance();
     }
@@ -69,18 +77,20 @@ public class DecodeEventModel {
         return this.sourceDtoClassInfo;
     }
 
-    public DtoField getTargetPropertyDtoField() {
-        if(targetPropertyDtoField == null) {
-            targetPropertyDtoField = dtoClassInfo.getDtoField(this.targetProperty);
+    public List<DtoField> getTargetPropertyDtoFieldList() {
+        if(targetPropertyDtoFieldList == null) {
+            targetPropertyDtoFieldList = this.targetProperties.stream().map(x -> dtoClassInfo.getDtoField(x))
+                    .collect(Collectors.toList());
         }
-        return targetPropertyDtoField;
+        return targetPropertyDtoFieldList;
     }
 
-    public DtoField getSourcePropertyDtoField() {
-        if(sourcePropertyDtoField == null) {
-            sourcePropertyDtoField = sourceDtoClassInfo.getDtoField(this.sourceProperty);
+    public List<DtoField> getSourcePropertyDtoFieldList() {
+        if(sourcePropertyDtoFieldList == null) {
+            sourcePropertyDtoFieldList = this.sourceProperties.stream().map(x -> sourceDtoClassInfo.getDtoField(x))
+                    .collect(Collectors.toList());
         }
-        return sourcePropertyDtoField;
+        return sourcePropertyDtoFieldList;
     }
 
     public List<DtoField> getMatchSourcePropertyDtoFields() {

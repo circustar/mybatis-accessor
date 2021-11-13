@@ -55,10 +55,10 @@ public class UpdateAssignSqlEvent extends UpdateAvgSqlEvent implements IUpdateEv
 
     @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
-            , List<Object> dtoList, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams) {
+            , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams) {
         TableInfo tableInfo = dtoClassInfo.getEntityClassInfo().getTableInfo();
         TableInfo subTableInfo = fieldDtoClassInfo.getEntityClassInfo().getTableInfo();
-        Method mKeyFieldReadMethod = dtoClassInfo.getEntityClassInfo().getKeyField().getPropertyDescriptor().getReadMethod();
+        Method mKeyFieldReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
         Method mFieldReadMethod =dtoFields.get(0).getEntityFieldInfo().getPropertyDescriptor().getReadMethod();
         String assignTemplateSql = parsedParams.get(0).toString();
         String mTableId = tableInfo.getKeyColumn();
@@ -74,7 +74,7 @@ public class UpdateAssignSqlEvent extends UpdateAvgSqlEvent implements IUpdateEv
         IService mServiceBean = dtoClassInfo.getServiceBean();
         IService sServiceBean = fieldDtoClassInfo.getServiceBean();
 
-        for(Object o : entityList) {
+        for(Object o : dtoList) {
             Object keyValue = FieldUtils.getFieldValue(o, mKeyFieldReadMethod);
             Object entity = mServiceBean.getById((Serializable) keyValue);
             Object summaryValue = FieldUtils.getFieldValue(entity, mFieldReadMethod);

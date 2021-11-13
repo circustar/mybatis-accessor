@@ -11,10 +11,10 @@ import java.lang.annotation.*;
 @Repeatable(MultiDecodeEvent.class)
 public @interface DecodeEvent {
     String onExpression();
-    String targetProperty();
+    String[] targetProperties();
     String[] matchProperties();
     Class sourceDtoClass();
-    String sourceProperty();
+    String[] sourceProperties() default "";
     String[] matchSourceProperties() default {};
     boolean errorWhenNotExist() default true;
     IUpdateCommand.UpdateType[] updateType() default {};

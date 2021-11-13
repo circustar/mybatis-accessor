@@ -78,7 +78,6 @@ public class UpdateProcessorDecodeListener implements IListener<DefaultEntityCol
                 .collect(Collectors.toList());
         for(DecodeEventModel m : updateModelList) {
             List executeDtoList = new ArrayList();
-            List executeEntityList = new ArrayList();
             for(int i = 0 ; i < updateDtoList.size(); i++) {
                 boolean execFlag = true;
                 if(StringUtils.hasLength(m.getOnExpression())) {
@@ -88,11 +87,10 @@ public class UpdateProcessorDecodeListener implements IListener<DefaultEntityCol
                     continue;
                 }
                 executeDtoList.add(updateDtoList.get(i));
-                executeEntityList.add(updateEntityList.get(i));
             }
             if(!executeDtoList.isEmpty()) {
                 m.getDefaultDecodeEvent().exec(m, this.updateCommand.getUpdateType(),
-                        dtoClassInfo, executeDtoList, executeEntityList);
+                        dtoClassInfo, executeDtoList);
             }
         }
     }

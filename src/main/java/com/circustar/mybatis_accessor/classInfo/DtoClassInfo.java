@@ -179,10 +179,10 @@ public class DtoClassInfo {
         if(var0!= null && !var0.isEmpty()) {
             this.decodeEventModelList = var0.stream().map(x -> new DecodeEventModel(this
                     , x.onExpression()
-                    , x.targetProperty(), x.matchProperties()
-                    , x.sourceDtoClass(), x.sourceProperty(), x.matchSourceProperties()
+                    , x.targetProperties(), x.matchProperties()
+                    , x.sourceDtoClass(), x.sourceProperties(), x.matchSourceProperties()
                     , x.errorWhenNotExist()
-                    , Arrays.asList(x.updateType())
+                    , x.updateType()
                     , x.executeTiming()))
                     .collect(Collectors.toList());
         }

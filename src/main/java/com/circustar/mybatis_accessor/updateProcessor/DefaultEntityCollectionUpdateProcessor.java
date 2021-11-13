@@ -23,14 +23,14 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
             , Object option
             , DtoClassInfo dtoClassInfo
             , List updateDtoList
-            , List updateEntityList
+            , Boolean needConvertToEntity
             , Boolean updateChildrenFirst
             , boolean updateChildrenOnly) {
         this.option = option;
         this.updateCommand = updateCommand;
         this.service = service;
         this.updateDtoList = updateDtoList;
-        this.updateEntityList = updateEntityList;
+        this.needConvertToEntity = needConvertToEntity;
         this.updateChildFirst = updateChildrenFirst;
         this.dtoClassInfo = dtoClassInfo;
         this.entityClassInfo = dtoClassInfo.getEntityClassInfo();
@@ -41,6 +41,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
     private IService service;
     private Boolean updateChildFirst;
     private List updateDtoList;
+    private boolean needConvertToEntity;
     private List updateEntityList;
     private List<IEntityUpdateProcessor> subUpdateEntities;
     private DtoClassInfo dtoClassInfo;
@@ -83,6 +84,15 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
             result = execSubEntityUpdate(keyMap, consumerList, level);
             if(!result){return false;}
         }
+        if (!updateChildrenOnly) {
+            this.execListeners(ExecuteTiming.BEFORE_UPDATE);
+        }
+        if(needConvertToEntity) {
+            this.updateEntityList = dtoClassInfo.getDtoClassInfoHelper().convertToEntityList(this.updateDtoList, dtoClassInfo);
+        } else {
+            this.updateEntityList = this.updateDtoList;
+        }
+
         Optional firstEntity = updateEntityList.stream().findFirst();
         if (entityClassInfo != null && firstEntity.isPresent()
                 && entityClassInfo.getEntityClass().isAssignableFrom(firstEntity.get().getClass())) {
@@ -116,7 +126,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
             }
         }
         if (!updateChildrenOnly) {
-            this.execListeners(ExecuteTiming.BEFORE_UPDATE);
+            //this.execListeners(ExecuteTiming.BEFORE_UPDATE);
             result = this.updateCommand.update(this.service, this.updateEntityList, option);
             if (!result) return false;
             if(IUpdateCommand.UpdateType.INSERT.equals(this.updateCommand.getUpdateType())) {
@@ -194,7 +204,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                 this.dtoClassInfo.getDecodeEventModelList(), this.updateCommand, this.dtoClassInfo
                 ,this.updateDtoList, this.updateEntityList, this.subUpdateEntities
         );
-        this.listenerList = Arrays.asList(updateListener, changeListener);
+        this.listenerList = Arrays.asList(decodeListener, updateListener, changeListener);
     }
 
     @Override

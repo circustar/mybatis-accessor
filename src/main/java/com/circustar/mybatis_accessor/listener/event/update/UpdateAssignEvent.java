@@ -48,9 +48,8 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
 
     @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
-            , List<Object> dtoList, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams) {
-        EntityFieldInfo mKeyField = dtoClassInfo.getEntityClassInfo().getKeyField();
-        Method mKeyFieldReadMethod = mKeyField.getPropertyDescriptor().getReadMethod();
+            , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams) {
+        Method mKeyFieldReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
 
         DtoField mField = dtoFields.get(0);
         Method mFieldReadMethod = mField.getPropertyDescriptor().getReadMethod();
@@ -69,8 +68,8 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
         ISelectService selectService = dtoClassInfo.getDtoClassInfoHelper().getSelectService();
         int scale = (int)parsedParams.get(0);
 
-        for(Object o : entityList) {
-            Serializable mKeyValue = (Serializable) FieldUtils.getFieldValue(o, mKeyFieldReadMethod);
+        for(Object dto : dtoList) {
+            Serializable mKeyValue = (Serializable) FieldUtils.getFieldValue(dto, mKeyFieldReadMethod);
             Object dtoUpdated = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(), mKeyValue
                     , false, Collections.singletonList(sField.getField().getName()));
 

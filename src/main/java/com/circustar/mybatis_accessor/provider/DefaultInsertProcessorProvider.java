@@ -47,7 +47,6 @@ public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider
         List<String> topEntities = this.getTopEntities(dtoClassInfo, children, DEFAULT_DELIMITER);
         boolean hasChildren = false;
 
-        List<Object> updateEntityList = new ArrayList<>();
         List<DtoField> dtoFields = topEntities.stream().map(x -> dtoClassInfo.getDtoField(x)).collect(Collectors.toList());
         for(Object value : dtoList) {
             if(dtoClassInfo.getVersionField() != null) {
@@ -55,14 +54,12 @@ public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider
                         , dtoClassInfo.getVersionField().getPropertyDescriptor().getWriteMethod()
                         , dtoClassInfo.getVersionDefaultValue());
             }
-            Object updateEntity = dtoClassInfoHelper.convertToEntity(value, dtoClassInfo);
-            updateEntityList.add(updateEntity);
             DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
                     , InsertCommand.getInstance()
                     , null
                     , dtoClassInfo
                     , Collections.singletonList(value)
-                    , Collections.singletonList(updateEntity)
+                    , true
                     , this.getUpdateChildrenFirst()
                     , updateChildrenOnly);
             for(DtoField dtoField : dtoFields) {
@@ -89,7 +86,7 @@ public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider
                         , null
                         , dtoClassInfo
                         , dtoList
-                        , updateEntityList
+                        , true
                         , this.getUpdateChildrenFirst()
                         , false);
                 return Collections.singletonList(defaultEntityCollectionUpdater);

@@ -71,17 +71,17 @@ public class UpdateCountSqlEvent extends AbstractUpdateEvent<UpdateEventModel> i
 
     @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
-            , List<Object> dtoList, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams) {
+            , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams) {
         DtoField mField = dtoFields.get(0);
         IService serviceBean = dtoClassInfo.getServiceBean();
         String execSelectSql = parsedParams.get(0).toString();
-        EntityFieldInfo keyField = dtoClassInfo.getEntityClassInfo().getKeyField();
-        for(int i = 0; i< entityList.size(); i++) {
-            Object keyValue = FieldUtils.getFieldValue(entityList.get(i), keyField.getPropertyDescriptor().getReadMethod());
+        DtoField keyField = dtoClassInfo.getKeyField();
+        for(int i = 0; i< dtoList.size(); i++) {
+            Object keyValue = FieldUtils.getFieldValue(dtoList.get(i), keyField.getPropertyDescriptor().getReadMethod());
 
             UpdateWrapper uw = new UpdateWrapper();
             uw.setSql(mField.getEntityFieldInfo().getColumnName() + " = (" + execSelectSql + ")");
-            uw.eq(keyField.getColumnName(), keyValue);
+            uw.eq(keyField.getEntityFieldInfo().getColumnName(), keyValue);
             serviceBean.update(uw);
         }
     }

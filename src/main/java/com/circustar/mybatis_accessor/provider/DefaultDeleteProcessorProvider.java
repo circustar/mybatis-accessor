@@ -117,7 +117,7 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
                             , dtoClassInfo.isPhysicDelete()
                             , dtoClassInfo
                             , updateList
-                            , updateList
+                            , false
                             , this.getUpdateChildrenFirst()
                             , false);
                     updateProcessor.addSubUpdateEntities(subUpdateEntities);
@@ -131,7 +131,7 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
                     , dtoClassInfo.isPhysicDelete()
                     , dtoClassInfo
                     , updateEntityWithNoSubList
-                    , updateEntityWithNoSubList
+                    , false
                     , this.getUpdateChildrenFirst()
                     , false);
             result.add(updateProcessor);

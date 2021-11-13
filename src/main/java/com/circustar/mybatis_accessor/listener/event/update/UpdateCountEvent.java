@@ -37,16 +37,16 @@ public class UpdateCountEvent extends UpdateCountSqlEvent implements IUpdateEven
 
     @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
-            , List<Object> dtoList, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams) {
+            , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams) {
         IService serviceBean = dtoClassInfo.getServiceBean();
         ISelectService selectService = dtoClassInfo.getDtoClassInfoHelper().getSelectService();
         DtoField mField = dtoFields.get(0);
         DtoField sField = dtoFields.get(1);
         EntityFieldInfo mKeyField = dtoClassInfo.getEntityClassInfo().getKeyField();
-        Method mKeyFieldReadMethod = mKeyField.getPropertyDescriptor().getReadMethod();
+        Method mKeyFieldReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
 
-        for(int i = 0; i< entityList.size(); i++) {
-            Serializable mKeyValue = (Serializable) FieldUtils.getFieldValue(entityList.get(i), mKeyFieldReadMethod);
+        for(int i = 0; i< dtoList.size(); i++) {
+            Serializable mKeyValue = (Serializable) FieldUtils.getFieldValue(dtoList.get(i), mKeyFieldReadMethod);
             Object dtoUpdated = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(), mKeyValue
                     , false, Collections.singletonList(sField.getField().getName()));
             Object count = NumberUtils.castFromBigDecimal(mField.getActualClass()

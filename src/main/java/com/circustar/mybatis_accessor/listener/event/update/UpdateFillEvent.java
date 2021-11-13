@@ -69,7 +69,7 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
 
     @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
-            , List<Object> dtoList, List<Object> entityList, List<DtoField> dtoFields, List<Object> parsedParams) {
+            , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams) {
         DtoField mAssignField = dtoFields.get(0);
         DtoField mRemainField = dtoFields.get(1);
         DtoField sField = dtoFields.get(2);
@@ -78,13 +78,13 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
         DtoField sLimitField = dtoFields.get(4);
         DtoField sOrderField = dtoFields.get(5);
 
-        Method keyFieldReadMethod = dtoClassInfo.getEntityClassInfo().getKeyField().getPropertyDescriptor().getReadMethod();
+        Method keyFieldReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
         Method sKeyFieldReadMethod = fieldDtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
         ISelectService selectService = dtoClassInfo.getDtoClassInfoHelper().getSelectService();
         boolean isAsc = (boolean) parsedParams.get(0);
         BigDecimal paramLimitValue = (BigDecimal) parsedParams.get(1);
-        for(int i = 0; i< entityList.size(); i++) {
-            Serializable keyValue = (Serializable)FieldUtils.getFieldValue(entityList.get(i), keyFieldReadMethod);
+        for(int i = 0; i< dtoList.size(); i++) {
+            Serializable keyValue = (Serializable)FieldUtils.getFieldValue(dtoList.get(i), keyFieldReadMethod);
             Object dtoById = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(), keyValue, false
                     , Collections.singletonList(sFieldName));
             BigDecimal remainFillValue = NumberUtils.readDecimalValue(mAssignField.getActualClass(), dtoById, mAssignField.getPropertyDescriptor().getReadMethod());
