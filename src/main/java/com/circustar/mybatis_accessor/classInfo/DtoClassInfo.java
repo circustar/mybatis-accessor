@@ -155,10 +155,11 @@ public class DtoClassInfo {
             }
         }
         if(var0!= null && !var0.isEmpty()) {
-            this.propertyChangeEventList = var0.stream().map(x -> new PropertyChangeEventModel(x.changeProperties(),
-                    x.triggerOnAnyChanged(),
-                    () -> ApplicationContextUtils.getBeanOrCreate(applicationContext, x.onChangeExecutor())
-                    , x.updateParams()
+            this.propertyChangeEventList = var0.stream().map(x -> new PropertyChangeEventModel(x.fromExpression(),
+                    x.toExpression(),
+                    x.updateEventClass(),
+                    () -> ApplicationContextUtils.getBeanOrCreate(applicationContext, x.updateEventClass())
+                    , Arrays.asList(x.updateParams())
                     , Arrays.asList(x.updateType())
                     , x.executeTiming()))
                     .collect(Collectors.toList());

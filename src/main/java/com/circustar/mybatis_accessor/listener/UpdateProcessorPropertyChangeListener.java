@@ -2,11 +2,13 @@ package com.circustar.mybatis_accessor.listener;
 
 import com.circustar.common_utils.listener.IListener;
 import com.circustar.common_utils.listener.IListenerTiming;
+import com.circustar.common_utils.parser.SPELParser;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.listener.event.property_change.PropertyChangeEventModel;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -90,22 +92,29 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
         List<PropertyChangeEventModel> execChangeList = onChangeList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming()))
                 .filter(x -> x.getUpdateTypes().stream().anyMatch(y -> updateCommand.getUpdateType().equals(y)))
                 .collect(Collectors.toList());
-        for (PropertyChangeEventModel propertyChangeEventModel : execChangeList) {
+        for (PropertyChangeEventModel m : execChangeList) {
+            List executeDtoList = new ArrayList();
             for (int i = 0; i < updateDtoList.size(); i++) {
                 Object newDto = updateDtoList.get(i);
                 Object oldDto = oldDtoList.get(i);
-                int compareResult = DtoClassInfo.equalProperties(dtoClassInfo
-                        , newDto, oldDto, propertyChangeEventModel.getChangePropertyNames());
-                boolean execFlag;
-                if (propertyChangeEventModel.isTriggerOnAnyChanged()) {
-                    execFlag = compareResult <= 0;
-                } else {
-                    execFlag = compareResult < 0;
+                boolean execFlag = true;
+                if(StringUtils.hasLength(m.getFromExpression())) {
+                    execFlag = (boolean) SPELParser.parseExpression(oldDto,m.getFromExpression());
                 }
-                if (execFlag) {
-                    propertyChangeEventModel.getPropertyChangeEvent().exec(this.updateCommand.getUpdateType()
-                            , dtoClassInfo, newDto, oldDto, propertyChangeEventModel.getUpdateParams());
+                if(!execFlag) {
+                    continue;
                 }
+                if(StringUtils.hasLength(m.getToExpression())) {
+                    execFlag = (boolean) SPELParser.parseExpression(oldDto,m.getToExpression());
+                }
+                if(!execFlag) {
+                    continue;
+                }
+                executeDtoList.add(newDto);
+            }
+            if(!executeDtoList.isEmpty()) {
+                m.getUpdateEvent().exec(m, this.updateCommand.getUpdateType(),
+                        dtoClassInfo, executeDtoList);
             }
         }
     }

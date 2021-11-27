@@ -10,9 +10,9 @@ import java.lang.annotation.*;
 @Target(value = {ElementType.TYPE})
 @Repeatable(MultiPropertyChangeEvent.class)
 public @interface PropertyChangeEvent {
-    String[] changeProperties();
-    boolean triggerOnAnyChanged() default true;
-    Class<? extends IPropertyChangeEvent> onChangeExecutor();
+    String fromExpression() default "";
+    String toExpression() default "";
+    Class<? extends IUpdateEvent> updateEventClass();
     String[] updateParams() default "";
     IUpdateCommand.UpdateType[] updateType() default {};
     ExecuteTiming executeTiming() default ExecuteTiming.NONE;
