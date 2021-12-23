@@ -1,5 +1,6 @@
 package com.circustar.mybatis_accessor.provider;
 
+import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.provider.parameter.IProviderParam;
@@ -34,6 +35,9 @@ public abstract class AbstractUpdateEntityProvider<P extends IProviderParam> imp
     }
 
     protected List<String> getChildren(List<String> entities, String prefix, String delimiter) {
+        if(CollectionUtils.isEmpty(entities)) {
+            return null;
+        }
         List<String> entityList = entities.stream()
                 .filter(x -> StringUtils.hasLength(x) && x.startsWith(prefix + delimiter))
                 .map(x -> x.substring((prefix + delimiter).length()))

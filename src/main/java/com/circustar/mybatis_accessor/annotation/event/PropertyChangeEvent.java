@@ -12,6 +12,7 @@ import java.lang.annotation.*;
 public @interface PropertyChangeEvent {
     String fromExpression() default "";
     String toExpression() default "";
+    String[] listenProperties() default "";
     Class<? extends IUpdateEvent> updateEventClass();
     String[] updateParams() default "";
     IUpdateCommand.UpdateType[] updateType() default {};

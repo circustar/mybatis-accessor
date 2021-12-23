@@ -1,5 +1,6 @@
 package com.circustar.mybatis_accessor.utils;
 
+import com.circustar.common_utils.reflection.ClassUtils;
 import org.springframework.context.ApplicationContext;
 
 public class ApplicationContextUtils {
@@ -10,7 +11,7 @@ public class ApplicationContextUtils {
             if(beanNamesForType!= null && beanNamesForType.length > 0) {
                 bean = applicationContext.getBean(beanNamesForType[0], clazz);
             } else {
-                bean = clazz.newInstance();
+                bean = ClassUtils.createInstance(clazz);
             }
         } catch (Exception ex) {
             throw new RuntimeException(ex);

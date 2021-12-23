@@ -2,6 +2,7 @@ package com.circustar.mybatis_accessor.classInfo;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.circustar.common_utils.reflection.ClassUtils;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.common_utils.reflection.FieldUtils;
@@ -23,7 +24,7 @@ public class DtoFields {
             return;
         }
         try {
-            Collection c = supportGenericType.getTargetClass().newInstance();
+            Collection c = ClassUtils.createInstance(supportGenericType.getTargetClass());
             for (Object var0 : values) {
                 c.add(dtoClassInfoHelper.convertFromEntity(var0, dtoField.getFieldDtoClassInfo()));
             }

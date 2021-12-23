@@ -1,5 +1,6 @@
 package com.circustar.mybatis_accessor.listener;
 
+import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.listener.IListener;
 import com.circustar.common_utils.listener.IListenerTiming;
 import com.circustar.common_utils.parser.SPELParser;
@@ -97,18 +98,22 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
             for (int i = 0; i < updateDtoList.size(); i++) {
                 Object newDto = updateDtoList.get(i);
                 Object oldDto = oldDtoList.get(i);
-                boolean execFlag = true;
-                if(StringUtils.hasLength(m.getFromExpression())) {
-                    execFlag = (boolean) SPELParser.parseExpression(oldDto,m.getFromExpression());
+                if(!CollectionUtils.isEmpty(m.getListenProperties())) {
+                    if(DtoClassInfo.equalProperties(dtoClassInfo, newDto, oldDto, m.getListenProperties()) >= 0) {
+                        executeDtoList.add(newDto);
+                        continue;
+                    }
                 }
-                if(!execFlag) {
-                    continue;
+
+                if(StringUtils.hasLength(m.getFromExpression())) {
+                    if(!(boolean) SPELParser.parseExpression(oldDto,m.getFromExpression())) {
+                        continue;
+                    }
                 }
                 if(StringUtils.hasLength(m.getToExpression())) {
-                    execFlag = (boolean) SPELParser.parseExpression(oldDto,m.getToExpression());
-                }
-                if(!execFlag) {
-                    continue;
+                    if(!(boolean) SPELParser.parseExpression(oldDto,m.getToExpression())) {
+                        continue;
+                    }
                 }
                 executeDtoList.add(newDto);
             }

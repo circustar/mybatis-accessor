@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.circustar.common_utils.collection.CollectionUtils;
+import com.circustar.common_utils.reflection.ClassUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.*;
 import com.circustar.mybatis_accessor.listener.event.decode.DecodeEventModel;
@@ -34,6 +36,7 @@ public class DtoClassInfo {
     private EntityDtoServiceRelation entityDtoServiceRelation;
     private List<DtoField> subDtoFieldList;
     private List<DtoField> updateCascadeDtoFieldList;
+    private List<DtoField> selectDtoFieldList;
     private List<DtoField> normalFieldList;
     private List<DtoField> allFieldList;
     private Map<String, DtoField> dtoFieldMap;
@@ -52,7 +55,7 @@ public class DtoClassInfo {
     private DtoField idReferenceField;
     private IConverter convertDtoToEntity;
     private IConverter convertEntityToDto;
-    private boolean containUpdateField;
+    //private boolean containUpdateField;
 
     public DtoClassInfo(IEntityDtoServiceRelationMap relationMap, DtoClassInfoHelper dtoClassInfoHelper, Class<?> clazz, EntityClassInfo entityClassInfo) {
         this.clazz = clazz;
@@ -103,10 +106,12 @@ public class DtoClassInfo {
         });
 
         this.updateCascadeDtoFieldList = this.subDtoFieldList.stream().filter(x -> x.isUpdateCascade()).collect(Collectors.toList());
-        this.containUpdateField = this.normalFieldList.stream().filter(x -> x!= keyField && x != versionField
-                && x.getEntityFieldInfo() != null
-                && (x.getEntityFieldInfo().getTableField() == null || x.getEntityFieldInfo().getTableField().exist()))
-                .findAny().isPresent();
+        this.selectDtoFieldList = this.subDtoFieldList.stream().filter(x -> x.getQueryJoin() == null).collect(Collectors.toList());
+
+//        this.containUpdateField = this.normalFieldList.stream().filter(x -> x!= keyField && x != versionField
+//                && x.getEntityFieldInfo() != null
+//                && (x.getEntityFieldInfo().getTableField() == null || x.getEntityFieldInfo().getTableField().exist()))
+//                .findAny().isPresent();
 
         ApplicationContext applicationContext = dtoClassInfoHelper.getApplicationContext();
         initAfterUpdateList(applicationContext);
@@ -157,6 +162,7 @@ public class DtoClassInfo {
         if(var0!= null && !var0.isEmpty()) {
             this.propertyChangeEventList = var0.stream().map(x -> new PropertyChangeEventModel(x.fromExpression(),
                     x.toExpression(),
+                    Arrays.asList(x.listenProperties()),
                     x.updateEventClass(),
                     () -> ApplicationContextUtils.getBeanOrCreate(applicationContext, x.updateEventClass())
                     , Arrays.asList(x.updateParams())
@@ -240,6 +246,11 @@ public class DtoClassInfo {
     public List<DtoField> getUpdateCascadeDtoFieldList() {
         return updateCascadeDtoFieldList;
     }
+
+    public List<DtoField> getSelectDtoFieldList() {
+        return selectDtoFieldList;
+    }
+
 
     public List<DtoField> getNormalFieldList() {
         return normalFieldList;
@@ -379,8 +390,23 @@ public class DtoClassInfo {
         return this.convertEntityToDto.convert(this.getDtoClass(), entity);
     }
 
-    public boolean isContainUpdateField() {
-        return containUpdateField;
+    public static List<DtoField> getDtoFieldsByName(DtoClassInfo dtoClassInfo
+            , boolean includeAllChildren, boolean isForUpdate, List<String> childNames) {
+        if(includeAllChildren) {
+            if(isForUpdate) {
+                return dtoClassInfo.getUpdateCascadeDtoFieldList();
+            } else {
+                return dtoClassInfo.getSelectDtoFieldList();
+            }
+        }
+        if(CollectionUtils.isEmpty(childNames)) {
+            return Collections.emptyList();
+        }
+        return childNames.stream().map(x -> dtoClassInfo.getDtoField(x)).collect(Collectors.toList());
+    }
+
+    public static Object createInstance(DtoClassInfo dtoClassInfo) {
+        return ClassUtils.createInstance(dtoClassInfo.getDtoClass());
     }
 
     public static int equalProperties(DtoClassInfo dtoClassInfo, Object obj1, Object obj2, List<String> propertyNames) {

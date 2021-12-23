@@ -70,12 +70,12 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
         DefaultEntityCollectionUpdateProcessor updateProcessor;
         List updateEntityWithNoSubList = new ArrayList();
 
-        if(topEntities == null || topEntities.size() == 0) {
+        if(CollectionUtils.isEmpty(topEntities)) {
             updateEntityWithNoSubList = (List) dtoList.stream()
                     .map(x -> this.convertToUpdateTarget(dtoClassInfo, x))
                     .collect(Collectors.toList());
         } else {
-            List<DtoField> dtoFields = topEntities.stream().map(x -> dtoClassInfo.getDtoField(x)).collect(Collectors.toList());
+            List<DtoField> dtoFields = DtoClassInfo.getDtoFieldsByName(dtoClassInfo, options.isIncludeAllChildren(), true, topEntities);
             for (Object dto : dtoList) {
                 Serializable id = (Serializable) getUpdateId(dto, dtoClassInfo.getKeyField());
                 if(id == null) {

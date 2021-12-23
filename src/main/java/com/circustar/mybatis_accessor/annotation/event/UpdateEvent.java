@@ -13,6 +13,6 @@ public @interface UpdateEvent {
     String onExpression() default "";
     Class<? extends IUpdateEvent> updateEventClass();
     String[] updateParams() default "";
-    IUpdateCommand.UpdateType[] updateType() default {};
+    IUpdateCommand.UpdateType[] updateType() default {IUpdateCommand.UpdateType.INSERT, IUpdateCommand.UpdateType.UPDATE};
     ExecuteTiming executeTiming() default ExecuteTiming.NONE;
 }

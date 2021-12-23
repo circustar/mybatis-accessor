@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 public class PropertyChangeEventModel {
     private String fromExpression;
     private String toExpression;
+    private List<String> listenProperties;
     private IUpdateEvent updateEvent;
     private List<String> updateParams;
     private Class<? extends IUpdateEvent> updateEventClass;
@@ -19,6 +20,7 @@ public class PropertyChangeEventModel {
 
     public PropertyChangeEventModel(
             String fromExpression, String toExpression
+            , List<String> listenProperties
             , Class<? extends IUpdateEvent> updateEventClass
             , Supplier<IUpdateEvent> supplier
             , List<String> updateParams
@@ -27,6 +29,7 @@ public class PropertyChangeEventModel {
     ) {
         this.fromExpression = fromExpression;
         this.toExpression = toExpression;
+        this.listenProperties = listenProperties;
         this.updateEventClass = updateEventClass;
         this.updateEvent = null;
         this.updateParams = updateParams;
@@ -65,5 +68,9 @@ public class PropertyChangeEventModel {
 
     public ExecuteTiming getExecuteTiming() {
         return executeTiming;
+    }
+
+    public List<String> getListenProperties() {
+        return listenProperties;
     }
 }

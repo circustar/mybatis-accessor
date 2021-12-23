@@ -8,6 +8,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CollectionUtils {
+    public static boolean isEmpty(Collection o) {
+        return o == null || o.size() == 0;
+    }
+
     public static boolean isCollection(Object o) {
         if(o == null) {return false;}
 

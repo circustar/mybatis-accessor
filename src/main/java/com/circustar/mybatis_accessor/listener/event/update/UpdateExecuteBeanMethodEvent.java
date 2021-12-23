@@ -7,10 +7,12 @@ import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import org.springframework.context.ApplicationContext;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventModel> {
     private static ApplicationContext applicationContext = null;
@@ -44,18 +46,23 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
             List<Class> paramClassList = new ArrayList<>();
             if(model.getUpdateParams().size() > 2) {
                 for (int j = 2; j < model.getUpdateParams().size(); j++) {
-                    DtoField dtoField = dtoClassInfo.getDtoField(model.getUpdateParams().get(j));
-                    paramField.add(dtoField);
-                    paramClassList.add(dtoField.getOwnClass());
+                    if(StringUtils.hasLength(model.getUpdateParams().get(j))) {
+                        DtoField dtoField = dtoClassInfo.getDtoField(model.getUpdateParams().get(j));
+                        paramField.add(dtoField);
+                        paramClassList.add(dtoField.getOwnClass());
+                    }
                 }
-            } else {
-                paramClassList.add(dtoClassInfo.getDtoClass());
             }
-            Method method = bean.getClass().getDeclaredMethod(methodName, paramClassList.toArray(new Class[0]));
+            Method method;
+            if(paramClassList.size() > 0) {
+                method = bean.getClass().getDeclaredMethod(methodName, paramClassList.toArray(new Class[0]));
+            } else {
+                method = bean.getClass().getDeclaredMethod(methodName, dtoClassInfo.getDtoClass());
+            }
 
             for(Object dto : dtoList) {
                 List<Object> methodParams = new ArrayList<>();
-                if(model.getUpdateParams().size() > 2) {
+                if(paramField.size() > 0) {
                     for (int j = 0; j < paramField.size(); j++) {
                         methodParams.add(FieldUtils.getFieldValue(dto, paramField.get(j).getPropertyDescriptor().getReadMethod()));
                     }

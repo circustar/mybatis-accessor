@@ -35,19 +35,15 @@ public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider
         if(dtoList.isEmpty()) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation);
-        boolean includeAllChildren = options.isIncludeAllChildren();
-        List<String> children;
-        if(includeAllChildren) {
-            children = dtoClassInfo.getUpdateCascadeDtoFieldList().stream().map(x -> x.getField().getName()).collect(Collectors.toList());
-        } else {
+        List<String> children = null;
+        if(!options.isIncludeAllChildren()) {
             children = options.getUpdateChildrenNames();
         }
         boolean updateChildrenOnly = options.isUpdateChildrenOnly();
-
-        List<String> topEntities = this.getTopEntities(dtoClassInfo, children, DEFAULT_DELIMITER);
         boolean hasChildren = false;
 
-        List<DtoField> dtoFields = topEntities.stream().map(x -> dtoClassInfo.getDtoField(x)).collect(Collectors.toList());
+        List<String> topEntities = this.getTopEntities(dtoClassInfo, children, DEFAULT_DELIMITER);
+        List<DtoField> dtoFields = DtoClassInfo.getDtoFieldsByName(dtoClassInfo, options.isIncludeAllChildren(), true, topEntities);
         for(Object value : dtoList) {
             if(dtoClassInfo.getVersionField() != null) {
                 FieldUtils.setFieldValue(value
@@ -68,7 +64,7 @@ public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider
                 Collection childList = CollectionUtils.convertToList(subValue);
                 if(childList.isEmpty()) {continue;}
                 hasChildren = true;
-                IEntityProviderParam subOptions = new DefaultEntityProviderParam(false, includeAllChildren, this.getChildren(children
+                IEntityProviderParam subOptions = new DefaultEntityProviderParam(false, options.isIncludeAllChildren(), this.getChildren(children
                         , dtoField.getField().getName(), DEFAULT_DELIMITER));
                 defaultEntityCollectionUpdater.addSubUpdateEntities(this.createUpdateProcessors(
                         dtoField.getEntityDtoServiceRelation()

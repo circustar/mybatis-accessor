@@ -12,3 +12,9 @@
 1.2.1
 -- 1.使用EventContext
 -- 2.增加UpdateExecuteExpressionEvent
+
+1.2.2
+-- 1.Event使用Dto更新，支持嵌套。可能带来循环调用的风险。
+-- 2.LogEvent
+-- 3.调用链路
+-- 4.其他代码优化

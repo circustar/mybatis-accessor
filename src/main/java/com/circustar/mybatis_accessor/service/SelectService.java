@@ -43,12 +43,13 @@ public class SelectService implements ISelectService {
             return null;
         }
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
+        List<DtoField> subFields = DtoClassInfo.getDtoFieldsByName(dtoClassInfo, includeAllChildren, false, children);
         T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, dtoClassInfo);
         if(dtoClassInfo.getEntityClassInfo().getKeyField() != null) {
             Serializable id = (Serializable) FieldUtils.getFieldValue(oriEntity
                     , dtoClassInfo.getEntityClassInfo().getKeyField().getPropertyDescriptor().getReadMethod());
             if (id != null) {
-                setDtoChildren(relationInfo, result, id, includeAllChildren, children);
+                setDtoChildren(relationInfo, dtoClassInfo, result, id, subFields);
             }
         }
         return result;
@@ -83,37 +84,23 @@ public class SelectService implements ISelectService {
             return null;
         }
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
+        List<DtoField> subFields = DtoClassInfo.getDtoFieldsByName(dtoClassInfo, includeAllChildren, false, children);
         T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, dtoClassInfo);
         if(dtoClassInfo.getEntityClassInfo().getKeyField() != null) {
             Serializable id = (Serializable) FieldUtils.getFieldValue(oriEntity
                     , dtoClassInfo.getEntityClassInfo().getKeyField().getPropertyDescriptor().getReadMethod());
             if(id != null) {
-                setDtoChildren(relationInfo, result, id, includeAllChildren, children);
+                setDtoChildren(relationInfo, dtoClassInfo, result, id, subFields);
             }
         }
         return result;
     }
 
     private void setDtoChildren(EntityDtoServiceRelation relationInfo
+            , DtoClassInfo dtoClassInfo
             , Object dto
             , Serializable id
-            , boolean includeAllChildren
-            , List<String> children) {
-        Set<String> childList;
-        if(children == null) {
-            childList = Collections.emptySet();
-        } else {
-            childList = new HashSet<>(children);
-        }
-        DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
-        List<DtoField> subFields = null;
-        if(includeAllChildren) {
-            subFields = dtoClassInfo.getSubDtoFieldList().stream()
-                    .filter(x -> x.getQueryJoin() == null).collect(Collectors.toList());
-        } else {
-            subFields = dtoClassInfo.getSubDtoFieldList().stream()
-                    .filter(x -> childList.contains(x.getField().getName())).collect(Collectors.toList());
-        }
+            , List<DtoField> subFields) {
 
         Map<Boolean, List<DtoField>> dtoFieldMap = subFields.stream().filter(x -> x.getQueryJoin() == null)
                 .collect(Collectors.partitioningBy(x -> x.getSelectors() == null || x.getSelectors().size() == 0));
@@ -163,8 +150,9 @@ public class SelectService implements ISelectService {
             return null;
         }
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
+        List<DtoField> subFields = DtoClassInfo.getDtoFieldsByName(dtoClassInfo, includeAllChildren, false, children);
         T result = (T) this.dtoClassInfoHelper.convertFromEntity(oriEntity, dtoClassInfo);
-        setDtoChildren(relationInfo, result, id , includeAllChildren, children);
+        setDtoChildren(relationInfo, dtoClassInfo, result, id , subFields);
 
         return result;
     }

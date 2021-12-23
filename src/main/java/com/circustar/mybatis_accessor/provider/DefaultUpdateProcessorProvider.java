@@ -1,7 +1,5 @@
 package com.circustar.mybatis_accessor.provider;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
@@ -41,10 +39,8 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
         if(dtoList.isEmpty()) {return result;}
 
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation);
-        List<String> children;
-        if(options.isIncludeAllChildren()) {
-            children = dtoClassInfo.getUpdateCascadeDtoFieldList().stream().map(x -> x.getField().getName()).collect(Collectors.toList());
-        } else {
+        List<String> children = null;
+        if(!options.isIncludeAllChildren()) {
             children = options.getUpdateChildrenNames();
         }
 
@@ -52,7 +48,6 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
         DefaultDeleteProcessorProvider defaultDeleteDtoProvider = (DefaultDeleteProcessorProvider) getProviderMap().get(DefaultDeleteProcessorProvider.class);
         DefaultInsertProcessorProvider insertEntitiesEntityProvider = (DefaultInsertProcessorProvider) getProviderMap().get(DefaultInsertProcessorProvider.class);
 
-        List<String> topEntities = this.getTopEntities(dtoClassInfo, children, DEFAULT_DELIMITER);
         List deleteDtoList = new ArrayList();
         List insertDtoList = new ArrayList();
         List updateDtoList = new ArrayList();
@@ -80,7 +75,8 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
 
         boolean hasChildren = false;
         List<IEntityUpdateProcessor> updateResult = new ArrayList<>();
-        List<DtoField> dtoFields = topEntities.stream().map(x -> dtoClassInfo.getDtoField(x)).collect(Collectors.toList());
+        List<String> topEntities = this.getTopEntities(dtoClassInfo, children, DEFAULT_DELIMITER);
+        List<DtoField> dtoFields = DtoClassInfo.getDtoFieldsByName(dtoClassInfo, options.isIncludeAllChildren(), true, topEntities);
         List<DtoField> deleteAndInsertFields = dtoFields.stream().filter(x -> x.isDeleteAndInsertNewOnUpdate()).collect(Collectors.toList());
         List<String> deleteAndInsertFieldNames = deleteAndInsertFields.stream().map(x -> x.getField().getName()).collect(Collectors.toList());
         List<DtoField> updateFields = dtoFields.stream().filter(x -> !x.isDeleteAndInsertNewOnUpdate()).collect(Collectors.toList());

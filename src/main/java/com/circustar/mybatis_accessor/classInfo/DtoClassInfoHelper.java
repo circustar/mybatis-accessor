@@ -1,5 +1,6 @@
 package com.circustar.mybatis_accessor.classInfo;
 
+import com.circustar.common_utils.reflection.ClassUtils;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.common_utils.reflection.FieldUtils;
@@ -110,7 +111,7 @@ public class DtoClassInfoHelper {
             throw new RuntimeException("Collection type not Support!");
         }
         try {
-            Collection childList = implementClass.newInstance();
+            Collection childList = ClassUtils.createInstance(implementClass);
             Iterator it = objects.iterator();
             while (it.hasNext()) {
                 Object object = it.next();
@@ -175,7 +176,7 @@ public class DtoClassInfoHelper {
             if (implementClass == null) {
                 throw new RuntimeException("Collection type not Support!");
             }
-            R objectList = (R) implementClass.newInstance();
+            R objectList = (R) ClassUtils.createInstance(implementClass);
             Iterator it = entityList.iterator();
             while (it.hasNext()) {
                 Object entity = it.next();
