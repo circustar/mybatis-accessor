@@ -16,5 +16,5 @@ public @interface PropertyChangeEvent {
     Class<? extends IUpdateEvent> updateEventClass();
     String[] updateParams() default "";
     IUpdateCommand.UpdateType[] updateType() default {};
-    ExecuteTiming executeTiming() default ExecuteTiming.NONE;
+    ExecuteTiming executeTiming() default ExecuteTiming.DEFAULT;
 }

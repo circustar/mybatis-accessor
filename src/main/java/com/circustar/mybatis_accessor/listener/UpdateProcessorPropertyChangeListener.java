@@ -43,21 +43,12 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
         if(this.onChangeList == null || this.onChangeList.isEmpty()) {
             return true;
         }
-        if(!this.matchExecuteTiming(eventTiming)) {
-            return true;
-        }
         if(!onChangeList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming())
                 || ExecuteTiming.BEFORE_UPDATE.equals(eventTiming))
                 .anyMatch(x -> x.getUpdateTypes().stream().anyMatch(y -> updateCommand.getUpdateType().equals(y)))) {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public List<IListenerTiming> getExecuteTimingList() {
-        return Arrays.asList(ExecuteTiming.BEFORE_UPDATE
-                , ExecuteTiming.AFTER_UPDATE);
     }
 
     private List oldDtoList = null;

@@ -7,7 +7,7 @@ public enum ExecuteTiming implements IListenerTiming {
     AFTER_UPDATE,
     BEFORE_SUB_ENTITY_UPDATE,
     AFTER_SUB_ENTITY_UPDATE,
-    NONE;
+    DEFAULT;
 
     @Override
     public boolean match(IListenerTiming eventTiming) {

@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCollectionUpdateProcessor> {
     private List<UpdateEventModel> updateEventList;
-    private boolean updateChildrenOnly;
     private IUpdateCommand updateCommand;
     private DtoClassInfo dtoClassInfo;
     private List updateDtoList;
@@ -26,10 +25,8 @@ public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCol
             , DtoClassInfo dtoClassInfo
             , List updateDtoList
             , List updateEntityList
-            , boolean updateChildrenOnly
             , Collection<IEntityUpdateProcessor> subUpdateEntities) {
         this.updateEventList = updateEventList;
-        this.updateChildrenOnly = updateChildrenOnly;
         this.updateCommand = updateCommand;
         this.dtoClassInfo = dtoClassInfo;
         this.updateDtoList = updateDtoList;
@@ -46,27 +43,12 @@ public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCol
         if(this.updateEventList == null || this.updateEventList.isEmpty()) {
             return true;
         }
-        if(!this.matchExecuteTiming(eventTiming)) {
-            return true;
-        }
-        if((eventTiming.match(ExecuteTiming.BEFORE_UPDATE) || eventTiming.match(ExecuteTiming.AFTER_UPDATE))
-                && this.updateChildrenOnly) {
-            return true;
-        }
         if(!updateEventList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming()))
                 .anyMatch(x -> x.getUpdateTypes().stream()
                         .anyMatch(y -> updateCommand.getUpdateType().equals(y)))) {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public List<IListenerTiming> getExecuteTimingList() {
-        return Arrays.asList(ExecuteTiming.BEFORE_SUB_ENTITY_UPDATE
-                , ExecuteTiming.BEFORE_UPDATE
-                , ExecuteTiming.AFTER_UPDATE
-                , ExecuteTiming.AFTER_SUB_ENTITY_UPDATE);
     }
 
     @Override

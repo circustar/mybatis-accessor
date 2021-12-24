@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 public class UpdateProcessorDecodeListener implements IListener<DefaultEntityCollectionUpdateProcessor> {
     private List<DecodeEventModel> decodeEventModelList;
-    private boolean updateChildrenOnly;
     private IUpdateCommand updateCommand;
     private DtoClassInfo dtoClassInfo;
     private List updateDtoList;
@@ -32,7 +31,6 @@ public class UpdateProcessorDecodeListener implements IListener<DefaultEntityCol
             , List updateEntityList
             , Collection<IEntityUpdateProcessor> subUpdateEntities) {
         this.decodeEventModelList = decodeEventModelList;
-        this.updateChildrenOnly = updateChildrenOnly;
         this.updateCommand = updateCommand;
         this.dtoClassInfo = dtoClassInfo;
         this.updateDtoList = updateDtoList;
@@ -49,25 +47,12 @@ public class UpdateProcessorDecodeListener implements IListener<DefaultEntityCol
         if(this.decodeEventModelList == null || this.decodeEventModelList.isEmpty()) {
             return true;
         }
-        if(!this.matchExecuteTiming(eventTiming)) {
-            return true;
-        }
-        if((eventTiming.match(ExecuteTiming.BEFORE_UPDATE) || eventTiming.match(ExecuteTiming.AFTER_UPDATE))
-                && this.updateChildrenOnly) {
-            return true;
-        }
         if(!decodeEventModelList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming()))
                 .anyMatch(x -> x.getUpdateTypes().stream()
                         .anyMatch(y -> updateCommand.getUpdateType().equals(y)))) {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public List<IListenerTiming> getExecuteTimingList() {
-        return Arrays.asList(ExecuteTiming.BEFORE_SUB_ENTITY_UPDATE
-                , ExecuteTiming.BEFORE_UPDATE);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.EntityClassInfoHelper;
 import com.circustar.mybatis_accessor.converter.DefaultConverter;
+import com.circustar.mybatis_accessor.listener.event.update.*;
 import com.circustar.mybatis_accessor.provider.DefaultDeleteByIdProcessorProvider;
 import com.circustar.mybatis_accessor.provider.DefaultDeleteProcessorProvider;
 import com.circustar.mybatis_accessor.provider.DefaultInsertProcessorProvider;
@@ -49,6 +50,24 @@ public class MybatisAccessorConfiguration {
     private DefaultUpdateProcessorProvider defaultUpdateProcessorProvider;
     private DefaultConverter defaultConverter;
 
+    private UpdateAssignEvent updateAssignEvent;
+    private UpdateAssignSqlEvent updateAssignSqlEvent;
+    private UpdateAvgAssignEvent updateAvgAssignEvent;
+    private UpdateAvgAssignSqlEvent updateAvgAssignSqlEvent;
+    private UpdateAvgEvent updateAvgEvent;
+    private UpdateAvgSqlEvent updateAvgSqlEvent;
+    private UpdateCountEvent updateCountEvent;
+    private UpdateCountSqlEvent updateCountSqlEvent;
+    private UpdateExecuteBeanMethodEvent updateExecuteBeanMethodEvent;
+    private UpdateExecuteSqlEvent updateExecuteSqlEvent;
+    private UpdateFillEvent updateFillEvent;
+    private UpdateMaxEvent updateMaxEvent;
+    private UpdateMaxSqlEvent updateMaxSqlEvent;
+    private UpdateMinSqlEvent updateMinSqlEvent;
+    private UpdateMinEvent updateMinEvent;
+    private UpdateSumEvent updateSumEvent;
+    private UpdateSumSqlEvent updateSumSqlEvent;
+
     public MybatisAccessorConfiguration(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         this.enhanceSqlInjector = new EnhanceSqlInjector();
@@ -74,6 +93,24 @@ public class MybatisAccessorConfiguration {
         this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
 
         TableInfoUtils.scanPackages.getAndSet(getMapperScanPackages(this.applicationContext));
+
+        updateAssignEvent = new UpdateAssignEvent();
+        updateAssignSqlEvent = new UpdateAssignSqlEvent();
+        updateAvgAssignEvent = new UpdateAvgAssignEvent();
+        updateAvgAssignSqlEvent = new UpdateAvgAssignSqlEvent();
+        updateAvgEvent = new UpdateAssignEvent();
+        updateAvgSqlEvent = new UpdateAssignSqlEvent();
+        updateCountEvent = new UpdateCountEvent();
+        updateCountSqlEvent = new UpdateCountSqlEvent();
+        updateExecuteBeanMethodEvent = new UpdateExecuteBeanMethodEvent();
+        updateExecuteSqlEvent = new UpdateExecuteSqlEvent();
+        updateFillEvent = new UpdateFillEvent();
+        updateMaxEvent = new UpdateMaxEvent();
+        updateMaxSqlEvent = new UpdateMaxSqlEvent();
+        updateMinSqlEvent = new UpdateMinSqlEvent();
+        updateMinEvent = new UpdateMinEvent();
+        updateSumEvent = new UpdateSumEvent();
+        updateSumSqlEvent = new UpdateSumSqlEvent();
     }
 
     private List<String> getMapperScanPackages(ApplicationContext applicationContext) {

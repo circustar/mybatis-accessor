@@ -12,7 +12,6 @@ import org.springframework.util.StringUtils;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventModel> {
     private static ApplicationContext applicationContext = null;

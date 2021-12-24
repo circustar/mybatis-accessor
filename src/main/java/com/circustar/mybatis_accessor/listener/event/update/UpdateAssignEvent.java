@@ -8,7 +8,6 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
-import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
 import com.circustar.mybatis_accessor.service.ISelectService;
 
 import java.io.Serializable;

@@ -194,7 +194,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
     public void init(DefaultEntityCollectionUpdateProcessor target) {
         UpdateProcessorUpdateListener updateListener = new UpdateProcessorUpdateListener(
                 this.dtoClassInfo.getUpdateEventList(), this.updateCommand, this.dtoClassInfo
-                ,this.updateDtoList, this.updateEntityList, this.updateChildrenOnly, this.subUpdateEntities
+                ,this.updateDtoList, this.updateEntityList, this.subUpdateEntities
         );
         UpdateProcessorPropertyChangeListener changeListener = new UpdateProcessorPropertyChangeListener(
                 this.dtoClassInfo.getPropertyChangeEventList(), this.updateCommand, this.dtoClassInfo

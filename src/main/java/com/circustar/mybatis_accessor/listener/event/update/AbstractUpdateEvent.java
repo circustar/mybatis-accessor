@@ -18,6 +18,11 @@ public abstract class AbstractUpdateEvent<T> implements IUpdateEvent<T> {
     protected abstract DtoClassInfo getFieldDtoClassInfo(List<DtoField> dtoFields);
 
     @Override
+    public IUpdateCommand.UpdateType[] getDefaultUpdateTypes() {
+        return new IUpdateCommand.UpdateType[] {IUpdateCommand.UpdateType.INSERT, IUpdateCommand.UpdateType.UPDATE};
+    }
+
+    @Override
     public void exec(T updateEvent, IUpdateCommand.UpdateType updateType
             , DtoClassInfo dtoClassInfo, List<Object> dtoList) {
         List<DtoField> dtoFields = parseDtoFieldList(updateEvent, dtoClassInfo);

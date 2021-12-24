@@ -16,7 +16,7 @@ public interface IListenerContext<T> {
         }
         T target = getListenTarget();
         for(IListener<T> listener : listenerList) {
-            if(!listener.skipListener(eventTiming) && listener.matchExecuteTiming(eventTiming)) {
+            if(!listener.skipListener(eventTiming)) {
                 listener.listenerExec(target, eventTiming);
             }
         }

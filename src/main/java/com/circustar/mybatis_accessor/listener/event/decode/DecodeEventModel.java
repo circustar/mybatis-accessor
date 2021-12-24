@@ -125,7 +125,7 @@ public class DecodeEventModel {
     }
 
     public ExecuteTiming getExecuteTiming() {
-        if(ExecuteTiming.NONE.equals(this.executeTiming)) {
+        if(ExecuteTiming.DEFAULT.equals(this.executeTiming)) {
             this.executeTiming = defaultDecodeEvent.getDefaultExecuteTiming();
         }
         return this.executeTiming;
