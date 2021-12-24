@@ -105,7 +105,10 @@ public class DtoClassInfo {
             }
         });
 
-        this.updateCascadeDtoFieldList = this.subDtoFieldList.stream().filter(x -> x.isUpdateCascade()).collect(Collectors.toList());
+        this.updateCascadeDtoFieldList = this.subDtoFieldList.stream().filter(x -> x.isUpdateCascade())
+                .sorted(Comparator.comparingInt((DtoField x) -> x.getDtoClassInfo().getUpdateOrder())
+                                .thenComparing(y -> y.getDtoClassInfo().getEntityClassInfo().getEntityClass().getSimpleName())
+                        ).collect(Collectors.toList());
         this.selectDtoFieldList = this.subDtoFieldList.stream().filter(x -> x.getQueryJoin() == null).collect(Collectors.toList());
 
 //        this.containUpdateField = this.normalFieldList.stream().filter(x -> x!= keyField && x != versionField
@@ -402,7 +405,13 @@ public class DtoClassInfo {
         if(CollectionUtils.isEmpty(childNames)) {
             return Collections.emptyList();
         }
-        return childNames.stream().map(x -> dtoClassInfo.getDtoField(x)).collect(Collectors.toList());
+        List<DtoField> result = childNames.stream().map(x -> dtoClassInfo.getDtoField(x)).collect(Collectors.toList());
+        if(isForUpdate) {
+            result = result.stream().sorted(Comparator.comparingInt((DtoField x) -> x.getDtoClassInfo().getUpdateOrder())
+                    .thenComparing(y -> y.getDtoClassInfo().getEntityClassInfo().getEntityClass().getSimpleName())
+            ).collect(Collectors.toList());
+        }
+        return result;
     }
 
     public static Object createInstance(DtoClassInfo dtoClassInfo) {
