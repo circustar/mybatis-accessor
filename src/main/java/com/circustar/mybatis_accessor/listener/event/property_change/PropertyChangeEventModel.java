@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class PropertyChangeEventModel {
+    private List<String> listenProperties;
     private String fromExpression;
     private String toExpression;
-    private List<String> listenProperties;
     private IUpdateEvent updateEvent;
     private List<String> updateParams;
     private Class<? extends IUpdateEvent> updateEventClass;

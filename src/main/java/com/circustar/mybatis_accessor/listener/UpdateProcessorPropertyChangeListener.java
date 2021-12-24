@@ -90,8 +90,7 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
                 Object newDto = updateDtoList.get(i);
                 Object oldDto = oldDtoList.get(i);
                 if(!CollectionUtils.isEmpty(m.getListenProperties())) {
-                    if(DtoClassInfo.equalProperties(dtoClassInfo, newDto, oldDto, m.getListenProperties()) >= 0) {
-                        executeDtoList.add(newDto);
+                    if(DtoClassInfo.equalProperties(dtoClassInfo, newDto, oldDto, m.getListenProperties()) > 0) {
                         continue;
                     }
                 }

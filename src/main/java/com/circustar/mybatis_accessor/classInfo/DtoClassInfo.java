@@ -424,14 +424,26 @@ public class DtoClassInfo {
                 DtoField field = dtoClassInfo.getDtoField(propertyName);
                 Object val1 = FieldUtils.getFieldValue(obj1, field.getPropertyDescriptor().getReadMethod());
                 Object val2 = FieldUtils.getFieldValue(obj2, field.getPropertyDescriptor().getReadMethod());
+                String var0 = null;
                 if(val1 == null && val2 != null) {
-                    allEqual = false;
+                    if(val2 instanceof String) {
+                        var0 = val2.toString();
+                    } else {
+                        allEqual = false;
+                    }
                 } else if(val1 != null && val2 == null) {
-                    allEqual = false;
+                    if(val1 instanceof String) {
+                        var0 = val1.toString();
+                    } else {
+                        allEqual = false;
+                    }
                 } else if(val1 != null && val2 != null && !val1.equals(val2)) {
                     allEqual = false;
                 } else {
                     partEqual = true;
+                }
+                if(org.springframework.util.StringUtils.hasLength(var0)) {
+                    allEqual = false;
                 }
             }
         } catch (Exception ex) {
