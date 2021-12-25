@@ -418,41 +418,33 @@ public class DtoClassInfo {
         return ClassUtils.createInstance(this.getDtoClass());
     }
 
-    public static int equalProperties(DtoClassInfo dtoClassInfo, Object obj1, Object obj2, List<String> propertyNames) {
+    public static int equalPropertiesIgnoreEmpty(DtoClassInfo dtoClassInfo, Object newObj, Object oldObj, List<String> propertyNames) {
         boolean partEqual = false;
         boolean allEqual = true;
         try {
-            if(obj1 == obj2) {
+            if(newObj == oldObj) {
                 return 1;
-            } else if(obj1 == null && obj2 != null) {
+            } else if(newObj == null && oldObj != null) {
                 return -1;
-            } else if(obj1 != null && obj2 == null) {
+            } else if(newObj != null && oldObj == null) {
                 return -1;
             }
             for(String propertyName : propertyNames) {
                 DtoField field = dtoClassInfo.getDtoField(propertyName);
-                Object val1 = FieldUtils.getFieldValue(obj1, field.getPropertyDescriptor().getReadMethod());
-                Object val2 = FieldUtils.getFieldValue(obj2, field.getPropertyDescriptor().getReadMethod());
-                String var0 = null;
-                if(val1 == null && val2 != null) {
-                    if(val2 instanceof String) {
-                        var0 = val2.toString();
+                Object val1 = FieldUtils.getFieldValue(newObj, field.getPropertyDescriptor().getReadMethod());
+                Object val2 = FieldUtils.getFieldValue(oldObj, field.getPropertyDescriptor().getReadMethod());
+                if(val1 == null) {
+                    continue;
+                } else if(val2 == null) {
+                    if(val1 instanceof String && StringUtils.isBlank(val1.toString())) {
+                        continue;
                     } else {
                         allEqual = false;
                     }
-                } else if(val1 != null && val2 == null) {
-                    if(val1 instanceof String) {
-                        var0 = val1.toString();
-                    } else {
-                        allEqual = false;
-                    }
-                } else if(val1 != null && val2 != null && !val1.equals(val2)) {
+                } else if(!val1.equals(val2)) {
                     allEqual = false;
                 } else {
                     partEqual = true;
-                }
-                if(org.springframework.util.StringUtils.hasLength(var0)) {
-                    allEqual = false;
                 }
             }
         } catch (Exception ex) {
