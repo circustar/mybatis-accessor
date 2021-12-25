@@ -3,19 +3,21 @@ package com.circustar.mybatis_accessor.utils;
 import com.circustar.common_utils.reflection.ClassUtils;
 import org.springframework.context.ApplicationContext;
 
+import java.util.Map;
+import java.util.Optional;
+
 public class ApplicationContextUtils {
     public static <T> T getBeanOrCreate(ApplicationContext applicationContext, Class<T> clazz) {
-        T bean;
         try {
-            String[] beanNamesForType = applicationContext.getBeanNamesForType(clazz);
-            if(beanNamesForType!= null && beanNamesForType.length > 0) {
-                bean = applicationContext.getBean(beanNamesForType[0], clazz);
-            } else {
-                bean = ClassUtils.createInstance(clazz);
+            // TODO: 增强
+            final Map<String, T> beansOfType = applicationContext.getBeansOfType(clazz);
+            final Optional<T> anyMatch = beansOfType.values().stream().filter(x -> x.getClass().equals(clazz)).findAny();
+            if(anyMatch.isPresent()) {
+                return anyMatch.get();
             }
+            return ClassUtils.createInstance(clazz);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
-        return bean;
     }
 }

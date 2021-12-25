@@ -414,8 +414,8 @@ public class DtoClassInfo {
         return result;
     }
 
-    public static Object createInstance(DtoClassInfo dtoClassInfo) {
-        return ClassUtils.createInstance(dtoClassInfo.getDtoClass());
+    public Object createInstance() {
+        return ClassUtils.createInstance(this.getDtoClass());
     }
 
     public static int equalProperties(DtoClassInfo dtoClassInfo, Object obj1, Object obj2, List<String> propertyNames) {

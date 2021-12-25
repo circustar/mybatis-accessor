@@ -6,6 +6,7 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.support.MybatisAccessorService;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -14,6 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UpdateAvgEvent extends UpdateSumEvent implements IUpdateEvent<UpdateEventModel> {
+
+    public UpdateAvgEvent(MybatisAccessorService mybatisAccessorService) {
+        super(mybatisAccessorService);
+    }
 
     @Override
     protected List<Object> parseParams(UpdateEventModel updateEventModel, List<DtoField> dtoFields

@@ -6,12 +6,17 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.support.MybatisAccessorService;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.List;
 
 public class UpdateSumEvent extends UpdateCountEvent implements IUpdateEvent<UpdateEventModel> {
+
+    public UpdateSumEvent(MybatisAccessorService mybatisAccessorService) {
+        super(mybatisAccessorService);
+    }
 
     @Override
     protected List<DtoField> parseDtoFieldList(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo) {

@@ -5,6 +5,7 @@ import com.circustar.common_utils.collection.NumberUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.support.MybatisAccessorService;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -13,6 +14,11 @@ import java.util.List;
 import java.util.Optional;
 
 public class UpdateMinEvent extends UpdateSumEvent implements IUpdateEvent<UpdateEventModel> {
+
+    public UpdateMinEvent(MybatisAccessorService mybatisAccessorService) {
+        super(mybatisAccessorService);
+    }
+
     @Override
     protected BigDecimal getValue(Object dtoUpdated, List<DtoField> dtoFields, List<Object> parsedParams) {
         Object subFieldValue = FieldUtils.getFieldValue(dtoUpdated, dtoFields.get(1).getPropertyDescriptor().getReadMethod());

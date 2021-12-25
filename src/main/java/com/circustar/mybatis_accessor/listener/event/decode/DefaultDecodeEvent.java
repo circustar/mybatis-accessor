@@ -42,7 +42,7 @@ public class DefaultDecodeEvent implements IDecodeEvent<DecodeEventModel> {
         List<DtoField> targetPropertyDtoFieldList = model.getTargetPropertyDtoFieldList();
         List<DtoField> matchProperties = model.getMatchPropertyDtoFields();
         try {
-            Object queryDto = DtoClassInfo.createInstance(sourceDtoClassInfo);
+            Object queryDto = sourceDtoClassInfo.createInstance();
             for (Object dto : dtoList) {
                 List matchValues = new ArrayList();
                 for (int i = 0; i < matchProperties.size(); i++) {

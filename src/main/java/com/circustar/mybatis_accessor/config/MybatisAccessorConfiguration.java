@@ -94,22 +94,22 @@ public class MybatisAccessorConfiguration {
 
         TableInfoUtils.scanPackages.getAndSet(getMapperScanPackages(this.applicationContext));
 
-        updateAssignEvent = new UpdateAssignEvent();
+        updateAssignEvent = new UpdateAssignEvent(this.mybatisAccessorService);
         updateAssignSqlEvent = new UpdateAssignSqlEvent();
-        updateAvgAssignEvent = new UpdateAvgAssignEvent();
+        updateAvgAssignEvent = new UpdateAvgAssignEvent(this.mybatisAccessorService);
         updateAvgAssignSqlEvent = new UpdateAvgAssignSqlEvent();
-        updateAvgEvent = new UpdateAssignEvent();
-        updateAvgSqlEvent = new UpdateAssignSqlEvent();
-        updateCountEvent = new UpdateCountEvent();
+        updateAvgEvent = new UpdateAvgEvent(this.mybatisAccessorService);
+        updateAvgSqlEvent = new UpdateAvgSqlEvent();
+        updateCountEvent = new UpdateCountEvent(this.mybatisAccessorService);
         updateCountSqlEvent = new UpdateCountSqlEvent();
         updateExecuteBeanMethodEvent = new UpdateExecuteBeanMethodEvent();
         updateExecuteSqlEvent = new UpdateExecuteSqlEvent();
-        updateFillEvent = new UpdateFillEvent();
-        updateMaxEvent = new UpdateMaxEvent();
+        updateFillEvent = new UpdateFillEvent(this.mybatisAccessorService);
+        updateMaxEvent = new UpdateMaxEvent(this.mybatisAccessorService);
         updateMaxSqlEvent = new UpdateMaxSqlEvent();
+        updateMinEvent = new UpdateMinEvent(this.mybatisAccessorService);
         updateMinSqlEvent = new UpdateMinSqlEvent();
-        updateMinEvent = new UpdateMinEvent();
-        updateSumEvent = new UpdateSumEvent();
+        updateSumEvent = new UpdateSumEvent(this.mybatisAccessorService);
         updateSumSqlEvent = new UpdateSumSqlEvent();
     }
 
@@ -188,5 +188,90 @@ public class MybatisAccessorConfiguration {
     @Bean
     public DefaultConverter getDefaultConverter() {
         return this.defaultConverter;
+    }
+
+    @Bean
+    public UpdateAssignEvent getUpdateAssignEvent() {
+        return this.updateAssignEvent;
+    }
+
+    @Bean
+    public UpdateAssignSqlEvent getUpdateAssignSqlEvent() {
+        return updateAssignSqlEvent;
+    }
+
+    @Bean
+    public UpdateAvgAssignEvent getUpdateAvgAssignEvent() {
+        return updateAvgAssignEvent;
+    }
+
+    @Bean
+    public UpdateAvgAssignSqlEvent getUpdateAvgAssignSqlEvent() {
+        return updateAvgAssignSqlEvent;
+    }
+
+    @Bean
+    public UpdateAvgEvent getUpdateAvgEvent() {
+        return updateAvgEvent;
+    }
+
+    @Bean
+    public UpdateAvgSqlEvent getUpdateAvgSqlEvent() {
+        return updateAvgSqlEvent;
+    }
+
+    @Bean
+    public UpdateCountEvent getUpdateCountEvent() {
+        return updateCountEvent;
+    }
+
+    @Bean
+    public UpdateCountSqlEvent getUpdateCountSqlEvent() {
+        return updateCountSqlEvent;
+    }
+
+    @Bean
+    public UpdateExecuteBeanMethodEvent getUpdateExecuteBeanMethodEvent() {
+        return updateExecuteBeanMethodEvent;
+    }
+
+    @Bean
+    public UpdateExecuteSqlEvent getUpdateExecuteSqlEvent() {
+        return updateExecuteSqlEvent;
+    }
+
+    @Bean
+    public UpdateFillEvent getUpdateFillEvent() {
+        return updateFillEvent;
+    }
+
+    @Bean
+    public UpdateMaxEvent getUpdateMaxEvent() {
+        return updateMaxEvent;
+    }
+
+    @Bean
+    public UpdateMaxSqlEvent getUpdateMaxSqlEvent() {
+        return updateMaxSqlEvent;
+    }
+
+    @Bean
+    public UpdateMinSqlEvent getUpdateMinSqlEvent() {
+        return updateMinSqlEvent;
+    }
+
+    @Bean
+    public UpdateMinEvent getUpdateMinEvent() {
+        return updateMinEvent;
+    }
+
+    @Bean
+    public UpdateSumEvent getUpdateSumEvent() {
+        return updateSumEvent;
+    }
+
+    @Bean
+    public UpdateSumSqlEvent getUpdateSumSqlEvent() {
+        return updateSumSqlEvent;
     }
 }

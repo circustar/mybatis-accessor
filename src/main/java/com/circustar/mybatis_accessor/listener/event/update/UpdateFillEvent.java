@@ -1,6 +1,5 @@
 package com.circustar.mybatis_accessor.listener.event.update;
 
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.collection.NumberUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
@@ -11,17 +10,24 @@ import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.mybatis_accessor.service.ISelectService;
+import com.circustar.mybatis_accessor.support.MybatisAccessorService;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> implements IUpdateEvent<UpdateEventModel> {
+    protected MybatisAccessorService mybatisAccessorService;
+    public UpdateFillEvent(MybatisAccessorService mybatisAccessorService) {
+        this.mybatisAccessorService = mybatisAccessorService;
+    }
+
     @Override
     public IUpdateCommand.UpdateType[] getDefaultUpdateTypes() {
         return new IUpdateCommand.UpdateType[]{
@@ -79,10 +85,11 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
         DtoField sOrderField = dtoFields.get(5);
 
         Method keyFieldReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
-        Method sKeyFieldReadMethod = fieldDtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
         ISelectService selectService = dtoClassInfo.getDtoClassInfoHelper().getSelectService();
         boolean isAsc = (boolean) parsedParams.get(0);
         BigDecimal paramLimitValue = (BigDecimal) parsedParams.get(1);
+        List updateSubDtoList = new ArrayList();
+        List updateDtoList = new ArrayList();
         for(int i = 0; i< dtoList.size(); i++) {
             Serializable keyValue = (Serializable)FieldUtils.getFieldValue(dtoList.get(i), keyFieldReadMethod);
             Object dtoById = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(), keyValue, false
@@ -114,7 +121,6 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
                 if(lackValue.compareTo(BigDecimal.ZERO) <= 0) {
                     continue;
                 }
-                Object subId = FieldUtils.getFieldValue(fieldValue, sKeyFieldReadMethod);
                 BigDecimal toFillValue;
                 if(remainFillValue.compareTo(lackValue) <= 0) {
                     toFillValue = remainFillValue;
@@ -124,22 +130,25 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
                     remainFillValue = remainFillValue.subtract(lackValue);
                 }
                 Object resultValue = NumberUtils.castFromBigDecimal(sFillField.getActualClass(), filledValue.add(toFillValue));
-
-                UpdateWrapper uw = new UpdateWrapper();
-                uw.set(sFillField.getEntityFieldInfo().getColumnName(), resultValue);
-                uw.eq(fieldDtoClassInfo.getEntityClassInfo().getKeyField().getColumnName(), subId);
-                fieldDtoClassInfo.getServiceBean().update(uw);
+                FieldUtils.setFieldValue(fieldValue, sFillField.getPropertyDescriptor().getWriteMethod(), resultValue);
+                updateSubDtoList.add(fieldValue);
             }
             Object remainObjectValue = NumberUtils.castFromBigDecimal(mAssignField.getActualClass(), remainFillValue);
             FieldUtils.setFieldValue(dtoList.get(i), mRemainField.getPropertyDescriptor().getWriteMethod(), remainObjectValue);
             if (mRemainField.getEntityFieldInfo() != null
                     && (mRemainField.getEntityFieldInfo().getTableField() == null
                     || mRemainField.getEntityFieldInfo().getTableField().exist())) {
-                UpdateWrapper uw = new UpdateWrapper();
-                uw.set(mRemainField.getEntityFieldInfo().getColumnName(), remainObjectValue);
-                uw.eq(dtoClassInfo.getEntityClassInfo().getKeyField().getColumnName(), keyValue);
-                dtoClassInfo.getServiceBean().update(uw);
+                FieldUtils.setFieldValue(dtoById, mRemainField.getPropertyDescriptor().getWriteMethod(), remainObjectValue);
+                updateDtoList.add(dtoById);
             }
+        }
+        if(!updateSubDtoList.isEmpty()) {
+            mybatisAccessorService.updateList(fieldDtoClassInfo.getEntityDtoServiceRelation(), updateSubDtoList
+                    , false, null, false);
+        }
+        if(!updateDtoList.isEmpty()) {
+            mybatisAccessorService.updateList(dtoClassInfo.getEntityDtoServiceRelation(), updateDtoList
+                    , false, null, false);
         }
     }
 

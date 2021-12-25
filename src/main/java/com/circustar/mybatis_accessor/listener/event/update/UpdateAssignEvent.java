@@ -1,7 +1,5 @@
 package com.circustar.mybatis_accessor.listener.event.update;
 
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.collection.NumberUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
@@ -9,15 +7,21 @@ import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoField;
 import com.circustar.mybatis_accessor.service.ISelectService;
+import com.circustar.mybatis_accessor.support.MybatisAccessorService;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<UpdateEventModel> {
+    public UpdateAssignEvent(MybatisAccessorService mybatisAccessorService) {
+        super(mybatisAccessorService);
+    }
+
     @Override
     protected List<DtoField> parseDtoFieldList(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo) {
         List<DtoField> dtoFields = super.parseDtoFieldList(updateEventModel, dtoClassInfo);
@@ -57,16 +61,11 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
 
         DtoField assignField = dtoFields.get(2);
         Class sAssignFieldType = assignField.getActualClass();
-        String sAssignColumnName = assignField.getEntityFieldInfo().getColumnName();
-
         DtoField sWeightField = this.getWeightEntityField(dtoFields);
-        DtoField sKeyField = fieldDtoClassInfo.getKeyField();
-        Method sKeyFieldReadMethod = sKeyField.getPropertyDescriptor().getReadMethod();
-
-        IService sServiceBean = fieldDtoClassInfo.getServiceBean();
         ISelectService selectService = dtoClassInfo.getDtoClassInfoHelper().getSelectService();
         int scale = (int)parsedParams.get(0);
 
+        List updateSubDtoList = new ArrayList();
         for(Object dto : dtoList) {
             Serializable mKeyValue = (Serializable) FieldUtils.getFieldValue(dto, mKeyFieldReadMethod);
             Object dtoUpdated = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(), mKeyValue
@@ -85,19 +84,20 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
             BigDecimal nextSumWeightValue;
             BigDecimal nextSumAssignValue;
             for(Object sEntity : sFieldValueList) {
-                Object sKeyValue = FieldUtils.getFieldValue(sEntity, sKeyFieldReadMethod);
                 nextSumWeightValue = sumWeightValue.add(this.getNextWeight(sEntity, sWeightField));
                 nextSumAssignValue = mSumValue.multiply(nextSumWeightValue).divide(allWeightValue, scale, RoundingMode.HALF_DOWN);
-                Object assignValue = NumberUtils.castFromBigDecimal(sAssignFieldType, nextSumAssignValue.subtract(sumAssignValue));
-
-                UpdateWrapper uw = new UpdateWrapper();
-                uw.eq(sKeyField.getEntityFieldInfo().getColumnName(), sKeyValue);
-                uw.set(sAssignColumnName, assignValue);
-                sServiceBean.update(uw);
+                BigDecimal assignValue = nextSumAssignValue.subtract(sumAssignValue);
+                FieldUtils.setFieldValue(sEntity, assignField.getPropertyDescriptor().getWriteMethod()
+                        , NumberUtils.castFromBigDecimal(sAssignFieldType, assignValue));
+                updateSubDtoList.add(sEntity);
 
                 sumAssignValue = nextSumAssignValue;
                 sumWeightValue = nextSumWeightValue;
             }
+        }
+        if(!updateSubDtoList.isEmpty()) {
+            mybatisAccessorService.updateList(fieldDtoClassInfo.getEntityDtoServiceRelation(), updateSubDtoList
+                    , false, null, false);
         }
     }
 }
