@@ -5,7 +5,7 @@ import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 
 public interface IDecodeEvent<T> extends IUpdateEvent<T> {
     @Override
-    default ExecuteTiming getDefaultExecuteTiming() {return ExecuteTiming.BEFORE_UPDATE;};
+    default ExecuteTiming getDefaultExecuteTiming() {return ExecuteTiming.BEFORE_ENTITY_UPDATE;};
 
     @Override
     default IUpdateCommand.UpdateType[] getDefaultUpdateTypes() {

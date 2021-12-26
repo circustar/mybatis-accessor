@@ -24,7 +24,7 @@ public class DefaultDecodeEvent implements IDecodeEvent<DecodeEventModel> {
 
     @Override
     public ExecuteTiming getDefaultExecuteTiming() {
-        return ExecuteTiming.BEFORE_UPDATE;
+        return ExecuteTiming.BEFORE_ENTITY_UPDATE;
     }
 
     @Override
@@ -34,7 +34,8 @@ public class DefaultDecodeEvent implements IDecodeEvent<DecodeEventModel> {
 
     @Override
     public void exec(DecodeEventModel model, IUpdateCommand.UpdateType updateType
-            , DtoClassInfo dtoClassInfo, List<Object> dtoList) {
+            , DtoClassInfo dtoClassInfo, List<Object> dtoList
+            , String updateId, int level) {
         DtoClassInfoHelper dtoClassInfoHelper = dtoClassInfo.getDtoClassInfoHelper();
         DtoClassInfo sourceDtoClassInfo = model.getSourceDtoClassInfo(dtoClassInfoHelper);
         ISelectService selectService = sourceDtoClassInfo.getDtoClassInfoHelper().getSelectService();

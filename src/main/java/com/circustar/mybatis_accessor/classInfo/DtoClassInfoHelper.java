@@ -74,29 +74,31 @@ public class DtoClassInfoHelper {
 
     }
 
-    public Object convertToEntity(Object object, DtoClassInfo dtoClassInfo) {
+    public Object convertToEntity(Object object, DtoClassInfo dtoClassInfo, boolean isWithSubFields) {
         if(object == null) {
             return null;
         }
         if(Collection.class.isAssignableFrom(object.getClass())) {
-            return convertToEntityList((Collection)object, dtoClassInfo);
+            return convertToEntityList((Collection)object, dtoClassInfo, isWithSubFields);
         } else {
-            return convertToSingleEntity(object, dtoClassInfo);
+            return convertToSingleEntity(object, dtoClassInfo, isWithSubFields);
         }
     }
 
-    public Object convertToSingleEntity(Object object, DtoClassInfo dtoClassInfo) {
+    public Object convertToSingleEntity(Object object, DtoClassInfo dtoClassInfo, boolean isWithSubFields) {
         try {
             Object entity = dtoClassInfo.convertToEntity(object);
-            EntityClassInfo entityClassInfo = dtoClassInfo.getEntityClassInfo();
-            for (DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
-                EntityFieldInfo entityEntityFieldInfo = entityClassInfo.getFieldByName(dtoField.getField().getName());
-                if (entityEntityFieldInfo == null) {
-                    continue;
+            if(isWithSubFields) {
+                EntityClassInfo entityClassInfo = dtoClassInfo.getEntityClassInfo();
+                for (DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
+                    EntityFieldInfo entityEntityFieldInfo = entityClassInfo.getFieldByName(dtoField.getField().getName());
+                    if (entityEntityFieldInfo == null) {
+                        continue;
+                    }
+                    Object subDto = FieldUtils.getFieldValue(object, dtoField.getPropertyDescriptor().getReadMethod());
+                    Object child = convertToEntity(subDto, dtoField.getFieldDtoClassInfo(), isWithSubFields);
+                    FieldUtils.setFieldValue(entity, entityEntityFieldInfo.getPropertyDescriptor().getWriteMethod(), child);
                 }
-                Object subDto = FieldUtils.getFieldValue(object, dtoField.getPropertyDescriptor().getReadMethod());
-                Object child = convertToEntity(subDto, dtoField.getFieldDtoClassInfo());
-                FieldUtils.setFieldValue(entity, entityEntityFieldInfo.getPropertyDescriptor().getWriteMethod(), child);
             }
             return entity;
         } catch (Exception ex) {
@@ -104,7 +106,7 @@ public class DtoClassInfoHelper {
         }
     }
 
-    public <T extends Collection> T convertToEntityList(T objects, DtoClassInfo dtoClassInfo) {
+    public <T extends Collection> T convertToEntityList(T objects, DtoClassInfo dtoClassInfo, boolean isWithSubFields) {
         Class collectionClass = objects.getClass();
         Class<? extends Collection> implementClass = CollectionType.getSupportCollectionType(collectionClass);
         if(implementClass == null) {
@@ -119,17 +121,19 @@ public class DtoClassInfoHelper {
                 Object child = dtoClassInfo.convertToEntity(object);
                 childList.add(child);
             }
-            for (DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
-                EntityFieldInfo entityEntityFieldInfo = dtoField.getEntityFieldInfo();
-                if (entityEntityFieldInfo == null || !entityEntityFieldInfo.getIsCollection()) {
-                    continue;
-                }
-                Iterator itFrom = objects.iterator();
-                Iterator itTo = childList.iterator();
-                while (itFrom.hasNext()) {
-                    Object object = FieldUtils.getFieldValue(itFrom.next(), dtoField.getPropertyDescriptor().getReadMethod());
-                    Object child = convertToEntity(object, dtoField.getFieldDtoClassInfo());
-                    FieldUtils.setFieldValue(itTo.next(), entityEntityFieldInfo.getPropertyDescriptor().getWriteMethod(), child);
+            if(isWithSubFields) {
+                for (DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
+                    EntityFieldInfo entityEntityFieldInfo = dtoField.getEntityFieldInfo();
+                    if (entityEntityFieldInfo == null || !entityEntityFieldInfo.getIsCollection()) {
+                        continue;
+                    }
+                    Iterator itFrom = objects.iterator();
+                    Iterator itTo = childList.iterator();
+                    while (itFrom.hasNext()) {
+                        Object object = FieldUtils.getFieldValue(itFrom.next(), dtoField.getPropertyDescriptor().getReadMethod());
+                        Object child = convertToEntity(object, dtoField.getFieldDtoClassInfo(), isWithSubFields);
+                        FieldUtils.setFieldValue(itTo.next(), entityEntityFieldInfo.getPropertyDescriptor().getWriteMethod(), child);
+                    }
                 }
             }
             return (T) childList;

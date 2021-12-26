@@ -21,7 +21,7 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
 
     @Override
     public ExecuteTiming getDefaultExecuteTiming() {
-        return ExecuteTiming.AFTER_UPDATE;
+        return ExecuteTiming.AFTER_ENTITY_UPDATE;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
 
     @Override
     public void exec(UpdateEventModel model, IUpdateCommand.UpdateType updateType, DtoClassInfo dtoClassInfo
-            , List<Object> dtoList) {
+            , List<Object> dtoList, String updateId, int level) {
         if(UpdateExecuteBeanMethodEvent.applicationContext == null) {
             setApplicationContext(dtoClassInfo.getDtoClassInfoHelper().getApplicationContext());
         }

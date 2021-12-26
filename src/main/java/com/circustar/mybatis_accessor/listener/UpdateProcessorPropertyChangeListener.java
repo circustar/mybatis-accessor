@@ -14,7 +14,6 @@ import org.springframework.util.StringUtils;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +43,7 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
             return true;
         }
         if(!onChangeList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming())
-                || ExecuteTiming.BEFORE_UPDATE.equals(eventTiming))
+                || ExecuteTiming.BEFORE_ENTITY_UPDATE.equals(eventTiming))
                 .anyMatch(x -> x.getUpdateTypes().stream().anyMatch(y -> updateCommand.getUpdateType().equals(y)))) {
             return true;
         }
@@ -76,7 +75,8 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
     }
 
     @Override
-    public void listenerExec(DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdateProcessor, IListenerTiming eventTiming) {
+    public void listenerExec(DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdateProcessor
+            , IListenerTiming eventTiming, String updateId, int level) {
         if(!initialized) {
             initData();
             initialized = true;
@@ -109,7 +109,7 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
             }
             if(!executeDtoList.isEmpty()) {
                 m.getUpdateEvent().exec(m, this.updateCommand.getUpdateType(),
-                        dtoClassInfo, executeDtoList);
+                        dtoClassInfo, executeDtoList, updateId, level);
             }
         }
     }

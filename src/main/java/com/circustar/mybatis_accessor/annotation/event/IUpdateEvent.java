@@ -10,5 +10,6 @@ public interface IUpdateEvent<T> {
     ExecuteTiming getDefaultExecuteTiming();
     IUpdateCommand.UpdateType[] getDefaultUpdateTypes();
     void exec(T model, IUpdateCommand.UpdateType updateType
-            , DtoClassInfo dtoClassInfo, List<Object> dtoList);
+            , DtoClassInfo dtoClassInfo, List<Object> dtoList
+            , String updateId, int level);
 }

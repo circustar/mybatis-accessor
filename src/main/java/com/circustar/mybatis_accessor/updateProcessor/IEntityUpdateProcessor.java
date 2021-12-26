@@ -6,6 +6,6 @@ import java.util.function.Supplier;
 
 public interface IEntityUpdateProcessor<T> {
     boolean execUpdate();
-    boolean execUpdate(Map<String, Object> options, List<Supplier<Integer>> consumerList, int level);
+    boolean execUpdate(Map<String, Object> options, List<Supplier<Integer>> consumerList, String updateId, int level);
     List getUpdatedEntityList();
 }

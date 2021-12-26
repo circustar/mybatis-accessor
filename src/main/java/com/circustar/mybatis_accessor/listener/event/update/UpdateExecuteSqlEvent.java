@@ -25,7 +25,7 @@ public class UpdateExecuteSqlEvent implements IUpdateEvent<UpdateEventModel> {
 
     @Override
     public ExecuteTiming getDefaultExecuteTiming() {
-        return ExecuteTiming.AFTER_UPDATE;
+        return ExecuteTiming.AFTER_ENTITY_UPDATE;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class UpdateExecuteSqlEvent implements IUpdateEvent<UpdateEventModel> {
 
     @Override
     public void exec(UpdateEventModel model, IUpdateCommand.UpdateType updateType, DtoClassInfo dtoClassInfo
-            , List<Object> dtoList) {
+            , List<Object> dtoList, String updateId, int level) {
         if(UpdateExecuteSqlEvent.sqlSessionFactory == null) {
             initSqlSessionFactory(dtoClassInfo.getDtoClassInfoHelper().getApplicationContext());
         }

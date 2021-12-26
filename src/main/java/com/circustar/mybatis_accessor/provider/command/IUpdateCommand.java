@@ -12,8 +12,16 @@ public interface IUpdateCommand {
     String PHYSIC_DELETE = "PHYSIC_DELETE";
 
     enum UpdateType {
-        INSERT,
-        DELETE,
-        UPDATE
+        INSERT("insert"),
+        DELETE("delete"),
+        UPDATE("update");
+
+        private String name;
+        UpdateType(String name) {
+            this.name = name;
+        }
+        public String getName() {
+            return name;
+        }
     }
 }
