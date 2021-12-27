@@ -284,10 +284,11 @@ public class MybatisAccessorService {
     public <T> List<T> updateWithOptions(
             Object object, EntityDtoServiceRelation relationInfo
             , IUpdateProcessorProvider updateEntityProvider
-            , IProviderParam options)  {
+            , IProviderParam options
+            , String updateEventLogId)  {
 
         List<T> updatedEntities = updateService.updateByProviders(relationInfo
-                , object, updateEntityProvider, options);
+                , object, updateEntityProvider, options, updateEventLogId);
 
         return updatedEntities;
     }
@@ -296,22 +297,24 @@ public class MybatisAccessorService {
     public <T> T save(Object object
             , boolean includeAllChildren
             , List<String> children
-            , boolean updateChildrenOnly)  {
+            , boolean updateChildrenOnly
+            , String updateEventLogId)  {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
-        return this.save(relationInfo, object, includeAllChildren, children, updateChildrenOnly);
+        return this.save(relationInfo, object, includeAllChildren, children, updateChildrenOnly, updateEventLogId);
     }
 
     public <T> T save(EntityDtoServiceRelation relation
             , Object object
             , boolean includeAllChildren
             , List<String> children
-            , boolean updateChildrenOnly)  {
+            , boolean updateChildrenOnly
+            , String updateEventLogId)  {
         if(object == null) {
             return null;
         }
         IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
         List<T> objects = updateWithOptions(object, relation, defaultInsertProcessorProvider
-                , providerParam);
+                , providerParam, updateEventLogId);
         return objects.get(0);
     }
 
@@ -319,12 +322,13 @@ public class MybatisAccessorService {
     public <T> List<T> saveList(List objects
             , boolean includeAllChildren
             , List<String> children
-            , boolean updateChildrenOnly)  {
+            , boolean updateChildrenOnly
+            , String updateEventLogId)  {
         if(objects.isEmpty()) {
             return null;
         }
         EntityDtoServiceRelation relationInfo = this.getRelation(objects.get(0).getClass(), null);
-        return this.saveList(relationInfo, objects, includeAllChildren, children, updateChildrenOnly);
+        return this.saveList(relationInfo, objects, includeAllChildren, children, updateChildrenOnly, updateEventLogId);
     }
 
 
@@ -332,22 +336,24 @@ public class MybatisAccessorService {
             , List objectList
             , boolean includeAllChildren
             , List<String> children
-            , boolean updateChildrenOnly)  {
+            , boolean updateChildrenOnly
+            , String updateEventLogId)  {
         if(objectList == null || objectList.isEmpty()) {
             return null;
         }
         IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
         return updateWithOptions(objectList, relation, defaultInsertProcessorProvider
-                , providerParam);
+                , providerParam, updateEventLogId);
     }
 
     public <T> T update(Object object
             , boolean includeAllChildren
             , List<String> children
-            , boolean updateChildrenOnly)  {
+            , boolean updateChildrenOnly
+            , String updateEventLogId)  {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
         return this.update(relationInfo, object
-                , includeAllChildren,  children, updateChildrenOnly);
+                , includeAllChildren,  children, updateChildrenOnly, updateEventLogId);
     }
 
 
@@ -355,10 +361,11 @@ public class MybatisAccessorService {
             , Object object
             , boolean includeAllChildren
             , List<String> children
-            , boolean updateChildrenOnly)  {
+            , boolean updateChildrenOnly
+            , String updateEventLogId)  {
         IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
         List<T> result = updateWithOptions(object, relation, defaultUpdateProcessorProvider
-                , providerParam);
+                , providerParam, updateEventLogId);
         return result.get(0);
     }
 
@@ -366,55 +373,60 @@ public class MybatisAccessorService {
     public <T> List<T> updateList(List objects
             , boolean includeAllChildren
             , List<String> children
-            , boolean updateChildrenOnly)  {
+            , boolean updateChildrenOnly
+            , String updateEventLogId)  {
         if(objects == null || objects.isEmpty()) {
             return null;
         }
         EntityDtoServiceRelation relationInfo = this.getRelation(objects.get(0).getClass(), null);
         return this.updateList(relationInfo, objects, includeAllChildren, children
-                , updateChildrenOnly);
+                , updateChildrenOnly, updateEventLogId);
     }
 
 
     public <T> List<T> updateList(EntityDtoServiceRelation relation, List objectList
             , boolean includeAllChildren
             , List<String> children
-            , boolean updateChildrenOnly)  {
+            , boolean updateChildrenOnly
+            , String updateEventLogId)  {
         if(objectList == null || objectList.isEmpty()) {
             return null;
         }
 
         IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
         return updateWithOptions(objectList, relation, defaultUpdateProcessorProvider
-                , providerParam);
+                , providerParam, updateEventLogId);
     }
 
     public <T> List<T> deleteByIds(Class dtoClass
             , Set<Serializable> ids
             , boolean includeAllChildren
             , List<String> children
-            , boolean updateChildrenOnly) {
+            , boolean updateChildrenOnly
+            , String updateEventLogId) {
         EntityDtoServiceRelation relationInfo = this.getRelation(dtoClass, null);
-        return deleteByIds(relationInfo, ids, includeAllChildren, children, updateChildrenOnly);
+        return deleteByIds(relationInfo, ids, includeAllChildren, children, updateChildrenOnly, updateEventLogId);
     }
 
     public <T> List<T> deleteByIds(String dtoName
             , Set<Serializable> ids
             , boolean includeAllChildren
             , List<String> children
-            , boolean updateChildrenOnly) {
+            , boolean updateChildrenOnly
+            , String updateEventLogId) {
         EntityDtoServiceRelation relationInfo = this.getRelation(null, dtoName);
-        return deleteByIds(relationInfo, ids, includeAllChildren, children, updateChildrenOnly);
+        return deleteByIds(relationInfo, ids, includeAllChildren, children, updateChildrenOnly, updateEventLogId);
     }
 
     public <T> List<T> deleteByIds(EntityDtoServiceRelation relationInfo
             , Set<Serializable> ids
             , boolean includeAllChildren
             , List<String> children
-            , boolean updateChildrenOnly) {
+            , boolean updateChildrenOnly
+            , String updateEventLogId) {
         IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
         return updateWithOptions(ids, relationInfo, defaultDeleteByIdProcessorProvider
-                , providerParam);
+                , providerParam, updateEventLogId);
     }
 
     public Integer getCountByAnnotation(Object object

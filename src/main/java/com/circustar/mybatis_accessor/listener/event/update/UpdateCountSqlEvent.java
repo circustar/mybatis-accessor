@@ -71,7 +71,8 @@ public class UpdateCountSqlEvent extends AbstractUpdateEvent<UpdateEventModel> i
 
     @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
-            , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams) {
+            , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams
+            , String updateEventLogId) {
         DtoField mField = dtoFields.get(0);
         IService serviceBean = dtoClassInfo.getServiceBean();
         String execSelectSql = parsedParams.get(0).toString();

@@ -215,7 +215,7 @@ public class DtoClassInfo {
                     joinTableList.add(tableJoinInfo.getQueryJoin().getJoinType().getJoinExpression()
                             + " " + joinTableInfo.getTableName() + " " + tableJoinInfo.getQueryJoin().getTableAlias());
                     String joinExpression = tableJoinInfo.getQueryJoin().getJoinExpression();
-                    if(org.springframework.util.StringUtils.isEmpty(joinExpression)) {
+                    if(!org.springframework.util.StringUtils.hasLength(joinExpression)) {
                         if(this.entityClassInfo.getFieldByName(joinTableInfo.getKeyProperty()) != null) {
                             joinExpression = this.entityClassInfo.getTableInfo().getTableName() + "." + joinTableInfo.getKeyColumn()
                                     + " = " + tableJoinInfo.getQueryJoin().getTableAlias() + "." + joinTableInfo.getKeyColumn();

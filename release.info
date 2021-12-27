@@ -15,8 +15,8 @@
 
 1.2.2
 -- 1.UpdateEvent使用Dto更新，支持级联。可能带来循环调用的风险。
--- 2.LogEvent
--- 3.调用链路
+-- 2.增加UpdateLogEvent记录更新日志
+-- 3.日志中使用UPDATE_EVENT_LOG_ID标记更新数据
 -- 4.EVENT执行时间点优化
 -- 5.PropertyChangeEvent增加监听属性
 -- 6.UpdateOrder优化

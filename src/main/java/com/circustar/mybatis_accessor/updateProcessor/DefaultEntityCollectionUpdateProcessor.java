@@ -12,6 +12,7 @@ import com.circustar.mybatis_accessor.listener.UpdateProcessorPropertyChangeList
 import com.circustar.mybatis_accessor.listener.UpdateProcessorUpdateListener;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.common_utils.reflection.FieldUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -72,21 +73,25 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
     }
 
     @Override
-    public boolean execUpdate() {
-        return execUpdate(new HashMap<>(), new ArrayList<>(), UUID.randomUUID().toString(), 0);
+    public boolean execUpdate(String updateEventLogId) {
+        String var0 = updateEventLogId;
+        if(!StringUtils.hasLength(var0)) {
+            var0 = UUID.randomUUID().toString();
+        }
+        return execUpdate(new HashMap<>(), new ArrayList<>(), var0, 0);
     }
 
     @Override
-    public boolean execUpdate(Map<String, Object> keyMap, List<Supplier<Integer>> consumerList, String updateId, int level) {
+    public boolean execUpdate(Map<String, Object> keyMap, List<Supplier<Integer>> consumerList, String updateEventLogId, int level) {
         init(this);
         boolean result;
-        this.execListeners(ExecuteTiming.BEFORE_UPDATE_START, updateId, level);
+//        this.execListeners(ExecuteTiming.BEFORE_UPDATE_START, updateEventLogId, level);
         if (updateChildFirst) {
-            result = execSubEntityUpdate(keyMap, consumerList, updateId, level);
+            result = execSubEntityUpdate(keyMap, consumerList, updateEventLogId, level);
             if(!result){return false;}
         }
         if (!updateChildrenOnly) {
-            this.execListeners(ExecuteTiming.BEFORE_ENTITY_UPDATE, updateId, level);
+            this.execListeners(ExecuteTiming.BEFORE_ENTITY_UPDATE, updateEventLogId, level);
         }
         if(needConvertToEntity) {
             this.updateEntityList = dtoClassInfo.getDtoClassInfoHelper().convertToEntityList(this.updateDtoList
@@ -139,7 +144,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                             , FieldUtils.getFieldValue(updateEntityList.get(i), keyFieldReadMethod));
                 }
             }
-            this.execListeners(ExecuteTiming.AFTER_ENTITY_UPDATE, updateId, level);
+            this.execListeners(ExecuteTiming.AFTER_ENTITY_UPDATE, updateEventLogId, level);
         }
 
         if (entityClassInfo != null && firstEntity.isPresent()
@@ -155,26 +160,26 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         }
 
         if (!updateChildFirst) {
-            result = execSubEntityUpdate(keyMap, consumerList, updateId, level);
+            result = execSubEntityUpdate(keyMap, consumerList, updateEventLogId, level);
             if(!result){return false;}
         }
-        this.execListeners(ExecuteTiming.AFTER_UPDATE_FINISH, updateId, level);
+//        this.execListeners(ExecuteTiming.AFTER_UPDATE_FINISH, updateEventLogId, level);
         this.dispose();
         return true;
     }
 
     private boolean execSubEntityUpdate(Map<String, Object> keyMap, List<Supplier<Integer>> consumerList
-            , String updateId, int level) {
-        this.execListeners(ExecuteTiming.BEFORE_SUB_ENTITY_UPDATE, updateId, level);
+            , String updateEventLogId, int level) {
+        this.execListeners(ExecuteTiming.BEFORE_SUB_ENTITY_UPDATE, updateEventLogId, level);
         if(this.subUpdateEntities != null && !this.subUpdateEntities.isEmpty()) {
             if(!this.skipAllListener(ExecuteTiming.AFTER_SUB_ENTITY_UPDATE)) {
                 consumerList.add(() -> {
-                    this.execListeners(ExecuteTiming.AFTER_SUB_ENTITY_UPDATE, updateId, level);
+                    this.execListeners(ExecuteTiming.AFTER_SUB_ENTITY_UPDATE, updateEventLogId, level);
                     return level;
                 });
             }
             for (IEntityUpdateProcessor entityUpdateProcessor : subUpdateEntities) {
-                boolean result = entityUpdateProcessor.execUpdate(new HashMap<>(keyMap), consumerList, updateId, level + 1);
+                boolean result = entityUpdateProcessor.execUpdate(new HashMap<>(keyMap), consumerList, updateEventLogId, level + 1);
                 if (!result) {
                     return false;
                 }

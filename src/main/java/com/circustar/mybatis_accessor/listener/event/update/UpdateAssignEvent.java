@@ -51,7 +51,8 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
 
     @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
-            , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams) {
+            , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams
+            , String updateEventLogId) {
         Method mKeyFieldReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
 
         DtoField mField = dtoFields.get(0);
@@ -97,7 +98,7 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
         }
         if(!updateSubDtoList.isEmpty()) {
             mybatisAccessorService.updateList(fieldDtoClassInfo.getEntityDtoServiceRelation(), updateSubDtoList
-                    , false, null, false);
+                    , false, null, false, updateEventLogId);
         }
     }
 }

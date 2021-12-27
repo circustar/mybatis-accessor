@@ -53,7 +53,7 @@ public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCol
 
     @Override
     public void listenerExec(DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdateProcessor
-            , IListenerTiming eventTiming, String updateId, int level) {
+            , IListenerTiming eventTiming, String updateEventLogId, int level) {
         List<UpdateEventModel> updateModelList = updateEventList.stream()
                 .filter(x -> eventTiming.equals(x.getExecuteTiming()))
                 .filter(x -> x.getUpdateTypes().stream().anyMatch(y -> updateCommand.getUpdateType().equals(y)))
@@ -72,7 +72,7 @@ public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCol
             }
             if(!executeDtoList.isEmpty()) {
                 m.getUpdateEvent().exec(m, this.updateCommand.getUpdateType(),
-                        dtoClassInfo, executeDtoList, updateId, level);
+                        dtoClassInfo, executeDtoList, updateEventLogId, level);
             }
         }
     }

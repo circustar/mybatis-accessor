@@ -10,5 +10,6 @@ public interface IUpdateService {
     <T> List<T> updateByProviders(EntityDtoServiceRelation relationInfo
             , Object object
             , IUpdateProcessorProvider updateEntityProviders
-            , IProviderParam options);
+            , IProviderParam options
+            , String updateEventLogId);
 }

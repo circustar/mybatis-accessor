@@ -9,7 +9,7 @@ public interface IListenerContext<T> {
     default boolean skipAllListener(IListenerTiming eventTiming) {
         return !getListenerList().stream().filter(x -> !x.skipListener(eventTiming)).findAny().isPresent();
     }
-    default void execListeners(IListenerTiming eventTiming, String updateId, int level) {
+    default void execListeners(IListenerTiming eventTiming, String updateEventLogId, int level) {
         List<IListener<T>> listenerList = getListenerList();
         if(listenerList == null || listenerList.isEmpty()) {
             return;
@@ -17,7 +17,7 @@ public interface IListenerContext<T> {
         T target = getListenTarget();
         for(IListener<T> listener : listenerList) {
             if(!listener.skipListener(eventTiming)) {
-                listener.listenerExec(target, eventTiming, updateId, level);
+                listener.listenerExec(target, eventTiming, updateEventLogId, level);
             }
         }
     }

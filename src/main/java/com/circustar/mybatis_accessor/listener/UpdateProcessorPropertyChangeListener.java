@@ -76,7 +76,7 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
 
     @Override
     public void listenerExec(DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdateProcessor
-            , IListenerTiming eventTiming, String updateId, int level) {
+            , IListenerTiming eventTiming, String updateEventLogId, int level) {
         if(!initialized) {
             initData();
             initialized = true;
@@ -109,7 +109,7 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
             }
             if(!executeDtoList.isEmpty()) {
                 m.getUpdateEvent().exec(m, this.updateCommand.getUpdateType(),
-                        dtoClassInfo, executeDtoList, updateId, level);
+                        dtoClassInfo, executeDtoList, updateEventLogId, level);
             }
         }
     }

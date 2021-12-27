@@ -13,7 +13,7 @@ public abstract class AbstractUpdateEvent<T> implements IUpdateEvent<T> {
     protected abstract List<Object> parseParams(T updateEvent, List<DtoField> dtoFields, DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo);
 
     protected abstract void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
-            , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams);
+            , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams, String updateEventLogId);
 
     protected abstract DtoClassInfo getFieldDtoClassInfo(List<DtoField> dtoFields);
 
@@ -24,10 +24,10 @@ public abstract class AbstractUpdateEvent<T> implements IUpdateEvent<T> {
 
     @Override
     public void exec(T updateEvent, IUpdateCommand.UpdateType updateType
-            , DtoClassInfo dtoClassInfo, List<Object> dtoList, String updateId, int level) {
+            , DtoClassInfo dtoClassInfo, List<Object> dtoList, String updateEventLogId, int level) {
         List<DtoField> dtoFields = parseDtoFieldList(updateEvent, dtoClassInfo);
         DtoClassInfo fieldDtoClassInfo = getFieldDtoClassInfo(dtoFields);
         List<Object> parsedParams = parseParams(updateEvent, dtoFields, dtoClassInfo, fieldDtoClassInfo);
-        execUpdate(dtoClassInfo, fieldDtoClassInfo, dtoList, dtoFields, parsedParams);
+        execUpdate(dtoClassInfo, fieldDtoClassInfo, dtoList, dtoFields, parsedParams, updateEventLogId);
     }
 }

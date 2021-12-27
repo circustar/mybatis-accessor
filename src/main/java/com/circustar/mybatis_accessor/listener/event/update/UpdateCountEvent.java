@@ -42,7 +42,8 @@ public class UpdateCountEvent extends UpdateCountSqlEvent implements IUpdateEven
 
     @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
-            , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams) {
+            , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams
+            , String updateEventLogId) {
         ISelectService selectService = dtoClassInfo.getDtoClassInfoHelper().getSelectService();
         DtoField mField = dtoFields.get(0);
         DtoField sField = dtoFields.get(1);
@@ -64,7 +65,7 @@ public class UpdateCountEvent extends UpdateCountSqlEvent implements IUpdateEven
 
         if(!updateSubDtoList.isEmpty()) {
             mybatisAccessorService.updateList(dtoClassInfo.getEntityDtoServiceRelation(), updateSubDtoList
-                    , false, null, false);
+                    , false, null, false, updateEventLogId);
         }
     }
 }

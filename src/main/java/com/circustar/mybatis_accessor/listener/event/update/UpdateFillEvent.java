@@ -75,7 +75,8 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
 
     @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
-            , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams) {
+            , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams
+            , String updateEventLogId) {
         DtoField mAssignField = dtoFields.get(0);
         DtoField mRemainField = dtoFields.get(1);
         DtoField sField = dtoFields.get(2);
@@ -144,11 +145,11 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
         }
         if(!updateSubDtoList.isEmpty()) {
             mybatisAccessorService.updateList(fieldDtoClassInfo.getEntityDtoServiceRelation(), updateSubDtoList
-                    , false, null, false);
+                    , false, null, false, updateEventLogId);
         }
         if(!updateDtoList.isEmpty()) {
             mybatisAccessorService.updateList(dtoClassInfo.getEntityDtoServiceRelation(), updateDtoList
-                    , false, null, false);
+                    , false, null, false, updateEventLogId);
         }
     }
 

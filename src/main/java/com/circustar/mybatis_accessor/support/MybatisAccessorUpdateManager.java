@@ -55,6 +55,7 @@ public class MybatisAccessorUpdateManager {
     }
 
     public synchronized void submit() {
+        String updateEventLogId = UUID.randomUUID().toString();
         List<DtoWithOption> dtoWithOptions = new ArrayList<>(updateTargetList.get());
         for(DtoWithOption dtoWithOption : dtoWithOptions) {
             Object dto = dtoWithOption.getDto();
@@ -73,7 +74,7 @@ public class MybatisAccessorUpdateManager {
             mybatisAccessorService.updateList(dtoList
                     , dtoWithOption.getParam().isIncludeAllChildren()
                     , dtoWithOption.getParam().getUpdateChildrenNames()
-                    , dtoWithOption.getParam().isUpdateChildrenOnly());
+                    , dtoWithOption.getParam().isUpdateChildrenOnly(), updateEventLogId);
         });
         updateTargetList.get().removeAll(dtoWithOptions);
     }

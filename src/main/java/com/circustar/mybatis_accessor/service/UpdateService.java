@@ -20,12 +20,13 @@ public class UpdateService implements IUpdateService {
     @Override
     public <T> List<T> updateByProviders(EntityDtoServiceRelation relationInfo
             , Object object, IUpdateProcessorProvider provider
-            , IProviderParam options) {
+            , IProviderParam options
+            , String updateEventLogId) {
         List<T> updatedObjects = new ArrayList<>();
         List<IEntityUpdateProcessor> objList = provider.createUpdateEntities(relationInfo, dtoClassInfoHelper
                 , object, options);
         for(IEntityUpdateProcessor o : objList) {
-            boolean result = o.execUpdate();
+            boolean result = o.execUpdate(updateEventLogId);
             if(!result) {
                 throw new RuntimeException(String.format(MessageProperties.UPDATE_TARGET_NOT_FOUND
                         , "DTO CLASS - " + relationInfo.getDtoClass().getSimpleName()

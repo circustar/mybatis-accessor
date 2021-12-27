@@ -36,7 +36,7 @@ public class UpdateExecuteSqlEvent implements IUpdateEvent<UpdateEventModel> {
 
     @Override
     public void exec(UpdateEventModel model, IUpdateCommand.UpdateType updateType, DtoClassInfo dtoClassInfo
-            , List<Object> dtoList, String updateId, int level) {
+            , List<Object> dtoList, String updateEventLogId, int level) {
         if(UpdateExecuteSqlEvent.sqlSessionFactory == null) {
             initSqlSessionFactory(dtoClassInfo.getDtoClassInfoHelper().getApplicationContext());
         }

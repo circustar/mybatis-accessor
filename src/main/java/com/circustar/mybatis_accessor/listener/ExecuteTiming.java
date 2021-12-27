@@ -3,8 +3,6 @@ package com.circustar.mybatis_accessor.listener;
 import com.circustar.common_utils.listener.IListenerTiming;
 
 public enum ExecuteTiming implements IListenerTiming {
-    BEFORE_UPDATE_START,
-    AFTER_UPDATE_FINISH,
     BEFORE_ENTITY_UPDATE,
     AFTER_ENTITY_UPDATE,
     BEFORE_SUB_ENTITY_UPDATE,
