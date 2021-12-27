@@ -25,9 +25,9 @@ public class UpdateLogEvent implements IUpdateEvent<UpdateEventModel> {
         if(defaultFormatMap.containsKey(dtoClassInfo)) {
             return defaultFormatMap.get(dtoClassInfo);
         }
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for(DtoField normalField : dtoClassInfo.getNormalFieldList()) {
-            sb.append(normalField.getField().getName() + ":#{" + normalField.getField().getName() + "},");
+            sb.append(normalField.getField().getName()).append(":#{").append(normalField.getField().getName()).append("},");
         }
         String strFormat = sb.toString();
         if(StringUtils.hasLength(strFormat)) {

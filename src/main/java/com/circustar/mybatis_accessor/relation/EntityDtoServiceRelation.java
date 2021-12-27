@@ -15,7 +15,7 @@ public class EntityDtoServiceRelation {
 
     private Class<? extends  IService> serviceClass;
 
-    private IService service = null;
+    private IService service;
 
     private Class<? extends IConverter> convertDtoToEntityClass;
 

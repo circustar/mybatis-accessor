@@ -47,7 +47,7 @@ public class DtoClassInfo {
     private Object versionDefaultValue;
     private DtoField keyField;
     private DtoField deleteFlagField;
-    private boolean physicDelete = false;
+    private boolean physicDelete;
     private QueryWrapperCreator queryWrapperCreator;
     private List<UpdateEventModel> updateEventList;
     private List<PropertyChangeEventModel> propertyChangeEventList;

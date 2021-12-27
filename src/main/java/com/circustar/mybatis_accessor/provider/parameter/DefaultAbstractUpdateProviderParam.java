@@ -3,9 +3,9 @@ package com.circustar.mybatis_accessor.provider.parameter;
 import java.util.List;
 
 public abstract class DefaultAbstractUpdateProviderParam implements IEntityProviderParam {
-    private boolean updateChildrenOnly = false;
-    private boolean includeAllChildren = false;
-    private List<String> updateChildrenNames = null;
+    private boolean updateChildrenOnly;
+    private boolean includeAllChildren;
+    private List<String> updateChildrenNames;
 
     public DefaultAbstractUpdateProviderParam(DefaultAbstractUpdateProviderParam another) {
         this(another.isUpdateChildrenOnly(), another.isIncludeAllChildren(), another.getUpdateChildrenNames());

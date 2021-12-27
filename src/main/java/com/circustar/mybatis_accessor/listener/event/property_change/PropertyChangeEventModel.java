@@ -11,7 +11,7 @@ public class PropertyChangeEventModel {
     private List<String> listenProperties;
     private String fromExpression;
     private String toExpression;
-    private IUpdateEvent updateEvent = null;
+    private IUpdateEvent updateEvent;
     private List<String> updateParams;
     private Class<? extends IUpdateEvent> updateEventClass;
     private Supplier<IUpdateEvent> supplier;

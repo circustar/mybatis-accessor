@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DefaultDecodeEvent implements IDecodeEvent<DecodeEventModel> {
-    private static DefaultDecodeEvent defaultDecodeEvent = null;
+    private static DefaultDecodeEvent defaultDecodeEvent;
     public static DefaultDecodeEvent getInstance() {
         if (defaultDecodeEvent == null) {
             defaultDecodeEvent = new DefaultDecodeEvent();

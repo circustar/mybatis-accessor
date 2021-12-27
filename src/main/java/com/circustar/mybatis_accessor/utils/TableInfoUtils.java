@@ -26,10 +26,10 @@ public class TableInfoUtils {
     private static String DEFAULT_NAMESPACE = "CCS.";
     private static String DEFAULT_NESTED_NAMESPACE = "N_CCS_";
     private static String DEFAULT_MYBATIS_PLUS_NAMESPACE = "mybatis-plus_";
-    private static volatile boolean allTableInfoInitialized = false;
+    private static volatile boolean allTableInfoInitialized;
     public final static AtomicReference<List<String>> scanPackages = new AtomicReference<>();
-    private static boolean userCamelCase = false;
-    private static TypeHandlerRegistry typeHandlerRegistry = null;
+    private static boolean userCamelCase;
+    private static TypeHandlerRegistry typeHandlerRegistry;
     public static synchronized void initAllTableInfo(Configuration configuration) {
         if(allTableInfoInitialized) {
             return;

@@ -103,7 +103,7 @@ public class QueryWrapperCreator {
         }
     }
 
-    private QueryWrapperBuilder baseWrapperBuilder = null;
+    private QueryWrapperBuilder baseWrapperBuilder;
     public static QueryWrapperBuilder createQueryWrapperBuilder(
             List<QuerySelectModel> querySelectModels
            ,List<QueryGroupByModel> queryGroupByModels

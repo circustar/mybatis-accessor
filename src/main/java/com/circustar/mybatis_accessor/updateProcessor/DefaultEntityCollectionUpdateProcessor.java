@@ -196,7 +196,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         return true;
     }
 
-    private List<IListener<DefaultEntityCollectionUpdateProcessor>> listenerList = null;
+    private List<IListener<DefaultEntityCollectionUpdateProcessor>> listenerList;
 
     @Override
     public void init(DefaultEntityCollectionUpdateProcessor target) {

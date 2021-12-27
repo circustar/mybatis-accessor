@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventModel> {
-    private static ApplicationContext applicationContext = null;
+    private static ApplicationContext applicationContext;
     private void setApplicationContext(ApplicationContext applicationContext) {
         UpdateExecuteBeanMethodEvent.applicationContext = applicationContext;
     }

@@ -33,10 +33,10 @@ public class DtoField {
 
     private TableJoinInfo tableJoinInfo;
 
-    private DtoClassInfo fieldDtoClassInfo = null;
+    private DtoClassInfo fieldDtoClassInfo;
 
-    private boolean deleteAndInsertNewOnUpdate = false;
-    private boolean deleteEvenIfEmpty = false;
+    private boolean deleteAndInsertNewOnUpdate;
+    private boolean deleteEvenIfEmpty;
     private boolean updateCascade = true;
 
     public DtoField(PropertyDescriptor propertyDescriptor, EntityFieldInfo entityFieldInfo, DtoClassInfo dtoClassInfo, IEntityDtoServiceRelationMap relationMap) {

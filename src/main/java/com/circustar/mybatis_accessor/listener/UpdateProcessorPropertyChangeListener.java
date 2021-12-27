@@ -50,8 +50,8 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
         return false;
     }
 
-    private List oldDtoList = null;
-    private boolean initialized = false;
+    private List oldDtoList;
+    private boolean initialized;
 
     private void initData() {
         oldDtoList = new ArrayList();

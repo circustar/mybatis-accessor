@@ -23,7 +23,7 @@ public class EntityFieldInfo {
     private EntityClassInfo entityClassInfo;
     private PropertyDescriptor propertyDescriptor;
     private IdReference idReference;
-    private boolean isLogicDeleteField = false;
+    private boolean isLogicDeleteField;
 
     public Boolean getPrimitive() {
         return isPrimitive;
@@ -80,8 +80,8 @@ public class EntityFieldInfo {
     }
 
     private Boolean isCollection = false;
-    private Type actualType = null;
-    private Type ownType = null;
+    private Type actualType;
+    private Type ownType;
 
     public PropertyDescriptor getPropertyDescriptor() {
         return propertyDescriptor;

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UpdateExecuteSqlEvent implements IUpdateEvent<UpdateEventModel> {
-    private static SqlSessionFactory sqlSessionFactory = null;
+    private static SqlSessionFactory sqlSessionFactory;
     private void initSqlSessionFactory(ApplicationContext applicationContext) {
         String[] beanNamesForType = applicationContext.getBeanNamesForType(SqlSessionFactory.class);
         if(beanNamesForType.length > 0) {
