@@ -7,6 +7,7 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlSource;
 
 public class PhysicDeleteBatchByIds extends PhysicDelete {
+    private static final long serialVersionUID = -1L;
     public PhysicDeleteBatchByIds() {
     }
 
