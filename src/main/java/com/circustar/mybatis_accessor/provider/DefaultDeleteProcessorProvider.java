@@ -70,7 +70,7 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
         DefaultEntityCollectionUpdateProcessor updateProcessor;
         List updateEntityWithNoSubList = new ArrayList();
 
-        if(CollectionUtils.isEmpty(topEntities)) {
+        if(org.springframework.util.CollectionUtils.isEmpty(topEntities)) {
             updateEntityWithNoSubList = (List) dtoList.stream()
                     .map(x -> this.convertToUpdateTarget(dtoClassInfo, x))
                     .collect(Collectors.toList());

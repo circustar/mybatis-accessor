@@ -17,7 +17,7 @@ public class NumberUtils {
     }
 
     public static BigDecimal sumNumberListByType(Class clazz, List numberList) {
-        BigDecimal result = null;
+        BigDecimal result;
         if(BigDecimal.class.isAssignableFrom(clazz)) {
             BigDecimal res = (BigDecimal) numberList.stream().reduce(
                     (x, y) -> (x == null ? BigDecimal.ZERO:((BigDecimal)x)).add(y == null ? BigDecimal.ZERO:((BigDecimal)y))).get();

@@ -1,6 +1,5 @@
 package com.circustar.mybatis_accessor.listener;
 
-import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.listener.IListener;
 import com.circustar.common_utils.listener.IListenerTiming;
 import com.circustar.common_utils.parser.SPELParser;
@@ -9,6 +8,7 @@ import com.circustar.mybatis_accessor.listener.event.property_change.PropertyCha
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;

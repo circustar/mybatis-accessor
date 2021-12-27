@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 @Configuration
 public class MybatisAccessorConfiguration {
     private ApplicationContext applicationContext;
-    private IEntityDtoServiceRelationMap entityDtoServiceRelationMap = null;
+    private IEntityDtoServiceRelationMap entityDtoServiceRelationMap;
     private EnhanceSqlInjector enhanceSqlInjector;
     private ScanRelationOnStartup scanRelationOnStartup;
     private IUpdateService updateService;

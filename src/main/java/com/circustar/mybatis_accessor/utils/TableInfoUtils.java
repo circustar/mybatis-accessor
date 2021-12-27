@@ -56,7 +56,7 @@ public class TableInfoUtils {
         try {
             BaseMapperScanner.scan(scanPackage);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         Set<Class<? extends BaseMapper>> baseMapperFromPackage = BaseMapperScanner.getBaseMapperFromPackage(scanPackage);
         for(Class<? extends BaseMapper> mapper : baseMapperFromPackage) {

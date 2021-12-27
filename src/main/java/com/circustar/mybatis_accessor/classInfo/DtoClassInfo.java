@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.reflection.ClassUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.*;
@@ -22,6 +21,7 @@ import com.circustar.mybatis_accessor.utils.ApplicationContextUtils;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
 import com.circustar.mybatis_accessor.utils.TableJoinColumnPrefixManager;
 import org.springframework.context.ApplicationContext;
+import org.springframework.util.CollectionUtils;
 
 import java.beans.PropertyDescriptor;
 import java.sql.Timestamp;

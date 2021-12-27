@@ -1,7 +1,5 @@
 package com.circustar.common_utils.reflection;
 
-import org.springframework.beans.BeanUtils;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;

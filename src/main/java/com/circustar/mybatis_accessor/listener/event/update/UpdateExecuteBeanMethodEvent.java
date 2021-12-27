@@ -53,7 +53,7 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
         }
         try {
             Method method;
-            if (paramClassList.size() > 0) {
+            if (!paramClassList.isEmpty()) {
                 method = bean.getClass().getDeclaredMethod(methodName, paramClassList.toArray(new Class[0]));
             } else {
                 method = bean.getClass().getDeclaredMethod(methodName, dtoClassInfo.getDtoClass());
@@ -61,7 +61,7 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
 
             for (Object dto : dtoList) {
                 List<Object> methodParams = new ArrayList<>();
-                if (paramField.size() > 0) {
+                if (!paramField.isEmpty()) {
                     for (int j = 0; j < paramField.size(); j++) {
                         methodParams.add(FieldUtils.getFieldValue(dto, paramField.get(j).getPropertyDescriptor().getReadMethod()));
                     }

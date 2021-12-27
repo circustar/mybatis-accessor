@@ -8,6 +8,7 @@ import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
@@ -50,7 +51,7 @@ public class UpdateLogEvent implements IUpdateEvent<UpdateEventModel> {
     public void exec(UpdateEventModel model, IUpdateCommand.UpdateType updateType
             , DtoClassInfo dtoClassInfo, List<Object> dtoList
             , String updateEventLogId, int level) {
-        if(dtoList != null && dtoList.size() > 0) {
+        if(!CollectionUtils.isEmpty(dtoList)) {
             logger.info("UPDATE LOG EVENT, ID:" + updateEventLogId + ", TYPE:" + updateType.getName() + ", CLASS:" + dtoClassInfo.getDtoClass().getName());
             if(dtoClassInfo.getDtoClass().isAssignableFrom(dtoList.get(0).getClass())) {
                 String strFormat = null;

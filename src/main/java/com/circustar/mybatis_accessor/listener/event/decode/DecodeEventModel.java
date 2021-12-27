@@ -1,6 +1,5 @@
 package com.circustar.mybatis_accessor.listener.event.decode;
 
-import com.circustar.mybatis_accessor.annotation.event.DecodeEvent;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
 import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.classInfo.DtoField;

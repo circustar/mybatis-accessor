@@ -14,7 +14,6 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import org.springframework.context.ApplicationContext;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider<IEntityProviderParam> {
 

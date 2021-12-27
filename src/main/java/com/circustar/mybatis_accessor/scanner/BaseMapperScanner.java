@@ -9,7 +9,7 @@ import java.util.*;
 
 public class BaseMapperScanner {
     private static Set<String> scannedPackages = new HashSet<>();
-    private static HashMap<String, Set<Class<? extends BaseMapper>>> packageBaseMappers = new HashMap<>();
+    private static Map<String, Set<Class<? extends BaseMapper>>> packageBaseMappers = new HashMap<>();
     private static Map<Class<?>, Set<Class<? extends BaseMapper>>> baseMapperMap = new HashMap<>();
     private static ClassPathScanningCandidateComponentProvider provider;
     static {

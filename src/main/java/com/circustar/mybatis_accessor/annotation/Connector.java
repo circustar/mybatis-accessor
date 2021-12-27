@@ -209,7 +209,7 @@ public enum Connector {
         this.func = func;
     }
 
-    public <T> void consume(String column, QueryWrapper wrapper, T[] values) {
+    public <T> void consume(String column, QueryWrapper wrapper, T... values) {
         consumer.accept(column, wrapper, values);
     }
 
@@ -217,7 +217,7 @@ public enum Connector {
         consumer.accept(column, wrapper, (value instanceof List ? (List)value : Arrays.asList(value)).toArray());
     }
 
-    public String convert(String column, String[] values) {
+    public String convert(String column, String... values) {
         return func.apply(column, values);
     }
 
