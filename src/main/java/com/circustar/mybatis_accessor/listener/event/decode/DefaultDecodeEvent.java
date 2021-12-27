@@ -11,13 +11,23 @@ import com.circustar.mybatis_accessor.service.ISelectService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 public class DefaultDecodeEvent implements IDecodeEvent<DecodeEventModel> {
     private static DefaultDecodeEvent defaultDecodeEvent;
+    private static Lock lock = new ReentrantLock();
     public static DefaultDecodeEvent getInstance() {
-        if (defaultDecodeEvent == null) {
-            defaultDecodeEvent = new DefaultDecodeEvent();
+        if (defaultDecodeEvent != null) {
+            return defaultDecodeEvent;
+        }
+        if(lock.tryLock()) {
+            try {
+                defaultDecodeEvent = new DefaultDecodeEvent();
+            } finally {
+                lock.unlock();
+            }
         }
         return defaultDecodeEvent;
     }

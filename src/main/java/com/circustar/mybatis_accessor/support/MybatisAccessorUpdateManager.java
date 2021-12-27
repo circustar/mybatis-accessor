@@ -54,28 +54,28 @@ public class MybatisAccessorUpdateManager {
         updateTargetList.get().add(new DtoWithOption(dto, option));
     }
 
-    public synchronized void submit() {
+    public void submit() {
         String updateEventLogId = UUID.randomUUID().toString();
         List<DtoWithOption> dtoWithOptions = new ArrayList<>(updateTargetList.get());
-        for(DtoWithOption dtoWithOption : dtoWithOptions) {
+        for (DtoWithOption dtoWithOption : dtoWithOptions) {
             Object dto = dtoWithOption.getDto();
-            if(CollectionUtils.isCollection(dto)) {
-                dto = ((Collection)dto).iterator().next();
+            if (CollectionUtils.isCollection(dto)) {
+                dto = ((Collection) dto).iterator().next();
             }
             dtoWithOption.setDtoClassInfo(dtoClassInfoHelper.getDtoClassInfo(dto.getClass()));
         }
         dtoWithOptions.stream().sorted(Comparator.comparingInt((DtoWithOption x) -> x.getDtoClassInfo().getUpdateOrder())
                 .thenComparing(x -> x.getDtoClassInfo().getEntityClassInfo().getEntityClass().getSimpleName()))
                 .forEach(dtoWithOption -> {
-            List dtoList = new ArrayList<>(CollectionUtils.convertToList(dtoWithOption.getDto()));
-            if(dtoList == null || dtoList.isEmpty()) {
-                throw new RuntimeException("update list cannot be empty");
-            }
-            mybatisAccessorService.updateList(dtoList
-                    , dtoWithOption.getParam().isIncludeAllChildren()
-                    , dtoWithOption.getParam().getUpdateChildrenNames()
-                    , dtoWithOption.getParam().isUpdateChildrenOnly(), updateEventLogId);
-        });
+                    List dtoList = new ArrayList<>(CollectionUtils.convertToList(dtoWithOption.getDto()));
+                    if (dtoList == null || dtoList.isEmpty()) {
+                        throw new RuntimeException("update list cannot be empty");
+                    }
+                    mybatisAccessorService.updateList(dtoList
+                            , dtoWithOption.getParam().isIncludeAllChildren()
+                            , dtoWithOption.getParam().getUpdateChildrenNames()
+                            , dtoWithOption.getParam().isUpdateChildrenOnly(), updateEventLogId);
+                });
         updateTargetList.get().removeAll(dtoWithOptions);
     }
 }

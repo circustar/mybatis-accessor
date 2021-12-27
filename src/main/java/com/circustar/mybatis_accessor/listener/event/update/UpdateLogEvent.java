@@ -14,12 +14,13 @@ import org.springframework.util.StringUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class UpdateLogEvent implements IUpdateEvent<UpdateEventModel> {
 
     private static Logger logger= LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
-    private static Map<DtoClassInfo, String> defaultFormatMap = new HashMap<>();
+    private static Map<DtoClassInfo, String> defaultFormatMap = new ConcurrentHashMap<>();
 
     protected String getDefaultFormat(DtoClassInfo dtoClassInfo) {
         if(defaultFormatMap.containsKey(dtoClassInfo)) {

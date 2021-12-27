@@ -7,13 +7,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class EntityDtoServiceRelationMap implements IEntityDtoServiceRelationMap {
     private List<EntityDtoServiceRelation> entityDtoServiceRelationList = new ArrayList<>();
 
-    private Map<Class, EntityDtoServiceRelation> dtoMap = new HashMap<>();
+    private Map<Class, EntityDtoServiceRelation> dtoMap = new ConcurrentHashMap<>();
 
-    private Map<String, EntityDtoServiceRelation> dtoNameMap = new HashMap<>();
+    private Map<String, EntityDtoServiceRelation> dtoNameMap = new ConcurrentHashMap<>();
 
     private ApplicationContext applicationContext;
 

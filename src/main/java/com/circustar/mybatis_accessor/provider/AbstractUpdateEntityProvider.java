@@ -9,13 +9,14 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public abstract class AbstractUpdateEntityProvider<P extends IProviderParam> implements IUpdateProcessorProvider<P> {
     protected ApplicationContext applicationContext;
     protected ISelectService selectService;
     protected static final String DEFAULT_DELIMITER = ".";
-    private final static Map<Class, AbstractUpdateEntityProvider> PROVIDER_MAP = new HashMap<>();
+    private final static Map<Class, AbstractUpdateEntityProvider> PROVIDER_MAP = new ConcurrentHashMap<>();
 
     protected Map<Class, AbstractUpdateEntityProvider> getProviderMap() {
         return PROVIDER_MAP;

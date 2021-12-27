@@ -6,11 +6,14 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class BaseMapperScanner {
     private static Set<String> scannedPackages = new HashSet<>();
-    private static Map<String, Set<Class<? extends BaseMapper>>> packageBaseMappers = new HashMap<>();
-    private static Map<Class<?>, Set<Class<? extends BaseMapper>>> baseMapperMap = new HashMap<>();
+    private static Map<String, Set<Class<? extends BaseMapper>>> packageBaseMappers = new ConcurrentHashMap<>();
+    private static Map<Class<?>, Set<Class<? extends BaseMapper>>> baseMapperMap = new ConcurrentHashMap<>();
     private static ClassPathScanningCandidateComponentProvider provider;
     static {
         provider = new InterfaceCandidateComponentProvider(false);
@@ -19,17 +22,24 @@ public class BaseMapperScanner {
     public static boolean packageScanned(String scanPackage) {
         return scannedPackages.contains(scanPackage);
     }
-    public static synchronized void scan(String scanPackage) throws ClassNotFoundException {
-        if(scannedPackages.contains(scanPackage)) {
+    private static Lock lock = new ReentrantLock();
+    public static void scan(String scanPackage) throws ClassNotFoundException {
+        if (scannedPackages.contains(scanPackage)) {
             return;
         }
-        Set<BeanDefinition> definitionSet = provider.findCandidateComponents(scanPackage);
-        for(BeanDefinition bd: definitionSet) {
-            Class<? extends BaseMapper> clazz = (Class<? extends BaseMapper>) Class.forName(bd.getBeanClassName());
-            addBaseMapper(clazz);
-            addBaseMapperToPackage(scanPackage, clazz);
+        if(lock.tryLock()) {
+            try {
+                Set<BeanDefinition> definitionSet = provider.findCandidateComponents(scanPackage);
+                for (BeanDefinition bd : definitionSet) {
+                    Class<? extends BaseMapper> clazz = (Class<? extends BaseMapper>) Class.forName(bd.getBeanClassName());
+                    addBaseMapper(clazz);
+                    addBaseMapperToPackage(scanPackage, clazz);
+                }
+                scannedPackages.add(scanPackage);
+            } finally {
+                lock.unlock();
+            }
         }
-        scannedPackages.add(scanPackage);
     }
 
     private static void addBaseMapper(Class<? extends  BaseMapper> clazz) {

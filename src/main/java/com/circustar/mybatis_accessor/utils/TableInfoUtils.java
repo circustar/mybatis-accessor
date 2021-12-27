@@ -21,28 +21,37 @@ import org.apache.ibatis.type.UnknownTypeHandler;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class TableInfoUtils {
     private static String DEFAULT_NAMESPACE = "CCS.";
     private static String DEFAULT_NESTED_NAMESPACE = "N_CCS_";
     private static String DEFAULT_MYBATIS_PLUS_NAMESPACE = "mybatis-plus_";
-    private static volatile boolean allTableInfoInitialized;
+    private static Boolean allTableInfoInitialized = false;
     public final static AtomicReference<List<String>> scanPackages = new AtomicReference<>();
     private static boolean userCamelCase;
     private static TypeHandlerRegistry typeHandlerRegistry;
-    public static synchronized void initAllTableInfo(Configuration configuration) {
-        if(allTableInfoInitialized) {
+    private static Lock lock = new ReentrantLock();
+    public static void initAllTableInfo(Configuration configuration) {
+        if (allTableInfoInitialized) {
             return;
         }
-        if(TableInfoUtils.typeHandlerRegistry == null) {
-            TableInfoUtils.typeHandlerRegistry = configuration.getTypeHandlerRegistry();
+        if(lock.tryLock()) {
+            try {
+                if (TableInfoUtils.typeHandlerRegistry == null) {
+                    TableInfoUtils.typeHandlerRegistry = configuration.getTypeHandlerRegistry();
+                }
+                List<String> pks = scanPackages.get();
+                for (String scanPackage : pks) {
+                    initPackageTableInfo(configuration, scanPackage);
+                }
+                userCamelCase = configuration.isMapUnderscoreToCamelCase();
+                allTableInfoInitialized = true;
+            } finally {
+                lock.unlock();
+            }
         }
-        List<String> pks = scanPackages.get();
-        for (String scanPackage : pks) {
-            initPackageTableInfo(configuration, scanPackage);
-        }
-        userCamelCase = configuration.isMapUnderscoreToCamelCase();
-        allTableInfoInitialized = true;
     }
 
     public static boolean isMybatisSupportType(Class type) {
