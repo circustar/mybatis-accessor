@@ -26,7 +26,6 @@ public class UpdateEventModel {
             ) {
         this.onExpression = onExpression;
         this.updateEventClass = updateEventClass;
-        this.updateEvent = null;
         this.updateParams = updateParams;
         this.supplier = supplier;
         this.updateTypes = updateTypes;

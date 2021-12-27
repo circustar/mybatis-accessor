@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class NumberUtils {
+public abstract class NumberUtils {
     public static BigDecimal sumListByType(Class clazz, List list, Method valueReadMethod) {
         if(list == null || list.isEmpty()) {
             return BigDecimal.ZERO;
@@ -103,8 +103,8 @@ public class NumberUtils {
             Double.parseDouble(str);
             return true;
         } catch (Exception ex) {
+            return false;
         }
-        return false;
     }
 
 }

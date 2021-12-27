@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ClassUtils {
+public abstract class ClassUtils {
     public static List<Type[]> getTypeArguments(Class<?> clazz) {
         try {
             Type[] actualTypeArguments= clazz.getGenericInterfaces();
@@ -18,8 +18,8 @@ public class ClassUtils {
             }
             return null;
         } catch (Exception ex) {
+            return null;
         }
-        return null;
     }
 
     public static Type getFirstTypeArgument(Class<?> clazz) {
@@ -29,6 +29,7 @@ public class ClassUtils {
                 return ((ParameterizedType)actualTypeArguments[0]).getActualTypeArguments()[0];
             }
         } catch (Exception ex) {
+            return null;
         }
         return null;
     }

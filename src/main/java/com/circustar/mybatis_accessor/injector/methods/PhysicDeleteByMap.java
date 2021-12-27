@@ -9,6 +9,7 @@ import org.apache.ibatis.mapping.SqlSource;
 import java.util.Map;
 
 public class PhysicDeleteByMap extends PhysicDelete {
+    private static final long serialVersionUID = -1L;
     public PhysicDeleteByMap() {
     }
 

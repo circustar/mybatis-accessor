@@ -4,7 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class AnnotationUtils {
+public abstract class AnnotationUtils {
     public static <T extends Annotation> T[] getClassAnnotations(Class clazz, Class<T> annotationClass) {
         if(clazz.isAnnotationPresent(annotationClass)) {
             return (T[]) clazz.getAnnotationsByType(annotationClass);

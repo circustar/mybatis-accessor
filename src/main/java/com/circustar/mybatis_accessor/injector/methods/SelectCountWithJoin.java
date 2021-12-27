@@ -7,6 +7,7 @@ import org.apache.ibatis.mapping.SqlSource;
 
 public class SelectCountWithJoin extends SelectListWithJoin {
 
+    private static final long serialVersionUID = -1L;
     public SelectCountWithJoin() {
     }
 

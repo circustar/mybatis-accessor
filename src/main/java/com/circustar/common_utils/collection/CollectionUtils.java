@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CollectionUtils {
+public abstract class CollectionUtils {
     public static boolean isCollection(Object o) {
         if(o == null) {return false;}
 

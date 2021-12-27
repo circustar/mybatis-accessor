@@ -16,20 +16,20 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 public class DefaultDecodeEvent implements IDecodeEvent<DecodeEventModel> {
-    private static DefaultDecodeEvent defaultDecodeEvent;
+    private static DefaultDecodeEvent decodeEvent;
     private static Lock lock = new ReentrantLock();
     public static DefaultDecodeEvent getInstance() {
-        if (defaultDecodeEvent != null) {
-            return defaultDecodeEvent;
+        if (decodeEvent != null) {
+            return decodeEvent;
         }
         if(lock.tryLock()) {
             try {
-                defaultDecodeEvent = new DefaultDecodeEvent();
+                decodeEvent = new DefaultDecodeEvent();
             } finally {
                 lock.unlock();
             }
         }
-        return defaultDecodeEvent;
+        return decodeEvent;
     }
 
     @Override

@@ -11,7 +11,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SPELParser {
+public abstract class SPELParser {
     public final static ExpressionParser expressionParser = new SpelExpressionParser();
 
     private final static ParserContext parserContext = new TemplateParserContext();

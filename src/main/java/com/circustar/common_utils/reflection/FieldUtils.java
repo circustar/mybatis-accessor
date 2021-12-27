@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class FieldUtils {
+public abstract class FieldUtils {
     public static String parseClassName(String name) {
         return Arrays.stream(name.trim().replace('-', '_').split("_"))
                 .map(x -> x.substring(0,1).toUpperCase() + x.substring(1))

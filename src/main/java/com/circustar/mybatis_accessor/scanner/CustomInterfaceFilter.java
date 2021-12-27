@@ -41,11 +41,11 @@ public class CustomInterfaceFilter extends AbstractTypeHierarchyTraversingFilter
             return false;
         } else {
             try {
-                Class<?> clazz = ClassUtils.forName(typeName, this.getClass().getClassLoader());
+                Class<?> clazz = ClassUtils.forName(typeName, Thread.currentThread().getContextClassLoader());
                 return this.targetType.isAssignableFrom(clazz);
-            } catch (Throwable var3) {
+            } catch (Exception var3) {
+                return false;
             }
-            return false;
         }
     }
 }
