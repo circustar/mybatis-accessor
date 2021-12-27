@@ -18,20 +18,14 @@ public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCol
     private IUpdateCommand updateCommand;
     private DtoClassInfo dtoClassInfo;
     private List updateDtoList;
-    private List updateEntityList;
-    private Collection<IEntityUpdateProcessor> subUpdateEntities;
     public UpdateProcessorUpdateListener(List<UpdateEventModel> updateEventList
             , IUpdateCommand updateCommand
             , DtoClassInfo dtoClassInfo
-            , List updateDtoList
-            , List updateEntityList
-            , Collection<IEntityUpdateProcessor> subUpdateEntities) {
+            , List updateDtoList) {
         this.updateEventList = updateEventList;
         this.updateCommand = updateCommand;
         this.dtoClassInfo = dtoClassInfo;
         this.updateDtoList = updateDtoList;
-        this.updateEntityList = updateEntityList;
-        this.subUpdateEntities = subUpdateEntities;
     }
 
     public List<UpdateEventModel> getUpdateEventList() {

@@ -11,7 +11,7 @@ public class PropertyChangeEventModel {
     private List<String> listenProperties;
     private String fromExpression;
     private String toExpression;
-    private IUpdateEvent updateEvent;
+    private IUpdateEvent updateEvent = null;
     private List<String> updateParams;
     private Class<? extends IUpdateEvent> updateEventClass;
     private Supplier<IUpdateEvent> supplier;
@@ -31,7 +31,6 @@ public class PropertyChangeEventModel {
         this.toExpression = toExpression;
         this.listenProperties = listenProperties;
         this.updateEventClass = updateEventClass;
-        this.updateEvent = null;
         this.updateParams = updateParams;
         this.supplier = supplier;
         this.updateTypes = updateTypes;
@@ -47,6 +46,9 @@ public class PropertyChangeEventModel {
     }
 
     public IUpdateEvent getUpdateEvent() {
+        if(updateEvent == null) {
+            updateEvent = supplier.get();
+        }
         return updateEvent;
     }
 

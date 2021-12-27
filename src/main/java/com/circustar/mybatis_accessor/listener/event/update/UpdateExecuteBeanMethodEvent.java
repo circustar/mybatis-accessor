@@ -36,32 +36,32 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
         if(UpdateExecuteBeanMethodEvent.applicationContext == null) {
             setApplicationContext(dtoClassInfo.getDtoClassInfoHelper().getApplicationContext());
         }
-        try {
-            String beanName = model.getUpdateParams().get(0);
-            Object bean = applicationContext.getBean(beanName);
-            String methodName = model.getUpdateParams().get(1);
+        String beanName = model.getUpdateParams().get(0);
+        Object bean = applicationContext.getBean(beanName);
+        String methodName = model.getUpdateParams().get(1);
 
-            List<DtoField> paramField = new ArrayList<>();
-            List<Class> paramClassList = new ArrayList<>();
-            if(model.getUpdateParams().size() > 2) {
-                for (int j = 2; j < model.getUpdateParams().size(); j++) {
-                    if(StringUtils.hasLength(model.getUpdateParams().get(j))) {
-                        DtoField dtoField = dtoClassInfo.getDtoField(model.getUpdateParams().get(j));
-                        paramField.add(dtoField);
-                        paramClassList.add(dtoField.getOwnClass());
-                    }
+        List<DtoField> paramField = new ArrayList<>();
+        List<Class> paramClassList = new ArrayList<>();
+        if(model.getUpdateParams().size() > 2) {
+            for (int j = 2; j < model.getUpdateParams().size(); j++) {
+                if(StringUtils.hasLength(model.getUpdateParams().get(j))) {
+                    DtoField dtoField = dtoClassInfo.getDtoField(model.getUpdateParams().get(j));
+                    paramField.add(dtoField);
+                    paramClassList.add(dtoField.getOwnClass());
                 }
             }
+        }
+        try {
             Method method;
-            if(paramClassList.size() > 0) {
+            if (paramClassList.size() > 0) {
                 method = bean.getClass().getDeclaredMethod(methodName, paramClassList.toArray(new Class[0]));
             } else {
                 method = bean.getClass().getDeclaredMethod(methodName, dtoClassInfo.getDtoClass());
             }
 
-            for(Object dto : dtoList) {
+            for (Object dto : dtoList) {
                 List<Object> methodParams = new ArrayList<>();
-                if(paramField.size() > 0) {
+                if (paramField.size() > 0) {
                     for (int j = 0; j < paramField.size(); j++) {
                         methodParams.add(FieldUtils.getFieldValue(dto, paramField.get(j).getPropertyDescriptor().getReadMethod()));
                     }

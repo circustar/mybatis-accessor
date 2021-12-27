@@ -21,20 +21,14 @@ public class UpdateProcessorDecodeListener implements IListener<DefaultEntityCol
     private IUpdateCommand updateCommand;
     private DtoClassInfo dtoClassInfo;
     private List updateDtoList;
-    private List updateEntityList;
-    private Collection<IEntityUpdateProcessor> subUpdateEntities;
     public UpdateProcessorDecodeListener(List<DecodeEventModel> decodeEventModelList
             , IUpdateCommand updateCommand
             , DtoClassInfo dtoClassInfo
-            , List updateDtoList
-            , List updateEntityList
-            , Collection<IEntityUpdateProcessor> subUpdateEntities) {
+            , List updateDtoList) {
         this.decodeEventModelList = decodeEventModelList;
         this.updateCommand = updateCommand;
         this.dtoClassInfo = dtoClassInfo;
         this.updateDtoList = updateDtoList;
-        this.updateEntityList = updateEntityList;
-        this.subUpdateEntities = subUpdateEntities;
     }
 
     public List<DecodeEventModel> getDecodeEventModelList() {
