@@ -34,7 +34,7 @@ public class BaseMapperScanner {
 
     private static void addBaseMapper(Class<? extends  BaseMapper> clazz) {
         Type actualTypeArgument = ClassUtils.getFirstTypeArgument(clazz);
-        Set<Class<? extends BaseMapper>> mapperSet = null;
+        Set<Class<? extends BaseMapper>> mapperSet;
         if(baseMapperMap.containsKey(clazz)) {
             mapperSet = baseMapperMap.get((Class)actualTypeArgument);
         } else {
@@ -53,7 +53,7 @@ public class BaseMapperScanner {
     }
 
     private static void addBaseMapperToPackage(String pkg, Class<? extends  BaseMapper> clazz) {
-        Set<Class<? extends BaseMapper>> baseMapperSet = null;
+        Set<Class<? extends BaseMapper>> baseMapperSet;
         if(packageBaseMappers.containsKey(pkg)) {
             baseMapperSet = packageBaseMappers.get(pkg);
         } else {

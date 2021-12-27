@@ -54,7 +54,7 @@ public class UpdateLogEvent implements IUpdateEvent<UpdateEventModel> {
         if(!CollectionUtils.isEmpty(dtoList)) {
             logger.info("UPDATE LOG EVENT, ID:" + updateEventLogId + ", TYPE:" + updateType.getName() + ", CLASS:" + dtoClassInfo.getDtoClass().getName());
             if(dtoClassInfo.getDtoClass().isAssignableFrom(dtoList.get(0).getClass())) {
-                String strFormat = null;
+                String strFormat;
                 if (model.getUpdateParams().size() > 0 && StringUtils.hasLength(model.getUpdateParams().get(0))) {
                     strFormat = model.getUpdateParams().get(0);
                 } else {

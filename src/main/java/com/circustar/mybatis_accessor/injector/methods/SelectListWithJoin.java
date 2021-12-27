@@ -25,6 +25,7 @@ public class SelectListWithJoin extends AbstractMethod {
 
     private String resultMap;
 
+    @Override
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
         /* mapper 接口方法名一致 */
         List<TableJoinInfo> tableJoinInfoList = TableJoinInfo.parseEntityTableJoinInfo(this.configuration, modelClass);

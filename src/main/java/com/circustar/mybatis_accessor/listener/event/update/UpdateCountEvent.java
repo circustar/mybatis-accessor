@@ -49,8 +49,8 @@ public class UpdateCountEvent extends UpdateCountSqlEvent implements IUpdateEven
         Method mKeyFieldReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
 
         List updateSubDtoList = new ArrayList();
-        for(int i = 0; i< dtoList.size(); i++) {
-            Serializable mKeyValue = (Serializable) FieldUtils.getFieldValue(dtoList.get(i), mKeyFieldReadMethod);
+        for(Object dto : dtoList) {
+            Serializable mKeyValue = (Serializable) FieldUtils.getFieldValue(dto, mKeyFieldReadMethod);
             Object dtoUpdated = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(), mKeyValue
                     , false, Collections.singletonList(sField.getField().getName()));
             Object count = NumberUtils.castFromBigDecimal(mField.getActualClass()

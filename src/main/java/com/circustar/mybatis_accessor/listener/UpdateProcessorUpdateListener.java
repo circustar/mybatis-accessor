@@ -53,15 +53,15 @@ public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCol
                 .collect(Collectors.toList());
         for(UpdateEventModel m : updateModelList) {
             List executeDtoList = new ArrayList();
-            for(int i = 0 ; i < updateDtoList.size(); i++) {
+            for(Object updateDto : updateDtoList) {
                 boolean execFlag = true;
                 if(StringUtils.hasLength(m.getOnExpression())) {
-                    execFlag = (boolean) SPELParser.parseExpression(updateDtoList.get(i),m.getOnExpression());
+                    execFlag = (boolean) SPELParser.parseExpression(updateDto,m.getOnExpression());
                 }
                 if(!execFlag) {
                     continue;
                 }
-                executeDtoList.add(updateDtoList.get(i));
+                executeDtoList.add(updateDto);
             }
             if(!executeDtoList.isEmpty()) {
                 m.getUpdateEvent().exec(m, this.updateCommand.getUpdateType(),

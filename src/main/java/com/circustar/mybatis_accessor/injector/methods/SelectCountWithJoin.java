@@ -10,10 +10,12 @@ public class SelectCountWithJoin extends SelectListWithJoin {
     public SelectCountWithJoin() {
     }
 
+    @Override
     protected CSSqlMethod getSqlMethod() {
         return CSSqlMethod.SELECT_COUNT_WITH_JOIN;
     }
 
+    @Override
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
         /* mapper 接口方法名一致 */
         String joinTable = " ${" + MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_TABLE + "} ";

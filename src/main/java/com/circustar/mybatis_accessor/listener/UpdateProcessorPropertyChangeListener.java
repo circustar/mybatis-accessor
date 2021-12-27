@@ -56,8 +56,7 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
     private void initData() {
         oldDtoList = new ArrayList();
         Method keyFieldReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
-        for(int i = 0 ; i < updateDtoList.size(); i++) {
-            Object updateDto = updateDtoList.get(i);
+        for(Object updateDto : updateDtoList) {
             if(dtoClassInfo.getDtoClass().isAssignableFrom(updateDto.getClass())) {
                 Serializable key = (Serializable) FieldUtils.getFieldValue(updateDto, keyFieldReadMethod);
                 if(key == null) {

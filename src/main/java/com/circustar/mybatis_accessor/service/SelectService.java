@@ -191,7 +191,7 @@ public class SelectService implements ISelectService {
         IService service = dtoClassInfo.getServiceBean();
 
         Page page = new Page(page_index, page_size);
-        IPage pageResult = null;
+        IPage pageResult;
 
         String joinExpression = getJoinExpression(dtoClassInfo, dto);
         if (!StringUtils.isEmpty(joinExpression)) {
@@ -241,7 +241,7 @@ public class SelectService implements ISelectService {
     ) {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         IService service = dtoClassInfo.getServiceBean();
-        List entityList = null;
+        List entityList;
         String joinExpression = getJoinExpression(dtoClassInfo, dto);
         if (!StringUtils.isEmpty(joinExpression)) {
             entityList = ((CommonMapper)service.getBaseMapper()).selectListWithJoin(queryWrapper

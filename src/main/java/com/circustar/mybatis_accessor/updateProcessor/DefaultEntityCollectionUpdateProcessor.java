@@ -68,6 +68,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         return subUpdateEntities;
     }
 
+    @Override
     public List getUpdatedEntityList() {
         return updateEntityList;
     }

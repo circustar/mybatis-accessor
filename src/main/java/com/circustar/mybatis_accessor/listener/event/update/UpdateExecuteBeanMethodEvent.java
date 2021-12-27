@@ -62,8 +62,8 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
             for (Object dto : dtoList) {
                 List<Object> methodParams = new ArrayList<>();
                 if (!paramField.isEmpty()) {
-                    for (int j = 0; j < paramField.size(); j++) {
-                        methodParams.add(FieldUtils.getFieldValue(dto, paramField.get(j).getPropertyDescriptor().getReadMethod()));
+                    for (DtoField dtoField : paramField) {
+                        methodParams.add(FieldUtils.getFieldValue(dto, dtoField.getPropertyDescriptor().getReadMethod()));
                     }
                 } else {
                     methodParams.add(dto);

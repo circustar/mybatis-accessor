@@ -21,6 +21,7 @@ public class EntityDtoServiceRelationMap implements IEntityDtoServiceRelationMap
         this.applicationContext = applicationContext;
     }
 
+    @Override
     public void addRelation(EntityDtoServiceRelation relation) {
         entityDtoServiceRelationList.add(relation);
         dtoMap.put(relation.getDtoClass(), relation);

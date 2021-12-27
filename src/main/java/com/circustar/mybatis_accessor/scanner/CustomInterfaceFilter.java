@@ -16,15 +16,18 @@ public class CustomInterfaceFilter extends AbstractTypeHierarchyTraversingFilter
         return this.targetType;
     }
 
+    @Override
     protected boolean matchClassName(String className) {
         return this.targetType.getName().equals(className);
     }
 
+    @Override
     @Nullable
     protected Boolean matchSuperClass(String superClassName) {
         return this.matchTargetType(superClassName);
     }
 
+    @Override
     @Nullable
     protected Boolean matchInterface(String interfaceName) {
         return this.matchTargetType(interfaceName);

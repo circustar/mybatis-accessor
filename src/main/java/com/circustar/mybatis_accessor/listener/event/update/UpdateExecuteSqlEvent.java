@@ -44,10 +44,10 @@ public class UpdateExecuteSqlEvent implements IUpdateEvent<UpdateEventModel> {
             throw new RuntimeException("sqlSessionFactory not found in ApplicationContext");
         }
         final List<String> sqlExpressions = new ArrayList<>();
-        for(int i = 0; i < dtoList.size(); i++) {
+        for(Object dto : dtoList) {
             String sql = model.getUpdateParams().get(0);
             if(sql.contains("#{")) {
-                sql = SPELParser.parseExpression(dtoList.get(i), sql).toString();
+                sql = SPELParser.parseExpression(dto, sql).toString();
             }
             sqlExpressions.add(sql);
         }

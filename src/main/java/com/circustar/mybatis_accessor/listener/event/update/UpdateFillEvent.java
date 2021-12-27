@@ -91,8 +91,8 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
         BigDecimal paramLimitValue = (BigDecimal) parsedParams.get(1);
         List updateSubDtoList = new ArrayList();
         List updateDtoList = new ArrayList();
-        for(int i = 0; i< dtoList.size(); i++) {
-            Serializable keyValue = (Serializable)FieldUtils.getFieldValue(dtoList.get(i), keyFieldReadMethod);
+        for(Object dto : dtoList) {
+            Serializable keyValue = (Serializable)FieldUtils.getFieldValue(dto, keyFieldReadMethod);
             Object dtoById = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(), keyValue, false
                     , Collections.singletonList(sFieldName));
             BigDecimal remainFillValue = NumberUtils.readDecimalValue(mAssignField.getActualClass(), dtoById, mAssignField.getPropertyDescriptor().getReadMethod());
@@ -135,7 +135,7 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
                 updateSubDtoList.add(fieldValue);
             }
             Object remainObjectValue = NumberUtils.castFromBigDecimal(mAssignField.getActualClass(), remainFillValue);
-            FieldUtils.setFieldValue(dtoList.get(i), mRemainField.getPropertyDescriptor().getWriteMethod(), remainObjectValue);
+            FieldUtils.setFieldValue(dto, mRemainField.getPropertyDescriptor().getWriteMethod(), remainObjectValue);
             if (mRemainField.getEntityFieldInfo() != null
                     && (mRemainField.getEntityFieldInfo().getTableField() == null
                     || mRemainField.getEntityFieldInfo().getTableField().exist())) {
