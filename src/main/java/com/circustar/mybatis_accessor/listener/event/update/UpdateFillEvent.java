@@ -95,7 +95,7 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
             Serializable keyValue = (Serializable)FieldUtils.getFieldValue(dto, keyFieldReadMethod);
             Object dtoById = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(), keyValue, false
                     , Collections.singletonList(sFieldName));
-            BigDecimal remainFillValue = NumberUtils.readDecimalValue(mAssignField.getActualClass(), dtoById, mAssignField.getPropertyDescriptor().getReadMethod());
+            BigDecimal remainFillValue = NumberUtils.readDecimalValue(dtoById, mAssignField.getPropertyDescriptor().getReadMethod());
             if(remainFillValue.compareTo(BigDecimal.ZERO) <= 0) {
                 return;
             }
@@ -115,9 +115,9 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
                 }).collect(Collectors.toList());
             }
             for(Object fieldValue : fieldValueList) {
-                BigDecimal filledValue = NumberUtils.readDecimalValue(sFillField.getActualClass(), fieldValue, sFillField.getPropertyDescriptor().getReadMethod());
+                BigDecimal filledValue = NumberUtils.readDecimalValue(fieldValue, sFillField.getPropertyDescriptor().getReadMethod());
                 BigDecimal limitValue = sLimitField == null ? paramLimitValue
-                        : NumberUtils.readDecimalValue(sLimitField.getActualClass(), fieldValue, sLimitField.getPropertyDescriptor().getReadMethod());
+                        : NumberUtils.readDecimalValue(fieldValue, sLimitField.getPropertyDescriptor().getReadMethod());
                 BigDecimal lackValue = limitValue.subtract(filledValue);
                 if(lackValue.compareTo(BigDecimal.ZERO) <= 0) {
                     continue;
@@ -134,8 +134,8 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
                 FieldUtils.setFieldValue(fieldValue, sFillField.getPropertyDescriptor().getWriteMethod(), resultValue);
                 updateSubDtoList.add(fieldValue);
             }
-            BigDecimal oldRemainObjectValue = NumberUtils.readDecimalValue(mRemainField.getActualClass(), dtoById, mRemainField.getPropertyDescriptor().getReadMethod());
-            if(remainFillValue.compareTo(oldRemainObjectValue) == 0) {
+            Object oldRemainObjectValue = FieldUtils.getFieldValue(dtoById, mRemainField.getPropertyDescriptor().getReadMethod());
+            if(oldRemainObjectValue != null && remainFillValue.compareTo(NumberUtils.castToBigDecimal(oldRemainObjectValue)) == 0) {
                 continue;
             }
             Object remainObjectValue = NumberUtils.castFromBigDecimal(mAssignField.getActualClass(), remainFillValue);

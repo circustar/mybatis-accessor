@@ -39,8 +39,7 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
     }
 
     protected BigDecimal getNextWeight(Object sEntity, DtoField sWeightEntityField) {
-        Class sWeightEntityClass = sWeightEntityField.getActualClass();
-        BigDecimal bigDecimal = NumberUtils.readDecimalValue(sWeightEntityClass, sEntity
+        BigDecimal bigDecimal = NumberUtils.readDecimalValue(sEntity
                 , sWeightEntityField.getPropertyDescriptor().getReadMethod());
         return bigDecimal;
     }
@@ -72,7 +71,7 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
             Object dtoUpdated = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(), mKeyValue
                     , false, Collections.singletonList(sField.getField().getName()));
 
-            BigDecimal mSumValue = NumberUtils.readDecimalValue(mField.getActualClass(), dtoUpdated, mFieldReadMethod);
+            BigDecimal mSumValue = NumberUtils.readDecimalValue(dtoUpdated, mFieldReadMethod);
             if(mSumValue == null) {
                 continue;
             }
@@ -88,7 +87,7 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
                 nextSumWeightValue = sumWeightValue.add(this.getNextWeight(sEntity, sWeightField));
                 nextSumAssignValue = mSumValue.multiply(nextSumWeightValue).divide(allWeightValue, scale, RoundingMode.HALF_DOWN);
                 BigDecimal assignValue = nextSumAssignValue.subtract(sumAssignValue);
-                BigDecimal oldValue = NumberUtils.readDecimalValue(assignField.getActualClass(), sEntity, assignField.getPropertyDescriptor().getReadMethod());
+                BigDecimal oldValue = NumberUtils.readDecimalValue(sEntity, assignField.getPropertyDescriptor().getReadMethod());
 
                 if(assignValue.compareTo(oldValue) != 0) {
                     FieldUtils.setFieldValue(sEntity, assignField.getPropertyDescriptor().getWriteMethod()

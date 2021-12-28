@@ -24,9 +24,8 @@ public class UpdateMinEvent extends UpdateSumEvent implements IUpdateEvent<Updat
         Object subFieldValue = FieldUtils.getFieldValue(dtoUpdated, dtoFields.get(1).getPropertyDescriptor().getReadMethod());
         List valueList = CollectionUtils.convertToList(subFieldValue);
         DtoField updateField = dtoFields.get(2);
-        Class type = updateField.getActualClass();
         Method readMethod = updateField.getPropertyDescriptor().getReadMethod();
-        Optional<BigDecimal> minValue = valueList.stream().map(x -> NumberUtils.readDecimalValue(type, x, readMethod))
+        Optional<BigDecimal> minValue = valueList.stream().map(x -> NumberUtils.readDecimalValue(x, readMethod))
                 .min(Comparator.comparing(x -> ((BigDecimal) x)));
         return minValue.isPresent() ? minValue.get() : BigDecimal.ZERO;
     }

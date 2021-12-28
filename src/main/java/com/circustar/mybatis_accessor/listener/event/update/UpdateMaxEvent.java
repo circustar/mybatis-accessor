@@ -23,9 +23,8 @@ public class UpdateMaxEvent extends UpdateSumEvent implements IUpdateEvent<Updat
         Object subFieldValue = FieldUtils.getFieldValue(dtoUpdated, dtoFields.get(1).getPropertyDescriptor().getReadMethod());
         List valueList = CollectionUtils.convertToList(subFieldValue);
         DtoField updateField = dtoFields.get(2);
-        Class type = updateField.getActualClass();
         Method readMethod = updateField.getPropertyDescriptor().getReadMethod();
-        Optional<BigDecimal> maxValue = valueList.stream().map(x -> NumberUtils.readDecimalValue(type, x, readMethod))
+        Optional<BigDecimal> maxValue = valueList.stream().map(x -> NumberUtils.readDecimalValue(x, readMethod))
                 .max(Comparator.comparing(x -> ((BigDecimal) x)));
         return maxValue.isPresent() ? maxValue.get() : BigDecimal.ZERO;
     }

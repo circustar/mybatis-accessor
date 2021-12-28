@@ -49,32 +49,28 @@ public abstract class NumberUtils {
         return result;
     }
 
-    public static BigDecimal readDecimalValue(Class clazz, Object obj, Method readMethod) {
+    public static BigDecimal readDecimalValue(Object obj, Method readMethod) {
+        final Object fieldValue = FieldUtils.getFieldValue(obj, readMethod);
+        return castToBigDecimal(fieldValue);
+    }
+    public static BigDecimal castToBigDecimal(Object obj) {
+        if(obj == null) {
+            return BigDecimal.ZERO;
+        }
+        Class clazz = obj.getClass();
         BigDecimal result;
         if(BigDecimal.class.isAssignableFrom(clazz)) {
-            BigDecimal res = (BigDecimal)FieldUtils.getFieldValue(obj, readMethod);
-            if(res == null) { return BigDecimal.ZERO; }
-            result = res;
+            result = (BigDecimal)obj;
         } else if(Double.class.isAssignableFrom(clazz)) {
-            Double res = (Double)FieldUtils.getFieldValue(obj, readMethod);
-            if(res == null) { return BigDecimal.ZERO; }
-            result = BigDecimal.valueOf(res);
+            result = BigDecimal.valueOf((Double)obj);
         } else if(Integer.class.isAssignableFrom(clazz)) {
-            Integer res = (Integer)FieldUtils.getFieldValue(obj, readMethod);
-            if(res == null) { return BigDecimal.ZERO; }
-            result = BigDecimal.valueOf(res);
+            result = BigDecimal.valueOf((Integer)obj);
         } else if(Long.class.isAssignableFrom(clazz)) {
-            Long res = (Long)FieldUtils.getFieldValue(obj, readMethod);
-            if(res == null) { return BigDecimal.ZERO; }
-            result = BigDecimal.valueOf(res);
+            result = BigDecimal.valueOf((Long)obj);
         } else if(Float.class.isAssignableFrom(clazz)) {
-            Float res = (Float)FieldUtils.getFieldValue(obj, readMethod);
-            if(res == null) { return BigDecimal.ZERO; }
-            result = BigDecimal.valueOf(res);
+            result = BigDecimal.valueOf((Float)obj);
         } else if(Short.class.isAssignableFrom(clazz)) {
-            Short res = (Short)FieldUtils.getFieldValue(obj, readMethod);
-            if(res == null) { return BigDecimal.ZERO; }
-            result = BigDecimal.valueOf(res);
+            result = BigDecimal.valueOf((Short)obj);
         } else {
             throw new RuntimeException("not support type for summary : " + clazz.getSimpleName());
         }

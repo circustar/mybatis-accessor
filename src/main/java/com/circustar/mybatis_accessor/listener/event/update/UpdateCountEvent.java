@@ -53,7 +53,7 @@ public class UpdateCountEvent extends UpdateCountSqlEvent implements IUpdateEven
             Serializable mKeyValue = (Serializable) FieldUtils.getFieldValue(dto, mKeyFieldReadMethod);
             Object dtoUpdated = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(), mKeyValue
                     , false, Collections.singletonList(sField.getField().getName()));
-            BigDecimal oldValue = NumberUtils.readDecimalValue(mField.getActualClass(), dto, mField.getPropertyDescriptor().getReadMethod());
+            BigDecimal oldValue = NumberUtils.readDecimalValue(dto, mField.getPropertyDescriptor().getReadMethod());
             BigDecimal newValue = getValue(dtoUpdated, dtoFields, parsedParams);
             if(newValue.compareTo(oldValue) == 0) {
                 continue;
