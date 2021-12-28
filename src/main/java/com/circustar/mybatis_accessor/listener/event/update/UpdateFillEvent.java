@@ -134,6 +134,10 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
                 FieldUtils.setFieldValue(fieldValue, sFillField.getPropertyDescriptor().getWriteMethod(), resultValue);
                 updateSubDtoList.add(fieldValue);
             }
+            BigDecimal oldRemainObjectValue = NumberUtils.readDecimalValue(mRemainField.getActualClass(), dtoById, mRemainField.getPropertyDescriptor().getReadMethod());
+            if(remainFillValue.compareTo(oldRemainObjectValue) == 0) {
+                continue;
+            }
             Object remainObjectValue = NumberUtils.castFromBigDecimal(mAssignField.getActualClass(), remainFillValue);
             FieldUtils.setFieldValue(dto, mRemainField.getPropertyDescriptor().getWriteMethod(), remainObjectValue);
             if (mRemainField.getEntityFieldInfo() != null

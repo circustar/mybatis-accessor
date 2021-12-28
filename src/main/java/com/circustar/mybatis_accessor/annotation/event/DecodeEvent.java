@@ -18,5 +18,5 @@ public @interface DecodeEvent {
     String[] matchSourceProperties() default {};
     boolean errorWhenNotExist() default true;
     IUpdateCommand.UpdateType[] updateType() default {};
-    ExecuteTiming executeTiming() default ExecuteTiming.DEFAULT;
+    ExecuteTiming executeTiming() default ExecuteTiming.BEFORE_ENTITY_UPDATE;
 }

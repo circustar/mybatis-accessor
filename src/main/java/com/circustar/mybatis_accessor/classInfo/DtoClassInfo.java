@@ -424,24 +424,26 @@ public class DtoClassInfo {
         try {
             if(newObj == oldObj) {
                 return 1;
-            } else if(newObj == null && oldObj != null) {
-                return -1;
-            } else if(newObj != null && oldObj == null) {
-                return -1;
             }
             for(String propertyName : propertyNames) {
                 DtoField field = dtoClassInfo.getDtoField(propertyName);
-                Object val1 = FieldUtils.getFieldValue(newObj, field.getPropertyDescriptor().getReadMethod());
-                Object val2 = FieldUtils.getFieldValue(oldObj, field.getPropertyDescriptor().getReadMethod());
-                if(val1 == null) {
+                Object newVal = null;
+                if(newObj != null) {
+                    newVal = FieldUtils.getFieldValue(newObj, field.getPropertyDescriptor().getReadMethod());
+                }
+                Object oldVal = null;
+                if(oldObj != null) {
+                    oldVal = FieldUtils.getFieldValue(oldObj, field.getPropertyDescriptor().getReadMethod());
+                }
+                if(newVal == null) {
                     continue;
-                } else if(val2 == null) {
-                    if(val1 instanceof String && StringUtils.isBlank(val1.toString())) {
+                } else if(oldVal == null) {
+                    if(newVal instanceof String && StringUtils.isBlank(newVal.toString())) {
                         continue;
                     } else {
                         allEqual = false;
                     }
-                } else if(!val1.equals(val2)) {
+                } else if(!newVal.equals(oldVal)) {
                     allEqual = false;
                 } else {
                     partEqual = true;

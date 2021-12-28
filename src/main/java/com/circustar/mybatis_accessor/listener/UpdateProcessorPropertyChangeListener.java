@@ -42,8 +42,7 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
         if(this.onChangeList == null || this.onChangeList.isEmpty()) {
             return true;
         }
-        if(!onChangeList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming())
-                || ExecuteTiming.BEFORE_ENTITY_UPDATE.equals(eventTiming))
+        if(!onChangeList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming()))
                 .anyMatch(x -> x.getUpdateTypes().stream().anyMatch(y -> updateCommand.getUpdateType().equals(y)))) {
             return true;
         }
@@ -67,6 +66,11 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
                                     ,false, null);
                     oldDtoList.add(oldDto);
                 }
+            } else if(IUpdateCommand.UpdateType.DELETE.equals(this.updateCommand.getUpdateType())) {
+                Object oldDto = dtoClassInfo.getDtoClassInfoHelper().getSelectService()
+                        .getDtoById(dtoClassInfo.getEntityDtoServiceRelation(),(Serializable) updateDto
+                                ,false, null);
+                oldDtoList.add(oldDto);
             } else {
                 oldDtoList.add(null);
             }
@@ -89,18 +93,33 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
                 Object newDto = updateDtoList.get(i);
                 Object oldDto = oldDtoList.get(i);
                 if(!CollectionUtils.isEmpty(m.getListenProperties())) {
-                    if(DtoClassInfo.equalPropertiesIgnoreEmpty(dtoClassInfo, newDto, oldDto, m.getListenProperties()) > 0) {
+                    Object compareNewObj;
+                    Object compareOldObj;
+                    if(IUpdateCommand.UpdateType.DELETE.equals(this.updateCommand.getUpdateType())) {
+                        compareNewObj = oldDto;
+                        compareOldObj = null;
+                    } else {
+                        compareNewObj = newDto;
+                        compareOldObj = oldDto;
+                    }
+                    if(DtoClassInfo.equalPropertiesIgnoreEmpty(dtoClassInfo, compareNewObj, compareOldObj, m.getListenProperties()) > 0) {
                         continue;
                     }
                 }
 
                 if(StringUtils.hasLength(m.getFromExpression())) {
+                    if(oldDto == null) {
+                        continue;
+                    }
                     if(!(boolean) SPELParser.parseExpression(oldDto,m.getFromExpression())) {
                         continue;
                     }
                 }
                 if(StringUtils.hasLength(m.getToExpression())) {
-                    if(!(boolean) SPELParser.parseExpression(oldDto,m.getToExpression())) {
+                    if(newDto == null) {
+                        continue;
+                    }
+                    if(!(boolean) SPELParser.parseExpression(newDto,m.getToExpression())) {
                         continue;
                     }
                 }

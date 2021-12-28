@@ -4,6 +4,7 @@ import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -65,7 +66,10 @@ public class PropertyChangeEventModel {
     }
 
     public List<IUpdateCommand.UpdateType> getUpdateTypes() {
-        return updateTypes;
+        if(this.updateTypes == null || this.updateTypes.isEmpty()) {
+            this.updateTypes = Arrays.asList(getUpdateEvent().getDefaultUpdateTypes());
+        }
+        return this.updateTypes;
     }
 
     public ExecuteTiming getExecuteTiming() {

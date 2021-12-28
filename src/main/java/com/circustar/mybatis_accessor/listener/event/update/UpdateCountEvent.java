@@ -48,21 +48,23 @@ public class UpdateCountEvent extends UpdateCountSqlEvent implements IUpdateEven
         DtoField sField = dtoFields.get(1);
         Method mKeyFieldReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
 
-        List updateSubDtoList = new ArrayList();
+        List updateDtoList = new ArrayList();
         for(Object dto : dtoList) {
             Serializable mKeyValue = (Serializable) FieldUtils.getFieldValue(dto, mKeyFieldReadMethod);
             Object dtoUpdated = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(), mKeyValue
                     , false, Collections.singletonList(sField.getField().getName()));
-            Object count = NumberUtils.castFromBigDecimal(mField.getActualClass()
-                    , getValue(dtoUpdated, dtoFields, parsedParams)) ;
-
+            BigDecimal oldValue = NumberUtils.readDecimalValue(mField.getActualClass(), dto, mField.getPropertyDescriptor().getReadMethod());
+            BigDecimal newValue = getValue(dtoUpdated, dtoFields, parsedParams);
+            if(newValue.compareTo(oldValue) == 0) {
+                continue;
+            }
             FieldUtils.setFieldValue(dtoUpdated, mField.getPropertyDescriptor().getWriteMethod()
-                    , count);
-            updateSubDtoList.add(dtoUpdated);
+                    , NumberUtils.castFromBigDecimal(mField.getActualClass(), newValue));
+            updateDtoList.add(dtoUpdated);
         }
 
-        if(!updateSubDtoList.isEmpty()) {
-            mybatisAccessorService.updateList(dtoClassInfo.getEntityDtoServiceRelation(), updateSubDtoList
+        if(!updateDtoList.isEmpty()) {
+            mybatisAccessorService.updateList(dtoClassInfo.getEntityDtoServiceRelation(), updateDtoList
                     , false, null, false, updateEventLogId);
         }
     }

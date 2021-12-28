@@ -88,9 +88,13 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
                 nextSumWeightValue = sumWeightValue.add(this.getNextWeight(sEntity, sWeightField));
                 nextSumAssignValue = mSumValue.multiply(nextSumWeightValue).divide(allWeightValue, scale, RoundingMode.HALF_DOWN);
                 BigDecimal assignValue = nextSumAssignValue.subtract(sumAssignValue);
-                FieldUtils.setFieldValue(sEntity, assignField.getPropertyDescriptor().getWriteMethod()
-                        , NumberUtils.castFromBigDecimal(sAssignFieldType, assignValue));
-                updateSubDtoList.add(sEntity);
+                BigDecimal oldValue = NumberUtils.readDecimalValue(assignField.getActualClass(), sEntity, assignField.getPropertyDescriptor().getReadMethod());
+
+                if(assignValue.compareTo(oldValue) != 0) {
+                    FieldUtils.setFieldValue(sEntity, assignField.getPropertyDescriptor().getWriteMethod()
+                            , NumberUtils.castFromBigDecimal(sAssignFieldType, assignValue));
+                    updateSubDtoList.add(sEntity);
+                }
 
                 sumAssignValue = nextSumAssignValue;
                 sumWeightValue = nextSumWeightValue;
