@@ -6,7 +6,7 @@ import org.springframework.util.StringUtils;
 
 public class QuerySelectModel {
     private String expression;
-    private String columnName;
+    private final String columnName;
     public QuerySelectModel(QueryGroupBy queryGroupBy, String tableName, String columnName) {
         this.columnName = columnName;
         if(queryGroupBy != null && !StringUtils.isEmpty(queryGroupBy.expression())) {

@@ -13,18 +13,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DecodeEventModel {
-    private String onExpression;
-    private List<String> targetProperties;
-    private List<String> matchProperties;
-    private Class sourceDtoClass;
-    private List<String> sourceProperties;
-    private List<String> matchSourceProperties;
+    private final String onExpression;
+    private final List<String> targetProperties;
+    private final List<String> matchProperties;
+    private final Class sourceDtoClass;
+    private final List<String> sourceProperties;
+    private final List<String> matchSourceProperties;
     private List<IUpdateCommand.UpdateType> updateTypes;
     private ExecuteTiming executeTiming;
-    private DefaultDecodeEvent defaultDecodeEvent;
-    private boolean errorWhenNotExist;
+    private final DefaultDecodeEvent defaultDecodeEvent;
+    private final boolean errorWhenNotExist;
 
-    private DtoClassInfo dtoClassInfo;
+    private final DtoClassInfo dtoClassInfo;
     private DtoClassInfo sourceDtoClassInfo;
     private List<DtoField> targetPropertyDtoFieldList;
     private List<DtoField> sourcePropertyDtoFieldList;

@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SelectService implements ISelectService {
-    private DtoClassInfoHelper dtoClassInfoHelper;
+    private final DtoClassInfoHelper dtoClassInfoHelper;
     public SelectService(DtoClassInfoHelper dtoClassInfoHelper) {
         this.dtoClassInfoHelper = dtoClassInfoHelper;
     }

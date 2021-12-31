@@ -9,13 +9,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EntityDtoServiceRelationMap implements IEntityDtoServiceRelationMap {
-    private List<EntityDtoServiceRelation> entityDtoServiceRelationList = new ArrayList<>();
+    private final List<EntityDtoServiceRelation> entityDtoServiceRelationList = new ArrayList<>();
 
-    private Map<Class, EntityDtoServiceRelation> dtoMap = new ConcurrentHashMap<>();
+    private final Map<Class, EntityDtoServiceRelation> dtoMap = new ConcurrentHashMap<>();
 
-    private Map<String, EntityDtoServiceRelation> dtoNameMap = new ConcurrentHashMap<>();
+    private final Map<String, EntityDtoServiceRelation> dtoNameMap = new ConcurrentHashMap<>();
 
-    private ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
 
     public EntityDtoServiceRelationMap(ApplicationContext applicationContext){
         this.applicationContext = applicationContext;

@@ -11,7 +11,7 @@ import com.circustar.mybatis_accessor.update_processor.IEntityUpdateProcessor;
 import java.util.*;
 
 public class UpdateService implements IUpdateService {
-    private DtoClassInfoHelper dtoClassInfoHelper;
+    private final DtoClassInfoHelper dtoClassInfoHelper;
 
     public UpdateService(DtoClassInfoHelper dtoClassInfoHelper) {
         this.dtoClassInfoHelper = dtoClassInfoHelper;

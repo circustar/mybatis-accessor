@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class UpdateEventModel {
-    private String onExpression;
+    private final String onExpression;
     private IUpdateEvent updateEvent;
-    private List<String> updateParams;
-    private Class<? extends IUpdateEvent> updateEventClass;
-    private Supplier<IUpdateEvent> supplier;
+    private final List<String> updateParams;
+    private final Class<? extends IUpdateEvent> updateEventClass;
+    private final Supplier<IUpdateEvent> supplier;
     private List<IUpdateCommand.UpdateType> updateTypes;
     private ExecuteTiming executeTiming;
 

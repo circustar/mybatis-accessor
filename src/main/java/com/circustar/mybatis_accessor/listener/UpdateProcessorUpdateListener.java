@@ -13,10 +13,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCollectionUpdateProcessor> {
-    private List<UpdateEventModel> updateEventList;
-    private IUpdateCommand updateCommand;
-    private DtoClassInfo dtoClassInfo;
-    private List updateDtoList;
+    private final List<UpdateEventModel> updateEventList;
+    private final IUpdateCommand updateCommand;
+    private final DtoClassInfo dtoClassInfo;
+    private final List updateDtoList;
     public UpdateProcessorUpdateListener(List<UpdateEventModel> updateEventList
             , IUpdateCommand updateCommand
             , DtoClassInfo dtoClassInfo

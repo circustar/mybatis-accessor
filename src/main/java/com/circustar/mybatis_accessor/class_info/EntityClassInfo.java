@@ -12,12 +12,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class EntityClassInfo {
-    private Class<?> entityClass;
-    private List<EntityFieldInfo> fieldList;
-    private Map<String, EntityFieldInfo> fieldMap;
+    private final Class<?> entityClass;
+    private final List<EntityFieldInfo> fieldList;
+    private final Map<String, EntityFieldInfo> fieldMap;
     private TableInfo tableInfo;
     private EntityFieldInfo keyField;
-    private EntityFieldInfo idReferenceFieldInfo;
+    private final EntityFieldInfo idReferenceFieldInfo;
     private int updateOrder = Integer.MAX_VALUE;
 
     public EntityClassInfo(Class<?> entityClass) {

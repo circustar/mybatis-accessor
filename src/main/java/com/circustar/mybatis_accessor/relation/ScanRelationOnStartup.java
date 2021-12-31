@@ -18,8 +18,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ScanRelationOnStartup implements ApplicationRunner {
-    private IEntityDtoServiceRelationMap relationMap;
-    private ApplicationContext context;
+    private final IEntityDtoServiceRelationMap relationMap;
+    private final ApplicationContext context;
 
     public ScanRelationOnStartup(ApplicationContext context, IEntityDtoServiceRelationMap relationMap) {
         this.context = context;

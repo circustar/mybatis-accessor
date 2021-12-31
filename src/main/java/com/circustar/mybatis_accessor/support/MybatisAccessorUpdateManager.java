@@ -13,16 +13,16 @@ public class MybatisAccessorUpdateManager {
     private final static DefaultEntityProviderParam DEFAULT_UPDATE_PROVIDER_PARAM = new DefaultEntityProviderParam(false
             , true , null);
 
-    private MybatisAccessorService mybatisAccessorService;
-    private DtoClassInfoHelper dtoClassInfoHelper;
+    private final MybatisAccessorService mybatisAccessorService;
+    private final DtoClassInfoHelper dtoClassInfoHelper;
     public MybatisAccessorUpdateManager(MybatisAccessorService mybatisAccessorService, DtoClassInfoHelper dtoClassInfoHelper) {
         this.mybatisAccessorService = mybatisAccessorService;
         this.dtoClassInfoHelper = dtoClassInfoHelper;
     }
 
     public static class DtoWithOption {
-        private Object dto;
-        private DefaultEntityProviderParam param;
+        private final Object dto;
+        private final DefaultEntityProviderParam param;
         private DtoClassInfo dtoClassInfo;
         public DtoWithOption(Object dto, DefaultEntityProviderParam param) {
             this.dto = dto;

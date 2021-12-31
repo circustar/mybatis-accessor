@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class UpdateProcessorPropertyChangeListener implements IListener<DefaultEntityCollectionUpdateProcessor> {
-    private List<PropertyChangeEventModel> onChangeList;
-    private IUpdateCommand updateCommand;
-    private DtoClassInfo dtoClassInfo;
-    private List updateDtoList;
+    private final List<PropertyChangeEventModel> onChangeList;
+    private final IUpdateCommand updateCommand;
+    private final DtoClassInfo dtoClassInfo;
+    private final List updateDtoList;
     private List oldDtoList;
     private boolean initialized;
 

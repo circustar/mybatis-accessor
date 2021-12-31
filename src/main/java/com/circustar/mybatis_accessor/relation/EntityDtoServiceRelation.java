@@ -9,7 +9,7 @@ import org.springframework.context.ApplicationContext;
 
 public class EntityDtoServiceRelation {
     private Class entityClass;
-    private TableInfo tableInfo;
+    private final TableInfo tableInfo;
 
     private Class dtoClass;
 
@@ -17,9 +17,9 @@ public class EntityDtoServiceRelation {
 
     private IService service;
 
-    private Class<? extends IConverter> convertDtoToEntityClass;
+    private final Class<? extends IConverter> convertDtoToEntityClass;
 
-    private Class<? extends IConverter> convertEntityToDtoClass;
+    private final Class<? extends IConverter> convertEntityToDtoClass;
 
     private DtoClassInfo dtoClassInfo;
 

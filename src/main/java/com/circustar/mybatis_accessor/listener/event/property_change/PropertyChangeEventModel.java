@@ -9,15 +9,15 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class PropertyChangeEventModel {
-    private List<String> listenProperties;
-    private String fromExpression;
-    private String toExpression;
+    private final List<String> listenProperties;
+    private final String fromExpression;
+    private final String toExpression;
     private IUpdateEvent updateEvent;
-    private List<String> updateParams;
-    private Class<? extends IUpdateEvent> updateEventClass;
-    private Supplier<IUpdateEvent> supplier;
+    private final List<String> updateParams;
+    private final Class<? extends IUpdateEvent> updateEventClass;
+    private final Supplier<IUpdateEvent> supplier;
     private List<IUpdateCommand.UpdateType> updateTypes;
-    private ExecuteTiming executeTiming;
+    private final ExecuteTiming executeTiming;
 
     public PropertyChangeEventModel(
             String fromExpression, String toExpression

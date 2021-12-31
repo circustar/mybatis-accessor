@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider<DefaultEntityProviderParam> {
 
-    private ISelectService selectService;
+    private final ISelectService selectService;
 
     public DefaultUpdateProcessorProvider(ApplicationContext applicationContext, ISelectService selectService) {
         super(applicationContext);

@@ -19,17 +19,17 @@ import java.util.*;
 import java.util.function.Supplier;
 
 public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProcessor<Collection>, IListenerContext<DefaultEntityCollectionUpdateProcessor> {
-    private Object option;
-    private IUpdateCommand updateCommand;
-    private IService service;
-    private Boolean updateChildFirst;
-    private List updateDtoList;
-    private boolean needConvertToEntity;
+    private final Object option;
+    private final IUpdateCommand updateCommand;
+    private final IService service;
+    private final Boolean updateChildFirst;
+    private final List updateDtoList;
+    private final boolean needConvertToEntity;
     private List updateEntityList;
     private List<IEntityUpdateProcessor> subUpdateEntities;
-    private DtoClassInfo dtoClassInfo;
-    private EntityClassInfo entityClassInfo;
-    private boolean updateChildrenOnly;
+    private final DtoClassInfo dtoClassInfo;
+    private final EntityClassInfo entityClassInfo;
+    private final boolean updateChildrenOnly;
     private List<IListener<DefaultEntityCollectionUpdateProcessor>> listenerList;
 
     public DefaultEntityCollectionUpdateProcessor(IService service

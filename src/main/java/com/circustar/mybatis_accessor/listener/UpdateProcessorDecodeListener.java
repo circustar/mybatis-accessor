@@ -14,10 +14,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class UpdateProcessorDecodeListener implements IListener<DefaultEntityCollectionUpdateProcessor> {
-    private List<DecodeEventModel> decodeEventModelList;
-    private IUpdateCommand updateCommand;
-    private DtoClassInfo dtoClassInfo;
-    private List updateDtoList;
+    private final List<DecodeEventModel> decodeEventModelList;
+    private final IUpdateCommand updateCommand;
+    private final DtoClassInfo dtoClassInfo;
+    private final List updateDtoList;
     public UpdateProcessorDecodeListener(List<DecodeEventModel> decodeEventModelList
             , IUpdateCommand updateCommand
             , DtoClassInfo dtoClassInfo

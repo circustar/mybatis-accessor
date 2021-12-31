@@ -15,14 +15,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class QueryWrapperCreator {
-    private String tableName;
-    private List<QuerySelectModel> querySelectModels;
-    private List<QueryWhereModel> queryWhereModels;
-    private List<QueryGroupByModel> queryGroupByModels;
-    private List<QueryHavingModel> queryHavingModels;
-    private List<QueryOrderModel> queryOrders;
-    private DtoClassInfo dtoClassInfo;
-    private EntityClassInfo entityClassInfo;
+    private final String tableName;
+    private final List<QuerySelectModel> querySelectModels;
+    private final List<QueryWhereModel> queryWhereModels;
+    private final List<QueryGroupByModel> queryGroupByModels;
+    private final List<QueryHavingModel> queryHavingModels;
+    private final List<QueryOrderModel> queryOrders;
+    private final DtoClassInfo dtoClassInfo;
+    private final EntityClassInfo entityClassInfo;
     private List<DtoField> joinTableDtoFields;
     private QueryWrapperBuilder baseWrapperBuilder;
 
@@ -144,10 +144,10 @@ public class QueryWrapperCreator {
     }
 
     public static class QueryWrapperBuilder {
-        private String[] columns;
-        private List<String> groupBys;
-        private String having;
-        private List<QueryOrderModel> orderModels;
+        private final String[] columns;
+        private final List<String> groupBys;
+        private final String having;
+        private final List<QueryOrderModel> orderModels;
 
         private QueryWrapperBuilder(String[] columns, List<String> groupBys, String having
                 , List<QueryOrderModel> orderModels) {

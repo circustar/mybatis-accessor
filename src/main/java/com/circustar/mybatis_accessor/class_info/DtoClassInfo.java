@@ -24,23 +24,24 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.util.CollectionUtils;
 
 import java.beans.PropertyDescriptor;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class DtoClassInfo {
-    private Class<?> clazz;
-    private IEntityDtoServiceRelationMap entityDtoServiceRelationMap;
-    private DtoClassInfoHelper dtoClassInfoHelper;
-    private EntityDtoServiceRelation entityDtoServiceRelation;
-    private List<DtoField> subDtoFieldList;
-    private List<DtoField> updateCascadeDtoFieldList;
-    private List<DtoField> selectDtoFieldList;
-    private List<DtoField> normalFieldList;
-    private List<DtoField> allFieldList;
-    private Map<String, DtoField> dtoFieldMap;
-    private EntityClassInfo entityClassInfo;
+    private final Class<?> clazz;
+    private final IEntityDtoServiceRelationMap entityDtoServiceRelationMap;
+    private final DtoClassInfoHelper dtoClassInfoHelper;
+    private final EntityDtoServiceRelation entityDtoServiceRelation;
+    private final List<DtoField> subDtoFieldList;
+    private final List<DtoField> updateCascadeDtoFieldList;
+    private final List<DtoField> selectDtoFieldList;
+    private final List<DtoField> normalFieldList;
+    private final List<DtoField> allFieldList;
+    private final Map<String, DtoField> dtoFieldMap;
+    private final EntityClassInfo entityClassInfo;
     private String joinTables;
     private String joinColumns;
     private DtoField versionField;
@@ -117,20 +118,20 @@ public class DtoClassInfo {
 //                .findAny().isPresent();
 
         ApplicationContext applicationContext = dtoClassInfoHelper.getApplicationContext();
-        initAfterUpdateList(applicationContext);
-        initOnChangeList(applicationContext);
-        initConverter(applicationContext);
-        initDecodeEventList(applicationContext);
+        this.initAfterUpdateList(applicationContext);
+        this.initOnChangeList(applicationContext);
+        this.initConverter(applicationContext);
+        this.initDecodeEventList(applicationContext);
     }
 
-    protected void initConverter(ApplicationContext applicationContext) {
+    private void initConverter(ApplicationContext applicationContext) {
         this.convertDtoToEntity = ApplicationContextUtils.getBeanOrCreate(applicationContext
                 , this.entityDtoServiceRelation.getConvertDtoToEntityClass());
         this.convertEntityToDto = ApplicationContextUtils.getBeanOrCreate(applicationContext
                 , this.entityDtoServiceRelation.getConvertEntityToDtoClass());
     }
 
-    protected void initAfterUpdateList(ApplicationContext applicationContext) {
+    private void initAfterUpdateList(ApplicationContext applicationContext) {
         MultiUpdateEvent multiUpdateEventAnnotation = this.clazz.getAnnotation(MultiUpdateEvent.class);
         List<UpdateEvent> var0 = null;
         if(multiUpdateEventAnnotation != null) {
@@ -151,7 +152,7 @@ public class DtoClassInfo {
         }
     }
 
-    protected void initOnChangeList(ApplicationContext applicationContext) {
+    private void initOnChangeList(ApplicationContext applicationContext) {
         MultiPropertyChangeEvent multiPropertyChangeEventAnnotation = this.clazz.getAnnotation(MultiPropertyChangeEvent.class);
         List<PropertyChangeEvent> var0 = null;
         if(multiPropertyChangeEventAnnotation != null) {
@@ -175,7 +176,7 @@ public class DtoClassInfo {
         }
     }
 
-    protected void initDecodeEventList(ApplicationContext applicationContext) {
+    private void initDecodeEventList(ApplicationContext applicationContext) {
         MultiDecodeEvent multiDecodeEventAnnotation = this.clazz.getAnnotation(MultiDecodeEvent.class);
         List<DecodeEvent> var0 = null;
         if(multiDecodeEventAnnotation != null) {
