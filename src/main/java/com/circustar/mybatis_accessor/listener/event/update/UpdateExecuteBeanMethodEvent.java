@@ -9,6 +9,7 @@ import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +71,7 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
                 }
                 method.invoke(bean, methodParams.toArray());
             }
-        } catch (Exception ex) {
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
             throw new RuntimeException(ex);
         }
     }

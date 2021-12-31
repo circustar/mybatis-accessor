@@ -43,7 +43,7 @@ public class CustomInterfaceFilter extends AbstractTypeHierarchyTraversingFilter
             try {
                 Class<?> clazz = ClassUtils.forName(typeName, Thread.currentThread().getContextClassLoader());
                 return this.targetType.isAssignableFrom(clazz);
-            } catch (Exception var3) {
+            } catch (ClassNotFoundException var3) {
                 return false;
             }
         }

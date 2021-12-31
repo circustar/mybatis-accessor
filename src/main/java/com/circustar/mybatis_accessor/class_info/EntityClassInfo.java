@@ -34,10 +34,8 @@ public class EntityClassInfo {
                 this.tableInfo = TableInfoHelper.getTableInfo(tableName.value());
             }
         }
-        if(this.tableInfo != null) {
-            if (!StringUtils.isEmpty(this.tableInfo.getKeyProperty())) {
-                this.keyField = this.fieldMap.get(this.tableInfo.getKeyProperty());
-            }
+        if(this.tableInfo != null && !StringUtils.isEmpty(this.tableInfo.getKeyProperty())) {
+            this.keyField = this.fieldMap.get(this.tableInfo.getKeyProperty());
         }
 
         this.idReferenceFieldInfo = this.fieldList.stream().filter(x -> x.getIdReference() != null).findAny().orElse(null);

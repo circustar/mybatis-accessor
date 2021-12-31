@@ -98,7 +98,7 @@ public abstract class NumberUtils {
         try {
             Double.parseDouble(str);
             return true;
-        } catch (Exception ex) {
+        } catch (NumberFormatException ex) {
             return false;
         }
     }

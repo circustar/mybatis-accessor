@@ -421,36 +421,32 @@ public class DtoClassInfo {
     public static int equalPropertiesIgnoreEmpty(DtoClassInfo dtoClassInfo, Object newObj, Object oldObj, List<String> propertyNames) {
         boolean partEqual = false;
         boolean allEqual = true;
-        try {
-            if((newObj == null  && oldObj == null) || newObj.equals(oldObj)) {
-                return 1;
+        if(newObj == oldObj) {
+            return 1;
+        }
+        for(String propertyName : propertyNames) {
+            DtoField field = dtoClassInfo.getDtoField(propertyName);
+            Object newVal = null;
+            if(newObj != null) {
+                newVal = FieldUtils.getFieldValue(newObj, field.getPropertyDescriptor().getReadMethod());
             }
-            for(String propertyName : propertyNames) {
-                DtoField field = dtoClassInfo.getDtoField(propertyName);
-                Object newVal = null;
-                if(newObj != null) {
-                    newVal = FieldUtils.getFieldValue(newObj, field.getPropertyDescriptor().getReadMethod());
-                }
-                Object oldVal = null;
-                if(oldObj != null) {
-                    oldVal = FieldUtils.getFieldValue(oldObj, field.getPropertyDescriptor().getReadMethod());
-                }
-                if(newVal == null) {
+            Object oldVal = null;
+            if(oldObj != null) {
+                oldVal = FieldUtils.getFieldValue(oldObj, field.getPropertyDescriptor().getReadMethod());
+            }
+            if(newVal == null) {
+                continue;
+            } else if(oldVal == null) {
+                if(newVal instanceof String && StringUtils.isBlank(newVal.toString())) {
                     continue;
-                } else if(oldVal == null) {
-                    if(newVal instanceof String && StringUtils.isBlank(newVal.toString())) {
-                        continue;
-                    } else {
-                        allEqual = false;
-                    }
-                } else if(!newVal.equals(oldVal)) {
-                    allEqual = false;
                 } else {
-                    partEqual = true;
+                    allEqual = false;
                 }
+            } else if(!newVal.equals(oldVal)) {
+                allEqual = false;
+            } else {
+                partEqual = true;
             }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
         }
         return allEqual ? 1 : (partEqual ? 0 : -1);
     }

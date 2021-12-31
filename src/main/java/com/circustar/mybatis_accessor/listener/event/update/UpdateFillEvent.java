@@ -59,10 +59,9 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
     @Override
     protected List<Object> parseParams(UpdateEventModel updateEventModel, List<DtoField> dtoFields, DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo) {
         boolean isAsc = true;
-        if(updateEventModel.getUpdateParams().size() > 6) {
-            if(QueryOrder.ORDER_DESC.equals(updateEventModel.getUpdateParams().get(6).toLowerCase(Locale.getDefault()))) {
-                isAsc = false;
-            }
+        if(updateEventModel.getUpdateParams().size() > 6
+                && QueryOrder.ORDER_DESC.equals(updateEventModel.getUpdateParams().get(6).toLowerCase(Locale.getDefault()))) {
+            isAsc = false;
         }
         BigDecimal limitValue = BigDecimal.ZERO;
         if(NumberUtils.isNumber(updateEventModel.getUpdateParams().get(4))) {

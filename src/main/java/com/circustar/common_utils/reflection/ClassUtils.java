@@ -1,9 +1,6 @@
 package com.circustar.common_utils.reflection;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -11,25 +8,17 @@ import java.util.stream.Collectors;
 
 public abstract class ClassUtils {
     public static List<Type[]> getTypeArguments(Class<?> clazz) {
-        try {
-            Type[] actualTypeArguments= clazz.getGenericInterfaces();
-            if(actualTypeArguments != null && actualTypeArguments.length > 0) {
-                return Arrays.stream(actualTypeArguments).map(x -> ((ParameterizedType)x).getActualTypeArguments()).collect(Collectors.toList());
-            }
-            return null;
-        } catch (Exception ex) {
-            return null;
+        Type[] actualTypeArguments= clazz.getGenericInterfaces();
+        if(actualTypeArguments != null && actualTypeArguments.length > 0) {
+            return Arrays.stream(actualTypeArguments).map(x -> ((ParameterizedType)x).getActualTypeArguments()).collect(Collectors.toList());
         }
+        return null;
     }
 
     public static Type getFirstTypeArgument(Class<?> clazz) {
-        try {
-            Type[] actualTypeArguments= clazz.getGenericInterfaces();
-            if(actualTypeArguments != null && actualTypeArguments.length > 0) {
-                return ((ParameterizedType)actualTypeArguments[0]).getActualTypeArguments()[0];
-            }
-        } catch (Exception ex) {
-            return null;
+        Type[] actualTypeArguments= clazz.getGenericInterfaces();
+        if(actualTypeArguments != null && actualTypeArguments.length > 0) {
+            return ((ParameterizedType)actualTypeArguments[0]).getActualTypeArguments()[0];
         }
         return null;
     }
@@ -54,7 +43,7 @@ public abstract class ClassUtils {
                 target = (T) constructor.newInstance(param);
             }
             return target;
-        } catch (Exception ex) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException ex) {
             throw new RuntimeException(ex);
         }
     }

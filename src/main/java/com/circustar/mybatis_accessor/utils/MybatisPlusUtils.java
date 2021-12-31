@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
-public class MybatisPlusUtils {
+public abstract class MybatisPlusUtils {
     public static Boolean deleteById(IService service, Serializable id, boolean physic) {
         BaseMapper mapper = service.getBaseMapper();
         if(physic && mapper instanceof CommonMapper) {

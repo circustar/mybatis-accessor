@@ -44,11 +44,8 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
         if(this.onChangeList == null || this.onChangeList.isEmpty()) {
             return true;
         }
-        if(!onChangeList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming()))
-                .anyMatch(x -> x.getUpdateTypes().stream().anyMatch(y -> updateCommand.getUpdateType().equals(y)))) {
-            return true;
-        }
-        return false;
+        return !onChangeList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming()))
+                .anyMatch(x -> x.getUpdateTypes().stream().anyMatch(y -> updateCommand.getUpdateType().equals(y)));
     }
 
     private void initData() {

@@ -21,15 +21,11 @@ public abstract class DtoFields {
         if(supportGenericType == null) {
             return;
         }
-        try {
-            Collection collection = ClassUtils.createInstance(supportGenericType.getTargetClass());
-            for (Object var0 : values) {
-                collection.add(dtoClassInfoHelper.convertFromEntity(var0, dtoField.getFieldDtoClassInfo()));
-            }
-            FieldUtils.setFieldValue(obj, dtoField.getPropertyDescriptor().getWriteMethod(), collection);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
+        Collection collection = ClassUtils.createInstance(supportGenericType.getTargetClass());
+        for (Object var0 : values) {
+            collection.add(dtoClassInfoHelper.convertFromEntity(var0, dtoField.getFieldDtoClassInfo()));
         }
+        FieldUtils.setFieldValue(obj, dtoField.getPropertyDescriptor().getWriteMethod(), collection);
     }
 
     public static void queryAndAssignDtoFieldById(DtoClassInfo dtoClassInfo

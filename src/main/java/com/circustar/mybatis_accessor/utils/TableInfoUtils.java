@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class TableInfoUtils {
+public abstract class TableInfoUtils {
     private final static String DEFAULT_NAMESPACE = "CCS.";
     private final static String DEFAULT_NESTED_NAMESPACE = "N_CCS_";
     private final static String DEFAULT_MYBATIS_PLUS_NAMESPACE = "mybatis-plus_";
@@ -139,7 +139,7 @@ public class TableInfoUtils {
             , List<TableJoinInfo> tableJoinInfos, String namespace) {
         String id = getResultMappingId(tableInfo, namespace);
         Boolean existResultMap = configuration.getResultMapNames().contains(id);
-        if(existResultMap == true) {
+        if(existResultMap) {
             return id;
         }
 
@@ -166,7 +166,7 @@ public class TableInfoUtils {
         }
 
         existResultMap = configuration.getResultMapNames().contains(id);
-        if(existResultMap == true) {
+        if(existResultMap) {
             return id;
         }
         ResultMap resultMap = new ResultMap.Builder(configuration

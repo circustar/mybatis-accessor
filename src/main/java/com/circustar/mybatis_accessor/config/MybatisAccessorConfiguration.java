@@ -34,7 +34,6 @@ import java.util.stream.Stream;
 @AutoConfigureAfter({MybatisPlusAutoConfiguration.class})
 @Configuration
 public class MybatisAccessorConfiguration {
-    private ApplicationContext applicationContext;
     private IEntityDtoServiceRelationMap entityDtoServiceRelationMap;
     private EnhanceSqlInjector enhanceSqlInjector;
     private ScanRelationOnStartup scanRelationOnStartup;
@@ -69,30 +68,29 @@ public class MybatisAccessorConfiguration {
     private UpdateSumSqlEvent updateSumSqlEvent;
 
     public MybatisAccessorConfiguration(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
         this.enhanceSqlInjector = new EnhanceSqlInjector();
-        this.entityDtoServiceRelationMap = new EntityDtoServiceRelationMap(this.applicationContext);
+        this.entityDtoServiceRelationMap = new EntityDtoServiceRelationMap(applicationContext);
         this.entityClassInfoHelper = new EntityClassInfoHelper();
         this.defaultConverter = new DefaultConverter();
-        this.dtoClassInfoHelper = new DtoClassInfoHelper(this.applicationContext
+        this.dtoClassInfoHelper = new DtoClassInfoHelper(applicationContext
                 , this.entityDtoServiceRelationMap, this.entityClassInfoHelper);
         this.updateService = new UpdateService(this.dtoClassInfoHelper);
         this.dtoClassInfoHelper.setUpdateService(this.updateService);
         this.selectService = new SelectService(this.dtoClassInfoHelper);
         this.dtoClassInfoHelper.setSelectService(this.selectService);
 
-        this.defaultDeleteProcessorProvider = new DefaultDeleteProcessorProvider(this.applicationContext);
-        this.defaultDeleteByIdProcessorProvider = new DefaultDeleteByIdProcessorProvider(this.applicationContext);
-        this.defaultInsertProcessorProvider = new DefaultInsertProcessorProvider(this.applicationContext);
-        this.defaultUpdateProcessorProvider = new DefaultUpdateProcessorProvider(this.applicationContext, this.selectService);
+        this.defaultDeleteProcessorProvider = new DefaultDeleteProcessorProvider(applicationContext);
+        this.defaultDeleteByIdProcessorProvider = new DefaultDeleteByIdProcessorProvider(applicationContext);
+        this.defaultInsertProcessorProvider = new DefaultInsertProcessorProvider(applicationContext);
+        this.defaultUpdateProcessorProvider = new DefaultUpdateProcessorProvider(applicationContext, this.selectService);
 
         this.mybatisAccessorService = new MybatisAccessorService(this.entityDtoServiceRelationMap
                 , this.selectService, this.updateService
                 , this.defaultInsertProcessorProvider, this.defaultUpdateProcessorProvider, this.defaultDeleteByIdProcessorProvider);
         this.updateManager = new MybatisAccessorUpdateManager(this.mybatisAccessorService, this.dtoClassInfoHelper);
-        this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
+        this.scanRelationOnStartup = new ScanRelationOnStartup(applicationContext, this.entityDtoServiceRelationMap);
 
-        TableInfoUtils.SCAN_PACKAGES.getAndSet(getMapperScanPackages(this.applicationContext));
+        TableInfoUtils.SCAN_PACKAGES.getAndSet(getMapperScanPackages(applicationContext));
 
         updateAssignEvent = new UpdateAssignEvent(this.mybatisAccessorService);
         updateAssignSqlEvent = new UpdateAssignSqlEvent();

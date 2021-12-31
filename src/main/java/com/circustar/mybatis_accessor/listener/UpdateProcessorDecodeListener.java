@@ -37,12 +37,9 @@ public class UpdateProcessorDecodeListener implements IListener<DefaultEntityCol
         if(this.decodeEventModelList == null || this.decodeEventModelList.isEmpty()) {
             return true;
         }
-        if(!decodeEventModelList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming()))
+        return !decodeEventModelList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming()))
                 .anyMatch(x -> x.getUpdateTypes().stream()
-                        .anyMatch(y -> updateCommand.getUpdateType().equals(y)))) {
-            return true;
-        }
-        return false;
+                        .anyMatch(y -> updateCommand.getUpdateType().equals(y)));
     }
 
     @Override

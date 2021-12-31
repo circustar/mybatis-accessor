@@ -1,7 +1,6 @@
 package com.circustar.mybatis_accessor.model;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.circustar.mybatis_accessor.annotation.dto.QueryOrder;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.class_info.DtoField;
@@ -24,15 +23,13 @@ public class QueryWrapperCreator {
     private List<QueryOrderModel> queryOrders;
     private DtoClassInfo dtoClassInfo;
     private EntityClassInfo entityClassInfo;
-    private TableInfo tableInfo;
     private List<DtoField> joinTableDtoFields;
     private QueryWrapperBuilder baseWrapperBuilder;
 
     public QueryWrapperCreator(DtoClassInfo dtoClassInfo) {
         this.dtoClassInfo = dtoClassInfo;
         this.entityClassInfo = dtoClassInfo.getEntityClassInfo();
-        this.tableInfo = entityClassInfo.getTableInfo();
-        this.tableName = this.tableInfo.getTableName();
+        this.tableName = this.entityClassInfo.getTableInfo().getTableName();
         this.queryGroupByModels = dtoClassInfo.getAllFieldList()
                 .stream().filter(x -> x.getQueryGroupBy() != null)
                 .map(x -> new QueryGroupByModel(x.getQueryGroupBy()

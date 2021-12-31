@@ -4,6 +4,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,7 +22,7 @@ public abstract class FieldUtils {
                 readMethod.setAccessible(true);
                 return readMethod.invoke(obj);
             }
-        } catch (Exception ex) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             throw new RuntimeException(ex);
         }
         return null;
@@ -34,7 +35,7 @@ public abstract class FieldUtils {
         try {
             writeMethod.setAccessible(true);
             writeMethod.invoke(obj, value);
-        } catch (Exception ex) {
+        } catch (IllegalAccessException | InvocationTargetException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -52,7 +53,7 @@ public abstract class FieldUtils {
 
             writeMethod.setAccessible(true);
             writeMethod.invoke(obj, value);
-        } catch (Exception ex) {
+        } catch (IllegalAccessException | InvocationTargetException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -63,7 +64,7 @@ public abstract class FieldUtils {
         }
         try {
             return clazz.getDeclaredField(name);
-        } catch (Exception ex) {
+        } catch (NoSuchFieldException ex) {
             return getField(clazz.getSuperclass(), name);
         }
     }

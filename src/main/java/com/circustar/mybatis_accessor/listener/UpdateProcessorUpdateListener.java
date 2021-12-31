@@ -36,12 +36,9 @@ public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCol
         if(this.updateEventList == null || this.updateEventList.isEmpty()) {
             return true;
         }
-        if(!updateEventList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming()))
+        return !updateEventList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming()))
                 .anyMatch(x -> x.getUpdateTypes().stream()
-                        .anyMatch(y -> updateCommand.getUpdateType().equals(y)))) {
-            return true;
-        }
-        return false;
+                        .anyMatch(y -> updateCommand.getUpdateType().equals(y)));
     }
 
     @Override

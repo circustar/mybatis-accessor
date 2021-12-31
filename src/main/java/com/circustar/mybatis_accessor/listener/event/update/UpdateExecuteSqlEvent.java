@@ -10,6 +10,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +58,7 @@ public class UpdateExecuteSqlEvent implements IUpdateEvent<UpdateEventModel> {
             for(String sql : sqlExpressions) {
                 statement.execute(sql);
             }
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
     }
