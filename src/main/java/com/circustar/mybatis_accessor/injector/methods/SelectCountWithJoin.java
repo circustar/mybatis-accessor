@@ -8,8 +8,6 @@ import org.apache.ibatis.mapping.SqlSource;
 public class SelectCountWithJoin extends SelectListWithJoin {
 
     private static final long serialVersionUID = -1L;
-    public SelectCountWithJoin() {
-    }
 
     @Override
     protected CSSqlMethod getSqlMethod() {
@@ -25,6 +23,6 @@ public class SelectCountWithJoin extends SelectListWithJoin {
         String sql = String.format(sqlMethod.getSql(), this.sqlFirst(), tableInfo.getTableName(), joinTable, this.sqlWhereEntityWrapper(true, tableInfo), this.sqlComment());
         SqlSource sqlSource = this.languageDriver.createSqlSource(this.configuration, sql, modelClass);
 
-        return this.addSelectMappedStatementForOther(mapperClass, sqlMethod.getMethod(), sqlSource, Integer.class);
+        return this.addSelectMappedStatementForOther(mapperClass, sqlMethod.getMethod(), sqlSource, Long.class);
     }
 }

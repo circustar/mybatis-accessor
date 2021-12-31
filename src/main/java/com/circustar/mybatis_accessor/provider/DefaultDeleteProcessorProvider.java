@@ -2,16 +2,16 @@ package com.circustar.mybatis_accessor.provider;
 
 import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
+import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.provider.command.DeleteByIdCommand;
 import com.circustar.mybatis_accessor.provider.parameter.DefaultEntityProviderParam;
 import com.circustar.mybatis_accessor.provider.parameter.IEntityProviderParam;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.service.ISelectService;
-import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
-import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
+import com.circustar.mybatis_accessor.update_processor.DefaultEntityCollectionUpdateProcessor;
+import com.circustar.mybatis_accessor.update_processor.IEntityUpdateProcessor;
 import org.springframework.context.ApplicationContext;
 
 import java.io.Serializable;
@@ -26,7 +26,7 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
     }
 
     @Override
-    protected boolean getUpdateChildrenFirst() {
+    protected boolean isUpdateChildrenFirst() {
         return true;
     }
 
@@ -82,12 +82,12 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
                     throw new RuntimeException(relation.getEntityClass().getSimpleName()
                             + " delete exception : id could not be null : " + dtoClassInfo.getClass().getSimpleName());
                 }
-                List<IEntityUpdateProcessor> subUpdateEntities = new ArrayList<>();
                 Object object = selectService.getDtoById(relation, id,false , topEntities);
                 if(object == null) {
                     throw new RuntimeException(relation.getEntityClass().getSimpleName()
                             + " delete exception : key not found : " + id);
                 }
+                List<IEntityUpdateProcessor> subUpdateEntities = new ArrayList<>();
                 for (DtoField subDtoField : dtoFields) {
                     Object subDto = FieldUtils.getFieldValue(object, subDtoField.getPropertyDescriptor().getReadMethod());
                     if (subDto == null) { continue; }
@@ -118,7 +118,7 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
                             , dtoClassInfo
                             , updateList
                             , false
-                            , this.getUpdateChildrenFirst()
+                            , this.isUpdateChildrenFirst()
                             , false);
                     updateProcessor.addSubUpdateEntities(subUpdateEntities);
                     result.add(updateProcessor);
@@ -132,7 +132,7 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
                     , dtoClassInfo
                     , updateEntityWithNoSubList
                     , false
-                    , this.getUpdateChildrenFirst()
+                    , this.isUpdateChildrenFirst()
                     , false);
             result.add(updateProcessor);
         }

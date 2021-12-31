@@ -26,7 +26,7 @@ public abstract class AnnotationUtils {
         return getFieldAnnotationsByName(field, clazz);
     }
 
-    public static <T extends Annotation> T[] getFieldAnnotationsByName(Field field, Class<T> clazz) { ;
+    public static <T extends Annotation> T[] getFieldAnnotationsByName(Field field, Class<T> clazz) {
         return field.getAnnotationsByType(clazz);
     }
 
@@ -53,7 +53,7 @@ public abstract class AnnotationUtils {
 
     public static <T extends Annotation> T[] getFieldAnnotationsByType(Class clazz, String fieldName
             , Class<T> annotationClass) throws NoSuchFieldException {
-        Field f = clazz.getDeclaredField(fieldName);
-        return f.getAnnotationsByType(annotationClass);
+        Field field = clazz.getDeclaredField(fieldName);
+        return field.getAnnotationsByType(annotationClass);
     }
 }

@@ -10,8 +10,6 @@ import java.util.Map;
 
 public class PhysicDeleteByMap extends PhysicDelete {
     private static final long serialVersionUID = -1L;
-    public PhysicDeleteByMap() {
-    }
 
     @Override
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {

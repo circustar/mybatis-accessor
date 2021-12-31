@@ -2,8 +2,8 @@ package com.circustar.mybatis_accessor.listener.event.update;
 
 import com.circustar.common_utils.parser.SPELParser;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import org.apache.logging.log4j.LogManager;
@@ -18,22 +18,22 @@ import java.util.stream.Collectors;
 
 public class UpdateLogEvent implements IUpdateEvent<UpdateEventModel> {
 
-    private final static Logger logger= LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
-    private final static Map<DtoClassInfo, String> defaultFormatMap = new ConcurrentHashMap<>();
+    private final static Logger LOGGER = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
+    private final static Map<DtoClassInfo, String> DEFAULT_FORMAT_MAP = new ConcurrentHashMap<>();
 
     protected String getDefaultFormat(DtoClassInfo dtoClassInfo) {
-        if(defaultFormatMap.containsKey(dtoClassInfo)) {
-            return defaultFormatMap.get(dtoClassInfo);
+        if(DEFAULT_FORMAT_MAP.containsKey(dtoClassInfo)) {
+            return DEFAULT_FORMAT_MAP.get(dtoClassInfo);
         }
-        StringBuilder sb = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
         for(DtoField normalField : dtoClassInfo.getNormalFieldList()) {
-            sb.append(normalField.getField().getName()).append(":#{").append(normalField.getField().getName()).append("},");
+            stringBuilder.append(normalField.getField().getName()).append(":#{").append(normalField.getField().getName()).append("},");
         }
-        String strFormat = sb.toString();
+        String strFormat = stringBuilder.toString();
         if(StringUtils.hasLength(strFormat)) {
             strFormat = strFormat.substring(0, strFormat.length() - 1);
         }
-        defaultFormatMap.put(dtoClassInfo, strFormat);
+        DEFAULT_FORMAT_MAP.put(dtoClassInfo, strFormat);
         return strFormat;
     }
 
@@ -52,7 +52,7 @@ public class UpdateLogEvent implements IUpdateEvent<UpdateEventModel> {
             , DtoClassInfo dtoClassInfo, List<Object> dtoList
             , String updateEventLogId, int level) {
         if(!CollectionUtils.isEmpty(dtoList)) {
-            logger.info("UPDATE LOG EVENT, ID:" + updateEventLogId + ", TYPE:" + updateType.getName() + ", CLASS:" + dtoClassInfo.getDtoClass().getName());
+            LOGGER.info("UPDATE LOG EVENT, ID:" + updateEventLogId + ", TYPE:" + updateType.getName() + ", CLASS:" + dtoClassInfo.getDtoClass().getName());
             if(dtoClassInfo.getDtoClass().isAssignableFrom(dtoList.get(0).getClass())) {
                 String strFormat;
                 if (model.getUpdateParams().size() > 0 && StringUtils.hasLength(model.getUpdateParams().get(0))) {
@@ -62,11 +62,11 @@ public class UpdateLogEvent implements IUpdateEvent<UpdateEventModel> {
                 }
                 if(StringUtils.hasLength(strFormat)) {
                     for (Object obj : dtoList) {
-                        logger.info("UPDATE ID:" + updateEventLogId + ",DATA:{" + SPELParser.parseExpression(obj, strFormat).toString() + "}");
+                        LOGGER.info("UPDATE ID:" + updateEventLogId + ",DATA:{" + SPELParser.parseExpression(obj, strFormat).toString() + "}");
                     }
                 }
             } else {
-                logger.info("UPDATE ID:" + updateEventLogId + ",DATA:{" + dtoList.stream().map(x -> x.toString()).collect(Collectors.joining(",")) + "}");
+                LOGGER.info("UPDATE ID:" + updateEventLogId + ",DATA:{" + dtoList.stream().map(x -> x.toString()).collect(Collectors.joining(",")) + "}");
             }
         }
     }

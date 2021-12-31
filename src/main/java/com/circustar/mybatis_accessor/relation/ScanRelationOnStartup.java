@@ -18,13 +18,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ScanRelationOnStartup implements ApplicationRunner {
+    private IEntityDtoServiceRelationMap relationMap;
+    private ApplicationContext context;
+
     public ScanRelationOnStartup(ApplicationContext context, IEntityDtoServiceRelationMap relationMap) {
         this.context = context;
         this.relationMap = relationMap;
     }
-    private IEntityDtoServiceRelationMap relationMap;
-
-    private ApplicationContext context;
 
     private Class getTargetClass(Class clazz) {
         if(clazz == null) {
@@ -57,11 +57,11 @@ public class ScanRelationOnStartup implements ApplicationRunner {
     }
 
     protected void scanForRelationMap(List<String> packageNameList) throws ClassNotFoundException {
-        ClassPathScanningCandidateComponentProvider p = new ClassPathScanningCandidateComponentProvider(false);
-        p.addIncludeFilter(new AnnotationTypeFilter(DtoEntityRelation.class));
-        p.addIncludeFilter(new AnnotationTypeFilter(DtoEntityRelations.class));
+        ClassPathScanningCandidateComponentProvider componentProvider = new ClassPathScanningCandidateComponentProvider(false);
+        componentProvider.addIncludeFilter(new AnnotationTypeFilter(DtoEntityRelation.class));
+        componentProvider.addIncludeFilter(new AnnotationTypeFilter(DtoEntityRelations.class));
         for(String packageName : packageNameList) {
-            Set<BeanDefinition> definitionSet = p.findCandidateComponents(packageName);
+            Set<BeanDefinition> definitionSet = componentProvider.findCandidateComponents(packageName);
             for(BeanDefinition bd: definitionSet) {
                 Class<?> clazz = Class.forName(bd.getBeanClassName());
                 DtoEntityRelation[] dtoEntityRelations = clazz.getAnnotationsByType(DtoEntityRelation.class);

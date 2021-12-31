@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.classInfo;
+package com.circustar.mybatis_accessor.class_info;
 
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.dto.*;
@@ -187,10 +187,10 @@ public class DtoField {
     }
 
     enum SupportGenericType{
-        list(List.class, ArrayList.class),
-        collection(Collection.class, ArrayList.class),
-        set(Set.class, HashSet.class),
-        queue(Queue.class, PriorityQueue.class);
+        LIST(List.class, ArrayList.class),
+        COLLECTION(Collection.class, ArrayList.class),
+        SET(Set.class, HashSet.class),
+        QUEUE(Queue.class, PriorityQueue.class);
         private Class<? extends Collection> type;
         private Class<? extends Collection> newType;
         SupportGenericType(Class type, Class newType) {
@@ -203,8 +203,8 @@ public class DtoField {
         public Class<? extends Collection> getTargetClass() {
             return this.newType;
         }
-        public static SupportGenericType getSupportGenericType(Class t) {
-            return Arrays.stream(SupportGenericType.values()).filter(x -> x.getOriginClass() == t).findFirst().orElse(null);
+        public static SupportGenericType getSupportGenericType(Class clazz) {
+            return Arrays.stream(SupportGenericType.values()).filter(x -> x.getOriginClass() == clazz).findFirst().orElse(null);
         }
     }
 }

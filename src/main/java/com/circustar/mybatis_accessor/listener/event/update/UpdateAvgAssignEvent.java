@@ -1,7 +1,7 @@
 package com.circustar.mybatis_accessor.listener.event.update;
 
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.support.MybatisAccessorService;
 
 import java.math.BigDecimal;

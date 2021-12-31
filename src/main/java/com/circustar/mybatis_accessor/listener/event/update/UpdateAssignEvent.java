@@ -4,8 +4,8 @@ import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.collection.NumberUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.service.ISelectService;
 import com.circustar.mybatis_accessor.support.MybatisAccessorService;
 
@@ -33,15 +33,13 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
 
     protected BigDecimal getTotalWeight(List sEntityList, DtoField sWeightEntityField) {
         Class sWeightEntityClass = sWeightEntityField.getActualClass();
-        BigDecimal allWeightValue = NumberUtils.sumListByType(sWeightEntityClass, sEntityList
+        return NumberUtils.sumListByType(sWeightEntityClass, sEntityList
                 , sWeightEntityField.getPropertyDescriptor().getReadMethod());
-        return allWeightValue;
     }
 
     protected BigDecimal getNextWeight(Object sEntity, DtoField sWeightEntityField) {
-        BigDecimal bigDecimal = NumberUtils.readDecimalValue(sEntity
+        return NumberUtils.readDecimalValue(sEntity
                 , sWeightEntityField.getPropertyDescriptor().getReadMethod());
-        return bigDecimal;
     }
 
     protected DtoField getWeightEntityField(List<DtoField> dtoFields) {

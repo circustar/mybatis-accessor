@@ -5,9 +5,9 @@ import com.circustar.common_utils.listener.IListenerTiming;
 import com.circustar.common_utils.parser.SPELParser;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.listener.event.property_change.PropertyChangeEventModel;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
-import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
+import com.circustar.mybatis_accessor.update_processor.DefaultEntityCollectionUpdateProcessor;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -22,6 +22,8 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
     private IUpdateCommand updateCommand;
     private DtoClassInfo dtoClassInfo;
     private List updateDtoList;
+    private List oldDtoList;
+    private boolean initialized;
 
     public UpdateProcessorPropertyChangeListener(List<PropertyChangeEventModel> onChangeList
             , IUpdateCommand updateCommand
@@ -49,9 +51,6 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
         return false;
     }
 
-    private List oldDtoList;
-    private boolean initialized;
-
     private void initData() {
         oldDtoList = new ArrayList();
         Method keyFieldReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
@@ -78,7 +77,7 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
     }
 
     @Override
-    public void listenerExec(DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdateProcessor
+    public void listenerExec(DefaultEntityCollectionUpdateProcessor target
             , IListenerTiming eventTiming, String updateEventLogId, int level) {
         if(!initialized) {
             initData();

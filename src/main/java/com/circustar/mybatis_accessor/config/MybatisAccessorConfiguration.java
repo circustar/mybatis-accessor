@@ -1,8 +1,8 @@
 package com.circustar.mybatis_accessor.config;
 
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
-import com.circustar.mybatis_accessor.classInfo.EntityClassInfoHelper;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
+import com.circustar.mybatis_accessor.class_info.EntityClassInfoHelper;
 import com.circustar.mybatis_accessor.converter.DefaultConverter;
 import com.circustar.mybatis_accessor.listener.event.update.*;
 import com.circustar.mybatis_accessor.provider.DefaultDeleteByIdProcessorProvider;
@@ -92,7 +92,7 @@ public class MybatisAccessorConfiguration {
         this.updateManager = new MybatisAccessorUpdateManager(this.mybatisAccessorService, this.dtoClassInfoHelper);
         this.scanRelationOnStartup = new ScanRelationOnStartup(this.applicationContext, this.entityDtoServiceRelationMap);
 
-        TableInfoUtils.scanPackages.getAndSet(getMapperScanPackages(this.applicationContext));
+        TableInfoUtils.SCAN_PACKAGES.getAndSet(getMapperScanPackages(this.applicationContext));
 
         updateAssignEvent = new UpdateAssignEvent(this.mybatisAccessorService);
         updateAssignSqlEvent = new UpdateAssignSqlEvent();

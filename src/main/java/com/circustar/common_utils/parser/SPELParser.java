@@ -12,18 +12,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public abstract class SPELParser {
-    public final static ExpressionParser expressionParser = new SpelExpressionParser();
+    public final static ExpressionParser SPEL_EXPRESSION_PARSER = new SpelExpressionParser();
 
-    private final static ParserContext parserContext = new TemplateParserContext();
+    private final static ParserContext TEMPLATE_PARSER_CONTEXT = new TemplateParserContext();
 
-    public static <T> T calcExpression(String expressionString, Class<T> clazz) {
-        Expression expression = expressionParser.parseExpression(expressionString);
+    public static <T> T calcExpression(String expressionString, final Class<T> clazz) {
+        Expression expression = SPEL_EXPRESSION_PARSER.parseExpression(expressionString);
         return expression.getValue(clazz);
     }
 
     public static <T> T calcExpression(Object obj, String expressionString, Class<T> clazz) {
         StandardEvaluationContext context = new StandardEvaluationContext(obj);
-        Expression expression = expressionParser.parseExpression(expressionString);
+        Expression expression = SPEL_EXPRESSION_PARSER.parseExpression(expressionString);
         return expression.getValue(context, clazz);
     }
 
@@ -35,7 +35,7 @@ public abstract class SPELParser {
     }
 
     public static Object parseExpression(StandardEvaluationContext context, String expressionString) {
-        Expression expression = expressionParser.parseExpression(expressionString, parserContext);
+        Expression expression = SPEL_EXPRESSION_PARSER.parseExpression(expressionString, TEMPLATE_PARSER_CONTEXT);
         return expression.getValue(context);
     }
 

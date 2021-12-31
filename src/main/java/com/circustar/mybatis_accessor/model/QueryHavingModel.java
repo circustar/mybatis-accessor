@@ -3,14 +3,14 @@ package com.circustar.mybatis_accessor.model;
 import com.circustar.mybatis_accessor.annotation.dto.QueryHaving;
 
 public class QueryHavingModel {
+    private String expression;
+
     public QueryHavingModel(String expression) {
         this.expression = expression;
     }
     public QueryHavingModel(QueryHaving queryHaving) {
         this(queryHaving.expression());
     }
-
-    private String expression;
 
     public String getExpression() {
         return expression;

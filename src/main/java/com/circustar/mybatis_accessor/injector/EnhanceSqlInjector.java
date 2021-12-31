@@ -2,6 +2,7 @@ package com.circustar.mybatis_accessor.injector;
 
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
+import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.circustar.mybatis_accessor.mapper.CommonMapper;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
 import com.circustar.mybatis_accessor.injector.methods.*;
@@ -11,8 +12,8 @@ import java.util.List;
 
 public class EnhanceSqlInjector extends DefaultSqlInjector {
     @Override
-    public List<AbstractMethod> getMethodList(Class<?> mapperClass) {
-        List<AbstractMethod> methodList = super.getMethodList(mapperClass);
+    public List<AbstractMethod> getMethodList(Class<?> mapperClass, TableInfo tableInfo) {
+        List<AbstractMethod> methodList = super.getMethodList(mapperClass, tableInfo);
         if(CommonMapper.class.isAssignableFrom(mapperClass)) {
             methodList.add(new PhysicDelete());
             methodList.add(new PhysicDeleteBatchByIds());

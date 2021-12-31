@@ -1,8 +1,8 @@
 package com.circustar.mybatis_accessor.listener.event.decode;
 
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
+import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import org.springframework.util.StringUtils;
@@ -94,7 +94,7 @@ public class DecodeEventModel {
 
     public List<DtoField> getMatchSourcePropertyDtoFields() {
         if(matchSourcePropertyDtoFields == null) {
-            matchSourcePropertyDtoFields = new ArrayList<DtoField>();
+            matchSourcePropertyDtoFields = new ArrayList<>();
             for(String property : matchSourceProperties) {
                 matchSourcePropertyDtoFields.add(sourceDtoClassInfo.getDtoField(property));
             }
@@ -104,7 +104,7 @@ public class DecodeEventModel {
 
     public List<DtoField> getMatchPropertyDtoFields() {
         if(matchPropertyDtoFields == null) {
-            matchPropertyDtoFields = new ArrayList<DtoField>();
+            matchPropertyDtoFields = new ArrayList<>();
             for(String property : matchProperties) {
                 matchPropertyDtoFields.add(dtoClassInfo.getDtoField(property));
             }

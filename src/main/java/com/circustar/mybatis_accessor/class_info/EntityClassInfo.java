@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.classInfo;
+package com.circustar.mybatis_accessor.class_info;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
@@ -24,8 +24,7 @@ public class EntityClassInfo {
         this.entityClass = entityClass;
         this.tableInfo = TableInfoHelper.getTableInfo(this.entityClass);
         this.fieldList = FieldUtils.getPropertyDescriptors(entityClass).stream().map(x -> {
-            EntityFieldInfo entityFieldInfo = EntityFieldInfo.parseField(this.entityClass, x, this);
-            return entityFieldInfo;
+            return EntityFieldInfo.parseField(this.entityClass, x, this);
         }).collect(Collectors.toList());
         this.fieldMap = this.fieldList.stream().collect(Collectors.toMap(x -> x.getField().getName(), x -> x));
 

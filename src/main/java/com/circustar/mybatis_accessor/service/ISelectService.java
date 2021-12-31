@@ -32,29 +32,29 @@ public interface ISelectService {
 
     <T> PageInfo<T> getEntityPageByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
-            , Integer page_index
-            , Integer page_size
+            , Integer pageIndex
+            , Integer pageSize
     );
 
     <T> PageInfo<T> getDtoPageByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
-            , Integer page_index
-            , Integer page_size
+            , Integer pageIndex
+            , Integer pageSize
             );
 
     <T> PageInfo<T> getEntityPageByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object dto
             , QueryWrapper queryWrapper
-            , Integer page_index
-            , Integer page_size
+            , Integer pageIndex
+            , Integer pageSize
             );
 
 
     <T> PageInfo<T> getDtoPageByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object dto
             , QueryWrapper queryWrapper
-            , Integer page_index
-            , Integer page_size
+            , Integer pageIndex
+            , Integer pageSize
     );
 
     <T> List<T> getEntityListByAnnotation(EntityDtoServiceRelation relationInfo
@@ -75,12 +75,12 @@ public interface ISelectService {
             , Object dto
             , QueryWrapper queryWrapper
     );
-    Integer getCountByAnnotation(EntityDtoServiceRelation relationInfo
+    Long getCountByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
     );
 
 
-    Integer getCountByQueryWrapper(EntityDtoServiceRelation relationInfo
+    Long getCountByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object dto
             , QueryWrapper queryWrapper
     );

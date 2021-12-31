@@ -6,8 +6,8 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.dto.QueryOrder;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.mybatis_accessor.service.ISelectService;
 import com.circustar.mybatis_accessor.support.MybatisAccessorService;
@@ -16,15 +16,13 @@ import org.springframework.util.StringUtils;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> implements IUpdateEvent<UpdateEventModel> {
     protected MybatisAccessorService mybatisAccessorService;
     public UpdateFillEvent(MybatisAccessorService mybatisAccessorService) {
+        super();
         this.mybatisAccessorService = mybatisAccessorService;
     }
 
@@ -62,7 +60,7 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
     protected List<Object> parseParams(UpdateEventModel updateEventModel, List<DtoField> dtoFields, DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo) {
         boolean isAsc = true;
         if(updateEventModel.getUpdateParams().size() > 6) {
-            if(QueryOrder.ORDER_DESC.equals(updateEventModel.getUpdateParams().get(6).toLowerCase())) {
+            if(QueryOrder.ORDER_DESC.equals(updateEventModel.getUpdateParams().get(6).toLowerCase(Locale.getDefault()))) {
                 isAsc = false;
             }
         }

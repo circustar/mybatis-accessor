@@ -1,13 +1,18 @@
 package com.circustar.mybatis_accessor.support;
 
 import com.circustar.common_utils.collection.CollectionUtils;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.provider.parameter.DefaultEntityProviderParam;
 
 import java.util.*;
 
 public class MybatisAccessorUpdateManager {
+    private final static ThreadLocal<List<DtoWithOption>> UPDATE_TARGET_LIST = ThreadLocal.withInitial(() -> new ArrayList<>());
+
+    private final static DefaultEntityProviderParam DEFAULT_UPDATE_PROVIDER_PARAM = new DefaultEntityProviderParam(false
+            , true , null);
+
     private MybatisAccessorService mybatisAccessorService;
     private DtoClassInfoHelper dtoClassInfoHelper;
     public MybatisAccessorUpdateManager(MybatisAccessorService mybatisAccessorService, DtoClassInfoHelper dtoClassInfoHelper) {
@@ -41,22 +46,17 @@ public class MybatisAccessorUpdateManager {
         }
     }
 
-    private final static ThreadLocal<List<DtoWithOption>> updateTargetList = ThreadLocal.withInitial(() -> new ArrayList<>());
-
-    private final static DefaultEntityProviderParam defaultUpdateProviderParam = new DefaultEntityProviderParam(false
-            , true , null);
-
     public void putDto(Object dto) {
-        putDto(dto, defaultUpdateProviderParam);
+        putDto(dto, DEFAULT_UPDATE_PROVIDER_PARAM);
     }
 
     public void putDto(Object dto, DefaultEntityProviderParam option) {
-        updateTargetList.get().add(new DtoWithOption(dto, option));
+        UPDATE_TARGET_LIST.get().add(new DtoWithOption(dto, option));
     }
 
     public void submit() {
         String updateEventLogId = UUID.randomUUID().toString();
-        List<DtoWithOption> dtoWithOptions = new ArrayList<>(updateTargetList.get());
+        List<DtoWithOption> dtoWithOptions = new ArrayList<>(UPDATE_TARGET_LIST.get());
         for (DtoWithOption dtoWithOption : dtoWithOptions) {
             Object dto = dtoWithOption.getDto();
             if (CollectionUtils.isCollection(dto)) {
@@ -76,6 +76,6 @@ public class MybatisAccessorUpdateManager {
                             , dtoWithOption.getParam().getUpdateChildrenNames()
                             , dtoWithOption.getParam().isUpdateChildrenOnly(), updateEventLogId);
                 });
-        updateTargetList.get().removeAll(dtoWithOptions);
+        UPDATE_TARGET_LIST.get().removeAll(dtoWithOptions);
     }
 }

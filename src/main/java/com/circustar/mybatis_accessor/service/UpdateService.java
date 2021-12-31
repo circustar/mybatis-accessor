@@ -1,21 +1,21 @@
 package com.circustar.mybatis_accessor.service;
 
-import com.circustar.mybatis_accessor.classInfo.*;
+import com.circustar.mybatis_accessor.class_info.*;
 import com.circustar.mybatis_accessor.common.MessageProperties;
 import com.circustar.mybatis_accessor.provider.*;
 import com.circustar.mybatis_accessor.provider.parameter.IProviderParam;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
-import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
+import com.circustar.mybatis_accessor.update_processor.IEntityUpdateProcessor;
 
 
 import java.util.*;
 
 public class UpdateService implements IUpdateService {
+    private DtoClassInfoHelper dtoClassInfoHelper;
+
     public UpdateService(DtoClassInfoHelper dtoClassInfoHelper) {
         this.dtoClassInfoHelper = dtoClassInfoHelper;
     }
-
-    private DtoClassInfoHelper dtoClassInfoHelper;
 
     @Override
     public <T> List<T> updateByProviders(EntityDtoServiceRelation relationInfo

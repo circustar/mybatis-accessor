@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.circustar.common_utils.reflection.ClassUtils;
-import com.circustar.mybatis_accessor.classInfo.TableJoinInfo;
+import com.circustar.mybatis_accessor.class_info.TableJoinInfo;
 import com.circustar.mybatis_accessor.scanner.BaseMapperScanner;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.mapping.ResultFlag;
@@ -25,11 +25,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class TableInfoUtils {
-    private static String DEFAULT_NAMESPACE = "CCS.";
-    private static String DEFAULT_NESTED_NAMESPACE = "N_CCS_";
-    private static String DEFAULT_MYBATIS_PLUS_NAMESPACE = "mybatis-plus_";
+    private final static String DEFAULT_NAMESPACE = "CCS.";
+    private final static String DEFAULT_NESTED_NAMESPACE = "N_CCS_";
+    private final static String DEFAULT_MYBATIS_PLUS_NAMESPACE = "mybatis-plus_";
     private static Boolean allTableInfoInitialized = false;
-    public final static AtomicReference<List<String>> scanPackages = new AtomicReference<>();
+    public final static AtomicReference<List<String>> SCAN_PACKAGES = new AtomicReference<>();
     private static boolean userCamelCase;
     private static TypeHandlerRegistry typeHandlerRegistry;
     private static Lock lock = new ReentrantLock();
@@ -39,10 +39,8 @@ public class TableInfoUtils {
         }
         if(lock.tryLock()) {
             try {
-                if (TableInfoUtils.typeHandlerRegistry == null) {
-                    TableInfoUtils.typeHandlerRegistry = configuration.getTypeHandlerRegistry();
-                }
-                List<String> pks = scanPackages.get();
+                TableInfoUtils.typeHandlerRegistry = configuration.getTypeHandlerRegistry();
+                List<String> pks = SCAN_PACKAGES.get();
                 for (String scanPackage : pks) {
                     initPackageTableInfo(configuration, scanPackage);
                 }
@@ -147,7 +145,9 @@ public class TableInfoUtils {
 
         List<ResultMapping> resultMappings = new ArrayList();
         if (tableInfo.havePK()) {
-            ResultMapping idMapping = (new ResultMapping.Builder(configuration, tableInfo.getKeyProperty(), tableInfo.getKeyColumn(), tableInfo.getKeyType())).flags(Collections.singletonList(ResultFlag.ID)).build();
+            ResultMapping idMapping = new ResultMapping.Builder(configuration, tableInfo.getKeyProperty()
+                    , tableInfo.getKeyColumn(), tableInfo.getKeyType())
+                    .flags(Collections.singletonList(ResultFlag.ID)).build();
             resultMappings.add(idMapping);
         }
 
@@ -169,8 +169,8 @@ public class TableInfoUtils {
         if(existResultMap == true) {
             return id;
         }
-        ResultMap resultMap = (new org.apache.ibatis.mapping.ResultMap.Builder(configuration
-                , id, tableInfo.getEntityType(), resultMappings)).build();
+        ResultMap resultMap = new ResultMap.Builder(configuration
+                , id, tableInfo.getEntityType(), resultMappings).build();
         configuration.addResultMap(resultMap);
         return id;
     }

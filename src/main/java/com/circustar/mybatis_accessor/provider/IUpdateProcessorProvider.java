@@ -1,9 +1,9 @@
 package com.circustar.mybatis_accessor.provider;
 
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.provider.parameter.IProviderParam;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
-import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
+import com.circustar.mybatis_accessor.update_processor.IEntityUpdateProcessor;
 
 import java.util.List;
 

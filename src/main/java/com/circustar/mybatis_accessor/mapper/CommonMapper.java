@@ -40,14 +40,14 @@ public interface CommonMapper<T> extends BaseMapper<T> {
     default T selectOneWithJoin(@Param("ew") Wrapper<T> queryWrapper
             , @Param(MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_TABLE) String joinTable
             , @Param(MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_COLUMNS) String joinColumns) {
-        List<T> ts = selectListWithJoin(queryWrapper, joinTable, joinColumns);
-        if(!ts.isEmpty()) {
-            return ts.get(0);
+        List<T> list = selectListWithJoin(queryWrapper, joinTable, joinColumns);
+        if(!list.isEmpty()) {
+            return list.get(0);
         }
         return null;
     }
 
-    Integer selectCountWithJoin(@Param("ew") Wrapper<T> queryWrapper
+    Long selectCountWithJoin(@Param("ew") Wrapper<T> queryWrapper
             , @Param(MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_TABLE) String joinTable
             , @Param(MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_COLUMNS) String joinColumns);
 }

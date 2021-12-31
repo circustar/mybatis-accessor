@@ -2,33 +2,20 @@ package com.circustar.mybatis_accessor.listener.event.decode;
 
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IDecodeEvent;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
+import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.mybatis_accessor.service.ISelectService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 public class DefaultDecodeEvent implements IDecodeEvent<DecodeEventModel> {
-    private static DefaultDecodeEvent decodeEvent;
-    private static Lock lock = new ReentrantLock();
+    private static DefaultDecodeEvent decodeEvent = new DefaultDecodeEvent();
     public static DefaultDecodeEvent getInstance() {
-        if (decodeEvent != null) {
-            return decodeEvent;
-        }
-        if(lock.tryLock()) {
-            try {
-                decodeEvent = new DefaultDecodeEvent();
-            } finally {
-                lock.unlock();
-            }
-        }
         return decodeEvent;
     }
 

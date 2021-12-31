@@ -6,10 +6,10 @@ public interface IListenerContext<T> {
     void init(T target);
     T getListenTarget();
     List<IListener<T>> getListenerList();
-    default boolean skipAllListener(IListenerTiming eventTiming) {
+    default boolean skipAllListener(final IListenerTiming eventTiming) {
         return !getListenerList().stream().filter(x -> !x.skipListener(eventTiming)).findAny().isPresent();
     }
-    default void execListeners(IListenerTiming eventTiming, String updateEventLogId, int level) {
+    default void execListeners(final IListenerTiming eventTiming, final String updateEventLogId, final int level) {
         List<IListener<T>> listenerList = getListenerList();
         if(listenerList == null || listenerList.isEmpty()) {
             return;

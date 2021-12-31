@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.toolkit.sql.SqlScriptUtils;
 import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
 import com.circustar.mybatis_accessor.utils.TableInfoUtils;
-import com.circustar.mybatis_accessor.classInfo.TableJoinInfo;
+import com.circustar.mybatis_accessor.class_info.TableJoinInfo;
 import org.apache.ibatis.executor.keygen.NoKeyGenerator;
 import org.apache.ibatis.mapping.*;
 
@@ -17,14 +17,12 @@ import java.util.stream.Collectors;
 public class SelectListWithJoin extends AbstractMethod {
 
     private static final long serialVersionUID = -1L;
-    public SelectListWithJoin() {
-    }
+
+    private String resultMap;
 
     protected CSSqlMethod getSqlMethod() {
         return CSSqlMethod.SELECT_LIST_WITH_JOIN;
     }
-
-    private String resultMap;
 
     @Override
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
@@ -36,9 +34,8 @@ public class SelectListWithJoin extends AbstractMethod {
         String sql = String.format(sqlMethod.getSql(), this.sqlFirst(), this.sqlSelectColumns(tableInfo, true), tableInfo.getTableName(), joinTable, this.sqlWhereEntityWrapper(true, tableInfo), this.sqlComment());
         SqlSource sqlSource = this.languageDriver.createSqlSource(this.configuration, sql, modelClass);
         this.resultMap = TableInfoUtils.registerResultMapping(configuration, tableInfo, tableJoinInfoList);
-        MappedStatement ms = this.addSelectMappedStatementForTable(mapperClass
+        return this.addSelectMappedStatementForTable(mapperClass
                 , this.getSqlMethod().getMethod(), sqlSource, tableInfo);
-        return ms;
     }
 
     @Override
@@ -82,11 +79,9 @@ public class SelectListWithJoin extends AbstractMethod {
 
     @Override
     protected MappedStatement addSelectMappedStatementForTable(Class<?> mapperClass, String id, SqlSource sqlSource, TableInfo table) {
-        String resultMap = this.resultMap;
-        MappedStatement mappedStatement =  this.addMappedStatement(mapperClass, id, sqlSource
-                , SqlCommandType.SELECT, (Class)null, resultMap
+        return this.addMappedStatement(mapperClass, id, sqlSource
+                , SqlCommandType.SELECT, (Class)null, this.resultMap
                 , (Class)null, new NoKeyGenerator(), (String)null, (String)null);
 
-        return mappedStatement;
     }
 }

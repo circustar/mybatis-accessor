@@ -150,75 +150,75 @@ public class MybatisAccessorService {
     }
 
     public <T> PageInfo<T> getEntityPageByAnnotation(Object object
-            , Integer page_index
-            , Integer page_size
+            , Integer pageIndex
+            , Integer pageSize
     )  {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
-        return this.getEntityPageByAnnotation(relationInfo, object, page_index, page_size);
+        return this.getEntityPageByAnnotation(relationInfo, object, pageIndex, pageSize);
     }
 
     public <T> PageInfo<T> getEntityPageByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
-            , Integer page_index
-            , Integer page_size
+            , Integer pageIndex
+            , Integer pageSize
     )  {
         return this.selectService.getEntityPageByAnnotation(relationInfo
                 , object
-                , page_index, page_size);
+                , pageIndex, pageSize);
     }
 
     public <T> PageInfo<T> getEntityPageByQueryWrapper(Object dto
             , QueryWrapper queryWrapper
-            , Integer page_index
-            , Integer page_size
+            , Integer pageIndex
+            , Integer pageSize
     )  {
         EntityDtoServiceRelation relationInfo = this.getRelation(dto.getClass(), null);
-        return this.getEntityPageByQueryWrapper(relationInfo,dto,queryWrapper,page_index,page_size);
+        return this.getEntityPageByQueryWrapper(relationInfo,dto,queryWrapper,pageIndex,pageSize);
     }
 
     public <T> PageInfo<T> getEntityPageByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object object
             , QueryWrapper queryWrapper
-            , Integer page_index
-            , Integer page_size
+            , Integer pageIndex
+            , Integer pageSize
     )  {
-        return this.selectService.getEntityPageByQueryWrapper(relationInfo,object,queryWrapper,page_index,page_size);
+        return this.selectService.getEntityPageByQueryWrapper(relationInfo,object,queryWrapper,pageIndex,pageSize);
     }
 
     public <T> PageInfo<T> getDtoPageByAnnotation(Object object
-            , Integer page_index
-            , Integer page_size
+            , Integer pageIndex
+            , Integer pageSize
     )  {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
-        return this.getDtoPageByAnnotation(relationInfo, object, page_index, page_size);
+        return this.getDtoPageByAnnotation(relationInfo, object, pageIndex, pageSize);
     }
 
     public <T> PageInfo<T> getDtoPageByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
-            , Integer page_index
-            , Integer page_size
+            , Integer pageIndex
+            , Integer pageSize
     )  {
         return this.selectService.getDtoPageByAnnotation(relationInfo
                 , object
-                , page_index, page_size);
+                , pageIndex, pageSize);
     }
 
     public <T> PageInfo<T> getDtoPageByQueryWrapper(Object object
             , QueryWrapper queryWrapper
-            , Integer page_index
-            , Integer page_size
+            , Integer pageIndex
+            , Integer pageSize
     )  {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
-        return this.getDtoPageByQueryWrapper(relationInfo,object,queryWrapper,page_index,page_size);
+        return this.getDtoPageByQueryWrapper(relationInfo,object,queryWrapper,pageIndex,pageSize);
     }
 
     public <T> PageInfo<T> getDtoPageByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object object
             , QueryWrapper queryWrapper
-            , Integer page_index
-            , Integer page_size
+            , Integer pageIndex
+            , Integer pageSize
     )  {
-        return this.selectService.getDtoPageByQueryWrapper(relationInfo,object,queryWrapper,page_index,page_size);
+        return this.selectService.getDtoPageByQueryWrapper(relationInfo,object,queryWrapper,pageIndex,pageSize);
     }
 
     public List getEntityListByAnnotation(Object object
@@ -287,10 +287,8 @@ public class MybatisAccessorService {
             , IProviderParam options
             , String updateEventLogId)  {
 
-        List<T> updatedEntities = updateService.updateByProviders(relationInfo
+        return updateService.updateByProviders(relationInfo
                 , object, updateEntityProvider, options, updateEventLogId);
-
-        return updatedEntities;
     }
 
 
@@ -429,27 +427,27 @@ public class MybatisAccessorService {
                 , providerParam, updateEventLogId);
     }
 
-    public Integer getCountByAnnotation(Object object
+    public Long getCountByAnnotation(Object object
     )  {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
         return this.getCountByAnnotation(relationInfo, object);
     }
 
-    public Integer getCountByAnnotation(EntityDtoServiceRelation relationInfo
+    public Long getCountByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
     )  {
         return this.selectService.getCountByAnnotation(relationInfo
                 , object);
     }
 
-    public Integer getCountByQueryWrapper(Object object
+    public Long getCountByQueryWrapper(Object object
             , QueryWrapper queryWrapper
     )  {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
         return this.getCountByQueryWrapper(relationInfo, object, queryWrapper);
     }
 
-    public Integer getCountByQueryWrapper(EntityDtoServiceRelation relationInfo
+    public Long getCountByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object object
             , QueryWrapper queryWrapper
     )  {

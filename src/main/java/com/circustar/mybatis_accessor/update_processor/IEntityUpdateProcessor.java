@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.updateProcessor;
+package com.circustar.mybatis_accessor.update_processor;
 
 import java.util.List;
 import java.util.Map;

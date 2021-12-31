@@ -3,6 +3,11 @@ package com.circustar.mybatis_accessor.response;
 import java.util.List;
 
 public class PageInfo<T> {
+    private List<T> records;
+    private Long total;
+    private Long size;
+    private Long current;
+
     public PageInfo() {
     }
 
@@ -16,10 +21,6 @@ public class PageInfo<T> {
         this.current = current;
         this.records = records;
     }
-    private List<T> records;
-    private Long total;
-    private Long size;
-    private Long current;
 
     public Long getTotal() {
         return total;

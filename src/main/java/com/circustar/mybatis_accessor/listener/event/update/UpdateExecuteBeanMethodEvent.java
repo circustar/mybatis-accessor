@@ -2,8 +2,8 @@ package com.circustar.mybatis_accessor.listener.event.update;
 
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import org.springframework.context.ApplicationContext;

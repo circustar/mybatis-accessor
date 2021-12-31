@@ -10,8 +10,6 @@ import org.apache.ibatis.mapping.SqlSource;
 
 public class PhysicDelete extends AbstractMethod {
     private static final long serialVersionUID = -1L;
-    public PhysicDelete() {
-    }
 
     @Override
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {

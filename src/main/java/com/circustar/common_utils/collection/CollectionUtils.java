@@ -8,25 +8,25 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class CollectionUtils {
-    public static boolean isCollection(Object o) {
-        if(o == null) {return false;}
+    public static boolean isCollection(final Object object) {
+        if(object == null) {return false;}
 
-        return Collection.class.isAssignableFrom(o.getClass());
+        return Collection.class.isAssignableFrom(object.getClass());
     }
 
-    public static List convertToList(Object o) {
-        if(o == null) {return Collections.emptyList();}
+    public static List convertToList(final Object object) {
+        if(object == null) {return Collections.emptyList();}
 
-        if(Collection.class.isAssignableFrom(o.getClass())) {
-            if(List.class.isAssignableFrom(o.getClass())) {
-                return (List) o;
+        if(Collection.class.isAssignableFrom(object.getClass())) {
+            if(List.class.isAssignableFrom(object.getClass())) {
+                return (List) object;
             }
-            return new ArrayList((Collection)o);
+            return new ArrayList((Collection)object);
         }
-        return Collections.singletonList(o);
+        return Collections.singletonList(object);
     }
 
-    public static <T> String[] convertStreamToStringArray(Stream<T> stream) {
+    public static <T> String[] convertStreamToStringArray(final Stream<T> stream) {
         List<T> list = stream.collect(Collectors.toList());
         return list.toArray(new String[0]);
     }

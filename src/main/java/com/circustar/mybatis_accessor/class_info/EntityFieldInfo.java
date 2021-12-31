@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.classInfo;
+package com.circustar.mybatis_accessor.class_info;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -24,20 +24,22 @@ public class EntityFieldInfo {
     private PropertyDescriptor propertyDescriptor;
     private IdReference idReference;
     private boolean isLogicDeleteField;
+    private Boolean primitive;
+    private Boolean collection = false;
+    private Type actualType;
+    private Type ownType;
 
-    public Boolean getPrimitive() {
-        return isPrimitive;
+    public Boolean isPrimitive() {
+        return primitive;
     }
 
     public boolean isKeyColumn() {
         return isKeyColumn;
     }
 
-    public Boolean getCollection() {
-        return isCollection;
+    public Boolean isCollection() {
+        return collection;
     }
-
-    private Boolean isPrimitive;
 
     public Field getField() {
         return field;
@@ -47,12 +49,8 @@ public class EntityFieldInfo {
         this.field = field;
     }
 
-    public Boolean getIsCollection() {
-        return isCollection;
-    }
-
-    public void setIsCollection(Boolean collection) {
-        isCollection = collection;
+    public void setCollection(Boolean collection) {
+        this.collection = collection;
     }
 
     public Type getActualType() {
@@ -79,10 +77,6 @@ public class EntityFieldInfo {
         this.entityClassInfo = entityClassInfo;
     }
 
-    private Boolean isCollection = false;
-    private Type actualType;
-    private Type ownType;
-
     public PropertyDescriptor getPropertyDescriptor() {
         return propertyDescriptor;
     }
@@ -99,25 +93,25 @@ public class EntityFieldInfo {
         this.idReference = idReference;
     }
 
-    public static EntityFieldInfo parseField(Class c, PropertyDescriptor propertyDescriptor, EntityClassInfo entityClassInfo) {
+    public static EntityFieldInfo parseField(Class clazz, PropertyDescriptor propertyDescriptor, EntityClassInfo entityClassInfo) {
         EntityFieldInfo fieldInfo = new EntityFieldInfo();
         fieldInfo.setEntityClassInfo(entityClassInfo);
         fieldInfo.setPropertyDescriptor(propertyDescriptor);
-        Field field = FieldUtils.getField(c ,propertyDescriptor.getName());
+        Field field = FieldUtils.getField(clazz ,propertyDescriptor.getName());
         assert(field != null);
         fieldInfo.setField(field);
         IdReference idReference = fieldInfo.getField().getAnnotation(IdReference.class);
         fieldInfo.setIdReference(idReference);
         if(Collection.class.isAssignableFrom(field.getType())
                 && field.getGenericType() instanceof ParameterizedType) {
-            fieldInfo.setIsCollection(true);
+            fieldInfo.setCollection(true);
             fieldInfo.setActualType(((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]);
             fieldInfo.setOwnType(((ParameterizedType) field.getGenericType()).getRawType());
-            fieldInfo.isPrimitive = false;
+            fieldInfo.primitive = false;
         } else {
-            fieldInfo.setIsCollection(false);
+            fieldInfo.setCollection(false);
             fieldInfo.setActualType(field.getType());
-            fieldInfo.isPrimitive = field.getType().isPrimitive();
+            fieldInfo.primitive = field.getType().isPrimitive();
         }
         fieldInfo.tableField = field.getAnnotation(TableField.class);
         if(fieldInfo.tableField != null && !StringUtils.isEmpty(fieldInfo.tableField.value())) {

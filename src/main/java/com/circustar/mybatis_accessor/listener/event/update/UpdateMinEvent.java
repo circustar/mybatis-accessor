@@ -4,7 +4,7 @@ import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.collection.NumberUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.support.MybatisAccessorService;
 
 import java.lang.reflect.Method;
@@ -26,7 +26,7 @@ public class UpdateMinEvent extends UpdateSumEvent implements IUpdateEvent<Updat
         DtoField updateField = dtoFields.get(2);
         Method readMethod = updateField.getPropertyDescriptor().getReadMethod();
         Optional<BigDecimal> minValue = valueList.stream().map(x -> NumberUtils.readDecimalValue(x, readMethod))
-                .min(Comparator.comparing(x -> ((BigDecimal) x)));
+                .min(Comparator.comparing(x -> (BigDecimal) x));
         return minValue.isPresent() ? minValue.get() : BigDecimal.ZERO;
     }
 }

@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.classInfo;
+package com.circustar.mybatis_accessor.class_info;
 
 import com.circustar.common_utils.reflection.ClassUtils;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
@@ -114,17 +114,17 @@ public class DtoClassInfoHelper {
         }
         try {
             Collection childList = ClassUtils.createInstance(implementClass);
-            Iterator it = objects.iterator();
-            while (it.hasNext()) {
-                Object object = it.next();
-                if (object == null) continue;
+            Iterator iterator = objects.iterator();
+            while (iterator.hasNext()) {
+                Object object = iterator.next();
+                if (object == null) {continue;}
                 Object child = dtoClassInfo.convertToEntity(object);
                 childList.add(child);
             }
             if(isWithSubFields) {
                 for (DtoField dtoField : dtoClassInfo.getSubDtoFieldList()) {
                     EntityFieldInfo entityEntityFieldInfo = dtoField.getEntityFieldInfo();
-                    if (entityEntityFieldInfo == null || !entityEntityFieldInfo.getIsCollection()) {
+                    if (entityEntityFieldInfo == null || !entityEntityFieldInfo.isCollection()) {
                         continue;
                     }
                     Iterator itFrom = objects.iterator();
@@ -181,9 +181,9 @@ public class DtoClassInfoHelper {
                 throw new RuntimeException("Collection type not Support!");
             }
             R objectList = (R) ClassUtils.createInstance(implementClass);
-            Iterator it = entityList.iterator();
-            while (it.hasNext()) {
-                Object entity = it.next();
+            Iterator iterator = entityList.iterator();
+            while (iterator.hasNext()) {
+                Object entity = iterator.next();
                 if (entity == null) {
                     objectList.add(null);
                     continue;
@@ -200,7 +200,7 @@ public class DtoClassInfoHelper {
                 Iterator itTo = objectList.iterator();
                 while (itFrom.hasNext()) {
                     Object entity = itFrom.next();
-                    if (entity == null) continue;
+                    if (entity == null) {continue;}
                     Object child = FieldUtils.getFieldValue(entity, entityEntityFieldInfo.getPropertyDescriptor().getReadMethod());
                     if (child == null) {
                         continue;

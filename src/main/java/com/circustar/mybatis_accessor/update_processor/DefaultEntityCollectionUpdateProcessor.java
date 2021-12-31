@@ -1,12 +1,12 @@
-package com.circustar.mybatis_accessor.updateProcessor;
+package com.circustar.mybatis_accessor.update_processor;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.common_utils.listener.IListener;
 import com.circustar.common_utils.listener.IListenerContext;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.EntityClassInfo;
-import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.EntityClassInfo;
+import com.circustar.mybatis_accessor.class_info.EntityFieldInfo;
 import com.circustar.mybatis_accessor.listener.UpdateProcessorDecodeListener;
 import com.circustar.mybatis_accessor.listener.UpdateProcessorPropertyChangeListener;
 import com.circustar.mybatis_accessor.listener.UpdateProcessorUpdateListener;
@@ -19,6 +19,19 @@ import java.util.*;
 import java.util.function.Supplier;
 
 public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProcessor<Collection>, IListenerContext<DefaultEntityCollectionUpdateProcessor> {
+    private Object option;
+    private IUpdateCommand updateCommand;
+    private IService service;
+    private Boolean updateChildFirst;
+    private List updateDtoList;
+    private boolean needConvertToEntity;
+    private List updateEntityList;
+    private List<IEntityUpdateProcessor> subUpdateEntities;
+    private DtoClassInfo dtoClassInfo;
+    private EntityClassInfo entityClassInfo;
+    private boolean updateChildrenOnly;
+    private List<IListener<DefaultEntityCollectionUpdateProcessor>> listenerList;
+
     public DefaultEntityCollectionUpdateProcessor(IService service
             , IUpdateCommand updateCommand
             , Object option
@@ -37,17 +50,6 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         this.entityClassInfo = dtoClassInfo.getEntityClassInfo();
         this.updateChildrenOnly = updateChildrenOnly;
     }
-    private Object option;
-    private IUpdateCommand updateCommand;
-    private IService service;
-    private Boolean updateChildFirst;
-    private List updateDtoList;
-    private boolean needConvertToEntity;
-    private List updateEntityList;
-    private List<IEntityUpdateProcessor> subUpdateEntities;
-    private DtoClassInfo dtoClassInfo;
-    private EntityClassInfo entityClassInfo;
-    private boolean updateChildrenOnly;
 
     public void addSubUpdateEntity(DefaultEntityCollectionUpdateProcessor subDefaultEntityCollectionUpdater) {
         if(this.subUpdateEntities == null) {
@@ -135,7 +137,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         }
         if (!updateChildrenOnly) {
             result = this.updateCommand.update(this.service, this.updateEntityList, option);
-            if (!result) return false;
+            if (!result) {return false;}
             if(IUpdateCommand.UpdateType.INSERT.equals(this.updateCommand.getUpdateType())) {
                 Method keyFieldWriteMethod = this.dtoClassInfo.getKeyField().getPropertyDescriptor().getWriteMethod();
                 final Method keyFieldReadMethod = entityClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
@@ -195,8 +197,6 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         }
         return true;
     }
-
-    private List<IListener<DefaultEntityCollectionUpdateProcessor>> listenerList;
 
     @Override
     public void init(DefaultEntityCollectionUpdateProcessor target) {

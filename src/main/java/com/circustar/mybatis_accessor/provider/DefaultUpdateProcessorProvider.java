@@ -1,12 +1,12 @@
 package com.circustar.mybatis_accessor.provider;
 
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
+import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.provider.parameter.*;
 import com.circustar.mybatis_accessor.service.ISelectService;
-import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
-import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
+import com.circustar.mybatis_accessor.update_processor.DefaultEntityCollectionUpdateProcessor;
+import com.circustar.mybatis_accessor.update_processor.IEntityUpdateProcessor;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.provider.command.*;
 import com.circustar.common_utils.collection.CollectionUtils;
@@ -87,7 +87,7 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
                     , dtoClassInfo
                     , Collections.singletonList(updateDto)
                     , true
-                    , this.getUpdateChildrenFirst()
+                    , this.isUpdateChildrenFirst()
                     , options.isUpdateChildrenOnly());
 
             Serializable keyValue = (Serializable) FieldUtils.getFieldValue(updateDto, dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod());
@@ -104,7 +104,7 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
                                     .collect(Collectors.toList());
                             defaultEntityCollectionUpdater.addSubUpdateEntities(defaultDeleteByIdProvider
                                     .createUpdateEntities(subDtoField.getFieldDtoClassInfo().getEntityDtoServiceRelation()
-                                            , dtoClassInfoHelper, subIds, DefaultEntityProviderParam.IncludeAllEntityProviderParam));
+                                            , dtoClassInfoHelper, subIds, DefaultEntityProviderParam.INCLUDE_ALL_ENTITY_PROVIDER_PARAM));
                         }
                     }
                     if(!childList.isEmpty()) {
@@ -142,7 +142,7 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
                     , dtoClassInfo
                     , updateDtoList
                     , true
-                    , this.getUpdateChildrenFirst()
+                    , this.isUpdateChildrenFirst()
                     , options.isUpdateChildrenOnly()));
         } else {
             result.addAll(updateResult);

@@ -3,9 +3,9 @@ package com.circustar.mybatis_accessor.model;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.circustar.mybatis_accessor.annotation.dto.QueryOrder;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
-import com.circustar.mybatis_accessor.classInfo.EntityClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoField;
+import com.circustar.mybatis_accessor.class_info.EntityClassInfo;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.utils.TableJoinColumnPrefixManager;
 import org.springframework.util.StringUtils;
@@ -26,6 +26,7 @@ public class QueryWrapperCreator {
     private EntityClassInfo entityClassInfo;
     private TableInfo tableInfo;
     private List<DtoField> joinTableDtoFields;
+    private QueryWrapperBuilder baseWrapperBuilder;
 
     public QueryWrapperCreator(DtoClassInfo dtoClassInfo) {
         this.dtoClassInfo = dtoClassInfo;
@@ -75,7 +76,7 @@ public class QueryWrapperCreator {
                 .stream()
                 .filter(x -> x.getTableJoinInfo() != null)
                 .collect(Collectors.toList());
-            ;
+
             List<QuerySelectModel> joinQueryModels = this.joinTableDtoFields.stream().map(x -> {
                 return this.dtoClassInfo.getDtoClassInfoHelper().getDtoClassInfo(x.getEntityDtoServiceRelation())
                         .getNormalFieldList().stream()
@@ -103,7 +104,6 @@ public class QueryWrapperCreator {
         }
     }
 
-    private QueryWrapperBuilder baseWrapperBuilder;
     public static QueryWrapperBuilder createQueryWrapperBuilder(
             List<QuerySelectModel> querySelectModels
            ,List<QueryGroupByModel> queryGroupByModels
@@ -161,25 +161,25 @@ public class QueryWrapperCreator {
         }
 
         public <T> QueryWrapper<T> createQueryWrapper() {
-            QueryWrapper<T> qw = new QueryWrapper<>();
+            QueryWrapper<T> queryWrapper = new QueryWrapper<>();
             if(columns != null && columns.length > 0) {
-                qw.select(columns);
+                queryWrapper.select(columns);
             }
             if(groupBys != null && !groupBys.isEmpty()) {
-                qw.groupBy(groupBys);
+                queryWrapper.groupBy(groupBys);
             }
             if(!StringUtils.isEmpty(having)) {
-                qw.having(having);
+                queryWrapper.having(having);
             }
             orderModels.stream().forEach(x ->  {
                 if(QueryOrder.ORDER_DESC.equals(x.getSortOrder())) {
-                    qw.orderByDesc(x.getOrderExpression());
+                    queryWrapper.orderByDesc(x.getOrderExpression());
                 } else {
-                    qw.orderByAsc(x.getOrderExpression());
+                    queryWrapper.orderByAsc(x.getOrderExpression());
                 }
             });
 
-            return qw;
+            return queryWrapper;
         }
     }
 }

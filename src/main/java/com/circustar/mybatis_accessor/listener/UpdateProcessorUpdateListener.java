@@ -4,9 +4,9 @@ import com.circustar.common_utils.listener.IListener;
 import com.circustar.common_utils.listener.IListenerTiming;
 import com.circustar.common_utils.parser.SPELParser;
 import com.circustar.mybatis_accessor.listener.event.update.UpdateEventModel;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
-import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
+import com.circustar.mybatis_accessor.update_processor.DefaultEntityCollectionUpdateProcessor;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -45,7 +45,7 @@ public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCol
     }
 
     @Override
-    public void listenerExec(DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdateProcessor
+    public void listenerExec(DefaultEntityCollectionUpdateProcessor target
             , IListenerTiming eventTiming, String updateEventLogId, int level) {
         List<UpdateEventModel> updateModelList = updateEventList.stream()
                 .filter(x -> eventTiming.equals(x.getExecuteTiming()))

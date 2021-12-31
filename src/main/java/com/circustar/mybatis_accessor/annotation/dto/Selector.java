@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Repeatable(MultiSelector.class)
 public @interface Selector {
     String tableColumn() default "";
-    Connector connector() default Connector.eq;
+    Connector connector() default Connector.EQ;
     String[] valueExpression();
     int order() default 1;
 }

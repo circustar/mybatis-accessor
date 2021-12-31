@@ -2,8 +2,8 @@ package com.circustar.mybatis_accessor.listener.event.update;
 
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoField;
 import java.util.List;
 public class UpdateAvgAssignSqlEvent extends UpdateAssignSqlEvent implements IUpdateEvent<UpdateEventModel> {
     @Override
@@ -15,7 +15,7 @@ public class UpdateAvgAssignSqlEvent extends UpdateAssignSqlEvent implements IUp
         String sWeightColumnName = "1";
         String precision = updateEventModel.getUpdateParams().get(3);
 
-        return String.format(selectSql
+        return String.format(SELECT_SQL
                 , sWeightColumnName, mainTableId, sTableId, sWeightColumnName
                 , mainTableId, "%s", precision
                 , sWeightColumnName, mainTableId, sTableId, sWeightColumnName

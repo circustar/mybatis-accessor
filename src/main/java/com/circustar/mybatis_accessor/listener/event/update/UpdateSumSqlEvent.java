@@ -2,16 +2,16 @@ package com.circustar.mybatis_accessor.listener.event.update;
 
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoField;
 
 import java.util.List;
 
 public class UpdateSumSqlEvent extends UpdateCountSqlEvent implements IUpdateEvent<UpdateEventModel> {
-    private static final String originalSql = "select sum(t1.%s) from %s t1 where t1.%s = %s.%s";
+    private static final String ORIGINAL_SQL = "select sum(t1.%s) from %s t1 where t1.%s = %s.%s";
 
     protected String getOriginalSql(List<String> originParams) {
-        return UpdateSumSqlEvent.originalSql;
+        return UpdateSumSqlEvent.ORIGINAL_SQL;
     }
 
     @Override

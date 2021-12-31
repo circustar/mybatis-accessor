@@ -10,11 +10,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class BaseMapperScanner {
+public abstract class BaseMapperScanner {
     private static Set<String> scannedPackages = new HashSet<>();
     private static Map<String, Set<Class<? extends BaseMapper>>> packageBaseMappers = new ConcurrentHashMap<>();
     private static Map<Class<?>, Set<Class<? extends BaseMapper>>> baseMapperMap = new ConcurrentHashMap<>();
     private static ClassPathScanningCandidateComponentProvider provider;
+    private static Lock lock = new ReentrantLock();
     static {
         provider = new InterfaceCandidateComponentProvider(false);
         provider.addIncludeFilter(new CustomInterfaceFilter(BaseMapper.class));
@@ -22,7 +23,6 @@ public class BaseMapperScanner {
     public static boolean packageScanned(String scanPackage) {
         return scannedPackages.contains(scanPackage);
     }
-    private static Lock lock = new ReentrantLock();
     public static void scan(String scanPackage) throws ClassNotFoundException {
         if (scannedPackages.contains(scanPackage)) {
             return;

@@ -1,12 +1,12 @@
 package com.circustar.mybatis_accessor.provider;
 
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
+import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.provider.parameter.DefaultEntityProviderParam;
 import com.circustar.mybatis_accessor.provider.parameter.IEntityProviderParam;
-import com.circustar.mybatis_accessor.updateProcessor.DefaultEntityCollectionUpdateProcessor;
-import com.circustar.mybatis_accessor.updateProcessor.IEntityUpdateProcessor;
+import com.circustar.mybatis_accessor.update_processor.DefaultEntityCollectionUpdateProcessor;
+import com.circustar.mybatis_accessor.update_processor.IEntityUpdateProcessor;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.provider.command.InsertCommand;
 import com.circustar.common_utils.collection.CollectionUtils;
@@ -55,7 +55,7 @@ public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider
                     , dtoClassInfo
                     , Collections.singletonList(value)
                     , true
-                    , this.getUpdateChildrenFirst()
+                    , this.isUpdateChildrenFirst()
                     , updateChildrenOnly);
             for(DtoField dtoField : dtoFields) {
                 Object subValue = FieldUtils.getFieldValue(value, dtoField.getPropertyDescriptor().getReadMethod());
@@ -82,7 +82,7 @@ public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider
                         , dtoClassInfo
                         , dtoList
                         , true
-                        , this.getUpdateChildrenFirst()
+                        , this.isUpdateChildrenFirst()
                         , false);
                 return Collections.singletonList(defaultEntityCollectionUpdater);
             }

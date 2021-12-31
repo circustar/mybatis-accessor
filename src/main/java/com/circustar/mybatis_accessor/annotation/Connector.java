@@ -9,7 +9,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 public enum Connector {
-    eq("eq", (column, wrapper, values) -> {
+    EQ("eq", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){
             return;
         }
@@ -20,7 +20,7 @@ public enum Connector {
         }
         return column + " = " + values[0];
     }),
-    isNull("isNull", (column, wrapper, values) -> {
+    IS_NULL("isNull", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){
             wrapper.isNull(column);
         }
@@ -30,7 +30,7 @@ public enum Connector {
         }
         return "";
     }),
-    like("like", (column, wrapper, values) -> {
+    LIKE("like", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){return;}
         wrapper.like(column, values[0]);}
         ,(column, values) -> {
@@ -39,7 +39,7 @@ public enum Connector {
         }
         return column + " like %" + values[0] + "%";
     }),
-    likeLeft("likeLeft", (column, wrapper, values) -> {
+    LIKE_LEFT("likeLeft", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){return;}
         wrapper.likeLeft(column, values[0]);}
         , (column, values) -> {
@@ -48,7 +48,7 @@ public enum Connector {
         }
         return column + " like %" + values[0];
     }),
-    likeRight("likeRight", (column, wrapper, values) -> {
+    LIKE_RIGHT("likeRight", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){return;}
         wrapper.likeRight(column, values[0]);}
         , (column, values) -> {
@@ -57,7 +57,7 @@ public enum Connector {
         }
         return column + " like " + values[0] + "%";
     }),
-    in("in", (column, wrapper, values) -> {
+    IN("in", (column, wrapper, values) -> {
         if(values == null || values.length == 0){return;}
         wrapper.in(column, values);}
         , (column, values) -> {
@@ -66,7 +66,7 @@ public enum Connector {
         }
         return column + " in (" + Arrays.stream(values).collect(Collectors.joining(","))  + ") ";
     }),
-    gt("gt", (column, wrapper, values) -> {
+    GT("gt", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){return;}
         wrapper.gt(column, values[0]);}
         , (column, values) -> {
@@ -75,7 +75,7 @@ public enum Connector {
         }
         return column + " > " + values[0];
     }),
-    ge("ge", (column, wrapper, values) -> {
+    GE("ge", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){return;}
         wrapper.ge(column, values[0]);}
         , (column, values) -> {
@@ -84,7 +84,7 @@ public enum Connector {
         }
         return column + " >= " + values[0];
     }),
-    lt("lt", (column, wrapper, values) -> {
+    LT("lt", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){return;}
         wrapper.lt(column, values[0]);}
         , (column, values) -> {
@@ -93,7 +93,7 @@ public enum Connector {
         }
         return column + " < " + values[0];
     }),
-    le("le", (column, wrapper, values) -> {
+    LE("le", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){return;}
         wrapper.le(column, values[0]);}
         , (column, values) -> {
@@ -102,7 +102,7 @@ public enum Connector {
         }
         return column + " <= " + values[0];
     }),
-    between("between", (column, wrapper, values) -> {
+    BETWEEN("between", (column, wrapper, values) -> {
         if(values != null && values.length >= 2) {
             if(!StringUtils.isEmpty(values[0]) && !StringUtils.isEmpty(values[1])) {
                 wrapper.between(column,values[0], values[1]);
@@ -124,7 +124,7 @@ public enum Connector {
         }
         return "";
     }),
-    exists("exists", (column, wrapper, values) -> {
+    EXISTS("exists", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){return;}
         wrapper.exists(values[0].toString());
     }, (column, values) -> {
@@ -133,7 +133,7 @@ public enum Connector {
         }
         return " exists( " + values[0] + ")";
     }),
-    ne("ne", (column, wrapper, values) -> {
+    NE("ne", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){return;}
         wrapper.ne(column, values[0]);}
         , (column, values) -> {
@@ -142,13 +142,13 @@ public enum Connector {
         }
         return column + " <> " + values[0];
     }),
-    isNotNull("isNotNull", (column, wrapper, values) -> {
+    IS_NOT_NULL("isNotNull", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){wrapper.isNotNull(column);}
     }, (column, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){return column + " is not null ";}
         return "";
     }),
-    notLike("notLike", (column, wrapper, values) -> {
+    NOT_LIKE("notLike", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){return;}
         wrapper.notLike(column, values[0]);}
         , (column, values) -> {
@@ -157,7 +157,7 @@ public enum Connector {
         }
         return column + " not like %" + values[0] + "%";
     }),
-    notIn("notIn", (column, wrapper, values) -> {
+    NOT_IN("notIn", (column, wrapper, values) -> {
         if(values == null || values.length == 0){return;}
         wrapper.notIn(column, values);}
         , (column, values) -> {
@@ -166,7 +166,7 @@ public enum Connector {
         }
         return column + " not in (" + Arrays.stream(values).collect(Collectors.joining(",")) + ") ";
     }),
-    notBetween("notBetween", (column, wrapper, values) -> {
+    NOT_BETWEEN("notBetween", (column, wrapper, values) -> {
         if(values == null){return;}
         if(values.length >= 2) {
             if(!StringUtils.isEmpty(values[0]) && !StringUtils.isEmpty(values[1])) {
@@ -189,7 +189,7 @@ public enum Connector {
         }
         return "";
     }),
-    notExists("notExists", (column, wrapper, values) -> {
+    NOT_EXISTS("notExists", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){return;}
         wrapper.notExists(values[0].toString());
     }, (column, values) -> {
@@ -222,7 +222,7 @@ public enum Connector {
     }
 
     public static Connector getConnectorByName(String name) {
-        if(StringUtils.isEmpty(name)) return null;
+        if(StringUtils.isEmpty(name)) {return null;}
         return Arrays.stream(Connector.values()).filter(x -> x.connector.equals(name)).findFirst().orElse(null);
     };
 

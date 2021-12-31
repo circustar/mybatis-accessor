@@ -6,8 +6,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class UpdateCountSqlEvent extends AbstractUpdateEvent<UpdateEventModel> implements IUpdateEvent<UpdateEventModel> {
-    private static final String originalSql = "select count(*) from %s t1 where t1.%s = %s.%s";
+    private static final String ORIGINAL_SQL = "select count(*) from %s t1 where t1.%s = %s.%s";
 
     @Override
     public ExecuteTiming getDefaultExecuteTiming() {
@@ -56,7 +56,7 @@ public class UpdateCountSqlEvent extends AbstractUpdateEvent<UpdateEventModel> i
         if(subTableInfo == tableInfo) {
             upperKeyColumn = dtoFields.get(0).getDtoClassInfo().getEntityClassInfo().getIdReferenceFieldInfo().getColumnName();
         }
-        String selectSql = String.format(UpdateCountSqlEvent.originalSql
+        String selectSql = String.format(UpdateCountSqlEvent.ORIGINAL_SQL
                 , subTableInfo.getTableName()
                 , upperKeyColumn
                 , tableInfo.getTableName()
@@ -79,10 +79,10 @@ public class UpdateCountSqlEvent extends AbstractUpdateEvent<UpdateEventModel> i
         for(Object dto : dtoList) {
             Object keyValue = FieldUtils.getFieldValue(dto, keyField.getPropertyDescriptor().getReadMethod());
 
-            UpdateWrapper uw = new UpdateWrapper();
-            uw.setSql(mField.getEntityFieldInfo().getColumnName() + " = (" + execSelectSql + ")");
-            uw.eq(keyField.getEntityFieldInfo().getColumnName(), keyValue);
-            serviceBean.update(uw);
+            UpdateWrapper updateWrapper = new UpdateWrapper();
+            updateWrapper.setSql(mField.getEntityFieldInfo().getColumnName() + " = (" + execSelectSql + ")");
+            updateWrapper.eq(keyField.getEntityFieldInfo().getColumnName(), keyValue);
+            serviceBean.update(updateWrapper);
         }
     }
 

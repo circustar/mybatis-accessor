@@ -6,9 +6,9 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
-import com.circustar.mybatis_accessor.classInfo.EntityFieldInfo;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoField;
+import com.circustar.mybatis_accessor.class_info.EntityFieldInfo;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -21,7 +21,7 @@ import java.util.List;
 // 参数5：分配权重对应的变量名
 
 public class UpdateAssignSqlEvent extends UpdateAvgSqlEvent implements IUpdateEvent<UpdateEventModel> {
-    protected static final String selectSql = "Round((sum(%s) over (partition by %s order by %s)) / (sum(%s) over (partition by %s)) * %s, %s) " +
+    protected static final String SELECT_SQL = "Round((sum(%s) over (partition by %s order by %s)) / (sum(%s) over (partition by %s)) * %s, %s) " +
             "- Round(((sum(%s) over (partition by %s order by %s)) - %s) / (sum(%s) over (partition by %s)) * %s, %s) as %s";
 
     @Override
@@ -45,7 +45,7 @@ public class UpdateAssignSqlEvent extends UpdateAvgSqlEvent implements IUpdateEv
         String sWeightColumnName = dtoFields.get(3).getEntityFieldInfo().getColumnName();
         String precision = updateEventModel.getUpdateParams().get(3);
 
-        return String.format(selectSql
+        return String.format(SELECT_SQL
                 , sWeightColumnName, mainTableId, sTableId, sWeightColumnName
                 , mainTableId, "%s", precision
                 , sWeightColumnName, mainTableId, sTableId, sWeightColumnName
@@ -93,12 +93,12 @@ public class UpdateAssignSqlEvent extends UpdateAvgSqlEvent implements IUpdateEv
             }
             List subEntityList = sServiceBean.list(queryWrapper);
             for(Object subEntity : subEntityList) {
-                UpdateWrapper uw = new UpdateWrapper();
+                UpdateWrapper updateWrapper = new UpdateWrapper();
                 Object subKeyValue = FieldUtils.getFieldValue(subEntity, sKeyFieldReadMethod);
-                uw.eq(sTableId, subKeyValue);
+                updateWrapper.eq(sTableId, subKeyValue);
                 Object assignValue = FieldUtils.getFieldValue(subEntity, sAssignFieldReadMethod);
-                uw.set(sAssignColumnName, assignValue);
-                sServiceBean.update(uw);
+                updateWrapper.set(sAssignColumnName, assignValue);
+                sServiceBean.update(updateWrapper);
             }
         }
     }

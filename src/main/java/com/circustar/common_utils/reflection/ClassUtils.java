@@ -38,9 +38,9 @@ public abstract class ClassUtils {
         try {
             Constructor<?>[] constructors = clazz.getConstructors();
             Optional<Constructor<?>> any = Arrays.stream(constructors).filter(x -> x.getParameterCount() == 0).findAny();
-            T t;
+            T target;
             if(any.isPresent()) {
-                t = clazz.newInstance();
+                target = clazz.newInstance();
             } else {
                 Constructor<?> constructor = constructors[0];
                 Parameter[] parameters = constructor.getParameters();
@@ -51,9 +51,9 @@ public abstract class ClassUtils {
                         param[i] = getPrimitiveDefaultValue(parameters[i].getType());
                     }
                 }
-                t = (T) constructor.newInstance(param);
+                target = (T) constructor.newInstance(param);
             }
-            return t;
+            return target;
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

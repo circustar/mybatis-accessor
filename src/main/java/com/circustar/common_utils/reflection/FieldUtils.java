@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public abstract class FieldUtils {
     public static String parseClassName(String name) {
         return Arrays.stream(name.trim().replace('-', '_').split("_"))
-                .map(x -> x.substring(0,1).toUpperCase() + x.substring(1))
+                .map(x -> x.substring(0,1).toUpperCase(Locale.getDefault()) + x.substring(1))
                 .collect(Collectors.joining());
     }
 
@@ -64,8 +64,8 @@ public abstract class FieldUtils {
         try {
             return clazz.getDeclaredField(name);
         } catch (Exception ex) {
+            return getField(clazz.getSuperclass(), name);
         }
-        return getField(clazz.getSuperclass(), name);
     }
 
     public static List<PropertyDescriptor> getPropertyDescriptors(Class clazz) {

@@ -2,7 +2,7 @@ package com.circustar.mybatis_accessor.listener.event.update;
 
 import com.circustar.common_utils.parser.SPELParser;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import org.apache.ibatis.session.SqlSession;

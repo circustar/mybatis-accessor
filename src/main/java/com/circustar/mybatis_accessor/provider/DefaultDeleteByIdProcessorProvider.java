@@ -1,9 +1,9 @@
 package com.circustar.mybatis_accessor.provider;
 
 import com.circustar.common_utils.reflection.FieldUtils;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfoHelper;
-import com.circustar.mybatis_accessor.classInfo.DtoField;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
+import com.circustar.mybatis_accessor.class_info.DtoField;
 import org.springframework.context.ApplicationContext;
 
 import java.lang.reflect.Method;

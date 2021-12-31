@@ -3,7 +3,7 @@ package com.circustar.mybatis_accessor.relation;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.mybatis_accessor.classInfo.DtoClassInfo;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.converter.IConverter;
 import org.springframework.context.ApplicationContext;
 

@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.classInfo;
+package com.circustar.mybatis_accessor.class_info;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

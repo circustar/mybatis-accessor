@@ -9,6 +9,6 @@ import java.lang.annotation.*;
 @Inherited
 public @interface QueryWhere {
     String tableColumn() default "";
-    Connector connector() default Connector.eq;
+    Connector connector() default Connector.EQ;
     String expression() default "";
 }

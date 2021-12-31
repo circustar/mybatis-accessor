@@ -1,4 +1,4 @@
-package com.circustar.mybatis_accessor.classInfo;
+package com.circustar.mybatis_accessor.class_info;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -10,7 +10,7 @@ import com.circustar.common_utils.parser.SPELParser;
 import java.io.Serializable;
 import java.util.*;
 
-public class DtoFields {
+public abstract class DtoFields {
     public static void assignDtoField(DtoClassInfoHelper dtoClassInfoHelper, Object obj, DtoField dtoField, List<Object> values) {
         if(!dtoField.getCollection()) {
             FieldUtils.setFieldValue(obj, dtoField.getPropertyDescriptor().getWriteMethod(), (values == null || values.isEmpty())?
@@ -22,11 +22,11 @@ public class DtoFields {
             return;
         }
         try {
-            Collection c = ClassUtils.createInstance(supportGenericType.getTargetClass());
+            Collection collection = ClassUtils.createInstance(supportGenericType.getTargetClass());
             for (Object var0 : values) {
-                c.add(dtoClassInfoHelper.convertFromEntity(var0, dtoField.getFieldDtoClassInfo()));
+                collection.add(dtoClassInfoHelper.convertFromEntity(var0, dtoField.getFieldDtoClassInfo()));
             }
-            FieldUtils.setFieldValue(obj, dtoField.getPropertyDescriptor().getWriteMethod(), c);
+            FieldUtils.setFieldValue(obj, dtoField.getPropertyDescriptor().getWriteMethod(), collection);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -58,17 +58,17 @@ public class DtoFields {
             if(subDtoClassInfoDtoField == null && masterDtoClassInfoDtoField == null) {
                 continue;
             }
-            QueryWrapper qw = null;
+            QueryWrapper queryWrapper = null;
             if(subDtoClassInfoDtoField != null) {
-                qw = new QueryWrapper();
-                qw.eq(subDtoClassInfoDtoField.getEntityFieldInfo().getColumnName(), dtoId);
+                queryWrapper = new QueryWrapper();
+                queryWrapper.eq(subDtoClassInfoDtoField.getEntityFieldInfo().getColumnName(), dtoId);
             } else if(masterDtoClassInfoDtoField != null) {
-                qw = new QueryWrapper();
+                queryWrapper = new QueryWrapper();
                 Object subDtoId = FieldUtils.getFieldValue(dto, masterDtoClassInfoDtoField.getEntityFieldInfo().getPropertyDescriptor().getReadMethod());
-                qw.eq(subDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), subDtoId);
+                queryWrapper.eq(subDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), subDtoId);
             }
             IService service = subDtoClassInfo.getServiceBean();
-            List searchResult = service.list(qw);
+            List searchResult = service.list(queryWrapper);
             assignDtoField(dtoClassInfo.getDtoClassInfoHelper(), dto, dtoField, searchResult);
         }
     }
@@ -82,12 +82,12 @@ public class DtoFields {
             }
             DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(subRelation);
             IService service =  subDtoClassInfo.getServiceBean();
-            QueryWrapper qw = new QueryWrapper();
+            QueryWrapper queryWrapper = new QueryWrapper();
 
-            dtoField.getSelectors().forEach(x -> x.connector().consume(x.tableColumn(), qw
+            dtoField.getSelectors().forEach(x -> x.connector().consume(x.tableColumn(), queryWrapper
                     , SPELParser.parseExpression(dto, Arrays.asList(x.valueExpression()))));
 
-            List searchResult = service.list(qw);
+            List searchResult = service.list(queryWrapper);
             assignDtoField(dtoClassInfoHelper, dto, dtoField, searchResult);
         }
     }
