@@ -53,7 +53,7 @@ public class UpdateCountSqlEvent extends AbstractUpdateEvent<UpdateEventModel> i
     protected String createSqlPart(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo, TableInfo tableInfo
             , DtoClassInfo subDtoClassInfo, TableInfo subTableInfo, List<DtoField> dtoFields) {
         String upperKeyColumn = tableInfo.getKeyColumn();
-        if(subTableInfo == tableInfo) {
+        if(subTableInfo.equals(tableInfo)) {
             upperKeyColumn = dtoFields.get(0).getDtoClassInfo().getEntityClassInfo().getIdReferenceFieldInfo().getColumnName();
         }
         String selectSql = String.format(UpdateCountSqlEvent.ORIGINAL_SQL

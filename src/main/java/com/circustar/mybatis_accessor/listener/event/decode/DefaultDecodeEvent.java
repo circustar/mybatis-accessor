@@ -39,10 +39,11 @@ public class DefaultDecodeEvent implements IDecodeEvent<DecodeEventModel> {
         List<DtoField> sourcePropertyDtoFieldList = model.getSourcePropertyDtoFieldList();
         List<DtoField> targetPropertyDtoFieldList = model.getTargetPropertyDtoFieldList();
         List<DtoField> matchProperties = model.getMatchPropertyDtoFields();
+        List matchValues = new ArrayList();
         try {
             Object queryDto = sourceDtoClassInfo.createInstance();
             for (Object dto : dtoList) {
-                List matchValues = new ArrayList();
+                matchValues.clear();
                 for (int i = 0; i < matchProperties.size(); i++) {
                     Object fieldValue = FieldUtils.getFieldValue(dto, matchProperties.get(i).getPropertyDescriptor().getReadMethod());
                     FieldUtils.setFieldValue(queryDto

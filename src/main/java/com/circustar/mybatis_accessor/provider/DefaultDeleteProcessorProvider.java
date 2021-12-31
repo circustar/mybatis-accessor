@@ -76,6 +76,7 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
                     .collect(Collectors.toList());
         } else {
             List<DtoField> dtoFields = DtoClassInfo.getDtoFieldsByName(dtoClassInfo, options.isIncludeAllChildren(), true, topEntities);
+            List<IEntityUpdateProcessor> subUpdateEntities = new ArrayList<>();
             for (Object dto : dtoList) {
                 Serializable id = (Serializable) getUpdateId(dto, dtoClassInfo.getKeyField());
                 if(id == null) {
@@ -87,7 +88,7 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
                     throw new RuntimeException(relation.getEntityClass().getSimpleName()
                             + " delete exception : key not found : " + id);
                 }
-                List<IEntityUpdateProcessor> subUpdateEntities = new ArrayList<>();
+                subUpdateEntities.clear();
                 for (DtoField subDtoField : dtoFields) {
                     Object subDto = FieldUtils.getFieldValue(object, subDtoField.getPropertyDescriptor().getReadMethod());
                     if (subDto == null) { continue; }

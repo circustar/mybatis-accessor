@@ -45,7 +45,7 @@ public abstract class DtoFields {
             DtoClassInfo subDtoClassInfo = dtoClassInfo.getDtoClassInfoHelper().getDtoClassInfo(childInfo);
             DtoField subDtoClassInfoDtoField = null;
             DtoField masterDtoClassInfoDtoField = null;
-            if(subDtoClassInfo == dtoClassInfo && dtoClassInfo.getIdReferenceField() != null) {
+            if(subDtoClassInfo.equals(dtoClassInfo) && dtoClassInfo.getIdReferenceField() != null) {
                 if(Collection.class.isAssignableFrom(dtoField.getOwnClass())) {
                     subDtoClassInfoDtoField =  dtoClassInfo.getIdReferenceField();
                 } else {

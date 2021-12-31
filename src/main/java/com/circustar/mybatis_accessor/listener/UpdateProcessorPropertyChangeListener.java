@@ -86,8 +86,9 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
         List<PropertyChangeEventModel> execChangeList = onChangeList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming()))
                 .filter(x -> x.getUpdateTypes().stream().anyMatch(y -> updateCommand.getUpdateType().equals(y)))
                 .collect(Collectors.toList());
+        List executeDtoList = new ArrayList();
         for (PropertyChangeEventModel m : execChangeList) {
-            List executeDtoList = new ArrayList();
+            executeDtoList.clear();
             for (int i = 0; i < updateDtoList.size(); i++) {
                 Object newDto = updateDtoList.get(i);
                 Object oldDto = oldDtoList.get(i);

@@ -52,8 +52,9 @@ public class UpdateProcessorDecodeListener implements IListener<DefaultEntityCol
                 .filter(x -> eventTiming.equals(x.getExecuteTiming()))
                 .filter(x -> x.getUpdateTypes().stream().anyMatch(y -> updateCommand.getUpdateType().equals(y)))
                 .collect(Collectors.toList());
+        List executeDtoList = new ArrayList();
         for(DecodeEventModel m : updateModelList) {
-            List executeDtoList = new ArrayList();
+            executeDtoList.clear();
             for(Object updateDto : updateDtoList) {
                 boolean execFlag = true;
                 if(StringUtils.hasLength(m.getOnExpression())) {

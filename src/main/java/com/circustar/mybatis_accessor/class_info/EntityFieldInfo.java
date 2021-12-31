@@ -19,11 +19,11 @@ public class EntityFieldInfo {
 
     private TableField tableField;
     private String columnName;
-    private boolean isKeyColumn;
+    private boolean keyColumn;
     private EntityClassInfo entityClassInfo;
     private PropertyDescriptor propertyDescriptor;
     private IdReference idReference;
-    private boolean isLogicDeleteField;
+    private boolean logicDeleteField;
     private Boolean primitive;
     private Boolean collection = false;
     private Type actualType;
@@ -34,7 +34,7 @@ public class EntityFieldInfo {
     }
 
     public boolean isKeyColumn() {
-        return isKeyColumn;
+        return keyColumn;
     }
 
     public Boolean isCollection() {
@@ -121,7 +121,7 @@ public class EntityFieldInfo {
         }
         TableId tableId = field.getAnnotation(TableId.class);
         if(tableId != null) {
-            fieldInfo.isKeyColumn = true;
+            fieldInfo.keyColumn = true;
             if(!StringUtils.isEmpty(tableId.value())) {
                 fieldInfo.columnName = tableId.value();
             }
@@ -141,10 +141,10 @@ public class EntityFieldInfo {
     }
 
     public boolean isLogicDeleteField() {
-        return isLogicDeleteField;
+        return logicDeleteField;
     }
 
     public void setLogicDeleteField(boolean logicDeleteField) {
-        isLogicDeleteField = logicDeleteField;
+        this.logicDeleteField = logicDeleteField;
     }
 }

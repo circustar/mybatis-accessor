@@ -23,7 +23,7 @@ public class DtoField {
     private QueryHaving queryHaving;
     private QueryOrder queryOrder;
     private List<Selector> selectors;
-    private boolean isIdReference;
+    private boolean idReference;
 
     private Boolean isCollection;
     private Class actualClass;
@@ -68,7 +68,7 @@ public class DtoField {
             ownClass = this.field.getType();
         }
         this.entityDtoServiceRelation = relationMap.getByDtoClass(actualClass);
-        this.isIdReference = this.entityFieldInfo != null && this.entityFieldInfo.getIdReference() != null;
+        this.idReference = this.entityFieldInfo != null && this.entityFieldInfo.getIdReference() != null;
         this.retrieveDeleteAndInsertNewOnUpdate();
         this.retrieveUpdateCascade();
 
@@ -179,7 +179,7 @@ public class DtoField {
     }
 
     public boolean isIdReference() {
-        return isIdReference;
+        return idReference;
     }
 
     public boolean isUpdateCascade() {

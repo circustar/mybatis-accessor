@@ -5,13 +5,13 @@ import java.util.List;
 public interface IEntityProviderParam extends IProviderParam {
     boolean isUpdateChildrenOnly();
 
-    IEntityProviderParam setUpdateChildrenOnly(boolean updateChildrenOnly);
+    void setUpdateChildrenOnly(boolean updateChildrenOnly);
 
     boolean isIncludeAllChildren();
 
-    IEntityProviderParam setIncludeAllChildren(boolean includeAllChildren);
+    void setIncludeAllChildren(boolean includeAllChildren);
 
     List<String> getUpdateChildrenNames();
 
-    IEntityProviderParam setUpdateChildrenNames(List<String> updateChildrenNames);
+    void setUpdateChildrenNames(List<String> updateChildrenNames);
 }

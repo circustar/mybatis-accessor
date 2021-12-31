@@ -24,9 +24,8 @@ public abstract class DefaultAbstractUpdateProviderParam implements IEntityProvi
     }
 
     @Override
-    public DefaultAbstractUpdateProviderParam setUpdateChildrenOnly(boolean updateChildrenOnly) {
+    public void setUpdateChildrenOnly(boolean updateChildrenOnly) {
         this.updateChildrenOnly = updateChildrenOnly;
-        return this;
     }
 
     @Override
@@ -35,9 +34,8 @@ public abstract class DefaultAbstractUpdateProviderParam implements IEntityProvi
     }
 
     @Override
-    public DefaultAbstractUpdateProviderParam setIncludeAllChildren(boolean includeAllChildren) {
+    public void setIncludeAllChildren(boolean includeAllChildren) {
         this.includeAllChildren = includeAllChildren;
-        return this;
     }
 
     @Override
@@ -46,8 +44,7 @@ public abstract class DefaultAbstractUpdateProviderParam implements IEntityProvi
     }
 
     @Override
-    public DefaultAbstractUpdateProviderParam setUpdateChildrenNames(List<String> updateChildrenNames) {
+    public void setUpdateChildrenNames(List<String> updateChildrenNames) {
         this.updateChildrenNames = updateChildrenNames;
-        return this;
     }
 }

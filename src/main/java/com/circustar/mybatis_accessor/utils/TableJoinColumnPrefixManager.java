@@ -1,11 +1,15 @@
 package com.circustar.mybatis_accessor.utils;
 
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
+
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class TableJoinColumnPrefixManager {
+    private final static Log LOGGER = LogFactory.getLog(TableJoinColumnPrefixManager.class);
     private final static String ALIAS_PREFIX = "z";
     private static AtomicLong tableIndex = new AtomicLong(0);
     private final static Map<String, String> TABLE_JOIN_COLUMN_PREFIX_MAP = new ConcurrentHashMap<>();
@@ -18,6 +22,7 @@ public abstract class TableJoinColumnPrefixManager {
                         .toString(32));
             }
         } catch (Exception ex) {
+            LOGGER.warn(String.format("类%s不能放到TABLE_JOIN_COLUMN_PREFIX_MAP中，可能已存在", entityClass.getName()));
         }
         return TABLE_JOIN_COLUMN_PREFIX_MAP.get(fullName);
     }

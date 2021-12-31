@@ -38,7 +38,7 @@ public class UpdateAssignSqlEvent extends UpdateAvgSqlEvent implements IUpdateEv
             , DtoClassInfo subDtoClassInfo, TableInfo subTableInfo, List<DtoField> dtoFields) {
         String mainTableId = tableInfo.getKeyColumn();
         String sTableId = subTableInfo.getKeyColumn();
-        if(tableInfo == subTableInfo) {
+        if(tableInfo.equals(subTableInfo)) {
             mainTableId = dtoClassInfo.getEntityClassInfo().getIdReferenceFieldInfo().getColumnName();
         }
         String sAssignColumnName = dtoFields.get(2).getEntityFieldInfo().getColumnName();
@@ -63,7 +63,7 @@ public class UpdateAssignSqlEvent extends UpdateAvgSqlEvent implements IUpdateEv
         Method mFieldReadMethod =dtoFields.get(0).getEntityFieldInfo().getPropertyDescriptor().getReadMethod();
         String assignTemplateSql = parsedParams.get(0).toString();
         String mTableId = tableInfo.getKeyColumn();
-        if(fieldDtoClassInfo == dtoClassInfo) {
+        if(fieldDtoClassInfo.equals(dtoClassInfo)) {
             mTableId = dtoClassInfo.getEntityClassInfo().getIdReferenceFieldInfo().getColumnName();
         }
         String sTableId = subTableInfo.getKeyColumn();

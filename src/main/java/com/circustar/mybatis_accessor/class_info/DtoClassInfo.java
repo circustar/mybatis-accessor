@@ -422,7 +422,7 @@ public class DtoClassInfo {
         boolean partEqual = false;
         boolean allEqual = true;
         try {
-            if(newObj == oldObj) {
+            if((newObj == null  && oldObj == null) || newObj.equals(oldObj)) {
                 return 1;
             }
             for(String propertyName : propertyNames) {

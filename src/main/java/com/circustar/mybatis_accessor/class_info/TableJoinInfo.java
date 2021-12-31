@@ -23,7 +23,7 @@ public class TableJoinInfo {
     private Class targetClass;
     private Field field;
     private QueryJoinModel queryJoin;
-    private boolean isCollection;
+    private boolean collection;
     private Class actualClass;
     private Class ownerClass;
     private TableInfo tableInfo;
@@ -62,11 +62,11 @@ public class TableJoinInfo {
     }
 
     public boolean isCollection() {
-        return isCollection;
+        return collection;
     }
 
     public void setCollection(boolean collection) {
-        isCollection = collection;
+        this.collection = collection;
     }
 
     public Class getActualClass() {

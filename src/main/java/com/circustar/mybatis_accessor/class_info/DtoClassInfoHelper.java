@@ -6,6 +6,8 @@ import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.service.ISelectService;
 import com.circustar.mybatis_accessor.service.IUpdateService;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Collection;
@@ -14,6 +16,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DtoClassInfoHelper {
+    private final static Log LOGGER = LogFactory.getLog(DtoClassInfoHelper.class);
+
     private static Map<Class<?>, DtoClassInfo> dtoClassInfoMap = new ConcurrentHashMap<>();
 
     private IEntityDtoServiceRelationMap entityDtoServiceRelationMap;
@@ -69,6 +73,7 @@ public class DtoClassInfoHelper {
         try {
             dtoClassInfoMap.put(clazz, dtoClassInfo);
         } catch (Exception ex) {
+            LOGGER.warn(String.format("类%s不能放到dtoClassInfoMap中，可能已存在", clazz.getName()));
         }
         return dtoClassInfoMap.get(clazz);
 
