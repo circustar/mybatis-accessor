@@ -31,14 +31,12 @@ import java.util.stream.Collectors;
 
 public class DtoClassInfo {
     private final Class<?> clazz;
-    private final IEntityDtoServiceRelationMap entityDtoServiceRelationMap;
     private final DtoClassInfoHelper dtoClassInfoHelper;
     private final EntityDtoServiceRelation entityDtoServiceRelation;
     private final List<DtoField> subDtoFieldList;
     private final List<DtoField> updateCascadeDtoFieldList;
     private final List<DtoField> selectDtoFieldList;
     private final List<DtoField> normalFieldList;
-    private final List<DtoField> allFieldList;
     private final Map<String, DtoField> dtoFieldMap;
     private final EntityClassInfo entityClassInfo;
     private String joinTables;
@@ -55,18 +53,17 @@ public class DtoClassInfo {
     private DtoField idReferenceField;
     private IConverter convertDtoToEntity;
     private IConverter convertEntityToDto;
-    //private boolean containUpdateField;
+    private IService serviceBean;
 
     public DtoClassInfo(IEntityDtoServiceRelationMap relationMap, DtoClassInfoHelper dtoClassInfoHelper, Class<?> clazz, EntityClassInfo entityClassInfo) {
         this.clazz = clazz;
-        this.entityDtoServiceRelationMap = relationMap;
         this.dtoClassInfoHelper = dtoClassInfoHelper;
-        this.entityDtoServiceRelation = this.entityDtoServiceRelationMap.getByDtoClass(this.clazz);
+        this.entityDtoServiceRelation = relationMap.getByDtoClass(this.clazz);
         this.entityDtoServiceRelation.setDtoClassInfo(this);
+        this.serviceBean = relationMap.getServiceBeanByDtoClass(this.clazz);
         this.entityClassInfo = entityClassInfo;
         this.subDtoFieldList = new ArrayList<>();
         this.normalFieldList = new ArrayList<>();
-        this.allFieldList = new ArrayList<>();
         this.dtoFieldMap = new HashMap<>();
 
         String versionPropertyName = null;
@@ -89,7 +86,6 @@ public class DtoClassInfo {
             } else if(this.deleteFlagField == null && entityFieldInfo != null && entityFieldInfo.isLogicDeleteField()) {
                 this.deleteFlagField = dtoField;
             }
-            this.allFieldList.add(dtoField);
             this.dtoFieldMap.put(property.getName(), dtoField);
             if(dtoField.getEntityDtoServiceRelation() != null) {
                 subDtoFieldList.add(dtoField);
@@ -254,8 +250,8 @@ public class DtoClassInfo {
         return normalFieldList;
     }
 
-    public List<DtoField> getAllFieldList() {
-        return allFieldList;
+    public Collection<DtoField> getAllFieldList() {
+        return dtoFieldMap.values();
     }
 
     public EntityDtoServiceRelation getEntityDtoServiceRelation() {
@@ -344,16 +340,12 @@ public class DtoClassInfo {
         return !"0".equals(deleteFlagValue.toString());
     }
 
-    public IEntityDtoServiceRelationMap getEntityDtoServiceRelationMap() {
-        return entityDtoServiceRelationMap;
-    }
-
     public DtoClassInfoHelper getDtoClassInfoHelper() {
         return dtoClassInfoHelper;
     }
 
     public IService getServiceBean() {
-        return getEntityDtoServiceRelationMap().getServiceBeanByDtoClass(this.clazz);
+        return this.serviceBean;
     }
 
     public List<UpdateEventModel> getUpdateEventList() {
