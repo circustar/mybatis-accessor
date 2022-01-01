@@ -1,8 +1,5 @@
 package com.circustar.mybatis_accessor.class_info;
 
-import org.apache.ibatis.logging.Log;
-import org.apache.ibatis.logging.LogFactory;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

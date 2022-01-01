@@ -33,6 +33,7 @@ public abstract class DtoFields {
             , List<DtoField> dtoFields
             , Object dto
             , Serializable dtoId) {
+        QueryWrapper queryWrapper = new QueryWrapper();
         for(DtoField dtoField : dtoFields) {
             EntityDtoServiceRelation childInfo = dtoField.getEntityDtoServiceRelation();
             if(childInfo == null) {
@@ -54,12 +55,10 @@ public abstract class DtoFields {
             if(subDtoClassInfoDtoField == null && masterDtoClassInfoDtoField == null) {
                 continue;
             }
-            QueryWrapper queryWrapper = null;
+            queryWrapper.clear();
             if(subDtoClassInfoDtoField != null) {
-                queryWrapper = new QueryWrapper();
                 queryWrapper.eq(subDtoClassInfoDtoField.getEntityFieldInfo().getColumnName(), dtoId);
-            } else if(masterDtoClassInfoDtoField != null) {
-                queryWrapper = new QueryWrapper();
+            } else {
                 Object subDtoId = FieldUtils.getFieldValue(dto, masterDtoClassInfoDtoField.getEntityFieldInfo().getPropertyDescriptor().getReadMethod());
                 queryWrapper.eq(subDtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), subDtoId);
             }
@@ -71,6 +70,7 @@ public abstract class DtoFields {
 
     public static void queryAndAssignDtoFieldBySelector(DtoClassInfoHelper dtoClassInfoHelper, EntityDtoServiceRelation relationInfo, Object dto
             , List<DtoField> dtoFields) {
+        QueryWrapper queryWrapper = new QueryWrapper();
         for(DtoField dtoField : dtoFields) {
             EntityDtoServiceRelation subRelation = dtoField.getEntityDtoServiceRelation();
             if(subRelation == null) {
@@ -78,7 +78,7 @@ public abstract class DtoFields {
             }
             DtoClassInfo subDtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(subRelation);
             IService service =  subDtoClassInfo.getServiceBean();
-            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.clear();
 
             dtoField.getSelectors().forEach(x -> x.connector().consume(x.tableColumn(), queryWrapper
                     , SPELParser.parseExpression(dto, Arrays.asList(x.valueExpression()))));

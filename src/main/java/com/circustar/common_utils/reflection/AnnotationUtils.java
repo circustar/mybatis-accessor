@@ -5,17 +5,17 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 public abstract class AnnotationUtils {
-    public static <T extends Annotation> T[] getClassAnnotations(Class clazz, Class<T> annotationClass) {
+    public static <T extends Annotation> List<T> getClassAnnotations(Class clazz, Class<T> annotationClass) {
         if(clazz.isAnnotationPresent(annotationClass)) {
-            return (T[]) clazz.getAnnotationsByType(annotationClass);
+            return (List<T>) Arrays.asList(clazz.getAnnotationsByType(annotationClass));
         }
-        return null;
+        return Collections.emptyList();
     }
 
     public static <T extends Annotation> T getClassAnnotation(Class clazz, Class<T> annotationClass) {
-        T[] annotationList = getClassAnnotations(clazz, annotationClass);
-        if (Objects.nonNull(annotationList) && annotationList.length > 0) {
-            return annotationList[0];
+        List<T> annotationList = getClassAnnotations(clazz, annotationClass);
+        if (Objects.nonNull(annotationList) && !annotationList.isEmpty()) {
+            return annotationList.get(0);
         }
         return null;
     }

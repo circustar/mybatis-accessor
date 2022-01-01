@@ -9,6 +9,9 @@ public class PageInfo<T> {
     private Long current;
 
     public PageInfo() {
+        total = 0L;
+        size = 0L;
+        current = 0L;
     }
 
     public PageInfo(Long total, Long size, Long current) {

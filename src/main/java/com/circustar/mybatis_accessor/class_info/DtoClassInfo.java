@@ -24,7 +24,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.util.CollectionUtils;
 
 import java.beans.PropertyDescriptor;
-import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -112,16 +111,11 @@ public class DtoClassInfo {
                         ).collect(Collectors.toList());
         this.selectDtoFieldList = this.subDtoFieldList.stream().filter(x -> x.getQueryJoin() == null).collect(Collectors.toList());
 
-//        this.containUpdateField = this.normalFieldList.stream().filter(x -> x!= keyField && x != versionField
-//                && x.getEntityFieldInfo() != null
-//                && (x.getEntityFieldInfo().getTableField() == null || x.getEntityFieldInfo().getTableField().exist()))
-//                .findAny().isPresent();
-
         ApplicationContext applicationContext = dtoClassInfoHelper.getApplicationContext();
         this.initAfterUpdateList(applicationContext);
         this.initOnChangeList(applicationContext);
         this.initConverter(applicationContext);
-        this.initDecodeEventList(applicationContext);
+        this.initDecodeEventList();
     }
 
     private void initConverter(ApplicationContext applicationContext) {
@@ -176,7 +170,7 @@ public class DtoClassInfo {
         }
     }
 
-    private void initDecodeEventList(ApplicationContext applicationContext) {
+    private void initDecodeEventList() {
         MultiDecodeEvent multiDecodeEventAnnotation = this.clazz.getAnnotation(MultiDecodeEvent.class);
         List<DecodeEvent> var0 = null;
         if(multiDecodeEventAnnotation != null) {

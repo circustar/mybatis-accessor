@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DtoClassInfoHelper {
-    private final static Map<Class<?>, DtoClassInfo> dtoClassInfoMap = new ConcurrentHashMap<>();
+    private final static Map<Class<?>, DtoClassInfo> DTO_CLASS_INFO_MAP = new ConcurrentHashMap<>();
 
     private final IEntityDtoServiceRelationMap entityDtoServiceRelationMap;
 
@@ -39,12 +39,12 @@ public class DtoClassInfoHelper {
         return getDtoClassInfo(relation.getDtoClass());
     }
     public DtoClassInfo getDtoClassInfo(Class<?> clazz) {
-        if(dtoClassInfoMap.containsKey(clazz)) {
-            return dtoClassInfoMap.get(clazz);
+        if(DTO_CLASS_INFO_MAP.containsKey(clazz)) {
+            return DTO_CLASS_INFO_MAP.get(clazz);
         }
         EntityClassInfo entityClassInfo = entityClassInfoHelper.getEntityClassInfo(entityDtoServiceRelationMap.getByDtoClass(clazz).getEntityClass());
         DtoClassInfo dtoClassInfo = new DtoClassInfo(entityDtoServiceRelationMap, this, clazz, entityClassInfo);
-        dtoClassInfoMap.put(clazz, dtoClassInfo);
+        DTO_CLASS_INFO_MAP.put(clazz, dtoClassInfo);
         dtoClassInfo.initJoinTableInfo(this);
         return dtoClassInfo;
     }

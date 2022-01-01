@@ -75,6 +75,8 @@ public class UpdateAssignSqlEvent extends UpdateAvgSqlEvent implements IUpdateEv
         IService mServiceBean = dtoClassInfo.getServiceBean();
         IService sServiceBean = fieldDtoClassInfo.getServiceBean();
 
+        QueryWrapper queryWrapper = new QueryWrapper();
+        UpdateWrapper updateWrapper = new UpdateWrapper();
         for(Object o : dtoList) {
             Object keyValue = FieldUtils.getFieldValue(o, mKeyFieldReadMethod);
             Object entity = mServiceBean.getById((Serializable) keyValue);
@@ -84,7 +86,7 @@ public class UpdateAssignSqlEvent extends UpdateAvgSqlEvent implements IUpdateEv
             }
 
             String assignValueSql = String.format(assignTemplateSql, summaryValue, summaryValue);
-            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.clear();
             queryWrapper.select(sTableId,mTableId,assignValueSql);
             queryWrapper.eq(mTableId, keyValue);
             if(fieldDtoClassInfo.getDeleteFlagField() != null) {
@@ -93,7 +95,7 @@ public class UpdateAssignSqlEvent extends UpdateAvgSqlEvent implements IUpdateEv
             }
             List subEntityList = sServiceBean.list(queryWrapper);
             for(Object subEntity : subEntityList) {
-                UpdateWrapper updateWrapper = new UpdateWrapper();
+                updateWrapper.clear();
                 Object subKeyValue = FieldUtils.getFieldValue(subEntity, sKeyFieldReadMethod);
                 updateWrapper.eq(sTableId, subKeyValue);
                 Object assignValue = FieldUtils.getFieldValue(subEntity, sAssignFieldReadMethod);

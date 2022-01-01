@@ -88,7 +88,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
     public boolean execUpdate(Map<String, Object> keyMap, List<Supplier<Integer>> consumerList, String updateEventLogId, int level) {
         init(this);
         boolean result;
-//        this.execListeners(ExecuteTiming.BEFORE_UPDATE_START, updateEventLogId, level);
+
         if (updateChildFirst) {
             result = execSubEntityUpdate(keyMap, consumerList, updateEventLogId, level);
             if(!result){return false;}
@@ -166,7 +166,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
             result = execSubEntityUpdate(keyMap, consumerList, updateEventLogId, level);
             if(!result){return false;}
         }
-//        this.execListeners(ExecuteTiming.AFTER_UPDATE_FINISH, updateEventLogId, level);
+
         this.dispose();
         return true;
     }
