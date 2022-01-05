@@ -12,9 +12,9 @@ public interface IUpdateCommand {
     UpdateType getUpdateType();
 
     enum UpdateType {
-        INSERT("insert"),
-        DELETE("delete"),
-        UPDATE("update");
+        INSERT("INSERT"),
+        DELETE("DELETE"),
+        UPDATE("UPDATE");
 
         private String name;
         UpdateType(String name) {

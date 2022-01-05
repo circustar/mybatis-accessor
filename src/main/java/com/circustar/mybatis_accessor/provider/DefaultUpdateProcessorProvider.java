@@ -66,7 +66,7 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
     private boolean addDeleteAndInsertProcessor(DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater
             , DtoClassInfo dtoClassInfo, List<DtoField> deleteAndInsertFields, List<String> children, Object updateDto
             , DefaultEntityProviderParam options, DefaultInsertProcessorProvider insertEntitiesEntityProvider
-            , DefaultDeleteByIdProcessorProvider defaultDeleteByIdProvider) {
+            , DefaultDeleteProcessorProvider defaultDeleteDtoProvider) {
         if (deleteAndInsertFields.isEmpty()) {
             return false;
         }
@@ -80,12 +80,9 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
                 List deletedSubEntities = CollectionUtils.convertToList(FieldUtils.getFieldValue(oldDto, subDtoField.getPropertyDescriptor().getReadMethod()));
                 if(!deletedSubEntities.isEmpty()) {
                     hasChildren = true;
-                    List subIds = (List) deletedSubEntities.stream().map(x -> FieldUtils.getFieldValue(x
-                            , subDtoField.getFieldDtoClassInfo().getKeyField().getPropertyDescriptor().getReadMethod()))
-                            .collect(Collectors.toList());
-                    defaultEntityCollectionUpdater.addSubUpdateEntities(defaultDeleteByIdProvider
+                    defaultEntityCollectionUpdater.addSubUpdateEntities(defaultDeleteDtoProvider
                             .createUpdateEntities(subDtoField.getFieldDtoClassInfo().getEntityDtoServiceRelation()
-                                    , dtoClassInfo.getDtoClassInfoHelper(), subIds, DefaultEntityProviderParam.INCLUDE_ALL_ENTITY_PROVIDER_PARAM));
+                                    , dtoClassInfo.getDtoClassInfoHelper(), deletedSubEntities, DefaultEntityProviderParam.INCLUDE_ALL_ENTITY_PROVIDER_PARAM));
                 }
             }
             if(!childList.isEmpty()) {
@@ -116,7 +113,6 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
             children = options.getUpdateChildrenNames();
         }
 
-        DefaultDeleteByIdProcessorProvider defaultDeleteByIdProvider = (DefaultDeleteByIdProcessorProvider) getProviderMap().get(DefaultDeleteByIdProcessorProvider.class);
         DefaultDeleteProcessorProvider defaultDeleteDtoProvider = (DefaultDeleteProcessorProvider) getProviderMap().get(DefaultDeleteProcessorProvider.class);
         DefaultInsertProcessorProvider insertEntitiesEntityProvider = (DefaultInsertProcessorProvider) getProviderMap().get(DefaultInsertProcessorProvider.class);
 
@@ -140,7 +136,7 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
                     , options.isUpdateChildrenOnly());
 
             if(addDeleteAndInsertProcessor(defaultEntityCollectionUpdater, dtoClassInfo, deleteAndInsertFields
-                    , children, updateDto, options, insertEntitiesEntityProvider, defaultDeleteByIdProvider)) {
+                    , children, updateDto, options, insertEntitiesEntityProvider, defaultDeleteDtoProvider)) {
                 hasChildren = true;
             }
             for(DtoField subDtoField : updateFields) {
