@@ -570,7 +570,7 @@ public class ScoreDto implements Serializable {
 
 ##### 12.3.3.DeleteFlag
 * 说明：作用于Dto的字段上。如果字段值是1,更新或者级联更新时会删除ID对应的记录
-* 参数1 - physicDelete : Entity中开启逻辑删除TableLogic时，可在Dto中控制物理删除还是逻辑删除。true时表示逻辑删除。默认false
+* 参数1 - physicDelete : Entity中开启逻辑删除TableLogic时，可在Dto中控制物理删除还是逻辑删除。true时表示物理删除。默认false
 * 范例：
 ```java
 @Data
@@ -673,28 +673,29 @@ public class PersonInfoDto extends BaseDto implements Serializable {
     private List<PersonInfoDto> personInfoList;
 }
 ```
-* 预定义的IUpdateEvent实现类
-1.UpdateCountEvent : 更新完成后将子项列表的条数更新到主项的字段中去。
+
+###### 预定义的IUpdateEvent实现类
+* 1.UpdateCountEvent : 更新完成后将子项列表的条数更新到主项的字段中去。
   参数1：主项字段名。参数2：子项列表名。
-2.UpdateSumEvent : 更新完成后将子项列表指定字段的合计数更新到主项的字段中去。
+* 2.UpdateSumEvent : 更新完成后将子项列表指定字段的合计数更新到主项的字段中去。
   参数1：主项字段名。参数2：子项列表名。参数3：子项字段名称。 
-3.UpdateMaxEvent : 更新完成后将子项列表指定字段的最大值更新到主项的字段中去。
+* 3.UpdateMaxEvent : 更新完成后将子项列表指定字段的最大值更新到主项的字段中去。
   参数1：主项字段名。参数2：子项列表名。参数3：子项字段名称。 
-4.UpdateMaxEvent : 更新完成后将子项列表指定字段的最小值更新到主项的字段中去。
+* 4.UpdateMaxEvent : 更新完成后将子项列表指定字段的最小值更新到主项的字段中去。
   参数1：主项字段名。参数2：子项列表名。参数3：子项字段名称。 
-5.UpdateAvgEvent : 更新完成后将子项列表指定字段的平均值更新到主项的字段中去。
+* 5.UpdateAvgEvent : 更新完成后将子项列表指定字段的平均值更新到主项的字段中去。
   参数1：主项字段名。参数2：子项列表名。参数3：子项字段名称。 
-6.UpdateAssignEvent : 更新完成后将主项字段值根据子项中的权重比例分摊到子项字段上。
+* 6.UpdateAssignEvent : 更新完成后将主项字段值根据子项中的权重比例分摊到子项字段上。
   参数1：主项字段名。参数2：子项列表名。参数3：子项字段名称。 参数4：精度。 参数5：子项权重字段名。 
-7.UpdateAvgAssignEvent : 更新完成后将主项字段值平均地分摊到子项字段上。
+* 7.UpdateAvgAssignEvent : 更新完成后将主项字段值平均地分摊到子项字段上。
   参数1：主项字段名。参数2：子项列表名。参数3：子项字段名称。 参数4：精度。 
-8.UpdateFillEvent : 更新完成后将主项字段值按一定顺序分配到子项字段上，子项字段达到最大值后再分配下一条记录
+* 8.UpdateFillEvent : 更新完成后将主项字段值按一定顺序分配到子项字段上，子项字段达到最大值后再分配下一条记录
   参数1：主项字段名。参数2：分配剩余值设置到哪个字段中。参数3：子项列表名。参数4：分配子项字段名称。 参数5：分配最大值（可使用数值或者子项字段名）。参数6：排序字段。参数7：升序ASC还是降序DESC 
-9.UpdateExecuteSqlEvent : 更新完成后执行指定SQL
+* 9.UpdateExecuteSqlEvent : 更新完成后执行指定SQL
   参数1：SQL语句，支持SPEL表达式。
-10.UpdateLogEvent : 更新前打印日志
+* 10.UpdateLogEvent : 更新前打印日志
   参数1：打印数据格式,支持SPEL，可省略。默认打印所有字段
-11.UpdateExecuteBeanMethodEvent : 更新后执行指定Bean的方法
+* 11.UpdateExecuteBeanMethodEvent : 更新后执行指定Bean的方法
   参数1：bean名称。参数2：执行方法。参数3：参数列表，可省略，默认使用Dto作为参数。
 
 ##### 12.4.3.PropertyChangeEvent
