@@ -8,7 +8,7 @@
 
 ### 3.设计要求
 * 表必须设置主键，且主键自动生成（数据库自动生成或者使用mybatis-plus注解生成）
-* 存在主从关系的表，子表中对应主表主键字段的变量名必须与主表主键的变量名保持一致
+* 存在外键关系的表，外键的变量名与主键保持一致
 * 遵循mybatis-plus的规则，定义service,mapper和entity
 * 定义DTO并关联Entity和service
 
@@ -162,7 +162,6 @@ StudentDto result = mybatisAccessorService.getDtoByAnnotation(queryDto, false
                 , Arrays.asList("scoreList"));
 ```
 
-
 #### 8.5.查询单条数据完成后，再执行一条SQL语句获取子项，实现关联查询
 * 与QueryJoin不同点
   1.QueryJoin通过左连接，内联查查询相关表，只执行一次；Selector在查询完成后，再执行一条SQL查询关联表，需执行多次。
@@ -248,7 +247,7 @@ courseDtoList.add(course1);
 studentDto.setCourseList(courseDtoList);
 
 // 保存数据（将保存三个表：Student，Score，StudentCourse）
-Student updateResult = mybatisAccessorService.save(studentDto, true, null, false);
+Student updateResult = mybatisAccessorService.save(studentDto, true, null, false,null);
 ```
 
 * 级联更新（可同时保存/更新/删除）
@@ -262,13 +261,13 @@ studentDto.getCourseList().add(StudentCourseDto.builder().courseId(10).courseNam
 studentDto.getScoreList().get(0).setDeleted(1);
 // 更新Score
 studentDto.getScoreList().get(1).setScore(100);
-mybatisAccessorService.update(studentDto, true, null, false, false);
+mybatisAccessorService.update(studentDto, true, null, false, false,null);
 ```
 
 * 级联删除
 ```java
 // 删除主表Student以及子表Score,Course
-mybatisAccessorService.deleteByIds(StudentDto.class, idList, Arrays.asList("scoreList","courseList"), false);
+mybatisAccessorService.deleteByIds(StudentDto.class, idList, Arrays.asList("scoreList","courseList"), false,null);
 ```
 
 ### 11.更新监听器
@@ -696,7 +695,7 @@ public class PersonInfoDto extends BaseDto implements Serializable {
 * 10.UpdateLogEvent : 更新前打印日志
   参数1：打印数据格式,支持SPEL，可省略。默认打印所有字段
 * 11.UpdateExecuteBeanMethodEvent : 更新后执行指定Bean的方法
-  参数1：bean名称。参数2：执行方法。参数3：参数列表，可省略，默认使用Dto作为参数。
+  参数1：bean名称。参数2：执行方法。参数3开始：Dto字段，字段值会作为执行方法的参数。不存在参数3时会将Dto作为参数。
 
 ##### 12.4.3.PropertyChangeEvent
 * 说明：作用于Dto类上。监听到属性变化时，执行对应的IUpdateEvent实现类
@@ -714,7 +713,7 @@ public class PersonInfoDto extends BaseDto implements Serializable {
 @NoArgsConstructor
 @Builder(toBuilder = true)
 @DtoEntityRelation(entityClass = ProductOrderDetail.class, service = IProductOrderDetailService.class)
-//weight发生变化（仅新增或者更新，删除时不触发）时，调用executeUpdateBean的test方法,参数为orderDetailId
+//weight发生变化（新增或者更新时触发，删除不触发）时，调用executeUpdateBean的test方法,参数为orderDetailId的值
 @PropertyChangeEvent(listenProperties = "weight", updateEventClass = UpdateExecuteBeanMethodEvent.class, updateParams = {"executeUpdateBean", "test", "orderDetailId"}, updateType = {IUpdateCommand.UpdateType.INSERT, IUpdateCommand.UpdateType.UPDATE})
 public class ProductOrderDetail3Dto extends BaseDto implements Serializable {
     private Integer orderDetailId;
@@ -724,3 +723,96 @@ public class ProductOrderDetail3Dto extends BaseDto implements Serializable {
     private BigDecimal weight;
 }
 ```
+
+### 13.主要类说明
+#### 13.1.MybatisAccessorService
+##### 13.1.1.getEntityById方法
+* 说明：通过ID获取Entity
+* 参数1 - dtoClass : Dto类。
+* 参数2 - id : 主键的值。
+
+##### 13.1.2.getEntityByAnnotation方法
+* 说明：通过Dto类注解上的查询条件获取Entity
+* 参数1 - Object : Dto类的实例化对象。
+
+##### 13.1.3.getDtoById方法
+* 说明：通过ID获取Dto
+* 参数1 - dtoClass : Dto类。
+* 参数2 - id : 主键的值。
+* 参数3 - includeAllChildren : 是否获取所有子项。
+* 参数4 - children : includeAllChildren为false时，指定需要获取的子项。
+
+##### 13.1.4.getDtoByAnnotation方法
+* 说明：通过Dto类注解上的查询条件获取Dto
+* 参数1 - Object : Dto类的实例化对象。
+* 参数2 - includeAllChildren : 是否获取所有子项。
+* 参数3 - children : includeAllChildren为false时，指定需要获取的子项。
+
+##### 13.1.5.getEntityListByAnnotation方法
+* 说明：通过Dto类注解上的查询条件获取Entity的列表
+* 参数1 - Object : Dto类的实例化对象。
+
+##### 13.1.6.getDtoListByAnnotation方法
+* 说明：通过Dto类注解上的查询条件获取Dto的列表
+* 参数1 - Object : Dto类的实例化对象。
+
+##### 13.1.7.getEntityPageByAnnotation方法
+* 说明：通过Dto类注解上的查询条件获取Entity的列表
+* 参数1 - Object : Dto类的实例化对象。
+* 参数2 - pageIndex : 页码。
+* 参数3 - pageSize : 每页记录数。
+
+##### 13.1.8.getDtoPageByAnnotation方法
+* 说明：通过Dto类注解上的查询条件获取Dto的列表
+* 参数1 - Object : Dto类的实例化对象。
+* 参数2 - pageIndex : 页码。
+* 参数3 - pageSize : 每页记录数。
+
+##### 13.1.9.save方法
+* 说明：新增单个Dto，支持子项级联新增
+* 参数1 - Object : Dto类的实例化对象。
+* 参数2 - includeAllChildren : 是否级联新增所有子项。
+* 参数3 - children : includeAllChildren为false时，指定需要保存的子项。
+* 参数4 - updateChildrenOnly : 为true时只新增子项。
+* 参数5 - updateEventLogId : UpdateLogEvent会将updateEventLogId打印在日志信息中，null时会自动生成新的updateEventLogId。
+
+##### 13.1.10.saveList方法
+* 说明：新增Dto列表，支持子项级联新增
+* 参数1 - Object : Dto类的实例化对象。
+* 参数2 - includeAllChildren : 是否级联新增所有子项。
+* 参数3 - children : includeAllChildren为false时，指定需要保存的子项。
+* 参数4 - updateChildrenOnly : 为true时只新增子项。
+* 参数5 - updateEventLogId : UpdateLogEvent会将updateEventLogId打印在日志信息中，null时会自动生成新的updateEventLogId。
+
+##### 13.1.11.update方法
+* 说明：更新单个Dto，支持子项级联新增/修改/删除。子项ID为空时新增。子项ID不为空、无DeleteFlag注解或DeleteFlag注解对应属性的值不为1，修改。子项ID不为空、有DeleteFlag注解且DeleteFlag注解对应属性的值为1，删除。
+* 参数1 - Object : Dto类的实例化对象。
+* 参数2 - includeAllChildren : 是否级联新增/修改/删除所有子项。
+* 参数3 - children : includeAllChildren为false时，指定需要新增/修改/删除的子项。
+* 参数4 - updateChildrenOnly : 为true时只新增/修改/删除子项。
+* 参数5 - updateEventLogId : UpdateLogEvent会将updateEventLogId打印在日志信息中，null时会自动生成新的updateEventLogId。
+
+##### 13.1.12.updateList方法
+* 说明：更新Dto列表，支持子项级联新增/修改/删除。子项ID为空时新增。子项ID不为空、无DeleteFlag注解或DeleteFlag注解对应属性的值不为1，修改。子项ID不为空、有DeleteFlag注解且DeleteFlag注解对应属性的值为1，删除。
+* 参数1 - Object : Dto类的实例化对象。
+* 参数2 - includeAllChildren : 是否级联新增/修改/删除所有子项。
+* 参数3 - children : includeAllChildren为false时，指定需要新增/修改/删除的子项。
+* 参数4 - updateChildrenOnly : 为true时只新增/修改/删除子项。
+* 参数5 - updateEventLogId : UpdateLogEvent会将updateEventLogId打印在日志信息中，null时会自动生成新的updateEventLogId。
+
+##### 13.1.13.DeleteByIds方法
+* 说明：更新Dto列表，支持子项级联删除。
+* 参数1 - dtoClass : Dto类。
+* 参数2 - ids : 主键值的集合。
+* 参数3 - includeAllChildren : 是否级联删除所有子项。
+* 参数4 - children : includeAllChildren为false时，指定需要删除的子项。
+* 参数5 - updateChildrenOnly : 为true时只删除子项。
+* 参数6 - updateEventLogId : UpdateLogEvent会将updateEventLogId打印在日志信息中，null时会自动生成新的updateEventLogId。
+
+#### 13.2.MybatisAccessorUpdateManager
+##### 13.2.1.putDto方法
+* 说明：将需要更新的对象，加入到MybatisAccessorUpdateManager的更新列表中。
+* 参数1 - dto : Dto实例或者Dto实例列表。
+
+##### 13.2.2.submit方法
+* 说明：对MybatisAccessorUpdateManager的更新列表进行排序依次更新

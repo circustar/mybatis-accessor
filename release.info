@@ -21,3 +21,8 @@
 -- 5.PropertyChangeEvent增加监听属性
 -- 6.UpdateOrder优化
 -- 7.其他代码优化
+
+1.3.0
+-- 1.Mybatis-Plus升级至3.4.3.4
+-- 2.代码优化
+-- 3.更新ReadMe
