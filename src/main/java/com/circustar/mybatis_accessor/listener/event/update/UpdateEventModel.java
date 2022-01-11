@@ -15,7 +15,7 @@ public class UpdateEventModel {
     private final Class<? extends IUpdateEvent> updateEventClass;
     private final Supplier<IUpdateEvent> supplier;
     private List<IUpdateCommand.UpdateType> updateTypes;
-    private ExecuteTiming executeTiming;
+    private final ExecuteTiming executeTiming;
 
     public UpdateEventModel(String onExpression
             , Class<? extends IUpdateEvent> updateEventClass

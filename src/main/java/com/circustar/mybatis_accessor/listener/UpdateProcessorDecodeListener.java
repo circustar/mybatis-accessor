@@ -7,7 +7,6 @@ import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.listener.event.decode.DecodeEventModel;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.mybatis_accessor.update_processor.DefaultEntityCollectionUpdateProcessor;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;

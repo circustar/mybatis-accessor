@@ -40,36 +40,32 @@ public class DefaultDecodeEvent implements IDecodeEvent<DecodeEventModel> {
         List<DtoField> targetPropertyDtoFieldList = model.getTargetPropertyDtoFieldList();
         List<DtoField> matchProperties = model.getMatchPropertyDtoFields();
         List matchValues = new ArrayList();
-        try {
-            Object queryDto = sourceDtoClassInfo.createInstance();
-            for (Object dto : dtoList) {
-                matchValues.clear();
-                for (int i = 0; i < matchProperties.size(); i++) {
-                    Object fieldValue = FieldUtils.getFieldValue(dto, matchProperties.get(i).getPropertyDescriptor().getReadMethod());
-                    FieldUtils.setFieldValue(queryDto
-                            , model.getMatchSourcePropertyDtoFields().get(i).getPropertyDescriptor().getWriteMethod(), fieldValue);
-                    matchValues.add(fieldValue);
-                }
-                Object sourceDto = selectService.getDtoByAnnotation(sourceDtoClassInfo.getEntityDtoServiceRelation()
-                        , queryDto, false, null);
-                if(sourceDto == null) {
-                    if (model.isErrorWhenNotExist()) {
-                        throw new Exception("Decode event failed because source is not found. class : " + sourceDtoClassInfo.getDtoClass().getSimpleName()
-                                + " - match properties : " + matchProperties.stream().map(x -> x.getField().getName()).collect(Collectors.joining(","))
-                                + " - match values : " + matchValues.stream().collect(Collectors.joining(",")));
-                    } else {
-                        continue;
-                    }
-                }
-
-                for(int i = 0; i < sourcePropertyDtoFieldList.size(); i++) {
-                    Object resultValue = FieldUtils.getFieldValue(sourceDto, sourcePropertyDtoFieldList.get(i).getPropertyDescriptor().getReadMethod());
-                    FieldUtils.setFieldValue(dto
-                            , targetPropertyDtoFieldList.get(i).getPropertyDescriptor().getWriteMethod(), resultValue);
+        Object queryDto = sourceDtoClassInfo.createInstance();
+        for (Object dto : dtoList) {
+            matchValues.clear();
+            for (int i = 0; i < matchProperties.size(); i++) {
+                Object fieldValue = FieldUtils.getFieldValue(dto, matchProperties.get(i).getPropertyDescriptor().getReadMethod());
+                FieldUtils.setFieldValue(queryDto
+                        , model.getMatchSourcePropertyDtoFields().get(i).getPropertyDescriptor().getWriteMethod(), fieldValue);
+                matchValues.add(fieldValue);
+            }
+            Object sourceDto = selectService.getDtoByAnnotation(sourceDtoClassInfo.getEntityDtoServiceRelation()
+                    , queryDto, false, null);
+            if(sourceDto == null) {
+                if (model.isErrorWhenNotExist()) {
+                    throw new RuntimeException("Decode event failed because source is not found. class : " + sourceDtoClassInfo.getDtoClass().getSimpleName()
+                            + " - match properties : " + matchProperties.stream().map(x -> x.getField().getName()).collect(Collectors.joining(","))
+                            + " - match values : " + matchValues.stream().collect(Collectors.joining(",")));
+                } else {
+                    continue;
                 }
             }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
+
+            for(int i = 0; i < sourcePropertyDtoFieldList.size(); i++) {
+                Object resultValue = FieldUtils.getFieldValue(sourceDto, sourcePropertyDtoFieldList.get(i).getPropertyDescriptor().getReadMethod());
+                FieldUtils.setFieldValue(dto
+                        , targetPropertyDtoFieldList.get(i).getPropertyDescriptor().getWriteMethod(), resultValue);
+            }
         }
     }
 }

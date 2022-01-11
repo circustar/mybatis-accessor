@@ -53,7 +53,7 @@ public class DtoClassInfo {
     private DtoField idReferenceField;
     private IConverter convertDtoToEntity;
     private IConverter convertEntityToDto;
-    private IService serviceBean;
+    private final IService serviceBean;
 
     public DtoClassInfo(IEntityDtoServiceRelationMap relationMap, DtoClassInfoHelper dtoClassInfoHelper, Class<?> clazz, EntityClassInfo entityClassInfo) {
         this.clazz = clazz;
@@ -406,11 +406,11 @@ public class DtoClassInfo {
     }
 
     public static int equalPropertiesIgnoreEmpty(DtoClassInfo dtoClassInfo, Object newObj, Object oldObj, List<String> propertyNames) {
-        boolean partEqual = false;
-        boolean allEqual = true;
         if(newObj == oldObj) {
             return 1;
         }
+        boolean partEqual = false;
+        boolean allEqual = true;
         for(String propertyName : propertyNames) {
             DtoField field = dtoClassInfo.getDtoField(propertyName);
             Object newVal = null;
