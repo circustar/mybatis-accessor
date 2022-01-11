@@ -7,6 +7,7 @@ import org.springframework.expression.ParserContext;
 import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,18 @@ public abstract class SPELParser {
         return expression.getValue(context, clazz);
     }
 
+    public static boolean parseBooleanExpression(Object obj, String expressionString, boolean defaultOnEmpty) {
+        if(obj == null || !StringUtils.hasLength(expressionString)) {
+           return defaultOnEmpty;
+        }
+        String strExpression;
+        if(expressionString.contains("#{")) {
+            strExpression = expressionString;
+        } else {
+            strExpression = "#{" + expressionString + "}";
+        }
+        return (boolean)parseExpression(obj, strExpression);
+    }
 
     public static Object parseExpression(Object obj, String expressionString) {
         StandardEvaluationContext context = new StandardEvaluationContext(obj);

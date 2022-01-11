@@ -33,7 +33,7 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
 
     @Override
     public void exec(UpdateEventModel model, IUpdateCommand.UpdateType updateType, DtoClassInfo dtoClassInfo
-            , List<Object> dtoList, String updateEventLogId, int level) {
+            , List<Object> dtoList, String updateEventLogId) {
         if(UpdateExecuteBeanMethodEvent.applicationContext == null) {
             setApplicationContext(dtoClassInfo.getDtoClassInfoHelper().getApplicationContext());
         }

@@ -53,10 +53,7 @@ public class UpdateProcessorDecodeListener implements IListener<DefaultEntityCol
         for(DecodeEventModel m : updateModelList) {
             executeDtoList.clear();
             for(Object updateDto : updateDtoList) {
-                boolean execFlag = true;
-                if(StringUtils.hasLength(m.getOnExpression())) {
-                    execFlag = (boolean) SPELParser.parseExpression(updateDto,m.getOnExpression());
-                }
+                boolean execFlag = SPELParser.parseBooleanExpression(updateDto,m.getOnExpression(), true);
                 if(!execFlag) {
                     continue;
                 }
@@ -64,7 +61,7 @@ public class UpdateProcessorDecodeListener implements IListener<DefaultEntityCol
             }
             if(!executeDtoList.isEmpty()) {
                 m.getDefaultDecodeEvent().exec(m, this.updateCommand.getUpdateType(),
-                        dtoClassInfo, executeDtoList, updateEventLogId, level);
+                        dtoClassInfo, executeDtoList, updateEventLogId);
             }
         }
     }

@@ -24,7 +24,7 @@ public abstract class AbstractUpdateEvent<T> implements IUpdateEvent<T> {
 
     @Override
     public void exec(T updateEvent, IUpdateCommand.UpdateType updateType
-            , DtoClassInfo dtoClassInfo, List<Object> dtoList, String updateEventLogId, int level) {
+            , DtoClassInfo dtoClassInfo, List<Object> dtoList, String updateEventLogId) {
         List<DtoField> dtoFields = parseDtoFieldList(updateEvent, dtoClassInfo);
         DtoClassInfo fieldDtoClassInfo = getFieldDtoClassInfo(dtoFields);
         List<Object> parsedParams = parseParams(updateEvent, dtoFields, dtoClassInfo, fieldDtoClassInfo);

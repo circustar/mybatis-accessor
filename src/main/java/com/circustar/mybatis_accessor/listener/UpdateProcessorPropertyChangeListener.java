@@ -111,27 +111,17 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
                     }
                 }
 
-                if(StringUtils.hasLength(m.getFromExpression())) {
-                    if(oldDto == null) {
-                        continue;
-                    }
-                    if(!(boolean) SPELParser.parseExpression(oldDto,m.getFromExpression())) {
-                        continue;
-                    }
+                if(!SPELParser.parseBooleanExpression(oldDto,m.getFromExpression(),true)) {
+                    continue;
                 }
-                if(StringUtils.hasLength(m.getToExpression())) {
-                    if(newDto == null) {
-                        continue;
-                    }
-                    if(!(boolean) SPELParser.parseExpression(newDto,m.getToExpression())) {
-                        continue;
-                    }
+                if(!SPELParser.parseBooleanExpression(newDto,m.getToExpression(),true)) {
+                    continue;
                 }
                 executeDtoList.add(newDto);
             }
             if(!executeDtoList.isEmpty()) {
                 m.getUpdateEvent().exec(m, this.updateCommand.getUpdateType(),
-                        dtoClassInfo, executeDtoList, updateEventLogId, level);
+                        dtoClassInfo, executeDtoList, updateEventLogId);
             }
         }
     }

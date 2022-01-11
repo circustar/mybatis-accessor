@@ -11,5 +11,5 @@ public interface IUpdateEvent<T> {
     IUpdateCommand.UpdateType[] getDefaultUpdateTypes();
     void exec(T model, IUpdateCommand.UpdateType updateType
             , DtoClassInfo dtoClassInfo, List<Object> dtoList
-            , String updateEventLogId, int level);
+            , String updateEventLogId);
 }

@@ -50,7 +50,7 @@ public class UpdateLogEvent implements IUpdateEvent<UpdateEventModel> {
     @Override
     public void exec(UpdateEventModel model, IUpdateCommand.UpdateType updateType
             , DtoClassInfo dtoClassInfo, List<Object> dtoList
-            , String updateEventLogId, int level) {
+            , String updateEventLogId) {
         if(!CollectionUtils.isEmpty(dtoList)) {
             LOGGER.info("UPDATE LOG EVENT, ID:" + updateEventLogId + ", TYPE:" + updateType.getName() + ", CLASS:" + dtoClassInfo.getDtoClass().getName());
             if(dtoClassInfo.getDtoClass().isAssignableFrom(dtoList.get(0).getClass())) {
