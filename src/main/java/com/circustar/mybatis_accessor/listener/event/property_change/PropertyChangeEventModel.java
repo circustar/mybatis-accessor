@@ -73,7 +73,11 @@ public class PropertyChangeEventModel {
     }
 
     public ExecuteTiming getExecuteTiming() {
-        return executeTiming;
+        if(ExecuteTiming.DEFAULT.equals(this.executeTiming)) {
+            return getUpdateEvent().getDefaultExecuteTiming();
+        } else {
+            return this.executeTiming;
+        }
     }
 
     public List<String> getListenProperties() {

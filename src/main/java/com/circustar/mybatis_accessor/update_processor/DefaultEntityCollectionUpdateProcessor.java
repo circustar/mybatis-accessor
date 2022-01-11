@@ -204,14 +204,17 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
                 this.dtoClassInfo.getUpdateEventList(), this.updateCommand, this.dtoClassInfo
                 ,this.updateDtoList
         );
+        updateListener.init();
         UpdateProcessorPropertyChangeListener changeListener = new UpdateProcessorPropertyChangeListener(
                 this.dtoClassInfo.getPropertyChangeEventList(), this.updateCommand, this.dtoClassInfo
                 ,this.updateDtoList
         );
+        changeListener.init();
         UpdateProcessorDecodeListener decodeListener = new UpdateProcessorDecodeListener(
                 this.dtoClassInfo.getDecodeEventModelList(), this.updateCommand, this.dtoClassInfo
                 ,this.updateDtoList
         );
+        decodeListener.init();
         this.listenerList = Arrays.asList(decodeListener, updateListener, changeListener);
     }
 

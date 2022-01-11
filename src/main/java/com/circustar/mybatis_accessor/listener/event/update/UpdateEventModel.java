@@ -60,8 +60,9 @@ public class UpdateEventModel {
 
     public ExecuteTiming getExecuteTiming() {
         if(ExecuteTiming.DEFAULT.equals(this.executeTiming)) {
-            this.executeTiming = getUpdateEvent().getDefaultExecuteTiming();
+            return getUpdateEvent().getDefaultExecuteTiming();
+        } else {
+            return this.executeTiming;
         }
-        return this.executeTiming;
     }
 }

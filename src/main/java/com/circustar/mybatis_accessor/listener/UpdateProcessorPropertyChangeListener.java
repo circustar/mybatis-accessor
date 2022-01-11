@@ -23,7 +23,7 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
     private final DtoClassInfo dtoClassInfo;
     private final List updateDtoList;
     private List oldDtoList;
-    private boolean initialized;
+//    private boolean initialized;
 
     public UpdateProcessorPropertyChangeListener(List<PropertyChangeEventModel> onChangeList
             , IUpdateCommand updateCommand
@@ -37,6 +37,13 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
 
     public List<PropertyChangeEventModel> getUpdateEventList() {
         return onChangeList;
+    }
+
+    @Override
+    public void init() {
+        if(this.onChangeList != null && !this.onChangeList.isEmpty()) {
+            initData();
+        }
     }
 
     @Override
@@ -76,10 +83,10 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
     @Override
     public void listenerExec(DefaultEntityCollectionUpdateProcessor target
             , IListenerTiming eventTiming, String updateEventLogId, int level) {
-        if(!initialized) {
-            initData();
-            initialized = true;
-        }
+//        if(!initialized) {
+//            initData();
+//            initialized = true;
+//        }
         List<PropertyChangeEventModel> execChangeList = onChangeList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming()))
                 .filter(x -> x.getUpdateTypes().stream().anyMatch(y -> updateCommand.getUpdateType().equals(y)))
                 .collect(Collectors.toList());

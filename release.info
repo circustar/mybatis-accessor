@@ -26,3 +26,4 @@
 -- 1.Mybatis-Plus升级至3.4.3.4
 -- 2.代码优化
 -- 3.更新ReadMe
+-- 4.PropertyChangeEvent优化
