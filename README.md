@@ -6,7 +6,7 @@
 ### 2.依赖
 * mybatis-plus
 
-### 3.设计要求
+### 3.使用前提
 * 表必须设置主键，且主键自动生成（数据库自动生成或者使用mybatis-plus注解生成）
 * 存在外键关系的表，外键的变量名与主键保持一致
 * 遵循mybatis-plus的规则，定义service,mapper和entity
@@ -275,7 +275,7 @@ mybatisAccessorService.deleteByIds(StudentDto.class, idList, Arrays.asList("scor
 * 三种更新监听器，DecodeEvent完成更新前从其他表获取信息并赋值到待更新DTO
 * UpdateEvent与PropertyChangeEvent功能相似，完成数字的统计、分配、执行SQL、执行特定Bean的方法
 * PropertyChangeEvent监听字段的变化，在字段产生变化时才会执行。UpdateEvent不监听字段变化。
-* PropertyChangeEvent查找原值并与更新值做比较，相对开销比UpdateEvent大。
+* PropertyChangeEvent查找原值并与更新值做比较，开销比UpdateEvent大。
 
 #### 10.1.DecodeEvent
 ```java
@@ -463,7 +463,7 @@ public class StudentGenderGroupDto {
 ##### 12.2.5.QueryJoin
 * 说明：作用于Dto的字段上，定义SQL语句的连接关系
 * 参数1 - tableAlias : 定义SQL连接表的别名
-* 参数2 - joinType : 左连接、右连接、内连接、全连接
+* 参数2 - joinType : 左连接、内连接
 * 参数3 - joinExpression : 连接表达式，支持SPEL，省略时使用主键关联
 * 参数4 - order : 确定连接时的顺序
 * 范例：
@@ -815,4 +815,4 @@ public class ProductOrderDetail3Dto extends BaseDto implements Serializable {
 * 参数1 - dto : Dto实例或者Dto实例列表。
 
 ##### 13.2.2.submit方法
-* 说明：对MybatisAccessorUpdateManager的更新列表进行排序依次更新
+* 说明：对MybatisAccessorUpdateManager的更新列表进行排序后依次更新
