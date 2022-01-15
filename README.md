@@ -17,7 +17,7 @@
     <dependency>
         <groupId>com.circustar</groupId>
         <artifactId>mybatis-accessor</artifactId>
-        <version>1.2.2</version>
+        <version>1.2.3</version>
     </dependency>
 ```
 ### 5.定义Mybatis-plus相关类
