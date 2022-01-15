@@ -4,6 +4,7 @@ import com.circustar.common_utils.reflection.FieldUtils;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,6 +44,10 @@ public abstract class NumberUtils {
             Short res = (Short) numberList.stream().reduce((x, y) -> (x == null ? 0:((Short)x)) + (y == null ? 0:((Short)y))).get();
             if(res == null) { return BigDecimal.ZERO; }
             result = BigDecimal.valueOf(res);
+        } else if(BigInteger.class.isAssignableFrom(clazz)) {
+            BigInteger res = (BigInteger) numberList.stream().reduce((x, y) -> (x == null ? BigInteger.ZERO:((BigInteger)x)).add(y == null ? BigInteger.ZERO:((BigInteger)y))).get();
+            if(res == null) { return BigDecimal.ZERO; }
+            result = new BigDecimal(res);
         }  else {
             throw new RuntimeException("not support type for summary : " + clazz.getSimpleName());
         }
@@ -71,6 +76,8 @@ public abstract class NumberUtils {
             result = BigDecimal.valueOf((Float)obj);
         } else if(Short.class.isAssignableFrom(clazz)) {
             result = BigDecimal.valueOf((Short)obj);
+        } else if(BigInteger.class.isAssignableFrom(clazz)) {
+            result = new BigDecimal((BigInteger)obj);
         } else {
             throw new RuntimeException("not support type for summary : " + clazz.getSimpleName());
         }
@@ -90,6 +97,8 @@ public abstract class NumberUtils {
             return value.floatValue();
         } else if(Short.class.isAssignableFrom(clazz)) {
             return value.shortValue();
+        } else if(BigInteger.class.isAssignableFrom(clazz)) {
+            return value.toBigInteger();
         }
         throw new RuntimeException("not support type for summary : " + clazz.getSimpleName());
     }
