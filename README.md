@@ -422,7 +422,7 @@ public class StudentQueryDto {
 
 ##### 12.2.3.QueryGroup
 * 说明：作用于Dto的字段上，定义SQL语句的分组
-* 参数 - value : 定义SQL语句的分组字段
+* 参数 - value : 定义SQL语句的分组字段，可省略
 * 范例：
 ```java
 @Data
@@ -465,10 +465,10 @@ public class StudentGenderGroupDto {
 
 ##### 12.2.5.QueryJoin
 * 说明：作用于Dto的字段上，定义SQL语句的连接关系
-* 参数1 - tableAlias : 定义SQL连接表的别名
-* 参数2 - joinType : 左连接、内连接
+* 参数1 - tableAlias : 定义SQL连接表的别名，默认表名
+* 参数2 - joinType : 左连接、内连接，默认左连接
 * 参数3 - joinExpression : 连接表达式，支持SPEL，省略时使用主键关联
-* 参数4 - order : 确定连接时的顺序
+* 参数4 - order : 确定连接时的顺序，默认1
 * 范例：
 ```java
 @Data
@@ -512,7 +512,7 @@ public class StudentDto2 {
 ##### 12.2.7.QueryOrder注解
 * 说明：作用于Dto的字段上。定义排序。
 * 参数1 - expression : 排序表达式，支持SPEL，可省略。默认按作用字段排序
-* 参数2 - sortIndex : 排序顺位。
+* 参数2 - sortIndex : 排序顺位，默认Integer.MAX_VALUE。
 * 参数3 - sortOrder : 升序还是降序。默认升序。
 * 范例：
 ```java
@@ -616,7 +616,7 @@ public class StudentDto6 implements Serializable {
 #### 12.4.监听器相关
 ##### 12.4.1.DecodeEvent
 * 说明：作用于Dto类上。在更新前获取其他表信息并设置到DTO中
-* 参数1 - onExpression : 定义符合什么条件时开启，支持SPEL。
+* 参数1 - onExpression : 定义符合什么条件时开启，支持SPEL,可省略。
 * 参数2 - sourceDtoClass : 定义数据来源
 * 参数3 - sourceProperties : 从sourceDtoClass获取哪些字段，与targetProperties一致时可省略
 * 参数4 - targetProperties : 获取的值设置到哪些字段中去
@@ -647,7 +647,7 @@ public class OrderDetailDto extends BaseDto implements Serializable {
 
 ##### 12.4.2.UpdateEvent
 * 说明：作用于Dto类上。表示在更新前后执行一些操作
-* 参数1 - onExpression : 定义符合什么条件时开启，支持SPEL。
+* 参数1 - onExpression : 定义符合什么条件时开启，支持SPEL，可省略。
 * 参数2 - updateEventClass : 更新前后执行的操作类，必须实现IUpdateEvent接口
 * 参数3 - updateParams : 更新参数，只能是String类型
 * 参数4 - UpdateType :更新类型，默认IUpdateEvent接口中getDefaultUpdateTypes方法的值
@@ -692,13 +692,13 @@ public class PersonInfoDto extends BaseDto implements Serializable {
 * 7.UpdateAvgAssignEvent : 更新完成后将主项字段值平均地分摊到子项字段上。
   参数1：主项字段名。参数2：子项列表名。参数3：子项字段名称。 参数4：精度。 
 * 8.UpdateFillEvent : 更新完成后将主项字段值按一定顺序分配到子项字段上，子项字段达到最大值后再分配下一条记录
-  参数1：主项字段名。参数2：分配剩余值设置到哪个字段中。参数3：子项列表名。参数4：分配子项字段名称。 参数5：分配最大值（可使用数值或者子项字段名）。参数6：排序字段。参数7：升序ASC还是降序DESC 
+  参数1：主项字段名。参数2：分配剩余值设置到哪个字段中。参数3：子项列表名。参数4：分配子项字段名称。 参数5：分配最大值（可使用数值或者子项字段名）。参数6：排序字段，可省略。参数7：升序ASC还是降序DESC，可省略 
 * 9.UpdateExecuteSqlEvent : 更新完成后执行指定SQL
   参数1：SQL语句，支持SPEL表达式。
 * 10.UpdateLogEvent : 更新前打印日志
   参数1：打印数据格式,支持SPEL，可省略。默认打印所有字段
 * 11.UpdateExecuteBeanMethodEvent : 更新后执行指定Bean的方法
-  参数1：bean名称。参数2：执行方法。参数3开始：Dto字段，字段值会作为执行方法的参数。不存在参数3时会将Dto作为参数。
+  参数1：bean名称。参数2：执行方法。参数3->参数n：Dto字段名称，对应的值会作为执行方法的参数。不存在参数3时会将整个Dto作为参数。
 
 ##### 12.4.3.PropertyChangeEvent
 * 说明：作用于Dto类上。监听到属性变化时，执行对应的IUpdateEvent实现类
