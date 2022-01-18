@@ -1,7 +1,10 @@
-### 1.目标
-* 简化数据库操作，不使用SQL的情况下完成CRUD操作
-* 支持级联保存/更新/删除
-* 预定义更新监听器，自动完成查找、统计、分配等功能
+### 1.特性
+* 不编写SQL的情况下实现表的CRUD、关联、分组、排序等操作
+* 通过SPEL表达式支持复杂的关联关系
+* 支持级联新增、更新、删除
+* 通过更新监听器监听表或字段的更新事件
+* 预定义更新监听器，完成自动填充、统计、分配等功能
+* 不影响Mybatis、Mybatis-Plus的原有功能
 
 ### 2.依赖
 * mybatis-plus
@@ -10,7 +13,7 @@
 * 表必须设置主键，且主键自动生成（数据库自动生成或者使用mybatis-plus注解生成）
 * 存在外键关系的表，外键的变量名与主键保持一致
 * 遵循mybatis-plus的规则，定义service,mapper和entity
-* 定义DTO并关联Entity和service
+* 定义DTO类并使用DtoEntityRelation注解维护DTO、ENTITY、SERVICE的关系
 
 ### 4.引入依赖
 ```xml
