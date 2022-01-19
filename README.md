@@ -699,7 +699,9 @@ public class PersonInfoDto extends BaseDto implements Serializable {
   参数1：打印数据格式,支持SPEL，可省略。默认打印所有字段
 * 11.UpdateExecuteBeanMethodEvent : 更新后执行指定Bean的方法
   参数1：bean名称。参数2：执行方法。参数3->参数n：Dto字段名称，对应的值会作为执行方法的参数。不存在参数3时会将整个Dto作为参数。
-
+* 12.UpdateAnyEvent : 更新完成后将子项列表指定字段的任意值更新到主项的字段中去。
+  参数1：主项字段名。参数2：子项列表名。参数3：子项字段名称。 
+  
 ##### 12.4.3.PropertyChangeEvent
 * 说明：作用于Dto类上。监听到属性变化时，执行对应的IUpdateEvent实现类
 * 参数1 - listenProperties : 监听哪些字段，可省略。

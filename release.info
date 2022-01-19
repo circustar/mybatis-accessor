@@ -28,3 +28,6 @@
 -- 3.NumberUtils支持BigInteger
 -- 4.代码优化
 -- 5.更新ReadMe
+
+1.2.4
+-- 1.新增UpdateAnyEvent
