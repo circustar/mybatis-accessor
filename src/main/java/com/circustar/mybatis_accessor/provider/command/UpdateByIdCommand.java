@@ -1,7 +1,7 @@
 package com.circustar.mybatis_accessor.provider.command;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.mybatis_accessor.common.MessageProperties;
+import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
 
 
 import java.util.Collection;
@@ -21,7 +21,7 @@ public class UpdateByIdCommand implements IUpdateCommand {
         for(Object var1 : collection) {
             boolean result = service.updateById(var1);
             if(!result) {
-                throw new RuntimeException(String.format(MessageProperties.UPDATE_TARGET_NOT_FOUND
+                throw new RuntimeException(String.format(MvcEnhanceConstants.UPDATE_TARGET_NOT_FOUND
                         , "Mapper - " + service.getBaseMapper().getClass().getSimpleName()));
             }
         }

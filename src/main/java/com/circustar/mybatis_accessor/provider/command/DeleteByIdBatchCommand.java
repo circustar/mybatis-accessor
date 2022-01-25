@@ -1,7 +1,7 @@
 package com.circustar.mybatis_accessor.provider.command;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.mybatis_accessor.common.MessageProperties;
+import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
 import com.circustar.mybatis_accessor.utils.MybatisPlusUtils;
 
 import java.util.Collection;
@@ -20,7 +20,7 @@ public class DeleteByIdBatchCommand implements IUpdateCommand {
         boolean physicDelete = option != null && (boolean) option;
         boolean result = MybatisPlusUtils.deleteBatchIds(service, obj, physicDelete);
         if (!result) {
-            throw new RuntimeException(String.format(MessageProperties.UPDATE_TARGET_NOT_FOUND
+            throw new RuntimeException(String.format(MvcEnhanceConstants.UPDATE_TARGET_NOT_FOUND
                     , "Mapper - " + service.getBaseMapper().getClass().getSimpleName()));
         }
         return true;

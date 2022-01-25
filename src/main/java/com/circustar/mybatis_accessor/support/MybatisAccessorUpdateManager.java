@@ -73,7 +73,7 @@ public class MybatisAccessorUpdateManager {
                 .forEach(dtoWithOption -> {
                     List dtoList = new ArrayList<>(CollectionUtils.convertToList(dtoWithOption.getDto()));
                     if (dtoList == null || dtoList.isEmpty()) {
-                        throw new RuntimeException("update list cannot be empty");
+                        return;
                     }
                     mybatisAccessorService.updateList(dtoList
                             , dtoWithOption.getParam().isIncludeAllChildren()

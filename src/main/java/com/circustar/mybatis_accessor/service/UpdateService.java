@@ -1,7 +1,7 @@
 package com.circustar.mybatis_accessor.service;
 
 import com.circustar.mybatis_accessor.class_info.*;
-import com.circustar.mybatis_accessor.common.MessageProperties;
+import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
 import com.circustar.mybatis_accessor.provider.*;
 import com.circustar.mybatis_accessor.provider.parameter.IProviderParam;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
@@ -28,7 +28,7 @@ public class UpdateService implements IUpdateService {
         for(IEntityUpdateProcessor o : objList) {
             boolean result = o.execUpdate(updateEventLogId);
             if(!result) {
-                throw new RuntimeException(String.format(MessageProperties.UPDATE_TARGET_NOT_FOUND
+                throw new RuntimeException(String.format(MvcEnhanceConstants.UPDATE_TARGET_NOT_FOUND
                         , "DTO CLASS - " + relationInfo.getDtoClass().getSimpleName()
                                 + ", UPDATE PROCESSOR - " + o.getClass().getSimpleName()));
             }

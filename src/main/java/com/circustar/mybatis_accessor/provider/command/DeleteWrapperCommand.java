@@ -2,7 +2,7 @@ package com.circustar.mybatis_accessor.provider.command;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.circustar.mybatis_accessor.common.MessageProperties;
+import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
 import com.circustar.mybatis_accessor.utils.MybatisPlusUtils;
 
 import java.util.Collection;
@@ -22,7 +22,7 @@ public class DeleteWrapperCommand implements IUpdateCommand {
         for(Object var0 : collection) {
             boolean result = MybatisPlusUtils.delete(service, (Wrapper) var0, physicDelete);
             if (!result) {
-                throw new RuntimeException(String.format(MessageProperties.UPDATE_TARGET_NOT_FOUND
+                throw new RuntimeException(String.format(MvcEnhanceConstants.UPDATE_TARGET_NOT_FOUND
                         , "Mapper - " + service.getBaseMapper().getClass().getSimpleName()));
             }
         }

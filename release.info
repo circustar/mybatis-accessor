@@ -30,7 +30,8 @@
 -- 5.更新ReadMe
 
 1.2.4
--- 1.新增UpdateAnyEvent
--- 2.MybatisAccessorService类优化
--- TODO:.custom sql
--- TODO:.查询Dto与结果Dto分开
+-- 1.新增UpdateAnyEvent类
+-- 2.UpdateMinEvent、UpdateMaxEvent类代码优化
+-- 3.MybatisAccessorService类部分方法私有化
+-- 4.Connector增加一种枚举Custom
+-- 5.禁用RuntimeException

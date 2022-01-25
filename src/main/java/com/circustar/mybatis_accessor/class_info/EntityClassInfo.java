@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.entity.UpdateOrder;
-import com.circustar.mybatis_accessor.common.MessageProperties;
+import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -40,7 +40,7 @@ public class EntityClassInfo {
 
         this.idReferenceFieldInfo = this.fieldList.stream().filter(x -> x.getIdReference() != null).findAny().orElse(null);
         if(this.idReferenceFieldInfo != null && this.keyField == null) {
-            throw new RuntimeException(String.format(MessageProperties.ID_REFERENCE_NOT_FOUND
+            throw new RuntimeException(String.format(MvcEnhanceConstants.ID_REFERENCE_NOT_FOUND
                     , this.entityClass.getSimpleName()
                     ,this.idReferenceFieldInfo.getField().getName()));
         }

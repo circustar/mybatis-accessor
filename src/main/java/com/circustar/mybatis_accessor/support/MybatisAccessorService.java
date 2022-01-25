@@ -1,7 +1,7 @@
 package com.circustar.mybatis_accessor.support;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.circustar.mybatis_accessor.common.MessageProperties;
+import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
 import com.circustar.mybatis_accessor.provider.DefaultDeleteByIdProcessorProvider;
 import com.circustar.mybatis_accessor.provider.DefaultInsertProcessorProvider;
 import com.circustar.mybatis_accessor.provider.DefaultUpdateProcessorProvider;
@@ -53,7 +53,7 @@ public class MybatisAccessorService {
     public EntityDtoServiceRelation getRelation(Class dtoClass, String dtoName) {
         EntityDtoServiceRelation relationInfo = getEntityDtoServiceRelation(dtoClass, dtoName);
         if (relationInfo == null) {
-            throw new RuntimeException(String.format(MessageProperties.DTO_NAME_NOT_FOUND, dtoName));
+            throw new RuntimeException(String.format(MvcEnhanceConstants.DTO_NAME_NOT_FOUND, dtoName));
         }
         return relationInfo;
     }
