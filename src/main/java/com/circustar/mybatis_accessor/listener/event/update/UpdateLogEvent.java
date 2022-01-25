@@ -62,7 +62,7 @@ public class UpdateLogEvent implements IUpdateEvent<UpdateEventModel> {
                 }
                 if(StringUtils.hasLength(strFormat)) {
                     for (Object obj : dtoList) {
-                        LOGGER.info("UPDATE ID:" + updateEventLogId + ",DATA:{" + SPELParser.parseExpression(obj, strFormat).toString() + "}");
+                        LOGGER.info("UPDATE ID:" + updateEventLogId + ",DATA:{" + SPELParser.parseStringExpression(obj, strFormat) + "}");
                     }
                 }
             } else {

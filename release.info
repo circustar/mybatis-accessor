@@ -31,3 +31,6 @@
 
 1.2.4
 -- 1.新增UpdateAnyEvent
+-- 2.MybatisAccessorService类优化
+-- TODO:.custom sql
+-- TODO:.查询Dto与结果Dto分开

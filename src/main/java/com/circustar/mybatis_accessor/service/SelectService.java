@@ -291,10 +291,6 @@ public class SelectService implements ISelectService {
     }
 
     private String getJoinExpression(DtoClassInfo dtoClassInfo, Object dto) {
-        String joinExpression = dtoClassInfo.getJoinTables();
-        if(dto != null && !StringUtils.isEmpty(joinExpression)) {
-            joinExpression = SPELParser.parseExpression(dto, joinExpression).toString();
-        }
-        return joinExpression;
+        return SPELParser.parseStringExpression(dto, dtoClassInfo.getJoinTables());
     }
 }

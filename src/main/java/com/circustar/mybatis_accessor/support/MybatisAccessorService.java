@@ -70,7 +70,7 @@ public class MybatisAccessorService {
         return this.getEntityById(relationInfo, id);
     }
 
-    public <T> T getEntityById(EntityDtoServiceRelation relationInfo
+    private <T> T getEntityById(EntityDtoServiceRelation relationInfo
             , Serializable id)  {
         return this.selectService.getEntityById(relationInfo, id);
     }
@@ -81,7 +81,7 @@ public class MybatisAccessorService {
         return this.getEntityByQueryWrapper(relationInfo, dto, queryWrapper);
     }
 
-    public <T> T getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo, Object dto
+    private <T> T getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo, Object dto
             , QueryWrapper queryWrapper)  {
         return this.selectService.getEntityByQueryWrapper(relationInfo, dto, queryWrapper);
     }
@@ -91,7 +91,7 @@ public class MybatisAccessorService {
         return this.getEntityByAnnotation(relationInfo, object);
     }
 
-    public <T> T getEntityByAnnotation(EntityDtoServiceRelation relationInfo
+    private <T> T getEntityByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object)  {
         return this.selectService.getEntityByAnnotation(relationInfo, object);
     }
@@ -112,7 +112,7 @@ public class MybatisAccessorService {
         return this.getDtoById(relationInfo, id, includeAllChildren, children);
     }
 
-    public <T> T getDtoById(EntityDtoServiceRelation relationInfo
+    private <T> T getDtoById(EntityDtoServiceRelation relationInfo
             , Serializable id
             , boolean includeAllChildren
             , List<String> children)  {
@@ -127,7 +127,7 @@ public class MybatisAccessorService {
         return this.getDtoByQueryWrapper(relationInfo, dto, queryWrapper, includeAllChildren, children);
     }
 
-    public <T> T getDtoByQueryWrapper(EntityDtoServiceRelation relationInfo
+    private <T> T getDtoByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object dto
             , QueryWrapper queryWrapper
             , boolean includeAllChildren
@@ -142,7 +142,7 @@ public class MybatisAccessorService {
         return this.getDtoByAnnotation(relationInfo, object, includeAllChildren, children);
     }
 
-    public <T> T getDtoByAnnotation(EntityDtoServiceRelation relationInfo
+    private <T> T getDtoByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
             , boolean includeAllChildren
             , List<String> children)  {
@@ -157,7 +157,7 @@ public class MybatisAccessorService {
         return this.getEntityPageByAnnotation(relationInfo, object, pageIndex, pageSize);
     }
 
-    public <T> PageInfo<T> getEntityPageByAnnotation(EntityDtoServiceRelation relationInfo
+    private <T> PageInfo<T> getEntityPageByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
             , Integer pageIndex
             , Integer pageSize
@@ -176,7 +176,7 @@ public class MybatisAccessorService {
         return this.getEntityPageByQueryWrapper(relationInfo,dto,queryWrapper,pageIndex,pageSize);
     }
 
-    public <T> PageInfo<T> getEntityPageByQueryWrapper(EntityDtoServiceRelation relationInfo
+    private <T> PageInfo<T> getEntityPageByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object object
             , QueryWrapper queryWrapper
             , Integer pageIndex
@@ -193,7 +193,7 @@ public class MybatisAccessorService {
         return this.getDtoPageByAnnotation(relationInfo, object, pageIndex, pageSize);
     }
 
-    public <T> PageInfo<T> getDtoPageByAnnotation(EntityDtoServiceRelation relationInfo
+    private <T> PageInfo<T> getDtoPageByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
             , Integer pageIndex
             , Integer pageSize
@@ -212,7 +212,7 @@ public class MybatisAccessorService {
         return this.getDtoPageByQueryWrapper(relationInfo,object,queryWrapper,pageIndex,pageSize);
     }
 
-    public <T> PageInfo<T> getDtoPageByQueryWrapper(EntityDtoServiceRelation relationInfo
+    private <T> PageInfo<T> getDtoPageByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object object
             , QueryWrapper queryWrapper
             , Integer pageIndex
@@ -227,7 +227,7 @@ public class MybatisAccessorService {
         return this.getEntityListByAnnotation(relationInfo, object);
     }
 
-    public List getEntityListByAnnotation(EntityDtoServiceRelation relationInfo
+    private List getEntityListByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
     )  {
         return this.selectService.getEntityListByAnnotation(relationInfo
@@ -241,7 +241,7 @@ public class MybatisAccessorService {
         return this.getEntityListByQueryWrapper(relationInfo, object, queryWrapper);
     }
 
-    public <T> List<T> getEntityListByQueryWrapper(EntityDtoServiceRelation relationInfo
+    private <T> List<T> getEntityListByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object object
             , QueryWrapper queryWrapper
     )  {
@@ -254,7 +254,7 @@ public class MybatisAccessorService {
         return this.getDtoListByAnnotation(relationInfo, object);
     }
 
-    public List getDtoListByAnnotation(EntityDtoServiceRelation relationInfo
+    private List getDtoListByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
     )  {
         return this.selectService.getDtoListByAnnotation(relationInfo, object);
@@ -274,14 +274,14 @@ public class MybatisAccessorService {
         return this.getDtoListByQueryWrapper(relationInfo, object, queryWrapper);
     }
 
-    public <T> List<T> getDtoListByQueryWrapper(EntityDtoServiceRelation relationInfo
+    private <T> List<T> getDtoListByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object object
             , QueryWrapper queryWrapper
     )  {
         return this.selectService.getDtoListByQueryWrapper(relationInfo, object, queryWrapper);
     }
 
-    public <T> List<T> updateWithOptions(
+    protected <T> List<T> updateWithOptions(
             Object object, EntityDtoServiceRelation relationInfo
             , IUpdateProcessorProvider updateEntityProvider
             , IProviderParam options
@@ -301,7 +301,7 @@ public class MybatisAccessorService {
         return this.save(relationInfo, object, includeAllChildren, children, updateChildrenOnly, updateEventLogId);
     }
 
-    public <T> T save(EntityDtoServiceRelation relation
+    private <T> T save(EntityDtoServiceRelation relation
             , Object object
             , boolean includeAllChildren
             , List<String> children
@@ -330,7 +330,7 @@ public class MybatisAccessorService {
     }
 
 
-    public <T> List<T> saveList(EntityDtoServiceRelation relation
+    private <T> List<T> saveList(EntityDtoServiceRelation relation
             , List objectList
             , boolean includeAllChildren
             , List<String> children
@@ -355,7 +355,7 @@ public class MybatisAccessorService {
     }
 
 
-    public <T> T update(EntityDtoServiceRelation relation
+    private <T> T update(EntityDtoServiceRelation relation
             , Object object
             , boolean includeAllChildren
             , List<String> children
@@ -416,7 +416,7 @@ public class MybatisAccessorService {
         return deleteByIds(relationInfo, ids, includeAllChildren, children, updateChildrenOnly, updateEventLogId);
     }
 
-    public <T> List<T> deleteByIds(EntityDtoServiceRelation relationInfo
+    private <T> List<T> deleteByIds(EntityDtoServiceRelation relationInfo
             , Set<Serializable> ids
             , boolean includeAllChildren
             , List<String> children

@@ -197,6 +197,15 @@ public enum Connector {
             return "";
         }
         return " not exists( " + values[0] + ")";
+    }),
+    CUSTOM("custom", (column, wrapper, values) -> {
+        if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){return;}
+        wrapper.notExists(values[0].toString());
+    }, (column, values) -> {
+        if (values == null || values.length == 0 || StringUtils.isEmpty(values[0])) {
+            return "";
+        }
+        return " ( " + values[0] + ")";
     })
     ;
     private String connector;

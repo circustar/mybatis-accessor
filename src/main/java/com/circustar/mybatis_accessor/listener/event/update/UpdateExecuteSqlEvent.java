@@ -46,11 +46,7 @@ public class UpdateExecuteSqlEvent implements IUpdateEvent<UpdateEventModel> {
         }
         final List<String> sqlExpressions = new ArrayList<>();
         for(Object dto : dtoList) {
-            String sql = model.getUpdateParams().get(0);
-            if(sql.contains("#{")) {
-                sql = SPELParser.parseExpression(dto, sql).toString();
-            }
-            sqlExpressions.add(sql);
+            sqlExpressions.add(SPELParser.parseStringExpression(dto, model.getUpdateParams().get(0)));
         }
         try(SqlSession sqlSession = sqlSessionFactory.openSession();
             Connection connection = sqlSession.getConnection();

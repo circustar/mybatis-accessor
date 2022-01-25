@@ -81,7 +81,7 @@ public abstract class DtoFields {
             queryWrapper.clear();
 
             dtoField.getSelectors().forEach(x -> x.connector().consume(x.tableColumn(), queryWrapper
-                    , SPELParser.parseExpression(dto, Arrays.asList(x.valueExpression()))));
+                    , SPELParser.parseExpressionList(dto, Arrays.asList(x.valueExpression()))));
 
             List searchResult = service.list(queryWrapper);
             assignDtoField(dtoClassInfoHelper, dto, dtoField, searchResult);

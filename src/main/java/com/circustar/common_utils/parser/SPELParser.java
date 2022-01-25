@@ -17,6 +17,9 @@ public abstract class SPELParser {
 
     private final static ParserContext TEMPLATE_PARSER_CONTEXT = new TemplateParserContext();
 
+    private final static String PARSER_SIGNAL_START = "#{";
+    private final static String PARSER_SIGNAL_END = "}";
+
     public static <T> T calcExpression(String expressionString, final Class<T> clazz) {
         Expression expression = SPEL_EXPRESSION_PARSER.parseExpression(expressionString);
         return expression.getValue(clazz);
@@ -33,30 +36,39 @@ public abstract class SPELParser {
            return defaultOnEmpty;
         }
         String strExpression;
-        if(expressionString.contains("#{")) {
+        if(expressionString.contains(PARSER_SIGNAL_START)) {
             strExpression = expressionString;
         } else {
-            strExpression = "#{" + expressionString + "}";
+            strExpression = PARSER_SIGNAL_START + expressionString + PARSER_SIGNAL_END;
         }
-        return (boolean)parseExpression(obj, strExpression);
+        return (boolean)parseExpression(obj, strExpression, defaultOnEmpty);
     }
 
-    public static Object parseExpression(Object obj, String expressionString) {
+    public static String parseStringExpression(Object obj, String expressionString) {
+        return (String)parseExpression(obj, expressionString, expressionString);
+    }
+
+    public static Object parseExpression(Object obj, String expressionString, Object defaultValue) {
+        if(obj == null || !StringUtils.hasLength(expressionString) || !expressionString.contains(PARSER_SIGNAL_START)) {
+            return defaultValue;
+        }
         StandardEvaluationContext context = new StandardEvaluationContext(obj);
         context.addPropertyAccessor(new MapAccessor());
         return parseExpression(context, expressionString);
     }
+
 
     public static Object parseExpression(StandardEvaluationContext context, String expressionString) {
         Expression expression = SPEL_EXPRESSION_PARSER.parseExpression(expressionString, TEMPLATE_PARSER_CONTEXT);
         return expression.getValue(context);
     }
 
-    public static List<Object> parseExpression(Object object, List<String> expressionStrings) {
-        return expressionStrings.stream().map(x -> parseExpression(object, x)).collect(Collectors.toList());
-    }
-
-    public static List<Object> parseExpression(StandardEvaluationContext context, List<String> expressionStrings) {
+    public static List<Object> parseExpressionList(Object object, List<String> expressionStrings) {
+        if(object == null) {
+            return null;
+        }
+        StandardEvaluationContext context = new StandardEvaluationContext(object);
+        context.addPropertyAccessor(new MapAccessor());
         return expressionStrings.stream().map(x -> parseExpression(context, x)).collect(Collectors.toList());
     }
 }

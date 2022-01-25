@@ -54,6 +54,10 @@ public class MybatisAccessorUpdateManager {
         UPDATE_TARGET_LIST.get().add(new DtoWithOption(dto, option));
     }
 
+    public boolean isEmpty() {
+        return UPDATE_TARGET_LIST.get().isEmpty();
+    }
+
     public void submit() {
         String updateEventLogId = UUID.randomUUID().toString();
         List<DtoWithOption> dtoWithOptions = new ArrayList<>(UPDATE_TARGET_LIST.get());

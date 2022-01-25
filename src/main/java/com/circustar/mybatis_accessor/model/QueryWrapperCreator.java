@@ -1,6 +1,8 @@
 package com.circustar.mybatis_accessor.model;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.circustar.common_utils.parser.SPELParser;
+import com.circustar.mybatis_accessor.annotation.Connector;
 import com.circustar.mybatis_accessor.annotation.dto.QueryOrder;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.class_info.DtoField;
@@ -121,9 +123,15 @@ public class QueryWrapperCreator {
     public static <T> QueryWrapper<T> createQueryWrapper(Object dto, List<QueryWhereModel> queryWhereModels, QueryWrapperBuilder queryWrapperBuilder){
         QueryWrapper<T> result = queryWrapperBuilder.createQueryWrapper();
         for (QueryWhereModel queryWhere : queryWhereModels) {
+            String expression = queryWhere.getExpression();
+            if(Connector.CUSTOM.equals(queryWhere.getConnector())
+                        || Connector.EXISTS.equals(queryWhere.getConnector())
+                        || Connector.NOT_EXISTS.equals(queryWhere.getConnector())) {
+                expression = SPELParser.parseStringExpression(dto, expression);
+            }
             queryWhere.getConnector().consume(queryWhere.getTableColumn()
                     , result
-                    , StringUtils.hasLength(queryWhere.getExpression()) ? queryWhere.getExpression() :
+                    , StringUtils.hasLength(expression) ? expression :
                     FieldUtils.getFieldValue(dto, queryWhere.getDtoField().getPropertyDescriptor().getReadMethod()));
         }
         return result;
