@@ -4,6 +4,7 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.class_info.DtoField;
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import org.springframework.context.ApplicationContext;
@@ -33,7 +34,7 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
 
     @Override
     public void exec(UpdateEventModel model, IUpdateCommand.UpdateType updateType, DtoClassInfo dtoClassInfo
-            , List<Object> dtoList, String updateEventLogId) {
+            , List<Object> dtoList, String updateEventLogId) throws MybatisAccessorException {
         if(UpdateExecuteBeanMethodEvent.applicationContext == null) {
             setApplicationContext(dtoClassInfo.getDtoClassInfoHelper().getApplicationContext());
         }
@@ -72,7 +73,7 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
                 method.invoke(bean, methodParams.toArray());
             }
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
-            throw new RuntimeException(ex);
+            throw new MybatisAccessorException(MybatisAccessorException.ExceptionType.METHOD_INVOKE_EXCEPTION, ex);
         }
     }
 }

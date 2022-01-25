@@ -4,6 +4,7 @@ import com.circustar.common_utils.listener.IListener;
 import com.circustar.common_utils.listener.IListenerTiming;
 import com.circustar.common_utils.parser.SPELParser;
 import com.circustar.common_utils.reflection.FieldUtils;
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.listener.event.property_change.PropertyChangeEventModel;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
@@ -81,7 +82,7 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
 
     @Override
     public void listenerExec(DefaultEntityCollectionUpdateProcessor target
-            , IListenerTiming eventTiming, String updateEventLogId, int level) {
+            , IListenerTiming eventTiming, String updateEventLogId, int level) throws MybatisAccessorException {
 //        if(!initialized) {
 //            initData();
 //            initialized = true;

@@ -1,6 +1,7 @@
 package com.circustar.common_utils.collection;
 
 import com.circustar.common_utils.reflection.FieldUtils;
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public abstract class NumberUtils {
-    public static BigDecimal sumListByType(final Class clazz, final List list, final Method valueReadMethod) {
+    public static BigDecimal sumListByType(final Class clazz, final List list, final Method valueReadMethod) throws MybatisAccessorException {
         if(list == null || list.isEmpty()) {
             return BigDecimal.ZERO;
         }
@@ -17,7 +18,7 @@ public abstract class NumberUtils {
         return sumNumberListByType(clazz, numberList);
     }
 
-    public static BigDecimal sumNumberListByType(final Class clazz, final List numberList) {
+    public static BigDecimal sumNumberListByType(final Class clazz, final List numberList) throws MybatisAccessorException {
         BigDecimal result;
         if(BigDecimal.class.isAssignableFrom(clazz)) {
             BigDecimal res = (BigDecimal) numberList.stream().reduce(
@@ -49,16 +50,17 @@ public abstract class NumberUtils {
             if(res == null) { return BigDecimal.ZERO; }
             result = new BigDecimal(res);
         }  else {
-            throw new RuntimeException("not support type for summary : " + clazz.getSimpleName());
+            throw new MybatisAccessorException(MybatisAccessorException.ExceptionType.NOT_SUPPORT_TYPE
+                    ,"not support type for summary : " + clazz.getSimpleName());
         }
         return result;
     }
 
-    public static BigDecimal readDecimalValue(final Object obj, final Method readMethod) {
+    public static BigDecimal readDecimalValue(final Object obj, final Method readMethod) throws MybatisAccessorException {
         final Object fieldValue = FieldUtils.getFieldValue(obj, readMethod);
         return castToBigDecimal(fieldValue);
     }
-    public static BigDecimal castToBigDecimal(final Object obj) {
+    public static BigDecimal castToBigDecimal(final Object obj) throws MybatisAccessorException {
         if(obj == null) {
             return BigDecimal.ZERO;
         }
@@ -79,12 +81,13 @@ public abstract class NumberUtils {
         } else if(BigInteger.class.isAssignableFrom(clazz)) {
             result = new BigDecimal((BigInteger)obj);
         } else {
-            throw new RuntimeException("not support type for summary : " + clazz.getSimpleName());
+            throw new MybatisAccessorException(MybatisAccessorException.ExceptionType.NOT_SUPPORT_TYPE
+                    , "not support type for summary : " + clazz.getSimpleName());
         }
         return result;
     }
 
-    public static Object castFromBigDecimal(final Class clazz, final BigDecimal value) {
+    public static Object castFromBigDecimal(final Class clazz, final BigDecimal value) throws MybatisAccessorException {
         if(BigDecimal.class.isAssignableFrom(clazz)) {
             return value;
         } else if(Double.class.isAssignableFrom(clazz)) {
@@ -100,7 +103,8 @@ public abstract class NumberUtils {
         } else if(BigInteger.class.isAssignableFrom(clazz)) {
             return value.toBigInteger();
         }
-        throw new RuntimeException("not support type for summary : " + clazz.getSimpleName());
+        throw new MybatisAccessorException(MybatisAccessorException.ExceptionType.NOT_SUPPORT_TYPE
+                , "not support type for summary : " + clazz.getSimpleName());
     }
 
     public static boolean isNumber(final String str) {

@@ -6,6 +6,7 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.class_info.DtoField;
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.support.MybatisAccessorService;
 
 import java.lang.reflect.Method;
@@ -28,7 +29,7 @@ public class UpdateSumEvent extends UpdateCountEvent implements IUpdateEvent<Upd
     }
 
     @Override
-    protected BigDecimal getValue(Object dtoUpdated, List<DtoField> dtoFields, List<Object> parsedParams) {
+    protected BigDecimal getValue(Object dtoUpdated, List<DtoField> dtoFields, List<Object> parsedParams) throws MybatisAccessorException {
         Object subFieldValue = FieldUtils.getFieldValue(dtoUpdated, dtoFields.get(1).getPropertyDescriptor().getReadMethod());
         List valueList = CollectionUtils.convertToList(subFieldValue);
         DtoField sumField = dtoFields.get(2);

@@ -3,9 +3,11 @@ package com.circustar.mybatis_accessor.support;
 import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.provider.parameter.DefaultEntityProviderParam;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MybatisAccessorUpdateManager {
     private final static ThreadLocal<List<DtoWithOption>> UPDATE_TARGET_LIST = ThreadLocal.withInitial(() -> new ArrayList<>());
@@ -58,7 +60,7 @@ public class MybatisAccessorUpdateManager {
         return UPDATE_TARGET_LIST.get().isEmpty();
     }
 
-    public void submit() {
+    public void submit() throws MybatisAccessorException {
         String updateEventLogId = UUID.randomUUID().toString();
         List<DtoWithOption> dtoWithOptions = new ArrayList<>(UPDATE_TARGET_LIST.get());
         for (DtoWithOption dtoWithOption : dtoWithOptions) {
@@ -68,18 +70,19 @@ public class MybatisAccessorUpdateManager {
             }
             dtoWithOption.setDtoClassInfo(dtoClassInfoHelper.getDtoClassInfo(dto.getClass()));
         }
-        dtoWithOptions.stream().sorted(Comparator.comparingInt((DtoWithOption x) -> x.getDtoClassInfo().getUpdateOrder())
+        final List<DtoWithOption> dtoWithOptionList = dtoWithOptions.stream().sorted(Comparator.comparingInt((DtoWithOption x) -> x.getDtoClassInfo().getUpdateOrder())
                 .thenComparing(x -> x.getDtoClassInfo().getEntityClassInfo().getEntityClass().getSimpleName()))
-                .forEach(dtoWithOption -> {
-                    List dtoList = new ArrayList<>(CollectionUtils.convertToList(dtoWithOption.getDto()));
-                    if (dtoList == null || dtoList.isEmpty()) {
-                        return;
-                    }
-                    mybatisAccessorService.updateList(dtoList
-                            , dtoWithOption.getParam().isIncludeAllChildren()
-                            , dtoWithOption.getParam().getUpdateChildrenNames()
-                            , dtoWithOption.getParam().isUpdateChildrenOnly(), updateEventLogId);
-                });
-        UPDATE_TARGET_LIST.get().removeAll(dtoWithOptions);
+                .collect(Collectors.toList());
+        for(DtoWithOption dtoWithOption: dtoWithOptionList) {
+            List dtoList = new ArrayList<>(CollectionUtils.convertToList(dtoWithOption.getDto()));
+            if (dtoList == null || dtoList.isEmpty()) {
+                return;
+            }
+            mybatisAccessorService.updateList(dtoList
+                    , dtoWithOption.getParam().isIncludeAllChildren()
+                    , dtoWithOption.getParam().getUpdateChildrenNames()
+                    , dtoWithOption.getParam().isUpdateChildrenOnly(), updateEventLogId);
+            UPDATE_TARGET_LIST.get().remove(dtoWithOption);
+        }
     }
 }

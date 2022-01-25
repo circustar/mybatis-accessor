@@ -5,6 +5,7 @@ import com.circustar.common_utils.collection.NumberUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.dto.QueryOrder;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.class_info.DtoField;
@@ -73,7 +74,7 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
     @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
             , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams
-            , String updateEventLogId) {
+            , String updateEventLogId) throws MybatisAccessorException {
         DtoField mAssignField = dtoFields.get(0);
         DtoField mRemainField = dtoFields.get(1);
         DtoField sField = dtoFields.get(2);

@@ -2,6 +2,7 @@ package com.circustar.mybatis_accessor.provider.command;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mybatis_accessor.common.MvcEnhanceConstants;
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 
 
 import java.util.Collection;
@@ -17,10 +18,11 @@ public class InsertCommand implements IUpdateCommand {
     public UpdateType getUpdateType() {return UpdateType.INSERT;}
 
     @Override
-    public <T extends Collection> boolean update(IService service, T collection, Object option) {
+    public <T extends Collection> boolean update(IService service, T collection, Object option) throws MybatisAccessorException {
         boolean result = service.saveBatch(collection);
         if(!result) {
-            throw new RuntimeException(String.format(MvcEnhanceConstants.UPDATE_TARGET_NOT_FOUND
+            throw new MybatisAccessorException(MybatisAccessorException.ExceptionType.TARGET_NOT_FOUND
+                    , String.format(MvcEnhanceConstants.UPDATE_TARGET_NOT_FOUND
                     , "Mapper - " + service.getBaseMapper().getClass().getSimpleName()));
         }
         return result;

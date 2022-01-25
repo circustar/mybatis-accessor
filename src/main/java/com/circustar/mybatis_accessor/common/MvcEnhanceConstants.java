@@ -6,13 +6,4 @@ public final class MvcEnhanceConstants {
     public final static String UPDATE_TARGET_NOT_FOUND = "UPDATE TARGET NOT FOUND : %s";
     public final static String MYBATIS_ENHANCE_JOIN_TABLE = "__MYBATIS_ENHANCE_JOIN_TABLE";
     public final static String MYBATIS_ENHANCE_JOIN_COLUMNS = "__MYBATIS_ENHANCE_JOIN_COLUMNS";
-
-    public static class TargetNotFoundException extends Exception {
-    }
-
-    public static class ListIsEmptyException extends Exception {
-    }
-
-    public static class NotSupportTypeException extends Exception {
-    }
 }

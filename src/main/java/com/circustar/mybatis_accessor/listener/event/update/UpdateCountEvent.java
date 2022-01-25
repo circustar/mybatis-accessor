@@ -6,6 +6,7 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.class_info.DtoField;
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.service.ISelectService;
 import com.circustar.mybatis_accessor.support.MybatisAccessorService;
 
@@ -31,7 +32,7 @@ public class UpdateCountEvent extends UpdateCountSqlEvent implements IUpdateEven
         return Arrays.asList(updateEventModel.getUpdateParams());
     }
 
-    protected BigDecimal getValue(Object dtoUpdated, List<DtoField> dtoFields, List<Object> parsedParams) {
+    protected BigDecimal getValue(Object dtoUpdated, List<DtoField> dtoFields, List<Object> parsedParams) throws MybatisAccessorException {
         Object fieldValue = FieldUtils.getFieldValue(dtoUpdated, dtoFields.get(1).getPropertyDescriptor().getReadMethod());
         int count = 0;
         if(fieldValue != null) {
@@ -43,7 +44,7 @@ public class UpdateCountEvent extends UpdateCountSqlEvent implements IUpdateEven
     @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
             , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams
-            , String updateEventLogId) {
+            , String updateEventLogId) throws MybatisAccessorException {
         ISelectService selectService = dtoClassInfo.getDtoClassInfoHelper().getSelectService();
         DtoField mField = dtoFields.get(0);
         DtoField sField = dtoFields.get(1);

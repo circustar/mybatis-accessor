@@ -5,6 +5,7 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.class_info.DtoField;
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.service.ISelectService;
 import com.circustar.mybatis_accessor.support.MybatisAccessorService;
 
@@ -50,7 +51,7 @@ public class UpdateAnyEvent extends UpdateCountSqlEvent implements IUpdateEvent<
     @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
             , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams
-            , String updateEventLogId) {
+            , String updateEventLogId) throws MybatisAccessorException {
         ISelectService selectService = dtoClassInfo.getDtoClassInfoHelper().getSelectService();
         DtoField mField = dtoFields.get(0);
         DtoField sField = dtoFields.get(1);

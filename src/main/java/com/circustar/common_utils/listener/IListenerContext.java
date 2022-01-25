@@ -1,5 +1,7 @@
 package com.circustar.common_utils.listener;
 
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
+
 import java.util.List;
 
 public interface IListenerContext<T> {
@@ -9,7 +11,7 @@ public interface IListenerContext<T> {
     default boolean skipAllListener(final IListenerTiming eventTiming) {
         return !getListenerList().stream().filter(x -> !x.skipListener(eventTiming)).findAny().isPresent();
     }
-    default void execListeners(final IListenerTiming eventTiming, final String updateEventLogId, final int level) {
+    default void execListeners(final IListenerTiming eventTiming, final String updateEventLogId, final int level) throws MybatisAccessorException {
         List<IListener<T>> listenerList = getListenerList();
         if(listenerList == null || listenerList.isEmpty()) {
             return;

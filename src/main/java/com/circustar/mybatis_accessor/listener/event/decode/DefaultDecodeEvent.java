@@ -5,6 +5,7 @@ import com.circustar.mybatis_accessor.annotation.event.IDecodeEvent;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.class_info.DtoField;
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.mybatis_accessor.service.ISelectService;
@@ -32,7 +33,7 @@ public class DefaultDecodeEvent implements IDecodeEvent<DecodeEventModel> {
     @Override
     public void exec(DecodeEventModel model, IUpdateCommand.UpdateType updateType
             , DtoClassInfo dtoClassInfo, List<Object> dtoList
-            , String updateEventLogId) {
+            , String updateEventLogId) throws MybatisAccessorException {
         DtoClassInfoHelper dtoClassInfoHelper = dtoClassInfo.getDtoClassInfoHelper();
         DtoClassInfo sourceDtoClassInfo = model.getSourceDtoClassInfo(dtoClassInfoHelper);
         ISelectService selectService = sourceDtoClassInfo.getDtoClassInfoHelper().getSelectService();
@@ -53,7 +54,8 @@ public class DefaultDecodeEvent implements IDecodeEvent<DecodeEventModel> {
                     , queryDto, false, null);
             if(sourceDto == null) {
                 if (model.isErrorWhenNotExist()) {
-                    throw new RuntimeException("Decode event failed because source is not found. class : " + sourceDtoClassInfo.getDtoClass().getSimpleName()
+                    throw new MybatisAccessorException(MybatisAccessorException.ExceptionType.TARGET_NOT_FOUND
+                            , "Decode event failed because source is not found. class : " + sourceDtoClassInfo.getDtoClass().getSimpleName()
                             + " - match properties : " + matchProperties.stream().map(x -> x.getField().getName()).collect(Collectors.joining(","))
                             + " - match values : " + matchValues.stream().collect(Collectors.joining(",")));
                 } else {

@@ -3,6 +3,7 @@ package com.circustar.mybatis_accessor.update_processor;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.common_utils.listener.IListener;
 import com.circustar.common_utils.listener.IListenerContext;
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.class_info.EntityClassInfo;
@@ -76,7 +77,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
     }
 
     @Override
-    public boolean execUpdate(String updateEventLogId) {
+    public boolean execUpdate(String updateEventLogId) throws MybatisAccessorException {
         String var0 = updateEventLogId;
         if(!StringUtils.hasLength(var0)) {
             var0 = UUID.randomUUID().toString();
@@ -85,7 +86,7 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
     }
 
     @Override
-    public boolean execUpdate(Map<String, Object> keyMap, List<Supplier<Integer>> consumerList, String updateEventLogId, int level) {
+    public boolean execUpdate(Map<String, Object> keyMap, List<Supplier<Integer>> consumerList, String updateEventLogId, int level) throws MybatisAccessorException {
         init(this);
         boolean result;
 
@@ -172,12 +173,16 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
     }
 
     private boolean execSubEntityUpdate(Map<String, Object> keyMap, List<Supplier<Integer>> consumerList
-            , String updateEventLogId, int level) {
+            , String updateEventLogId, int level) throws MybatisAccessorException {
         this.execListeners(ExecuteTiming.BEFORE_SUB_ENTITY_UPDATE, updateEventLogId, level);
         if(this.subUpdateEntities != null && !this.subUpdateEntities.isEmpty()) {
             if(!this.skipAllListener(ExecuteTiming.AFTER_SUB_ENTITY_UPDATE)) {
                 consumerList.add(() -> {
-                    this.execListeners(ExecuteTiming.AFTER_SUB_ENTITY_UPDATE, updateEventLogId, level);
+                    try {
+                        this.execListeners(ExecuteTiming.AFTER_SUB_ENTITY_UPDATE, updateEventLogId, level);
+                    } catch (MybatisAccessorException e) {
+                        throw new RuntimeException(e);
+                    }
                     return level;
                 });
             }

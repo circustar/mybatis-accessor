@@ -3,6 +3,7 @@ package com.circustar.mybatis_accessor.listener.event.update;
 import com.circustar.common_utils.parser.SPELParser;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import org.apache.ibatis.session.SqlSession;
@@ -37,12 +38,9 @@ public class UpdateExecuteSqlEvent implements IUpdateEvent<UpdateEventModel> {
 
     @Override
     public void exec(UpdateEventModel model, IUpdateCommand.UpdateType updateType, DtoClassInfo dtoClassInfo
-            , List<Object> dtoList, String updateEventLogId) {
+            , List<Object> dtoList, String updateEventLogId) throws MybatisAccessorException {
         if(UpdateExecuteSqlEvent.sqlSessionFactory == null) {
             initSqlSessionFactory(dtoClassInfo.getDtoClassInfoHelper().getApplicationContext());
-        }
-        if(UpdateExecuteSqlEvent.sqlSessionFactory == null) {
-            throw new RuntimeException("sqlSessionFactory not found in ApplicationContext");
         }
         final List<String> sqlExpressions = new ArrayList<>();
         for(Object dto : dtoList) {
@@ -55,7 +53,7 @@ public class UpdateExecuteSqlEvent implements IUpdateEvent<UpdateEventModel> {
                 statement.execute(sql);
             }
         } catch (SQLException ex) {
-            throw new RuntimeException(ex);
+            throw new MybatisAccessorException(MybatisAccessorException.ExceptionType.SQL_ERROR, ex);
         }
     }
 }

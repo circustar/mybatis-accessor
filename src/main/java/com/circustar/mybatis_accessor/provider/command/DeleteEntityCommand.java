@@ -2,6 +2,7 @@ package com.circustar.mybatis_accessor.provider.command;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.common_utils.reflection.FieldUtils;
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -19,7 +20,7 @@ public class DeleteEntityCommand implements IUpdateCommand {
     public UpdateType getUpdateType() {return UpdateType.DELETE;}
 
     @Override
-    public <T extends Collection> boolean update(IService service, T collection, Object option) {
+    public <T extends Collection> boolean update(IService service, T collection, Object option) throws MybatisAccessorException {
         Map<String, Object> map = (Map<String, Object>) option;
         Method readMethod = (Method) map.get(IUpdateCommand.KEY_FIELD_READ_METHOD);
         boolean physicDelete = map.get(IUpdateCommand.PHYSIC_DELETE) != null && (boolean) map.get(IUpdateCommand.PHYSIC_DELETE);

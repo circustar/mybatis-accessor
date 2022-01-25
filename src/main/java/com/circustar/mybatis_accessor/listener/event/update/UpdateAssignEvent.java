@@ -6,6 +6,7 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.class_info.DtoField;
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.service.ISelectService;
 import com.circustar.mybatis_accessor.support.MybatisAccessorService;
 
@@ -31,13 +32,13 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
         return dtoFields;
     }
 
-    protected BigDecimal getTotalWeight(List sEntityList, DtoField sWeightEntityField) {
+    protected BigDecimal getTotalWeight(List sEntityList, DtoField sWeightEntityField) throws MybatisAccessorException {
         Class sWeightEntityClass = sWeightEntityField.getActualClass();
         return NumberUtils.sumListByType(sWeightEntityClass, sEntityList
                 , sWeightEntityField.getPropertyDescriptor().getReadMethod());
     }
 
-    protected BigDecimal getNextWeight(Object sEntity, DtoField sWeightEntityField) {
+    protected BigDecimal getNextWeight(Object sEntity, DtoField sWeightEntityField) throws MybatisAccessorException {
         return NumberUtils.readDecimalValue(sEntity
                 , sWeightEntityField.getPropertyDescriptor().getReadMethod());
     }
@@ -49,7 +50,7 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
     @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
             , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams
-            , String updateEventLogId) {
+            , String updateEventLogId) throws MybatisAccessorException {
         Method mKeyFieldReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
 
         DtoField mField = dtoFields.get(0);

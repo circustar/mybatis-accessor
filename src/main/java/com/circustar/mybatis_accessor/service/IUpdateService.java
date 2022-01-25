@@ -1,5 +1,6 @@
 package com.circustar.mybatis_accessor.service;
 
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.provider.parameter.IProviderParam;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.provider.IUpdateProcessorProvider;
@@ -11,5 +12,5 @@ public interface IUpdateService {
             , Object object
             , IUpdateProcessorProvider updateEntityProviders
             , IProviderParam options
-            , String updateEventLogId);
+            , String updateEventLogId) throws MybatisAccessorException;
 }

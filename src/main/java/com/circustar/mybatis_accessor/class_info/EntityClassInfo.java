@@ -39,11 +39,6 @@ public class EntityClassInfo {
         }
 
         this.idReferenceFieldInfo = this.fieldList.stream().filter(x -> x.getIdReference() != null).findAny().orElse(null);
-        if(this.idReferenceFieldInfo != null && this.keyField == null) {
-            throw new RuntimeException(String.format(MvcEnhanceConstants.ID_REFERENCE_NOT_FOUND
-                    , this.entityClass.getSimpleName()
-                    ,this.idReferenceFieldInfo.getField().getName()));
-        }
 
         UpdateOrder updateOrderAnno = this.entityClass.getAnnotation(UpdateOrder.class);
         if(updateOrderAnno != null) {

@@ -96,9 +96,6 @@ public class DtoClassInfoHelper {
     public <T extends Collection> T convertToEntityList(T objects, DtoClassInfo dtoClassInfo, boolean isWithSubFields) {
         Class collectionClass = objects.getClass();
         Class<? extends Collection> implementClass = CollectionType.getSupportCollectionType(collectionClass);
-        if(implementClass == null) {
-            throw new RuntimeException("Collection type not Support!");
-        }
         Collection childList = ClassUtils.createInstance(implementClass);
         Iterator iterator = objects.iterator();
         while (iterator.hasNext()) {
@@ -155,9 +152,6 @@ public class DtoClassInfoHelper {
     public <T extends Collection, R extends Collection> R convertFromEntityList(T entityList, DtoClassInfo dtoClassInfo) {
         Class collectionClass = entityList.getClass();
         Class<T> implementClass = (Class<T>) CollectionType.getSupportCollectionType(collectionClass);
-        if (implementClass == null) {
-            throw new RuntimeException("Collection type not Support!");
-        }
         R objectList = (R) ClassUtils.createInstance(implementClass);
         Iterator iterator = entityList.iterator();
         while (iterator.hasNext()) {

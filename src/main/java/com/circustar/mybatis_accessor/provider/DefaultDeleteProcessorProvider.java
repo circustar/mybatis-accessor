@@ -79,15 +79,7 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
             List<IEntityUpdateProcessor> subUpdateEntities = new ArrayList<>();
             for (Object dto : dtoList) {
                 Serializable id = (Serializable) getUpdateId(dto, dtoClassInfo.getKeyField());
-                if(id == null) {
-                    throw new RuntimeException(relation.getEntityClass().getSimpleName()
-                            + " delete exception : id could not be null : " + dtoClassInfo.getClass().getSimpleName());
-                }
                 Object object = selectService.getDtoById(relation, id,false , topEntities);
-                if(object == null) {
-                    throw new RuntimeException(relation.getEntityClass().getSimpleName()
-                            + " delete exception : key not found : " + id);
-                }
                 subUpdateEntities.clear();
                 for (DtoField subDtoField : dtoFields) {
                     Object subDto = FieldUtils.getFieldValue(object, subDtoField.getPropertyDescriptor().getReadMethod());

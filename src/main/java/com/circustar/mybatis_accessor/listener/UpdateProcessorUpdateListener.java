@@ -3,6 +3,7 @@ package com.circustar.mybatis_accessor.listener;
 import com.circustar.common_utils.listener.IListener;
 import com.circustar.common_utils.listener.IListenerTiming;
 import com.circustar.common_utils.parser.SPELParser;
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.listener.event.update.UpdateEventModel;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
@@ -42,7 +43,7 @@ public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCol
 
     @Override
     public void listenerExec(DefaultEntityCollectionUpdateProcessor target
-            , IListenerTiming eventTiming, String updateEventLogId, int level) {
+            , IListenerTiming eventTiming, String updateEventLogId, int level) throws MybatisAccessorException {
         List<UpdateEventModel> updateModelList = updateEventList.stream()
                 .filter(x -> eventTiming.equals(x.getExecuteTiming()))
                 .filter(x -> x.getUpdateTypes().stream().anyMatch(y -> updateCommand.getUpdateType().equals(y)))

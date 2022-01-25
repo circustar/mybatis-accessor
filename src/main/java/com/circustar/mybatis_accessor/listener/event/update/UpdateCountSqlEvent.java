@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
+import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.class_info.DtoField;
@@ -71,7 +72,7 @@ public class UpdateCountSqlEvent extends AbstractUpdateEvent<UpdateEventModel> i
     @Override
     protected void execUpdate(DtoClassInfo dtoClassInfo, DtoClassInfo fieldDtoClassInfo
             , List<Object> dtoList, List<DtoField> dtoFields, List<Object> parsedParams
-            , String updateEventLogId) {
+            , String updateEventLogId) throws MybatisAccessorException {
         DtoField mField = dtoFields.get(0);
         IService serviceBean = dtoClassInfo.getServiceBean();
         String execSelectSql = parsedParams.get(0).toString();
