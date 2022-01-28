@@ -20,7 +20,7 @@
     <dependency>
         <groupId>com.circustar</groupId>
         <artifactId>mybatis-accessor</artifactId>
-        <version>1.2.3</version>
+        <version>1.2.4</version>
     </dependency>
 ```
 ### 5.定义Mybatis-plus相关类
@@ -385,7 +385,11 @@ public class SpringBootApplication {
 #### 12.2.查询相关
 ##### 12.2.1.QuerySelect
 * 说明：作用于Dto的字段上，定义SQL语句的查询项目
-* 参数 - value : 定义SQL语句的查询项目
+
+| 参数 | 名称 | 类型 | 必须 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| value  | 自定义查询结果 | String | 否 | 省略时为Dto字段对应的表字段 |
+
 * 范例：
 ```java
 @Data
@@ -401,9 +405,13 @@ public class StudentAverageScoreDto {
 
 ##### 12.2.2.QueryWhere
 * 说明：作用于Dto的字段上，定义SQL语句的筛选条件，筛选条件为tableColumn(字段) + connector(对比条件) + expression(值)
-* 参数1 - tableColumn : 定义SQL语句的筛选目标字段，省略时为Dto字段对应的表字段
-* 参数2 - connector : 定义SQL语句的对比条件，可使用EQ(默认值)、LIKE、IN、GT、LT、EXIST等
-* 参数3 - expression :定义SQL语句对比条件的值，默认为Dto字段的值。支持SPEL表达式
+
+| 参数 | 名称 | 类型 | 必须 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| tableColumn  | 筛选条件字段 | String | 否 | 省略时为Dto字段对应的表字段 |
+| connector  | SQL语句的对比条件 | enum | 否 | 默认等于(Connector.EQ) |
+| expression  | 筛选值表达式 | String | 是 | 支持SPEL表达式 |
+
 * 范例：
 ```java
 @Data
@@ -422,7 +430,11 @@ public class StudentQueryDto {
 
 ##### 12.2.3.QueryGroup
 * 说明：作用于Dto的字段上，定义SQL语句的分组
-* 参数 - value : 定义SQL语句的分组字段，可省略
+
+| 参数 | 名称 | 类型 | 必须 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| value  | 分组字段 | String | 否 | 对应group by的字段。默认Dto字段对应的表字段名 |
+
 * 范例：
 ```java
 @Data
@@ -445,7 +457,11 @@ public class StudentGenderGroupDto {
 
 ##### 12.2.4.QueryHaving
 * 说明：作用于Dto的字段上，定义SQL语句的分组过滤条件
-* 参数 - value : 定义SQL语句的分组过滤条件
+
+| 参数 | 名称 | 类型 | 必须 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| value  | 分组过滤条件 | String | 是 | 对应having的过滤条件 |
+
 * 范例：
 ```java
 @Data
@@ -465,10 +481,14 @@ public class StudentGenderGroupDto {
 
 ##### 12.2.5.QueryJoin
 * 说明：作用于Dto的字段上，定义SQL语句的连接关系
-* 参数1 - tableAlias : 定义SQL连接表的别名，默认表名
-* 参数2 - joinType : 左连接、内连接，默认左连接
-* 参数3 - joinExpression : 连接表达式，支持SPEL，省略时使用主键关联
-* 参数4 - order : 确定连接时的顺序，默认1
+
+| 参数 | 名称 | 类型 | 必须 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| tableAlias  | join表的别名 | String | 否 | 默认表名 |
+| joinType  | 左连接还是内连接 | enum | 否 | 默认左连接 |
+| joinExpression  | join条件 | String | 是 | 支持SPEL表达式 |
+| order  | join顺序 | int | 否 | 默认1 |
+
 * 范例：
 ```java
 @Data
@@ -489,10 +509,14 @@ public class ScoreDto implements Serializable {
 
 ##### 12.2.6.Selector
 * 说明：作用于Dto的字段上。在获取单个DTO对象后，再根据Selector定义的条件查询相关记录
-* 参数1 - tableColumn : 定义SQL语句的筛选目标字段，省略时为Dto字段对应的表字段
-* 参数2 - connector : 定义SQL语句的对比条件，可使用EQ(默认值)、LIKE、IN、GT、LT、EXIST等
-* 参数3 - valueExpression :定义SQL语句对比条件的值，支持SPEL表达式
-* 参数4 - order : 确定查询时的顺序
+
+| 参数 | 名称 | 类型 | 必须 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| tableColumn  | 筛选条件字段 | String | 否 | 省略时为Dto字段对应的表字段 |
+| connector  | SQL语句的对比条件 | enum | 否 | 默认等于(Connector.EQ) |
+| valueExpression  | 筛选值表达式 | String | 是 | 支持SPEL表达式 |
+| order  | Selector执行的顺序 | int | 否 |  |
+
 * 范例：
 ```java
 @Data
@@ -511,9 +535,13 @@ public class StudentDto2 {
 
 ##### 12.2.7.QueryOrder注解
 * 说明：作用于Dto的字段上。定义排序。
-* 参数1 - expression : 排序表达式，支持SPEL，可省略。默认按作用字段排序
-* 参数2 - sortIndex : 排序顺位，默认Integer.MAX_VALUE。
-* 参数3 - sortOrder : 升序还是降序。默认升序。
+
+| 参数 | 名称 | 类型 | 必须 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| expression  | 排序表达式 | boolean | 否 | 支持SPEL，可省略。默认按作用字段排序 |
+| sortIndex  | 排序顺位 | int | 否 | 默认Integer.MAX_VALUE |
+| sortOrder  | 升序还是降序 | enum | 否 | 默认升序 |
+
 * 范例：
 ```java
 @Data
@@ -551,7 +579,11 @@ public class PersonInfo extends BaseEntity implements Serializable {
 
 ##### 12.3.2.UpdateCascade
 * 说明：作用于Dto的字段上。定义是否支持字段的级联更新
-* 参数1 - value : false时不支持级联更新，默认为true
+
+| 参数 | 名称 | 类型 | 必须 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| value  | 是否级联更新 | boolean | 否 | 默认true |
+
 * 范例：
 ```java
 @Data
@@ -572,7 +604,11 @@ public class ScoreDto implements Serializable {
 
 ##### 12.3.3.DeleteFlag
 * 说明：作用于Dto的字段上。如果字段值是1,更新或者级联更新时会删除ID对应的记录
-* 参数1 - physicDelete : Entity中开启逻辑删除TableLogic时，可在Dto中控制物理删除还是逻辑删除。true时表示物理删除。默认false
+
+| 参数 | 名称 | 类型 | 必须 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| physicDelete  | 是否物理删除 | boolean | 否 | 默认false |
+
 * 范例：
 ```java
 @Data
@@ -592,8 +628,12 @@ public class StudentCourseDto {
 
 ##### 12.3.4.DeleteAndInsertNewOnUpdate
 * 说明：作用于Dto的字段上。更新时，使用删除再插入的方式代替更新
-* 参数1 - value : true时表示开启，默认为true
-* 参数2 - deleteEvenIfEmpty : true时表示即使Dto字段是空的也去删除，默认为false
+
+| 参数 | 名称 | 类型 | 必须 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| value  | 是否开启 | boolean | 否 | 默认true |
+| deleteEvenIfEmpty  | 即使空也删除 | boolean | 否 | true时表示即使Dto字段即使是空也会进行删除，默认false |
+
 * 范例：
 ```java
 @Data
@@ -611,20 +651,27 @@ public class StudentDto6 implements Serializable {
 
 ##### 12.3.5.UpdateOrder
 * 说明：作用于Entity的字段上，定义更新优先级，与MybatisAccessorUpdateManager一起使用
-* 参数 - value : 更新优先级，越小优先级越高
+
+| 参数 | 名称 | 类型 | 必须 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| value  | 优先级 | int | 是 | 越小优先级越高 |
 
 #### 12.4.监听器相关
 ##### 12.4.1.DecodeEvent
 * 说明：作用于Dto类上。在更新前获取其他表信息并设置到DTO中
-* 参数1 - onExpression : 定义符合什么条件时开启，支持SPEL,可省略。
-* 参数2 - sourceDtoClass : 定义数据来源
-* 参数3 - sourceProperties : 从sourceDtoClass获取哪些字段，与targetProperties一致时可省略
-* 参数4 - targetProperties : 获取的值设置到哪些字段中去
-* 参数5 - matchSourceProperties : 从sourceDtoClass获取记录时，过滤条件包含哪些字段，与matchProperties一致时可省略
-* 参数6 - matchProperties : 从sourceDtoClass获取记录时，过滤条件的值（从DTO中获取）
-* 参数7 - errorWhenNotExist : 找不到数据时是否报错，默认是
-* 参数8 - updateType : 更新类型，默认新增/修改
-* 参数9 - executeTiming : 更新时机，默认更新前
+
+| 参数 | 名称 | 类型 | 必须 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| onExpression  | 开启监听器条件 | String | 否 | 支持SPEL |
+| sourceDtoClass  | 数据来源DTO类 | Class | 是 |  |
+| sourceProperties  | 数据来源字段 | String[] | 否 | 与targetProperties一致时可省略 |
+| targetProperties  | 目标字段 | String[] | 是 |  |
+| matchSourceProperties  | 数据来源过滤条件字段名 | String[] | 否 | 与matchProperties一致时可省略 |
+| matchProperties  | 目标Dto类对应过滤条件字段名 | String[] | 是 |  |
+| errorWhenNotExist  | 找不到数据源时报错 | boolean | 否 | 默认true |
+| UpdateType  | 更新类型 | Enum | 否 | 更新类型，默认新增/修改 |
+| executeTiming  | 更新时机 | Enum | 否 | 监听器执行时机，默认更新前 |
+
 * 范例：
 ```java
 @Data
@@ -646,12 +693,17 @@ public class OrderDetailDto extends BaseDto implements Serializable {
 ```
 
 ##### 12.4.2.UpdateEvent
-* 说明：作用于Dto类上。表示在更新前后执行一些操作
-* 参数1 - onExpression : 定义符合什么条件时开启，支持SPEL，可省略。
-* 参数2 - updateEventClass : 更新前后执行的操作类，必须实现IUpdateEvent接口
-* 参数3 - updateParams : 更新参数，只能是String类型
-* 参数4 - UpdateType :更新类型，默认IUpdateEvent接口中getDefaultUpdateTypes方法的值
-* 参数5 - executeTiming : 更新时机，默认IUpdateEvent接口中getDefaultExecuteTiming方法的值
+* 说明：作用于Dto类上。监听器在更新前后执行指定的操作。
+
+| 参数 | 名称 | 类型 | 必须 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| onExpression  | 开启监听器条件 | String | 否 | 支持SPEL |
+| updateEventClass  | 执行监听类 | String | 是 | 必须实现IUpdateEvent接口 |
+| updateParams  | 参数 | String | 否 | 只能是String类型 |
+| UpdateType  | 更新类型 | Enum | 否 | 默认updateEventClass中实现getDefaultUpdateTypes方法的值 |
+| executeTiming  | 更新时机 | Enum | 否 | 默认updateEventClass中实现getDefaultExecuteTiming方法的值 |
+
+
 * 范例：
 ```java
 @Data
@@ -678,39 +730,118 @@ public class PersonInfoDto extends BaseDto implements Serializable {
 
 ###### 预定义的IUpdateEvent实现类
 * 1.UpdateCountEvent : 更新完成后将子项列表的条数更新到主项的字段中去。
-  参数1：主项字段名。参数2：子项列表名。
+
+| 参数 | 名称 | 类型 | 必须 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| 参数1  | 主项字段名 | String | 是 |  |
+| 参数2  | 子项列表名 | String | 是 |  |
+
 * 2.UpdateSumEvent : 更新完成后将子项列表指定字段的合计数更新到主项的字段中去。
-  参数1：主项字段名。参数2：子项列表名。参数3：子项字段名称。 
+
+| 参数 | 名称 | 类型 | 必须 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| 参数1  | 主项字段名 | String | 是 |  |
+| 参数2  | 子项列表名 | String | 是 |  |
+| 参数3  | 子项字段名称 | String | 是 |  |
+
+
 * 3.UpdateMaxEvent : 更新完成后将子项列表指定字段的最大值更新到主项的字段中去。
-  参数1：主项字段名。参数2：子项列表名。参数3：子项字段名称。 
-* 4.UpdateMaxEvent : 更新完成后将子项列表指定字段的最小值更新到主项的字段中去。
-  参数1：主项字段名。参数2：子项列表名。参数3：子项字段名称。 
+
+  | 参数 | 名称 | 类型 | 必须 | 备注 |
+  | ---- | ---- | ---- | ---- | ---- |
+  | 参数1  | 主项字段名 | String | 是 |  |
+  | 参数2  | 子项列表名 | String | 是 |  |
+  | 参数3  | 子项字段名称 | String | 是 |  |
+  
+* 4.UpdateMinEvent : 更新完成后将子项列表指定字段的最小值更新到主项的字段中去。
+
+  | 参数 | 名称 | 类型 | 必须 | 备注 |
+  | ---- | ---- | ---- | ---- | ---- |
+  | 参数1  | 主项字段名 | String | 是 |  |
+  | 参数2  | 子项列表名 | String | 是 |  |
+  | 参数3  | 子项字段名称 | String | 是 |  |
+  
 * 5.UpdateAvgEvent : 更新完成后将子项列表指定字段的平均值更新到主项的字段中去。
-  参数1：主项字段名。参数2：子项列表名。参数3：子项字段名称。 
+  
+  | 参数 | 名称 | 类型 | 必须 | 备注 |
+  | ---- | ---- | ---- | ---- | ---- |
+  | 参数1  | 主项字段名 | String | 是 |  |
+  | 参数2  | 子项列表名 | String | 是 |  |
+  | 参数3  | 子项字段名称 | String | 是 |  |
+  
 * 6.UpdateAssignEvent : 更新完成后将主项字段值根据子项中的权重比例分摊到子项字段上。
-  参数1：主项字段名。参数2：子项列表名。参数3：子项字段名称。 参数4：精度。 参数5：子项权重字段名。 
+
+  | 参数 | 名称 | 类型 | 必须 | 备注 |
+  | ---- | ---- | ---- | ---- | ---- |
+  | 参数1  | 主项字段名 | String | 是 |  |
+  | 参数2  | 子项列表名 | String | 是 |  |
+  | 参数3  | 子项字段名称 | String | 是 |  |
+  | 参数4  | 精度 | String | 是 |  |
+  | 参数5  | 子项权重字段名 | String | 是 |  |
+       
 * 7.UpdateAvgAssignEvent : 更新完成后将主项字段值平均地分摊到子项字段上。
-  参数1：主项字段名。参数2：子项列表名。参数3：子项字段名称。 参数4：精度。 
+
+  | 参数 | 名称 | 类型 | 必须 | 备注 |
+  | ---- | ---- | ---- | ---- | ---- |
+  | 参数1  | 主项字段名 | String | 是 |  |
+  | 参数2  | 子项列表名 | String | 是 |  |
+  | 参数3  | 子项字段名称 | String | 是 |  |
+  | 参数4  | 精度 | String | 是 |  |
+  
 * 8.UpdateFillEvent : 更新完成后将主项字段值按一定顺序分配到子项字段上，子项字段达到最大值后再分配下一条记录
-  参数1：主项字段名。参数2：分配剩余值设置到哪个字段中。参数3：子项列表名。参数4：分配子项字段名称。 参数5：分配最大值（可使用数值或者子项字段名）。参数6：排序字段，可省略。参数7：升序ASC还是降序DESC，可省略 
+
+  | 参数 | 名称 | 类型 | 必须 | 备注 |
+  | ---- | ---- | ---- | ---- | ---- |
+  | 参数1  | 主项字段名 | String | 是 |  |
+  | 参数2  | 剩余值设置字段 | String | 是 | 将分配剩余的值保存到该字段中 |
+  | 参数3  | 子项列表名 | String | 是 |  |
+  | 参数4  | 子项字段名称 | String | 是 |  |
+  | 参数5  | 填充最大值 | String | 是 | 可使用数值或者子项字段名 |
+  | 参数6  | 排序字段 | String | 否 |  |
+  | 参数7  | 升序降序 | String | 否 | ASC或DESC |
+
 * 9.UpdateExecuteSqlEvent : 更新完成后执行指定SQL
-  参数1：SQL语句，支持SPEL表达式。
+
+  | 参数 | 名称 | 类型 | 必须 | 备注 |
+  | ---- | ---- | ---- | ---- | ---- |
+  | 参数1  | SQL语句 | String | 是 | 支持SPEL表达式 |
+
 * 10.UpdateLogEvent : 更新前打印日志
-  参数1：打印数据格式,支持SPEL，可省略。默认打印所有字段
+
+  | 参数 | 名称 | 类型 | 必须 | 备注 |
+  | ---- | ---- | ---- | ---- | ---- |
+  | 参数1  | 打印数据格式 | String | 否 | 支持SPEL表达式 |
+  
 * 11.UpdateExecuteBeanMethodEvent : 更新后执行指定Bean的方法
   参数1：bean名称。参数2：执行方法。参数3->参数n：Dto字段名称，对应的值会作为执行方法的参数。不存在参数3时会将整个Dto作为参数。
+
+  | 参数 | 名称 | 类型 | 必须 | 备注 |
+  | ---- | ---- | ---- | ---- | ---- |
+  | 参数1  | bean名称 | String | 是 |  |
+  | 参数2  | 执行方法 | String | 是 | 将分配剩余的值保存到该字段中 |
+  | 参数3-N  | 执行方法参数 | String | 否 | Dto字段名称对应的值作为参数，不存在参数3时会将整个Dto作为参数 |
+  
 * 12.UpdateAnyEvent : 更新完成后将子项列表指定字段的任意值更新到主项的字段中去。
-  参数1：主项字段名。参数2：子项列表名。参数3：子项字段名称。 
+
+  | 参数 | 名称 | 类型 | 必须 | 备注 |
+  | ---- | ---- | ---- | ---- | ---- |
+  | 参数1  | 主项字段名 | String | 是 |  |
+  | 参数2  | 子项列表名 | String | 是 |  |
+  | 参数3  | 子项字段名称 | String | 是 |  |
   
 ##### 12.4.3.PropertyChangeEvent
 * 说明：作用于Dto类上。监听到属性变化时，执行对应的IUpdateEvent实现类
-* 参数1 - listenProperties : 监听哪些字段，可省略。
-* 参数2 - fromExpression : 定义更新前需符合什么条件，支持SPEL，可省略。
-* 参数3 - toExpression : 定义更新后需符合什么条件，支持SPEL，可省略。
-* 参数4 - updateEventClass : 更新前后执行的操作类，必须实现IUpdateEvent接口
-* 参数5 - updateParams : 更新参数，只能是String类型
-* 参数6 - UpdateType :更新类型，默认IUpdateEvent接口中getDefaultUpdateTypes方法的值
-* 参数7 - executeTiming : 更新时机，默认IUpdateEvent接口中getDefaultExecuteTiming方法的值
+
+| 参数 | 名称 | 类型 | 必须 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| listenProperties  | 监听字段列表 | String[] | 否 |  |
+| fromExpression  | 更新前的过滤条件 | String | 否 | SPEL表达式 |
+| toExpression  | 更新后的过滤条件 | String | 否 | SPEL表达式 |
+| updateEventClass  | 更新后执行的操作类 | Class | 是 | 必须实现IUpdateEvent接口 |
+| updateParams  | dto类成员变量名列表 | String[] | 否 | |
+| UpdateType  | 更新类型 | Enum | 否 | 默认updateEventClass中实现getDefaultUpdateTypes方法的值 |
+| executeTiming  | 更新时机 | Enum | 否 | 默认updateEventClass中实现getDefaultExecuteTiming方法的值 |
+
 * 范例：
 ```java
 @Data
@@ -733,91 +864,133 @@ public class ProductOrderDetail3Dto extends BaseDto implements Serializable {
 #### 13.1.MybatisAccessorService
 ##### 13.1.1.getEntityById方法
 * 说明：通过ID获取Entity
-* 参数1 - dtoClass : Dto类。
-* 参数2 - id : 主键的值。
+
+| 参数 | 名称 | 类型 | 非空 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| dtoClass  | Dto类 | Class | 是 |  |
+| id  | 主键值 | Seriable | 是 |  |
 
 ##### 13.1.2.getEntityByAnnotation方法
 * 说明：通过Dto类注解上的查询条件获取Entity
-* 参数1 - Object : Dto类的实例化对象。
+
+| 参数 | 名称 | 类型 | 非空 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| dto  | Dto实例(查询条件) | Object | 是 |  |
 
 ##### 13.1.3.getDtoById方法
 * 说明：通过ID获取Dto
-* 参数1 - dtoClass : Dto类。
-* 参数2 - id : 主键的值。
-* 参数3 - includeAllChildren : 是否获取所有子项。
-* 参数4 - children : includeAllChildren为false时，指定需要获取的子项。
+
+| 参数 | 名称 | 类型 | 非空 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| dtoClass  | Dto类 | Class | 是 |  |
+| id  | 主键值 | Seriable | 是 |  |
+| includeAllChildren  | 是否查询所包含的所有子项 | boolean | 是 |  |
+| children  | 指定需要查询的子项 | List<String> | 否 | 仅includeAllChildren=false时生效 |
 
 ##### 13.1.4.getDtoByAnnotation方法
 * 说明：通过Dto类注解上的查询条件获取Dto
-* 参数1 - Object : Dto类的实例化对象。
-* 参数2 - includeAllChildren : 是否获取所有子项。
-* 参数3 - children : includeAllChildren为false时，指定需要获取的子项。
+
+| 参数 | 名称 | 类型 | 非空 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| dto  | Dto实例(查询条件) | Object | 是 |  |
+| includeAllChildren  | 是否查询所包含的所有子项 | boolean | 是 |  |
+| children  | 指定需要查询的子项 | List<String> | 否 | 仅includeAllChildren=false时生效 |
 
 ##### 13.1.5.getEntityListByAnnotation方法
 * 说明：通过Dto类注解上的查询条件获取Entity的列表
-* 参数1 - Object : Dto类的实例化对象。
+
+| 参数 | 名称 | 类型 | 非空 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| dto  | Dto实例(查询条件) | Object | 是 |  |
 
 ##### 13.1.6.getDtoListByAnnotation方法
 * 说明：通过Dto类注解上的查询条件获取Dto的列表
-* 参数1 - Object : Dto类的实例化对象。
+
+| 参数 | 名称 | 类型 | 非空 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| dto  | Dto实例(查询条件) | Object | 是 |  |
 
 ##### 13.1.7.getEntityPageByAnnotation方法
 * 说明：通过Dto类注解上的查询条件获取Entity的列表
-* 参数1 - Object : Dto类的实例化对象。
-* 参数2 - pageIndex : 页码。
-* 参数3 - pageSize : 每页记录数。
+
+| 参数 | 名称 | 类型 | 非空 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| dto  | Dto实例(查询条件) | Object | 是 |  |
+| pageIndex  | 页码 | int | 是 |  |
+| pageSize  | 每页记录数 | int | 是 |  |
 
 ##### 13.1.8.getDtoPageByAnnotation方法
 * 说明：通过Dto类注解上的查询条件获取Dto的列表
-* 参数1 - Object : Dto类的实例化对象。
-* 参数2 - pageIndex : 页码。
-* 参数3 - pageSize : 每页记录数。
+
+| 参数 | 名称 | 类型 | 非空 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| dto  | Dto实例(查询条件) | Object | 是 |  |
+| pageIndex  | 页码 | int | 是 |  |
+| pageSize  | 每页记录数 | int | 是 |  |
 
 ##### 13.1.9.save方法
 * 说明：新增单个Dto，支持子项级联新增
-* 参数1 - Object : Dto类的实例化对象。
-* 参数2 - includeAllChildren : 是否级联新增所有子项。
-* 参数3 - children : includeAllChildren为false时，指定需要保存的子项。
-* 参数4 - updateChildrenOnly : 为true时只新增子项。
-* 参数5 - updateEventLogId : UpdateLogEvent会将updateEventLogId打印在日志信息中，null时会自动生成新的updateEventLogId。
+
+| 参数 | 名称 | 类型 | 非空 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| insertObject  | 新增Dto实例 | Object | 是 |  |
+| includeAllChildren  | 是否新增所包含的所有子项 | boolean | 是 |  |
+| children  | 指定需要新增的子项 | List<String> | 否 | 仅includeAllChildren=false时生效 |
+| updateChildrenOnly  | 是否仅新增子项 | boolean | 是 |  |
+| updateEventLogId  | 更新LOG ID | String | 否 | UpdateLogEvent会将updateEventLogId打印在日志信息中，null时会自动生成新的updateEventLogId。 |
 
 ##### 13.1.10.saveList方法
 * 说明：新增Dto列表，支持子项级联新增
-* 参数1 - Object : Dto类的实例化对象。
-* 参数2 - includeAllChildren : 是否级联新增所有子项。
-* 参数3 - children : includeAllChildren为false时，指定需要保存的子项。
-* 参数4 - updateChildrenOnly : 为true时只新增子项。
-* 参数5 - updateEventLogId : UpdateLogEvent会将updateEventLogId打印在日志信息中，null时会自动生成新的updateEventLogId。
+
+| 参数 | 名称 | 类型 | 非空 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| insertObjects  | 新增Dto实例列表 | List | 是 |  |
+| includeAllChildren  | 是否新增所包含的所有子项 | boolean | 是 |  |
+| children  | 指定需要新增的子项 | List<String> | 否 | 仅includeAllChildren=false时生效 |
+| updateChildrenOnly  | 是否仅新增子项 | boolean | 是 |  |
+| updateEventLogId  | 更新LOG ID | String | 否 | UpdateLogEvent会将updateEventLogId打印在日志信息中，null时会自动生成新的updateEventLogId。 |
 
 ##### 13.1.11.update方法
 * 说明：更新单个Dto，支持子项级联新增/修改/删除。子项ID为空时新增。子项ID不为空、无DeleteFlag注解或DeleteFlag注解对应属性的值不为1，修改。子项ID不为空、有DeleteFlag注解且DeleteFlag注解对应属性的值为1，删除。
-* 参数1 - Object : Dto类的实例化对象。
-* 参数2 - includeAllChildren : 是否级联新增/修改/删除所有子项。
-* 参数3 - children : includeAllChildren为false时，指定需要新增/修改/删除的子项。
-* 参数4 - updateChildrenOnly : 为true时只新增/修改/删除子项。
-* 参数5 - updateEventLogId : UpdateLogEvent会将updateEventLogId打印在日志信息中，null时会自动生成新的updateEventLogId。
+
+| 参数 | 名称 | 类型 | 非空 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| updateObject  | 更新Dto实例 | Object | 是 |  |
+| includeAllChildren  | 是否更新所包含的所有子项 | boolean | 是 |  |
+| children  | 指定需要更新的子项 | List<String> | 否 | 仅includeAllChildren=false时生效 |
+| updateChildrenOnly  | 是否仅更新子项 | boolean | 是 |  |
+| updateEventLogId  | 更新LOG ID | String | 否 | UpdateLogEvent会将updateEventLogId打印在日志信息中，null时会自动生成新的updateEventLogId。 |
 
 ##### 13.1.12.updateList方法
 * 说明：更新Dto列表，支持子项级联新增/修改/删除。子项ID为空时新增。子项ID不为空、无DeleteFlag注解或DeleteFlag注解对应属性的值不为1，修改。子项ID不为空、有DeleteFlag注解且DeleteFlag注解对应属性的值为1，删除。
-* 参数1 - Object : Dto类的实例化对象。
-* 参数2 - includeAllChildren : 是否级联新增/修改/删除所有子项。
-* 参数3 - children : includeAllChildren为false时，指定需要新增/修改/删除的子项。
-* 参数4 - updateChildrenOnly : 为true时只新增/修改/删除子项。
-* 参数5 - updateEventLogId : UpdateLogEvent会将updateEventLogId打印在日志信息中，null时会自动生成新的updateEventLogId。
+
+| 参数 | 名称 | 类型 | 非空 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| updateObjects  | 更新Dto实例列表 | List | 是 |  |
+| includeAllChildren  | 是否更新所包含的所有子项 | boolean | 是 |  |
+| children  | 指定需要更新的子项 | List<String> | 否 | 仅includeAllChildren=false时生效 |
+| updateChildrenOnly  | 是否仅更新子项 | boolean | 是 |  |
+| updateEventLogId  | 更新LOG ID | String | 否 | UpdateLogEvent会将updateEventLogId打印在日志信息中，null时会自动生成新的updateEventLogId。 |
 
 ##### 13.1.13.DeleteByIds方法
 * 说明：更新Dto列表，支持子项级联删除。
-* 参数1 - dtoClass : Dto类。
-* 参数2 - ids : 主键值的集合。
-* 参数3 - includeAllChildren : 是否级联删除所有子项。
-* 参数4 - children : includeAllChildren为false时，指定需要删除的子项。
-* 参数5 - updateChildrenOnly : 为true时只删除子项。
-* 参数6 - updateEventLogId : UpdateLogEvent会将updateEventLogId打印在日志信息中，null时会自动生成新的updateEventLogId。
+
+| 参数 | 名称 | 类型 | 非空 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| dtoClass  | Dto类 | Class | 是 |  |
+| ids  | id集合 | Set | 是 |  |
+| includeAllChildren  | 是否删除所包含的所有子项 | boolean | 是 |  |
+| children  | 指定需要删除的子项 | List<String> | 否 | 仅includeAllChildren=false时生效 |
+| updateChildrenOnly  | 是否仅删除子项 | boolean | 是 |  |
+| updateEventLogId  | 更新LOG ID | String | 否 | UpdateLogEvent会将updateEventLogId打印在日志信息中，null时会自动生成新的updateEventLogId。 |
 
 #### 13.2.MybatisAccessorUpdateManager
 ##### 13.2.1.putDto方法
 * 说明：将需要更新的对象，加入到MybatisAccessorUpdateManager的更新列表中。
-* 参数1 - dto : Dto实例或者Dto实例列表。
+
+| 参数 | 名称 | 类型 | 非空 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| dto  | Dto实例或者Dto实例列表 | Object | 是 |  |
 
 ##### 13.2.2.submit方法
 * 说明：对MybatisAccessorUpdateManager的更新列表进行排序后依次更新
