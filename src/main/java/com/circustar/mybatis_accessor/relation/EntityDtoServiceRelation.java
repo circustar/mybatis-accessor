@@ -13,6 +13,8 @@ public class EntityDtoServiceRelation {
 
     private Class dtoClass;
 
+    private String name;
+
     private Class<? extends  IService> serviceClass;
 
     private IService service;
@@ -51,10 +53,12 @@ public class EntityDtoServiceRelation {
         return tableInfo;
     }
 
-    public EntityDtoServiceRelation(Class dtoClass, Class entityClass, Class<? extends  IService> serviceClass
+    public EntityDtoServiceRelation(Class dtoClass, Class entityClass
+            , String name, Class<? extends  IService> serviceClass
             , Class<? extends IConverter> convertDtoToEntityClass, Class<? extends IConverter> convertEntityToDtoClass) {
         this.entityClass = entityClass;
         this.dtoClass = dtoClass;
+        this.name = name;
         this.serviceClass = serviceClass;
         this.convertDtoToEntityClass = convertDtoToEntityClass;
         this.convertEntityToDtoClass = convertEntityToDtoClass;
@@ -82,5 +86,9 @@ public class EntityDtoServiceRelation {
 
     public Class<? extends IConverter> getConvertEntityToDtoClass() {
         return convertEntityToDtoClass;
+    }
+
+    public String getName() {
+        return name;
     }
 }

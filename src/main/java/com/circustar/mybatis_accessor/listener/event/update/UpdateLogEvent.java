@@ -51,23 +51,22 @@ public class UpdateLogEvent implements IUpdateEvent<UpdateEventModel> {
     public void exec(UpdateEventModel model, IUpdateCommand.UpdateType updateType
             , DtoClassInfo dtoClassInfo, List<Object> dtoList
             , String updateEventLogId) {
-        if(!CollectionUtils.isEmpty(dtoList)) {
-            LOGGER.info("UPDATE LOG EVENT, ID:" + updateEventLogId + ", TYPE:" + updateType.getName() + ", CLASS:" + dtoClassInfo.getDtoClass().getName());
-            if(dtoClassInfo.getDtoClass().isAssignableFrom(dtoList.get(0).getClass())) {
-                String strFormat;
-                if (model.getUpdateParams().size() > 0 && StringUtils.hasLength(model.getUpdateParams().get(0))) {
-                    strFormat = model.getUpdateParams().get(0);
-                } else {
-                    strFormat = this.getDefaultFormat(dtoClassInfo);
-                }
-                if(StringUtils.hasLength(strFormat)) {
-                    for (Object obj : dtoList) {
-                        LOGGER.info("UPDATE ID:" + updateEventLogId + ",DATA:{" + SPELParser.parseStringExpression(obj, strFormat) + "}");
-                    }
-                }
+        if(CollectionUtils.isEmpty(dtoList)) {
+           return;
+        }
+        LOGGER.info("UPDATE LOG EVENT, ID:" + updateEventLogId + ", TYPE:" + updateType.getName() + ", CLASS:" + dtoClassInfo.getDtoClass().getName());
+        if(dtoClassInfo.getDtoClass().isAssignableFrom(dtoList.get(0).getClass())) {
+            String strFormat;
+            if (model.getUpdateParams().size() > 0 && StringUtils.hasLength(model.getUpdateParams().get(0))) {
+                strFormat = model.getUpdateParams().get(0);
             } else {
-                LOGGER.info("UPDATE ID:" + updateEventLogId + ",DATA:{" + dtoList.stream().map(x -> x.toString()).collect(Collectors.joining(",")) + "}");
+                strFormat = this.getDefaultFormat(dtoClassInfo);
             }
+            for (Object obj : dtoList) {
+                LOGGER.info("UPDATE ID:" + updateEventLogId + ",DATA:{" + SPELParser.parseStringExpression(obj, strFormat) + "}");
+            }
+        } else {
+            LOGGER.info("UPDATE ID:" + updateEventLogId + ",DATA:{" + dtoList.stream().map(x -> x.toString()).collect(Collectors.joining(",")) + "}");
         }
     }
 }

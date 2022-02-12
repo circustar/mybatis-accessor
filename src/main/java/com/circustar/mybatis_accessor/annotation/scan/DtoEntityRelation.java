@@ -13,6 +13,7 @@ import java.lang.annotation.*;
 public @interface DtoEntityRelation {
     Class dtoClass() default Void.class;
     Class entityClass() default Void.class;
+    String name() default "";
     Class<? extends IService> service() default IService.class;
     Class<? extends IConverter> convertDtoToEntityClazz() default DefaultConverter.class;
     Class<? extends IConverter> convertEntityToDtoClazz() default DefaultConverter.class;

@@ -69,6 +69,7 @@ public class ScanRelationOnStartup implements ApplicationRunner {
                         .forEach(x -> relationMap.addRelation(new EntityDtoServiceRelation(
                                 x.dtoClass() == Void.class?clazz : x.dtoClass()
                                 , x.entityClass() == Void.class?clazz : x.entityClass()
+                                , x.name()
                                 , x.service(), x.convertDtoToEntityClazz(), x.convertEntityToDtoClazz())));
 
             }

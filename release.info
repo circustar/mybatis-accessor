@@ -39,3 +39,6 @@
 TODO:
 1.UNION ALL支持
 2.Join中允许子查询
+3.UPDATELOGEVENT优化
+4.UpdateEvent优化
+5.DtoEntityRelation指定Name  -- DONE

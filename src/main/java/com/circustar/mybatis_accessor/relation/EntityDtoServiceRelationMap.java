@@ -2,6 +2,7 @@ package com.circustar.mybatis_accessor.relation;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.context.ApplicationContext;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,8 @@ public class EntityDtoServiceRelationMap implements IEntityDtoServiceRelationMap
     public void addRelation(EntityDtoServiceRelation relation) {
         entityDtoServiceRelationList.add(relation);
         dtoMap.put(relation.getDtoClass(), relation);
-        dtoNameMap.put(relation.getDtoClass().getSimpleName(), relation);
+        dtoNameMap.put(StringUtils.hasLength(relation.getName()) ? relation.getName()
+                : relation.getDtoClass().getSimpleName(), relation);
     }
 
     @Override
@@ -43,7 +45,8 @@ public class EntityDtoServiceRelationMap implements IEntityDtoServiceRelationMap
         dtoNameMap.clear();
         entityDtoServiceRelationList.stream().forEach(x -> {
             dtoMap.put(x.getDtoClass(), x);
-            dtoNameMap.put(x.getDtoClass().getSimpleName(), x);
+            dtoNameMap.put(StringUtils.hasLength(x.getName()) ? x.getName()
+                    : x.getDtoClass().getSimpleName(), x);
         });
     };
 
