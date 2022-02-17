@@ -14,6 +14,7 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import org.springframework.context.ApplicationContext;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -103,11 +104,22 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
 
     protected List<IEntityUpdateProcessor> createUpdateProcessors(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dto, DefaultEntityProviderParam options) {
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation);
+        final Method keyReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
         List<IEntityUpdateProcessor> result = new ArrayList<>();
-        Collection dtoList = CollectionUtils.convertToList(dto);
+        Collection dtoList = (Collection) CollectionUtils.convertToList(dto).stream().sorted((x, y) -> {
+            Comparable k1 = (Comparable) FieldUtils.getFieldValue(x, keyReadMethod);
+            Comparable k2 = (Comparable) FieldUtils.getFieldValue(y, keyReadMethod);
+            if(k1 == null) {
+                return 1;
+            } else if (k2 == null) {
+                return -1;
+            } else {
+                return k1.compareTo(k2);
+            }
+        }).collect(Collectors.toList());
         if(dtoList.isEmpty()) {return result;}
 
-        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation);
         List<String> children = null;
         if(!options.isIncludeAllChildren()) {
             children = options.getUpdateChildrenNames();

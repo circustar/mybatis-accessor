@@ -52,11 +52,15 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
     protected List<IEntityUpdateProcessor> createUpdateProcessors(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dtoParam, IEntityProviderParam options)
     {
+        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation);
         List<IEntityUpdateProcessor> result = new ArrayList<>();
-        List dtoList = CollectionUtils.convertToList(dtoParam);
+        List dtoList = (List) CollectionUtils.convertToList(dtoParam).stream().sorted((x, y) -> {
+            Comparable k1 = (Comparable) getUpdateId(x, dtoClassInfo.getKeyField());
+            Comparable k2 = (Comparable) getUpdateId(y, dtoClassInfo.getKeyField());
+            return k1.compareTo(k2);
+        }).collect(Collectors.toList());
         if(dtoList.isEmpty()) {return result;}
 
-        DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation);
         List<String> children;
         if(options.isIncludeAllChildren()) {
             children = dtoClassInfo.getUpdateCascadeDtoFieldList().stream().map(x -> x.getField().getName()).collect(Collectors.toList());
