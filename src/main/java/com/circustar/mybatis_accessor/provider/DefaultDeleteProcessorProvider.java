@@ -26,11 +26,6 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
     }
 
     @Override
-    protected boolean isUpdateChildrenFirst() {
-        return true;
-    }
-
-    @Override
     public List<IEntityUpdateProcessor> createUpdateEntities(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object ids, IEntityProviderParam options) {
         return this.createUpdateProcessors(relation, dtoClassInfoHelper, ids, options);
