@@ -5,7 +5,7 @@ import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.class_info.DtoField;
-import com.circustar.mybatis_accessor.provider.command.DeleteByIdCommand;
+import com.circustar.mybatis_accessor.provider.command.DeleteByIdBatchCommand;
 import com.circustar.mybatis_accessor.provider.parameter.DefaultEntityProviderParam;
 import com.circustar.mybatis_accessor.provider.parameter.IEntityProviderParam;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
@@ -110,8 +110,8 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
                 } else {
                     List<Object> updateList = Collections.singletonList(this.convertToUpdateTarget(dtoClassInfo, dto));
                     updateProcessor = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
-                            , DeleteByIdCommand.getInstance()
-                            , dtoClassInfo.isPhysicDelete()
+                            , DeleteByIdBatchCommand.getInstance()
+                            , null
                             , dtoClassInfo
                             , updateList
                             , false
@@ -124,8 +124,8 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
         }
         if(!options.isUpdateChildrenOnly() && !updateEntityWithNoSubList.isEmpty()) {
             updateProcessor = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
-                    , DeleteByIdCommand.getInstance()
-                    , dtoClassInfo.isPhysicDelete()
+                    , DeleteByIdBatchCommand.getInstance()
+                    , null
                     , dtoClassInfo
                     , updateEntityWithNoSubList
                     , false

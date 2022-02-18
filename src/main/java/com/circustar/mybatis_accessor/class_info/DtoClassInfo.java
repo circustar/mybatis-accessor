@@ -45,7 +45,6 @@ public class DtoClassInfo {
     private Object versionDefaultValue;
     private DtoField keyField;
     private DtoField deleteFlagField;
-    private boolean physicDelete;
     private QueryWrapperCreator queryWrapperCreator;
     private List<UpdateEventModel> updateEventList;
     private List<PropertyChangeEventModel> propertyChangeEventList;
@@ -82,7 +81,6 @@ public class DtoClassInfo {
             DeleteFlag deleteFlagAnnotation = AnnotationUtils.getFieldAnnotation(dtoField.getField(), DeleteFlag.class);
             if(deleteFlagAnnotation != null) {
                 this.deleteFlagField = dtoField;
-                this.physicDelete = deleteFlagAnnotation.physicDelete();
             } else if(this.deleteFlagField == null && entityFieldInfo != null && entityFieldInfo.isLogicDeleteField()) {
                 this.deleteFlagField = dtoField;
             }
@@ -311,10 +309,6 @@ public class DtoClassInfo {
 
     public DtoField getDeleteFlagField() {
         return deleteFlagField;
-    }
-
-    public boolean isPhysicDelete() {
-        return physicDelete;
     }
 
     public <T> QueryWrapper<T> createQueryWrapper(Object dto) {

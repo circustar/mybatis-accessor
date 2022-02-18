@@ -39,10 +39,9 @@
 TODO:
 1.UNION ALL支持
 2.Join中允许子查询
-3.DtoEntityRelation指定Name  -- DONE
+3.DtoEntityRelation指定Name  -- DONE0215
 4.UPDATELOGEVENT优化,启用level控制，支持动态升降级？
 5.UpdateEvent-性能优化
 6.更新时数据排序，防止死锁。
-7.逻辑删除与Update合并
-8.删除PhysicDelete
-9.支持UpdateChildren时非DTO更新
+7.移除PhysicDelete相关类 -- DONE0218
+8.支持UpdateChildren时非DTO更新

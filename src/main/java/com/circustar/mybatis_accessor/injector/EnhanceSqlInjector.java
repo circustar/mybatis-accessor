@@ -15,10 +15,10 @@ public class EnhanceSqlInjector extends DefaultSqlInjector {
     public List<AbstractMethod> getMethodList(Class<?> mapperClass, TableInfo tableInfo) {
         List<AbstractMethod> methodList = super.getMethodList(mapperClass, tableInfo);
         if(CommonMapper.class.isAssignableFrom(mapperClass)) {
-            methodList.add(new PhysicDelete());
-            methodList.add(new PhysicDeleteBatchByIds());
-            methodList.add(new PhysicDeleteById());
-            methodList.add(new PhysicDeleteByMap());
+//            methodList.add(new PhysicDelete());
+//            methodList.add(new PhysicDeleteBatchByIds());
+//            methodList.add(new PhysicDeleteById());
+//            methodList.add(new PhysicDeleteByMap());
             methodList.add(new SelectListWithJoin());
             methodList.add(new SelectPageWithJoin());
             methodList.add(new SelectCountWithJoin());
