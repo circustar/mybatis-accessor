@@ -130,6 +130,9 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
 
         List updateDtoList = this.addInsertOrUpdateProcessor(result, dtoClassInfo, dtoList, options
                 , insertEntitiesEntityProvider, defaultDeleteDtoProvider);
+        if(updateDtoList.isEmpty()) {
+            return result;
+        }
 
         boolean hasChildren = false;
         List<IEntityUpdateProcessor> updateResult = new ArrayList<>();
