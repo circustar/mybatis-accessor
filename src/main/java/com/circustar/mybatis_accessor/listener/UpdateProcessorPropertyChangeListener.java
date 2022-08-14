@@ -8,7 +8,8 @@ import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.listener.event.property_change.PropertyChangeEventModel;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
-import com.circustar.mybatis_accessor.update_processor.DefaultEntityCollectionUpdateProcessor;
+import com.circustar.mybatis_accessor.service.ISelectService;
+import com.circustar.mybatis_accessor.update_processor.AbstractDtoUpdateProcessor;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
@@ -17,22 +18,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class UpdateProcessorPropertyChangeListener implements IListener<DefaultEntityCollectionUpdateProcessor> {
+public class UpdateProcessorPropertyChangeListener implements IListener<AbstractDtoUpdateProcessor> {
     private final List<PropertyChangeEventModel> onChangeList;
     private final IUpdateCommand updateCommand;
     private final DtoClassInfo dtoClassInfo;
     private final List updateDtoList;
     private List oldDtoList;
-//    private boolean initialized;
+    private final AbstractDtoUpdateProcessor dtoUpdateProcessor;
 
-    public UpdateProcessorPropertyChangeListener(List<PropertyChangeEventModel> onChangeList
-            , IUpdateCommand updateCommand
-            , DtoClassInfo dtoClassInfo
-            , List updateDtoList) {
-        this.onChangeList = onChangeList;
-        this.updateCommand = updateCommand;
-        this.dtoClassInfo = dtoClassInfo;
-        this.updateDtoList = updateDtoList;
+    public UpdateProcessorPropertyChangeListener(AbstractDtoUpdateProcessor dtoUpdateProcessor) {
+        this.dtoUpdateProcessor = dtoUpdateProcessor;
+        this.dtoClassInfo = dtoUpdateProcessor.getDtoClassInfo();
+        this.onChangeList = this.dtoClassInfo.getPropertyChangeEventList();
+        this.updateCommand = dtoUpdateProcessor.getUpdateCommand();
+        this.updateDtoList = dtoUpdateProcessor.getUpdateDtoList();
     }
 
     public List<PropertyChangeEventModel> getUpdateEventList() {
@@ -58,35 +57,22 @@ public class UpdateProcessorPropertyChangeListener implements IListener<DefaultE
     private void initData() {
         oldDtoList = new ArrayList();
         Method keyFieldReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
+        final ISelectService selectService = dtoClassInfo.getDtoClassInfoHelper().getSelectService();
+
         for(Object updateDto : updateDtoList) {
-            if(dtoClassInfo.getDtoClass().isAssignableFrom(updateDto.getClass())) {
-                Serializable key = (Serializable) FieldUtils.getFieldValue(updateDto, keyFieldReadMethod);
-                if(key == null) {
-                    oldDtoList.add(null);
-                } else {
-                    Object oldDto = dtoClassInfo.getDtoClassInfoHelper().getSelectService()
-                            .getDtoById(dtoClassInfo.getEntityDtoServiceRelation(),key
-                                    ,false, null);
-                    oldDtoList.add(oldDto);
-                }
-            } else if(IUpdateCommand.UpdateType.DELETE.equals(this.updateCommand.getUpdateType())) {
-                Object oldDto = dtoClassInfo.getDtoClassInfoHelper().getSelectService()
-                        .getDtoById(dtoClassInfo.getEntityDtoServiceRelation(),(Serializable) updateDto
-                                ,false, null);
-                oldDtoList.add(oldDto);
-            } else {
-                oldDtoList.add(null);
+            Serializable key = this.dtoUpdateProcessor.getUpdateKey(updateDto);
+            Object oldDto = null;
+            if(key != null) {
+                oldDto = selectService.getDtoById(dtoClassInfo.getEntityDtoServiceRelation(),key
+                        ,false, null);
             }
+            oldDtoList.add(oldDto);
         }
     }
 
     @Override
-    public void listenerExec(DefaultEntityCollectionUpdateProcessor target
+    public void listenerExec(AbstractDtoUpdateProcessor target
             , IListenerTiming eventTiming, String updateEventLogId, int level) throws MybatisAccessorException {
-//        if(!initialized) {
-//            initData();
-//            initialized = true;
-//        }
         List<PropertyChangeEventModel> execChangeList = onChangeList.stream().filter(x -> eventTiming.equals(x.getExecuteTiming()))
                 .filter(x -> x.getUpdateTypes().stream().anyMatch(y -> updateCommand.getUpdateType().equals(y)))
                 .collect(Collectors.toList());

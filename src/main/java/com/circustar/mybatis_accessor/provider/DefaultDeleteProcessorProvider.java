@@ -10,7 +10,7 @@ import com.circustar.mybatis_accessor.provider.parameter.DefaultEntityProviderPa
 import com.circustar.mybatis_accessor.provider.parameter.IEntityProviderParam;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.service.ISelectService;
-import com.circustar.mybatis_accessor.update_processor.DefaultEntityCollectionUpdateProcessor;
+import com.circustar.mybatis_accessor.update_processor.DeleteDtoUpdateProcessor;
 import com.circustar.mybatis_accessor.update_processor.IEntityUpdateProcessor;
 import org.springframework.context.ApplicationContext;
 
@@ -66,7 +66,7 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
         ISelectService selectService = this.getSelectService();
 
         List<String> topEntities = this.getTopEntities(dtoClassInfo, children, DEFAULT_DELIMITER);
-        DefaultEntityCollectionUpdateProcessor updateProcessor;
+        DeleteDtoUpdateProcessor updateProcessor;
         List updateEntityWithNoSubList = new ArrayList();
 
         if(org.springframework.util.CollectionUtils.isEmpty(topEntities)) {
@@ -104,12 +104,11 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
                     result.addAll(subUpdateEntities);
                 } else {
                     List<Object> updateList = Collections.singletonList(this.convertToUpdateTarget(dtoClassInfo, dto));
-                    updateProcessor = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
+                    updateProcessor = new DeleteDtoUpdateProcessor(relation.getServiceBean(applicationContext)
                             , DeleteByIdBatchCommand.getInstance()
                             , null
                             , dtoClassInfo
                             , updateList
-                            , false
                             , this.isUpdateChildrenFirst()
                             , false);
                     updateProcessor.addSubUpdateEntities(subUpdateEntities);
@@ -118,12 +117,11 @@ public class DefaultDeleteProcessorProvider extends AbstractUpdateEntityProvider
             }
         }
         if(!options.isUpdateChildrenOnly() && !updateEntityWithNoSubList.isEmpty()) {
-            updateProcessor = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
+            updateProcessor = new DeleteDtoUpdateProcessor(relation.getServiceBean(applicationContext)
                     , DeleteByIdBatchCommand.getInstance()
                     , null
                     , dtoClassInfo
                     , updateEntityWithNoSubList
-                    , false
                     , this.isUpdateChildrenFirst()
                     , false);
             result.add(updateProcessor);

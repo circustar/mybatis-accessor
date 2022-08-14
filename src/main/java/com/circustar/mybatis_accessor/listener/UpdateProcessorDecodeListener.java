@@ -7,29 +7,26 @@ import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.listener.event.decode.DecodeEventModel;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
-import com.circustar.mybatis_accessor.update_processor.DefaultEntityCollectionUpdateProcessor;
+import com.circustar.mybatis_accessor.update_processor.AbstractDtoUpdateProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class UpdateProcessorDecodeListener implements IListener<DefaultEntityCollectionUpdateProcessor> {
+public class UpdateProcessorDecodeListener implements IListener<AbstractDtoUpdateProcessor> {
     private final List<DecodeEventModel> decodeEventModelList;
     private final IUpdateCommand updateCommand;
     private final DtoClassInfo dtoClassInfo;
     private final List updateDtoList;
-    public UpdateProcessorDecodeListener(List<DecodeEventModel> decodeEventModelList
-            , IUpdateCommand updateCommand
-            , DtoClassInfo dtoClassInfo
-            , List updateDtoList) {
-        this.decodeEventModelList = decodeEventModelList;
-        this.updateCommand = updateCommand;
-        this.dtoClassInfo = dtoClassInfo;
-        this.updateDtoList = updateDtoList;
+    public UpdateProcessorDecodeListener(AbstractDtoUpdateProcessor dtoUpdateProcessor) {
+        this.decodeEventModelList = dtoUpdateProcessor.getDtoClassInfo().getDecodeEventModelList();
+        this.updateCommand = dtoUpdateProcessor.getUpdateCommand();
+        this.dtoClassInfo = dtoUpdateProcessor.getDtoClassInfo();
+        this.updateDtoList = dtoUpdateProcessor.getUpdateDtoList();
     }
 
     public List<DecodeEventModel> getDecodeEventModelList() {
-        return decodeEventModelList;
+        return this.decodeEventModelList;
     }
 
     @Override
@@ -43,7 +40,7 @@ public class UpdateProcessorDecodeListener implements IListener<DefaultEntityCol
     }
 
     @Override
-    public void listenerExec(DefaultEntityCollectionUpdateProcessor target
+    public void listenerExec(AbstractDtoUpdateProcessor target
             , IListenerTiming eventTiming, String updateEventLogId, int level) throws MybatisAccessorException {
         List<DecodeEventModel> updateModelList = this.decodeEventModelList.stream()
                 .filter(x -> eventTiming.equals(x.getExecuteTiming()))

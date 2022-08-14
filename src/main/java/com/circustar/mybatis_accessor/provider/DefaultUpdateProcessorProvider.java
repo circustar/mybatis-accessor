@@ -5,16 +5,15 @@ import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.provider.parameter.*;
 import com.circustar.mybatis_accessor.service.ISelectService;
-import com.circustar.mybatis_accessor.update_processor.DefaultEntityCollectionUpdateProcessor;
 import com.circustar.mybatis_accessor.update_processor.IEntityUpdateProcessor;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.provider.command.*;
 import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
+import com.circustar.mybatis_accessor.update_processor.UpdateDtoUpdateProcessor;
 import org.springframework.context.ApplicationContext;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -64,7 +63,7 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
         return updateDtoList;
     }
 
-    private boolean addDeleteAndInsertProcessor(DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater
+    private boolean addDeleteAndInsertProcessor(UpdateDtoUpdateProcessor defaultEntityCollectionUpdater
             , DtoClassInfo dtoClassInfo, List<DtoField> deleteAndInsertFields, List<String> children, Object updateDto
             , DefaultEntityProviderParam options, DefaultInsertProcessorProvider insertEntitiesEntityProvider
             , DefaultDeleteProcessorProvider defaultDeleteDtoProvider) {
@@ -105,19 +104,9 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
     protected List<IEntityUpdateProcessor> createUpdateProcessors(EntityDtoServiceRelation relation
             , DtoClassInfoHelper dtoClassInfoHelper, Object dto, DefaultEntityProviderParam options) {
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relation);
-        final Method keyReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
+//        final Method keyReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
         List<IEntityUpdateProcessor> result = new ArrayList<>();
-        Collection dtoList = (Collection) CollectionUtils.convertToList(dto).stream().sorted((x, y) -> {
-            Comparable k1 = (Comparable) FieldUtils.getFieldValue(x, keyReadMethod);
-            Comparable k2 = (Comparable) FieldUtils.getFieldValue(y, keyReadMethod);
-            if(k1 == null) {
-                return 1;
-            } else if (k2 == null) {
-                return -1;
-            } else {
-                return k1.compareTo(k2);
-            }
-        }).collect(Collectors.toList());
+        List dtoList = CollectionUtils.convertToList(dto);
         if(dtoList.isEmpty()) {return result;}
 
         List<String> children = null;
@@ -141,12 +130,11 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
         List<DtoField> deleteAndInsertFields = dtoFields.stream().filter(x -> x.isDeleteAndInsertNewOnUpdate()).collect(Collectors.toList());
         List<DtoField> updateFields = dtoFields.stream().filter(x -> !x.isDeleteAndInsertNewOnUpdate()).collect(Collectors.toList());
         for(Object updateDto : updateDtoList) {
-            DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
+            UpdateDtoUpdateProcessor defaultEntityCollectionUpdater = new UpdateDtoUpdateProcessor(relation.getServiceBean(applicationContext)
                     , UpdateByIdCommand.getInstance()
                     , null
                     , dtoClassInfo
                     , Collections.singletonList(updateDto)
-                    , true
                     , this.isUpdateChildrenFirst()
                     , options.isUpdateChildrenOnly());
 
@@ -169,12 +157,11 @@ public class DefaultUpdateProcessorProvider extends AbstractUpdateEntityProvider
             updateResult.add(defaultEntityCollectionUpdater);
         }
         if(!hasChildren) {
-            result.add(new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
+            result.add(new UpdateDtoUpdateProcessor(relation.getServiceBean(applicationContext)
                     , UpdateByIdCommand.getInstance()
                     , null
                     , dtoClassInfo
                     , updateDtoList
-                    , true
                     , this.isUpdateChildrenFirst()
                     , options.isUpdateChildrenOnly()));
         } else {

@@ -5,12 +5,12 @@ import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.provider.parameter.DefaultEntityProviderParam;
 import com.circustar.mybatis_accessor.provider.parameter.IEntityProviderParam;
-import com.circustar.mybatis_accessor.update_processor.DefaultEntityCollectionUpdateProcessor;
 import com.circustar.mybatis_accessor.update_processor.IEntityUpdateProcessor;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.provider.command.InsertCommand;
 import com.circustar.common_utils.collection.CollectionUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
+import com.circustar.mybatis_accessor.update_processor.InsertDtoUpdateProcessor;
 import org.springframework.context.ApplicationContext;
 
 import java.util.*;
@@ -49,12 +49,11 @@ public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider
                         , dtoClassInfo.getVersionField().getPropertyDescriptor().getWriteMethod()
                         , dtoClassInfo.getVersionDefaultValue());
             }
-            DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
+            InsertDtoUpdateProcessor defaultEntityCollectionUpdater = new InsertDtoUpdateProcessor(relation.getServiceBean(applicationContext)
                     , InsertCommand.getInstance()
                     , null
                     , dtoClassInfo
                     , Collections.singletonList(value)
-                    , true
                     , this.isUpdateChildrenFirst()
                     , updateChildrenOnly);
             for(DtoField dtoField : dtoFields) {
@@ -76,12 +75,11 @@ public class DefaultInsertProcessorProvider extends AbstractUpdateEntityProvider
             if(updateChildrenOnly) {
                 return Collections.emptyList();
             } else {
-                DefaultEntityCollectionUpdateProcessor defaultEntityCollectionUpdater = new DefaultEntityCollectionUpdateProcessor(relation.getServiceBean(applicationContext)
+                InsertDtoUpdateProcessor defaultEntityCollectionUpdater = new InsertDtoUpdateProcessor(relation.getServiceBean(applicationContext)
                         , InsertCommand.getInstance()
                         , null
                         , dtoClassInfo
                         , dtoList
-                        , true
                         , this.isUpdateChildrenFirst()
                         , false);
                 return Collections.singletonList(defaultEntityCollectionUpdater);

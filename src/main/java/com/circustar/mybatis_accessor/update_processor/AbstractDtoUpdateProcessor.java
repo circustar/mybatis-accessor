@@ -15,44 +15,55 @@ import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
 import com.circustar.common_utils.reflection.FieldUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Supplier;
 
-public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProcessor<Collection>, IListenerContext<DefaultEntityCollectionUpdateProcessor> {
+public abstract class AbstractDtoUpdateProcessor implements IEntityUpdateProcessor<Collection>, IListenerContext<AbstractDtoUpdateProcessor>  {
     private final Object option;
     private final IUpdateCommand updateCommand;
     private final IService service;
     private final Boolean updateChildFirst;
     private final List updateDtoList;
-    private final boolean needConvertToEntity;
     private List updateEntityList;
     private List<IEntityUpdateProcessor> subUpdateEntities;
     private final DtoClassInfo dtoClassInfo;
     private final EntityClassInfo entityClassInfo;
     private final boolean updateChildrenOnly;
-    private List<IListener<DefaultEntityCollectionUpdateProcessor>> listenerList;
+    private List<IListener<AbstractDtoUpdateProcessor>> listenerList;
 
-    public DefaultEntityCollectionUpdateProcessor(IService service
+    public AbstractDtoUpdateProcessor(IService service
             , IUpdateCommand updateCommand
             , Object option
             , DtoClassInfo dtoClassInfo
             , List updateDtoList
-            , Boolean needConvertToEntity
             , Boolean updateChildrenFirst
             , boolean updateChildrenOnly) {
         this.option = option;
         this.updateCommand = updateCommand;
         this.service = service;
         this.updateDtoList = updateDtoList;
-        this.needConvertToEntity = needConvertToEntity;
         this.updateChildFirst = updateChildrenFirst;
         this.dtoClassInfo = dtoClassInfo;
         this.entityClassInfo = dtoClassInfo.getEntityClassInfo();
         this.updateChildrenOnly = updateChildrenOnly;
+        this.updateEntityList = null;
     }
 
-    public void addSubUpdateEntity(DefaultEntityCollectionUpdateProcessor subDefaultEntityCollectionUpdater) {
+    public List getUpdateDtoList() {
+        return updateDtoList;
+    }
+
+    public IUpdateCommand getUpdateCommand() {
+        return updateCommand;
+    }
+
+    public DtoClassInfo getDtoClassInfo() {
+        return dtoClassInfo;
+    }
+
+    public void addSubUpdateEntity(AbstractDtoUpdateProcessor subDefaultEntityCollectionUpdater) {
         if(this.subUpdateEntities == null) {
             this.subUpdateEntities = new ArrayList<>();
         }
@@ -85,6 +96,16 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         return execUpdate(new HashMap<>(), new ArrayList<>(), var0, 0);
     }
 
+    public List convertToEntity() {
+        return dtoClassInfo.getDtoClassInfoHelper().convertToEntityList(this.updateDtoList
+                , dtoClassInfo, false);
+    }
+
+    public Serializable getUpdateKey(Object dto) {
+        Method keyFieldReadMethod = dtoClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
+        return (Serializable) FieldUtils.getFieldValue(dto, keyFieldReadMethod);
+    }
+
     @Override
     public boolean execUpdate(Map<String, Object> keyMap, List<Supplier<Integer>> consumerList, String updateEventLogId, int level) throws MybatisAccessorException {
         init(this);
@@ -97,11 +118,8 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
         if (!updateChildrenOnly) {
             this.execListeners(ExecuteTiming.BEFORE_ENTITY_UPDATE, updateEventLogId, level);
         }
-        if(needConvertToEntity) {
-            this.updateEntityList = dtoClassInfo.getDtoClassInfoHelper().convertToEntityList(this.updateDtoList
-                    , dtoClassInfo, false);
-        } else {
-            this.updateEntityList = this.updateDtoList;
+        if(this.updateEntityList == null) {
+            this.updateEntityList = convertToEntity();
         }
 
         Optional firstEntity = updateEntityList.stream().findFirst();
@@ -204,32 +222,23 @@ public class DefaultEntityCollectionUpdateProcessor implements IEntityUpdateProc
     }
 
     @Override
-    public void init(DefaultEntityCollectionUpdateProcessor target) {
-        UpdateProcessorUpdateListener updateListener = new UpdateProcessorUpdateListener(
-                this.dtoClassInfo.getUpdateEventList(), this.updateCommand, this.dtoClassInfo
-                ,this.updateDtoList
-        );
+    public void init(AbstractDtoUpdateProcessor target) {
+        UpdateProcessorUpdateListener updateListener = new UpdateProcessorUpdateListener(this);
         updateListener.init();
-        UpdateProcessorPropertyChangeListener changeListener = new UpdateProcessorPropertyChangeListener(
-                this.dtoClassInfo.getPropertyChangeEventList(), this.updateCommand, this.dtoClassInfo
-                ,this.updateDtoList
-        );
+        UpdateProcessorPropertyChangeListener changeListener = new UpdateProcessorPropertyChangeListener(this);
         changeListener.init();
-        UpdateProcessorDecodeListener decodeListener = new UpdateProcessorDecodeListener(
-                this.dtoClassInfo.getDecodeEventModelList(), this.updateCommand, this.dtoClassInfo
-                ,this.updateDtoList
-        );
+        UpdateProcessorDecodeListener decodeListener = new UpdateProcessorDecodeListener(this);
         decodeListener.init();
         this.listenerList = Arrays.asList(decodeListener, updateListener, changeListener);
     }
 
     @Override
-    public DefaultEntityCollectionUpdateProcessor getListenTarget() {
+    public AbstractDtoUpdateProcessor getListenTarget() {
         return this;
     }
 
     @Override
-    public List<IListener<DefaultEntityCollectionUpdateProcessor>> getListenerList() {
+    public List<IListener<AbstractDtoUpdateProcessor>> getListenerList() {
         return this.listenerList;
     }
 }

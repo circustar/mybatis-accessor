@@ -7,24 +7,21 @@ import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.listener.event.update.UpdateEventModel;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
-import com.circustar.mybatis_accessor.update_processor.DefaultEntityCollectionUpdateProcessor;
+import com.circustar.mybatis_accessor.update_processor.AbstractDtoUpdateProcessor;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCollectionUpdateProcessor> {
+public class UpdateProcessorUpdateListener implements IListener<AbstractDtoUpdateProcessor> {
     private final List<UpdateEventModel> updateEventList;
     private final IUpdateCommand updateCommand;
     private final DtoClassInfo dtoClassInfo;
     private final List updateDtoList;
-    public UpdateProcessorUpdateListener(List<UpdateEventModel> updateEventList
-            , IUpdateCommand updateCommand
-            , DtoClassInfo dtoClassInfo
-            , List updateDtoList) {
-        this.updateEventList = updateEventList;
-        this.updateCommand = updateCommand;
-        this.dtoClassInfo = dtoClassInfo;
-        this.updateDtoList = updateDtoList;
+    public UpdateProcessorUpdateListener(AbstractDtoUpdateProcessor dtoUpdateProcessor) {
+        this.updateEventList = dtoUpdateProcessor.getDtoClassInfo().getUpdateEventList();
+        this.updateCommand = dtoUpdateProcessor.getUpdateCommand();
+        this.dtoClassInfo = dtoUpdateProcessor.getDtoClassInfo();
+        this.updateDtoList = dtoUpdateProcessor.getUpdateDtoList();
     }
 
     public List<UpdateEventModel> getUpdateEventList() {
@@ -42,7 +39,7 @@ public class UpdateProcessorUpdateListener implements IListener<DefaultEntityCol
     }
 
     @Override
-    public void listenerExec(DefaultEntityCollectionUpdateProcessor target
+    public void listenerExec(AbstractDtoUpdateProcessor target
             , IListenerTiming eventTiming, String updateEventLogId, int level) throws MybatisAccessorException {
         List<UpdateEventModel> updateModelList = updateEventList.stream()
                 .filter(x -> eventTiming.equals(x.getExecuteTiming()))
