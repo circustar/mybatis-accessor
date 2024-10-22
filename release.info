@@ -36,12 +36,8 @@
 -- 4.Connector增加一种枚举Custom
 -- 5.增加Exception处理类
 
-TODO:
-1.UNION ALL支持
-2.Join中允许子查询
-3.DtoEntityRelation指定Name  -- DONE0215
-4.UPDATELOGEVENT优化,启用level控制，支持动态升降级？
-5.UpdateEvent-性能优化
-6.更新时数据排序，防止死锁。
-7.移除PhysicDelete相关类 -- DONE0218
-8.支持UpdateChildren时非DTO更新
+1.2.5:
+-- 1.mybatis-plus-boot-starter升级至3.5.5
+-- 2.DtoEntityRelation指定Name
+-- 3.移除PhysicDelete相关类
+-- 4.其他代码优化
