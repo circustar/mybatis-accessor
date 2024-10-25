@@ -20,11 +20,11 @@ public class DeleteEntityCommand implements IUpdateCommand {
     public UpdateType getUpdateType() {return UpdateType.DELETE;}
 
     @Override
-    public <T extends Collection> boolean update(IService service, T collection, Object option) throws MybatisAccessorException {
+    public <T extends Collection> boolean update(IService service, T collection, Method keyReadMethod, Object option) throws MybatisAccessorException {
         Map<String, Object> map = (Map<String, Object>) option;
-        Method readMethod = (Method) map.get(IUpdateCommand.KEY_FIELD_READ_METHOD);
+//        Method readMethod = (Method) map.get(IUpdateCommand.KEY_FIELD_READ_METHOD);
         boolean physicDelete = map.get(IUpdateCommand.PHYSIC_DELETE) != null && (boolean) map.get(IUpdateCommand.PHYSIC_DELETE);
-        List idList = (List) collection.stream().map(x -> FieldUtils.getFieldValue(x, readMethod)).collect(Collectors.toList());
-        return DeleteByIdBatchCommand.getInstance().update(service, idList, physicDelete);
+        List idList = (List) collection.stream().map(x -> FieldUtils.getFieldValue(x, keyReadMethod)).collect(Collectors.toList());
+        return DeleteByIdBatchCommand.getInstance().update(service, idList, keyReadMethod, physicDelete);
     }
 }

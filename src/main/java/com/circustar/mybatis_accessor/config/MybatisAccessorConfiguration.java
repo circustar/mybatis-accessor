@@ -5,10 +5,7 @@ import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
 import com.circustar.mybatis_accessor.class_info.EntityClassInfoHelper;
 import com.circustar.mybatis_accessor.converter.DefaultConverter;
 import com.circustar.mybatis_accessor.listener.event.update.*;
-import com.circustar.mybatis_accessor.provider.DefaultDeleteByIdProcessorProvider;
-import com.circustar.mybatis_accessor.provider.DefaultDeleteProcessorProvider;
-import com.circustar.mybatis_accessor.provider.DefaultInsertProcessorProvider;
-import com.circustar.mybatis_accessor.provider.DefaultUpdateProcessorProvider;
+import com.circustar.mybatis_accessor.provider.*;
 import com.circustar.mybatis_accessor.support.MybatisAccessorService;
 import com.circustar.mybatis_accessor.injector.EnhanceSqlInjector;
 import com.circustar.mybatis_accessor.service.UpdateService;
@@ -47,6 +44,7 @@ public class MybatisAccessorConfiguration {
     private final DefaultDeleteProcessorProvider defaultDeleteProcessorProvider;
     private final DefaultInsertProcessorProvider defaultInsertProcessorProvider;
     private final DefaultUpdateProcessorProvider defaultUpdateProcessorProvider;
+    private final DefaultSaveOrUpdateProcessorProvider defaultSaveOrUpdateProcessorProvider;
     private final DefaultConverter defaultConverter;
 
     private final UpdateAssignEvent updateAssignEvent;
@@ -83,10 +81,12 @@ public class MybatisAccessorConfiguration {
         this.defaultDeleteByIdProcessorProvider = new DefaultDeleteByIdProcessorProvider(applicationContext);
         this.defaultInsertProcessorProvider = new DefaultInsertProcessorProvider(applicationContext);
         this.defaultUpdateProcessorProvider = new DefaultUpdateProcessorProvider(applicationContext, this.selectService);
+        this.defaultSaveOrUpdateProcessorProvider = new DefaultSaveOrUpdateProcessorProvider(applicationContext, this.selectService);
 
         this.mybatisAccessorService = new MybatisAccessorService(this.entityDtoServiceRelationMap
                 , this.selectService, this.updateService
-                , this.defaultInsertProcessorProvider, this.defaultUpdateProcessorProvider, this.defaultDeleteByIdProcessorProvider);
+                , this.defaultInsertProcessorProvider, this.defaultUpdateProcessorProvider, this.defaultDeleteByIdProcessorProvider
+                , this.defaultSaveOrUpdateProcessorProvider);
         this.updateManager = new MybatisAccessorUpdateManager(this.mybatisAccessorService, this.dtoClassInfoHelper);
         this.scanRelationOnStartup = new ScanRelationOnStartup(applicationContext, this.entityDtoServiceRelationMap);
 
@@ -161,6 +161,11 @@ public class MybatisAccessorConfiguration {
     @Bean
     public DefaultUpdateProcessorProvider getDefaultUpdateProcessorProvider() {
         return this.defaultUpdateProcessorProvider;
+    }
+
+    @Bean
+    public DefaultSaveOrUpdateProcessorProvider getDefaultSaveOrUpdateProcessorProvider() {
+        return this.defaultSaveOrUpdateProcessorProvider;
     }
 
     @Bean

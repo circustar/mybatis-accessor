@@ -155,11 +155,11 @@ public abstract class AbstractDtoUpdateProcessor implements IEntityUpdateProcess
             }
         }
         if (!updateChildrenOnly) {
-            result = this.updateCommand.update(this.service, this.updateEntityList, option);
+            final Method keyFieldReadMethod = entityClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
+            result = this.updateCommand.update(this.service, this.updateEntityList, keyFieldReadMethod, option);
             if (!result) {return false;}
             if(IUpdateCommand.UpdateType.INSERT.equals(this.updateCommand.getUpdateType())) {
                 Method keyFieldWriteMethod = this.dtoClassInfo.getKeyField().getPropertyDescriptor().getWriteMethod();
-                final Method keyFieldReadMethod = entityClassInfo.getKeyField().getPropertyDescriptor().getReadMethod();
                 for(int i = 0; i < this.updateEntityList.size(); i++) {
                     FieldUtils.setFieldValue(this.updateDtoList.get(i)
                             , keyFieldWriteMethod

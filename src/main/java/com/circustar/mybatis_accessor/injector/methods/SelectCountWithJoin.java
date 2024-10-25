@@ -9,6 +9,10 @@ public class SelectCountWithJoin extends SelectListWithJoin {
 
     private static final long serialVersionUID = -1L;
 
+    public SelectCountWithJoin() {
+        super("SelectCountWithJoin");
+    }
+
     @Override
     protected CSSqlMethod getSqlMethod() {
         return CSSqlMethod.SELECT_COUNT_WITH_JOIN;

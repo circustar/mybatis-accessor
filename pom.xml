@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.circustar</groupId>
     <artifactId>mybatis-accessor</artifactId>
-    <version>1.2.5</version>
+    <version>1.2.5.1</version>
     <name>mybatis-accessor</name>
     <description>enhancement based on mybatis plus</description>
     <url>https://github.com/circustar/mybatis-accessor</url>
@@ -27,23 +27,4 @@
         </dependency>
     </dependencies>
 
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <scm>
-        <url>https://github.com/circustar/mybatis-accessor</url>
-        <connection>https://github.com/circustar/mybatis-accessor.git</connection>
-    </scm>
-    <developers>
-        <developer>
-            <name>li.yao</name>
-            <email>13661947633@163.com</email>
-            <organization>circustar</organization>
-            <timezone>+8</timezone>
-        </developer>
-    </developers>
 </project>

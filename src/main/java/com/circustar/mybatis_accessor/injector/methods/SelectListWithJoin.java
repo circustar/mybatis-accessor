@@ -20,6 +20,14 @@ public class SelectListWithJoin extends AbstractMethod {
 
     private String resultMap;
 
+    public SelectListWithJoin() {
+        super("SelectListWithJoin");
+    }
+
+    public SelectListWithJoin(String methodName) {
+        this();
+    }
+
     protected CSSqlMethod getSqlMethod() {
         return CSSqlMethod.SELECT_LIST_WITH_JOIN;
     }
@@ -44,7 +52,7 @@ public class SelectListWithJoin extends AbstractMethod {
 
         if (table.isWithLogicDelete()) {
             String logicDeleteSql = table.getTableName() + "." + table.getLogicDeleteFieldInfo().getColumn() + " = " + table.getLogicDeleteFieldInfo().getLogicNotDeleteValue();
-            sqlScript = table.getAllSqlWhere(true, true, "ew.entity.");
+            sqlScript = table.getAllSqlWhere(false,true, true, "ew.entity.");
             sqlScript = SqlScriptUtils.convertIf(sqlScript, String.format("%s != null", "ew.entity"), true);
             sqlScript = sqlScript + "\n" + " and " + logicDeleteSql + "\n"; // add deleteValue
             String normalSqlScript = SqlScriptUtils.convertIf(String.format("AND ${%s}", "ew.sqlSegment"), String.format("%s != null and %s != '' and %s", "ew.sqlSegment", "ew.sqlSegment", "ew.nonEmptyOfNormal"), true);
@@ -55,7 +63,7 @@ public class SelectListWithJoin extends AbstractMethod {
             sqlScript = SqlScriptUtils.convertWhere(sqlScript);
             return newLine ? "\n" + sqlScript : sqlScript;
         } else {
-            sqlScript = table.getAllSqlWhere(false, true, "ew.entity.");
+            sqlScript = table.getAllSqlWhere(false,false, true, "ew.entity.");
             sqlScript = SqlScriptUtils.convertIf(sqlScript, String.format("%s != null", "ew.entity"), true);
             sqlScript = sqlScript + "\n";
             sqlScript = sqlScript + SqlScriptUtils.convertIf(String.format(SqlScriptUtils.convertIf(" AND", String.format("%s and %s", "ew.nonEmptyOfEntity", "ew.nonEmptyOfNormal"), false) + " ${%s}", "ew.sqlSegment"), String.format("%s != null and %s != '' and %s", "ew.sqlSegment", "ew.sqlSegment", "ew.nonEmptyOfWhere"), true);

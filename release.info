@@ -41,3 +41,8 @@
 -- 2.DtoEntityRelation指定Name
 -- 3.移除PhysicDelete相关类
 -- 4.其他代码优化
+
+1.2.5.1:
+-- 1.增加DefaultSaveOrUpdateProcessorProvider
+-- 2.更新报错时报错信息中展示ID
+

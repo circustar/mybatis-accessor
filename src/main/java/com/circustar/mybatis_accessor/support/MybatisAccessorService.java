@@ -2,10 +2,7 @@ package com.circustar.mybatis_accessor.support;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.circustar.mybatis_accessor.common.MybatisAccessorException;
-import com.circustar.mybatis_accessor.provider.DefaultDeleteByIdProcessorProvider;
-import com.circustar.mybatis_accessor.provider.DefaultInsertProcessorProvider;
-import com.circustar.mybatis_accessor.provider.DefaultUpdateProcessorProvider;
-import com.circustar.mybatis_accessor.provider.IUpdateProcessorProvider;
+import com.circustar.mybatis_accessor.provider.*;
 import com.circustar.mybatis_accessor.provider.parameter.DefaultEntityProviderParam;
 import com.circustar.mybatis_accessor.provider.parameter.IProviderParam;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
@@ -25,18 +22,21 @@ public class MybatisAccessorService {
     protected DefaultInsertProcessorProvider defaultInsertProcessorProvider;
     protected DefaultDeleteByIdProcessorProvider defaultDeleteByIdProcessorProvider;
     protected DefaultUpdateProcessorProvider defaultUpdateProcessorProvider;
+    protected DefaultSaveOrUpdateProcessorProvider defaultSaveOrUpdateProcessorProvider;
 
     public MybatisAccessorService(IEntityDtoServiceRelationMap entityDtoServiceRelationMap
             , ISelectService selectService, IUpdateService updateService
             , DefaultInsertProcessorProvider defaultInsertProcessorProvider
             , DefaultUpdateProcessorProvider defaultUpdateProcessorProvider
-            , DefaultDeleteByIdProcessorProvider defaultDeleteByIdProcessorProvider) {
+            , DefaultDeleteByIdProcessorProvider defaultDeleteByIdProcessorProvider
+            , DefaultSaveOrUpdateProcessorProvider defaultSaveOrUpdateProcessorProvider) {
         this.updateService = updateService;
         this.selectService = selectService;
         this.entityDtoServiceRelationMap = entityDtoServiceRelationMap;
         this.defaultInsertProcessorProvider = defaultInsertProcessorProvider;
         this.defaultUpdateProcessorProvider = defaultUpdateProcessorProvider;
         this.defaultDeleteByIdProcessorProvider = defaultDeleteByIdProcessorProvider;
+        this.defaultSaveOrUpdateProcessorProvider = defaultSaveOrUpdateProcessorProvider;
     }
 
     private EntityDtoServiceRelation getEntityDtoServiceRelation(Class dtoClass, String dtoName) {
@@ -389,6 +389,58 @@ public class MybatisAccessorService {
 
         IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
         return updateWithOptions(objectList, relation, defaultUpdateProcessorProvider
+                , providerParam, updateEventLogId);
+    }
+
+    public <T> T saveOrUpdate(Object object
+            , boolean includeAllChildren
+            , List<String> children
+            , boolean updateChildrenOnly
+            , String updateEventLogId) throws MybatisAccessorException {
+        EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
+        return this.saveOrUpdate(relationInfo, object
+                , includeAllChildren,  children, updateChildrenOnly, updateEventLogId);
+    }
+
+
+    private <T> T saveOrUpdate(EntityDtoServiceRelation relation
+            , Object object
+            , boolean includeAllChildren
+            , List<String> children
+            , boolean updateChildrenOnly
+            , String updateEventLogId) throws MybatisAccessorException {
+        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
+        List<T> result = updateWithOptions(object, relation, defaultSaveOrUpdateProcessorProvider
+                , providerParam, updateEventLogId);
+        return result.get(0);
+    }
+
+
+    public <T> List<T> saveOrUpdateList(List objects
+            , boolean includeAllChildren
+            , List<String> children
+            , boolean updateChildrenOnly
+            , String updateEventLogId) throws MybatisAccessorException {
+        if(objects == null || objects.isEmpty()) {
+            return null;
+        }
+        EntityDtoServiceRelation relationInfo = this.getRelation(objects.get(0).getClass(), null);
+        return this.saveOrUpdateList(relationInfo, objects, includeAllChildren, children
+                , updateChildrenOnly, updateEventLogId);
+    }
+
+
+    public <T> List<T> saveOrUpdateList(EntityDtoServiceRelation relation, List objectList
+            , boolean includeAllChildren
+            , List<String> children
+            , boolean updateChildrenOnly
+            , String updateEventLogId) throws MybatisAccessorException {
+        if(objectList == null || objectList.isEmpty()) {
+            return null;
+        }
+
+        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
+        return updateWithOptions(objectList, relation, defaultSaveOrUpdateProcessorProvider
                 , providerParam, updateEventLogId);
     }
 
