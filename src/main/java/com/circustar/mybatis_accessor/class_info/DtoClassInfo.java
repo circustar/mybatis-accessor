@@ -13,6 +13,7 @@ import com.circustar.mybatis_accessor.listener.event.update.UpdateEventModel;
 import com.circustar.mybatis_accessor.annotation.dto.DeleteFlag;
 import com.circustar.mybatis_accessor.listener.event.property_change.PropertyChangeEventModel;
 import com.circustar.mybatis_accessor.converter.IConverter;
+import com.circustar.mybatis_accessor.model.QueryJoinModel;
 import com.circustar.mybatis_accessor.relation.EntityDtoServiceRelation;
 import com.circustar.mybatis_accessor.relation.IEntityDtoServiceRelationMap;
 import com.circustar.common_utils.reflection.AnnotationUtils;
@@ -202,7 +203,7 @@ public class DtoClassInfo {
                     Class joinClazz = tableJoinInfo.getActualClass();
                     TableInfo joinTableInfo = TableInfoHelper.getTableInfo(joinClazz);
                     joinTableList.add(tableJoinInfo.getQueryJoin().getJoinType().getJoinExpression()
-                            + " " + joinTableInfo.getTableName() + " " + tableJoinInfo.getQueryJoin().getTableAlias());
+                            + " " + getJoinTableName(joinTableInfo.getTableName(), tableJoinInfo.getQueryJoin()) + " " + tableJoinInfo.getQueryJoin().getTableAlias());
                     String joinExpression = tableJoinInfo.getQueryJoin().getJoinExpression();
                     if(!org.springframework.util.StringUtils.hasLength(joinExpression)) {
                         if(this.entityClassInfo.getFieldByName(joinTableInfo.getKeyProperty()) != null) {
@@ -430,5 +431,14 @@ public class DtoClassInfo {
             }
         }
         return allEqual ? 1 : (partEqual ? 0 : -1);
+    }
+
+    public static String getJoinTableName(String tableName, QueryJoinModel model) {
+        String subQueryExpression = model.getSubQueryExpression();
+        if(StringUtils.isBlank(subQueryExpression)) {
+            return tableName;
+        }
+        return "(" + model.getSubQueryExpression() + ")";
+
     }
 }

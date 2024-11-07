@@ -4,12 +4,14 @@ import com.circustar.mybatis_accessor.annotation.dto.QueryJoin;
 import org.springframework.util.StringUtils;
 
 public class QueryJoinModel {
+    private String subQueryExpression;
     private String joinExpression;
     private int order;
     private QueryJoin.JoinType joinType;
     private String tableAlias;
 
-    public QueryJoinModel(String tableAlias, String joinExpression, int order, QueryJoin.JoinType joinType) {
+    public QueryJoinModel(String subQueryExpression, String tableAlias, String joinExpression, int order, QueryJoin.JoinType joinType) {
+        this.subQueryExpression = subQueryExpression;
         this.tableAlias = tableAlias;
         this.joinExpression = joinExpression;
         this.order = order;
@@ -20,6 +22,7 @@ public class QueryJoinModel {
         this.joinType = queryJoin.joinType();
         this.order = queryJoin.order();
         this.tableAlias = queryJoin.tableAlias();
+        this.subQueryExpression = queryJoin.subQueryExpression();
     }
 
     public QueryJoinModel(QueryJoin queryJoin, String tableName1, String tableId1, String tableName2, String tableId2) {
@@ -29,6 +32,7 @@ public class QueryJoinModel {
             } else {
                 this.joinExpression =  tableName1 + "." + tableId1 + " = " + tableName2 + "." + tableId2;
             }
+            this.subQueryExpression = queryJoin.subQueryExpression();
             this.joinType = queryJoin.joinType();
             this.order = queryJoin.order();
         } else {
@@ -68,5 +72,13 @@ public class QueryJoinModel {
 
     public void setTableAlias(String tableAlias) {
         this.tableAlias = tableAlias;
+    }
+
+    public String getSubQueryExpression() {
+        return subQueryExpression;
+    }
+
+    public void setSubQueryExpression(String subQueryExpression) {
+        this.subQueryExpression = subQueryExpression;
     }
 }

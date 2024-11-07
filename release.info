@@ -46,5 +46,5 @@
 -- 1.增加DefaultSaveOrUpdateProcessorProvider
 -- 2.更新报错时报错信息中展示ID
 -- 3.针对不需要更新的表或者视图,增加SelectMapper,剔除新增/更新/删除方法
-
+-- 4.QueryJoin中支持子查询
 
