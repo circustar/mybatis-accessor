@@ -13,14 +13,6 @@ import java.util.Map;
 
 public interface CommonMapper<T> extends BaseMapper<T> {
 
-    int physicDeleteById(Serializable id);
-
-    int physicDeleteByMap(@Param("cm") Map<String, Object> columnMap);
-
-    int physicDelete(@Param("ew") Wrapper<T> wrapper);
-
-    int physicDeleteBatchByIds(@Param("coll") Collection<? extends Serializable> idList);
-
     List<T> selectListWithJoin(@Param("ew") Wrapper<T> queryWrapper
             , @Param(MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_TABLE) String joinTable
             , @Param(MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_COLUMNS) String joinColumns);
