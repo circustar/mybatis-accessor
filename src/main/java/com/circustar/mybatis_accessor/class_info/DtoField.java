@@ -16,7 +16,7 @@ public class DtoField {
     private EntityFieldInfo entityFieldInfo;
     private EntityDtoServiceRelation entityDtoServiceRelation;
     private DtoClassInfo dtoClassInfo;
-    private QuerySelect querySelect;
+    private QueryColumn queryColumn;
     private QueryWhere queryWhere;
     private QueryJoin queryJoin;
     private QueryGroupBy queryGroupBy;
@@ -46,7 +46,7 @@ public class DtoField {
         this.propertyDescriptor = propertyDescriptor;
         this.field = FieldUtils.getField(dtoClassInfo.getDtoClass(), propertyDescriptor.getName());
 
-        this.querySelect = this.field.getAnnotation(QuerySelect.class);
+        this.queryColumn = this.field.getAnnotation(QueryColumn.class);
         this.queryJoin = this.field.getAnnotation(QueryJoin.class);
         this.queryWhere = this.field.getAnnotation(QueryWhere.class);
         this.queryGroupBy = this.field.getAnnotation(QueryGroupBy.class);
@@ -90,8 +90,8 @@ public class DtoField {
         return this.selectors;
     }
 
-    public QuerySelect getQuerySelect() {
-        return querySelect;
+    public QueryColumn getQuerySelect() {
+        return queryColumn;
     }
 
     public QueryJoin getQueryJoin() {

@@ -140,7 +140,7 @@ public class StudentGenderGroupDto {
     @QueryGroupBy
     private Integer gender;
 
-    @QuerySelect("round(avg(age),2)")
+    @QueryColumn("round(avg(age),2)")
     private BigDecimal averageAge; // 表中不存在的字段需要在entity中定义相同名称的字段，并标注@TableField(exist=false)
     
     @QueryGroupBy
@@ -383,7 +383,7 @@ public class SpringBootApplication {
 ```
 
 #### 12.2.查询相关
-##### 12.2.1.QuerySelect
+##### 12.2.1.QueryColumn
 * 说明：作用于Dto的字段上，定义SQL语句的查询项目
 
 | 参数 | 名称 | 类型 | 必须 | 备注 |
@@ -398,7 +398,7 @@ public class SpringBootApplication {
 @Builder(toBuilder = true)
 @DtoEntityRelation(entityClass = StudentStatistics.class, service = IStudentAvgScoreService.class)
 public class StudentAverageScoreDto {
-    @QuerySelect("name || 'appendString'")
+    @QueryColumn("name || 'appendString'")
     private String name;
 }
 ```
@@ -449,7 +449,7 @@ public class StudentGenderGroupDto {
     @QueryGroupBy
     private Integer gender;
 
-    @QuerySelect("round(avg(age),2)")
+    @QueryColumn("round(avg(age),2)")
     private BigDecimal averageAge; // 表中不存在的字段需要在entity中定义相同名称的字段，并标注@TableField(exist=false)
 
 }
