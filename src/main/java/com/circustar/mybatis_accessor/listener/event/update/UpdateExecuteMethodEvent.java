@@ -7,7 +7,6 @@ import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
-import org.springframework.context.ApplicationContext;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -15,12 +14,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventModel> {
-    private static ApplicationContext applicationContext;
-    private void setApplicationContext(ApplicationContext applicationContext) {
-        UpdateExecuteBeanMethodEvent.applicationContext = applicationContext;
-    }
-
+public class UpdateExecuteMethodEvent implements IUpdateEvent<UpdateEventModel> {
     @Override
     public ExecuteTiming getDefaultExecuteTiming() {
         return ExecuteTiming.AFTER_ENTITY_UPDATE;
@@ -35,25 +29,14 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
     @Override
     public void exec(UpdateEventModel model, IUpdateCommand.UpdateType updateType, DtoClassInfo dtoClassInfo
             , List<Object> dtoList, String updateEventLogId) throws MybatisAccessorException {
-        if(UpdateExecuteBeanMethodEvent.applicationContext == null) {
-            setApplicationContext(dtoClassInfo.getDtoClassInfoHelper().getApplicationContext());
-        }
         try {
-            String beanName = model.getUpdateParams().get(0);
-            Object bean;
-            if(applicationContext.containsBean(beanName)) {
-                bean = applicationContext.getBean(beanName);
-            } else {
-                bean = applicationContext.getBean(Class.forName(beanName));
-            }
-
-            String methodName = model.getUpdateParams().get(1);
+            String methodName = model.getUpdateParams().get(0);
 
             List<DtoField> paramField = new ArrayList<>();
             List<Class> paramClassList = new ArrayList<>();
             List<Object> staticParam = new ArrayList<>();
-            if(model.getUpdateParams().size() > 2) {
-                for (int j = 2; j < model.getUpdateParams().size(); j++) {
+            if(model.getUpdateParams().size() > 1) {
+                for (int j = 1; j < model.getUpdateParams().size(); j++) {
                     final String updateParam = model.getUpdateParams().get(j);
                     if(StringUtils.hasLength(updateParam)) {
                         if(updateParam.startsWith("'") && updateParam.endsWith("'")) {
@@ -76,7 +59,7 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
                             staticParam.add(null);
                             continue;
                         }
-                        throw new MybatisAccessorException(MybatisAccessorException.ExceptionType.METHOD_INVOKE_EXCEPTION, "参数不正确:" + updateParam);
+                        throw new MybatisAccessorException(MybatisAccessorException.ExceptionType.METHOD_INVOKE_EXCEPTION, "参数不正确");
                     } else {
                         paramField.add(null);
                         paramClassList.add(String.class);
@@ -87,9 +70,9 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
 
             Method method;
             if (!paramClassList.isEmpty()) {
-                method = bean.getClass().getDeclaredMethod(methodName, paramClassList.toArray(new Class[0]));
+                method = dtoClassInfo.getDtoClass().getDeclaredMethod(methodName, paramClassList.toArray(new Class[0]));
             } else {
-                method = bean.getClass().getDeclaredMethod(methodName, dtoClassInfo.getDtoClass());
+                method = dtoClassInfo.getDtoClass().getDeclaredMethod(methodName);
             }
             List<Object> methodParams = new ArrayList<>();
             for (Object dto : dtoList) {
@@ -105,9 +88,10 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
                 } else {
                     methodParams.add(dto);
                 }
-                method.invoke(bean, methodParams.toArray());
+                method.setAccessible(true);
+                method.invoke(dto, methodParams.toArray());
             }
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException ex) {
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
             throw new MybatisAccessorException(MybatisAccessorException.ExceptionType.METHOD_INVOKE_EXCEPTION, ex);
         }
     }

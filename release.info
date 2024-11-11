@@ -49,3 +49,6 @@
 -- 4.QueryJoin中支持子查询
 -- 5.QuerySelect改名QueryColumn
 
+1.2.5.2:
+-- 1.增加UpdateExecuteMethodEvent,优化UpdateExecuteBeanMethodEvent
+
