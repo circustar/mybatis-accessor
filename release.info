@@ -51,4 +51,4 @@
 
 1.2.5.2:
 -- 1.增加UpdateExecuteMethodEvent,优化UpdateExecuteBeanMethodEvent
-
+-- 2.增加c2l方法,将sql中的驼峰写法转成下划线

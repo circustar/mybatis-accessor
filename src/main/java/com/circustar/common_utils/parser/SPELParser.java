@@ -1,14 +1,15 @@
 package com.circustar.common_utils.parser;
 
 import org.springframework.context.expression.MapAccessor;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.ParserContext;
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.expression.*;
 import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.ReflectiveMethodExecutor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,6 +17,25 @@ public abstract class SPELParser {
     public final static ExpressionParser SPEL_EXPRESSION_PARSER = new SpelExpressionParser();
 
     private final static ParserContext TEMPLATE_PARSER_CONTEXT = new TemplateParserContext();
+    private final static String METHOD_NAME_CTL = "c2l";
+    private final static MethodResolver methodResolver;
+
+    static {
+        try {
+            methodResolver = new MethodResolver() {
+                private final Method method = com.circustar.common_utils.collection.StringUtils.class.getDeclaredMethod(METHOD_NAME_CTL, String.class);
+                @Override
+                public MethodExecutor resolve(EvaluationContext evaluationContext, Object o, String s, List<TypeDescriptor> list) throws AccessException {
+                    if(METHOD_NAME_CTL.equals(s)) {
+                        return new ReflectiveMethodExecutor(method);
+                    }
+                    return null;
+                }
+            };
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private final static String PARSER_SIGNAL_START = "#{";
     private final static String PARSER_SIGNAL_END = "}";
@@ -59,6 +79,7 @@ public abstract class SPELParser {
 
 
     public static Object parseExpression(StandardEvaluationContext context, String expressionString) {
+        context.addMethodResolver(methodResolver);
         Expression expression = SPEL_EXPRESSION_PARSER.parseExpression(expressionString, TEMPLATE_PARSER_CONTEXT);
         return expression.getValue(context);
     }
