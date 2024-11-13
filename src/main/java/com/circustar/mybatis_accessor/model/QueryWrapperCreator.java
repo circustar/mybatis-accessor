@@ -129,7 +129,11 @@ public class QueryWrapperCreator {
                         || Connector.NOT_EXISTS.equals(queryWhere.getConnector())) {
                 expression = SPELParser.parseStringExpression(dto, expression);
             }
-            queryWhere.getConnector().consume(queryWhere.getTableColumn()
+            String tableColumn = queryWhere.getTableColumn();
+            if(queryWhere.isDynamicTableColumn()) {
+                tableColumn = SPELParser.parseStringExpression(dto, tableColumn);
+            }
+            queryWhere.getConnector().consume(tableColumn
                     , result
                     , StringUtils.hasLength(expression) ? expression :
                     FieldUtils.getFieldValue(dto, queryWhere.getDtoField().getPropertyDescriptor().getReadMethod()));

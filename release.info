@@ -52,3 +52,5 @@
 1.2.5.2:
 -- 1.增加UpdateExecuteMethodEvent,优化UpdateExecuteBeanMethodEvent
 -- 2.增加c2l方法,将sql中的驼峰写法转成下划线
+-- 3.QueryWhere中的列名（tableColumn）自动驼峰转下划线
+-- 4.QueryWhere中的列名（tableColumn）在dynamicTableColumn = true时支持SPEL表达式

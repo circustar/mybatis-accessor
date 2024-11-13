@@ -7,6 +7,7 @@ import org.springframework.util.StringUtils;
 
 public class QueryWhereModel {
     private String tableColumn;
+    private boolean dynamicTableColumn;
     private String expression;
     private Connector connector;
     private DtoField dtoField;
@@ -17,16 +18,24 @@ public class QueryWhereModel {
     public QueryWhereModel(QueryWhere queryWhere, String tableName, DtoField dtoField, Connector connector) {
         this.dtoField = dtoField;
         if(queryWhere != null) {
+            this.expression = queryWhere.expression();
+            this.connector = queryWhere.connector();
+            this.dynamicTableColumn = queryWhere.dynamicTableColumn();
+
             if(StringUtils.hasLength(queryWhere.tableColumn())) {
-                this.tableColumn = queryWhere.tableColumn();
+                if(dynamicTableColumn) {
+                    this.tableColumn = queryWhere.tableColumn();
+                } else {
+                    this.tableColumn = com.circustar.common_utils.collection.StringUtils.c2l(queryWhere.tableColumn());
+                }
             } else {
                 this.tableColumn = tableName + "." + dtoField.getEntityFieldInfo().getColumnName();
             }
-            this.expression = queryWhere.expression();
-            this.connector = queryWhere.connector();
+
         } else {
             this.tableColumn = tableName + "." + dtoField.getEntityFieldInfo().getColumnName();
             this.connector = connector;
+            this.dynamicTableColumn = false;
         }
     }
 
@@ -44,5 +53,9 @@ public class QueryWhereModel {
 
     public String getTableColumn() {
         return tableColumn;
+    }
+
+    public boolean isDynamicTableColumn() {
+        return dynamicTableColumn;
     }
 }
