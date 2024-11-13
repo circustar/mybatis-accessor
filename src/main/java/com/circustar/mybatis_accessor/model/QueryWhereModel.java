@@ -23,10 +23,9 @@ public class QueryWhereModel {
             this.dynamicTableColumn = queryWhere.dynamicTableColumn();
 
             if(StringUtils.hasLength(queryWhere.tableColumn())) {
-                if(dynamicTableColumn) {
-                    this.tableColumn = queryWhere.tableColumn();
-                } else {
-                    this.tableColumn = com.circustar.common_utils.collection.StringUtils.c2l(queryWhere.tableColumn());
+                this.tableColumn = queryWhere.tableColumn();
+                if(!this.dynamicTableColumn && queryWhere.convertColumnToUnderline()) {
+                    this.tableColumn = com.circustar.common_utils.collection.StringUtils.c2l(this.tableColumn);
                 }
             } else {
                 this.tableColumn = tableName + "." + dtoField.getEntityFieldInfo().getColumnName();
