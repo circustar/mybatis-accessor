@@ -59,6 +59,18 @@ public class UpdateExecuteMethodEvent implements IUpdateEvent<UpdateEventModel> 
                             }
                             continue;
                         }
+                        if("TRUE".equals(updateParam.toUpperCase())) {
+                            paramField.add(null);
+                            paramClassList.add(Boolean.class);
+                            staticParam.add(true);
+                            continue;
+                        }
+                        if("FALSE".equals(updateParam.toUpperCase())) {
+                            paramField.add(null);
+                            paramClassList.add(Boolean.class);
+                            staticParam.add(false);
+                            continue;
+                        }
                         DtoField dtoField = dtoClassInfo.getDtoField(updateParam);
                         if (dtoField != null) {
                             paramField.add(dtoField);
