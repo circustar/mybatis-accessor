@@ -1,5 +1,6 @@
 package com.circustar.mybatis_accessor.listener.event.update;
 
+import com.circustar.common_utils.collection.NumberUtils;
 import com.circustar.common_utils.reflection.FieldUtils;
 import com.circustar.mybatis_accessor.annotation.event.IUpdateEvent;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
@@ -12,6 +13,7 @@ import org.springframework.util.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,11 +64,16 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
                             staticParam.add(updateParam.substring(1, updateParam.length() - 1));
                             continue;
                         }
-                        String firstValue = updateParam.substring(0, 1);
-                        if("0".compareTo(firstValue) <= 0 && "9".compareTo(firstValue) >= 0) {
-                            paramField.add(null);
-                            paramClassList.add(Integer.class);
-                            staticParam.add(Integer.valueOf(updateParam));
+                        if(NumberUtils.isNumber(updateParam)) {
+                            if(updateParam.contains(".")) {
+                                paramField.add(null);
+                                paramClassList.add(BigDecimal.class);
+                                staticParam.add(new BigDecimal(updateParam));
+                            } else {
+                                paramField.add(null);
+                                paramClassList.add(Integer.class);
+                                staticParam.add(Integer.valueOf(updateParam));
+                            }
                             continue;
                         }
                         DtoField dtoField = dtoClassInfo.getDtoField(updateParam);
