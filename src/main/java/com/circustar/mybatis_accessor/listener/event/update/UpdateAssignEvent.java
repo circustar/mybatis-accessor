@@ -23,12 +23,20 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
         super(mybatisAccessorService);
     }
 
+    protected boolean patternProvidedWeight = false;
+
     @Override
     protected List<DtoField> parseDtoFieldList(UpdateEventModel updateEventModel, DtoClassInfo dtoClassInfo) {
         List<DtoField> dtoFields = super.parseDtoFieldList(updateEventModel, dtoClassInfo);
         String sWeightFieldName = updateEventModel.getUpdateParams().get(4);
         DtoField sWeightField = dtoFields.get(1).getFieldDtoClassInfo().getDtoField(sWeightFieldName);
         dtoFields.add(sWeightField);
+        if(updateEventModel.getUpdateParams().size() >= 6) {
+            String sAllWeightFieldName = updateEventModel.getUpdateParams().get(5);
+            DtoField sAllWeightField = dtoFields.get(1).getFieldDtoClassInfo().getDtoField(sAllWeightFieldName);
+            dtoFields.add(sAllWeightField);
+            this.patternProvidedWeight = true;
+        }
         return dtoFields;
     }
 
@@ -57,6 +65,10 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
         Method mFieldReadMethod = mField.getPropertyDescriptor().getReadMethod();
         DtoField sField = dtoFields.get(1);
         Method sFieldReadMethod = sField.getPropertyDescriptor().getReadMethod();
+        Method mWeightFileReadMethod = null;
+        if(patternProvidedWeight) {
+            mWeightFileReadMethod = dtoFields.get(4).getEntityFieldInfo().getPropertyDescriptor().getReadMethod();
+        }
 
         DtoField assignField = dtoFields.get(2);
         Class sAssignFieldType = assignField.getActualClass();
@@ -76,7 +88,12 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
             }
             Object fieldValue = FieldUtils.getFieldValue(dtoUpdated, sFieldReadMethod);
             List sFieldValueList = CollectionUtils.convertToList(fieldValue);
-            BigDecimal allWeightValue = this.getTotalWeight(sFieldValueList, sWeightField);
+            BigDecimal allWeightValue ;
+            if(mWeightFileReadMethod != null) {
+                allWeightValue = NumberUtils.readDecimalValue(dto, sFieldReadMethod);
+            } else {
+                allWeightValue = this.getTotalWeight(sFieldValueList, sWeightField);
+            }
             BigDecimal sumAssignValue = BigDecimal.ZERO;
             BigDecimal sumWeightValue = BigDecimal.ZERO;
 
