@@ -55,3 +55,6 @@
 -- 3.QueryWhere中的列名（tableColumn）在convertColumnToUnderline = true时将驼峰转下划线
 -- 4.QueryWhere中的列名（tableColumn）在dynamicTableColumn = true时支持SPEL表达式
 -- 5.优化UpdateAssignEvent,UpdateAssignSqlEvent,支持部分数量的分配
+
+1.2.5.3:
+-- 1.优化MybatisAccessorService,简化参数
