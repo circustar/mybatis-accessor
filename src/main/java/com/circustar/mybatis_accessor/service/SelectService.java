@@ -29,9 +29,16 @@ public class SelectService implements ISelectService {
     public <T> T getEntityByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
     ) {
+        return this.getEntityByAnnotation(relationInfo, object, null);
+    }
+
+    @Override
+    public <T> T getEntityByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object, List<String> children
+    ) {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(object);
-        return getEntityByQueryWrapper(relationInfo, object, queryWrapper);
+        return getEntityByQueryWrapper(relationInfo, object, children, queryWrapper);
     }
 
     @Override
@@ -59,13 +66,21 @@ public class SelectService implements ISelectService {
     public <T> T getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object dto
             , QueryWrapper queryWrapper) {
+        return this.getEntityByQueryWrapper(relationInfo, dto, null, queryWrapper);
+    }
+
+    @Override
+    public <T> T getEntityByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , Object dto, List<String> children
+            , QueryWrapper queryWrapper) {
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         IService service = dtoClassInfo.getServiceBean();
-        String joinExpression = getJoinExpression(dtoClassInfo, dto);
+        String joinExpression = getJoinExpression(dtoClassInfo, dto, children);
         T result;
         if (!StringUtils.isEmpty(joinExpression)) {
+            String joinColumns = dtoClassInfo.getJoinColumns(children);
             result = (T) ((CommonMapper)service.getBaseMapper()).selectOneWithJoin(queryWrapper
-                    , joinExpression, dtoClassInfo.getJoinColumns());
+                    , joinExpression, (StringUtils.hasLength(joinColumns)?",": "") + joinColumns);
         } else {
             result = (T) service.getOne(queryWrapper);
         }
@@ -123,16 +138,23 @@ public class SelectService implements ISelectService {
     @Override
     public <T> T getEntityById(EntityDtoServiceRelation relationInfo
             , Serializable id){
+        return this.getEntityById(relationInfo, id , null);
+    }
+
+    @Override
+    public <T> T getEntityById(EntityDtoServiceRelation relationInfo
+            , Serializable id, List<String> children){
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         IService service = dtoClassInfo.getServiceBean();
-        String joinExpression = getJoinExpression(dtoClassInfo, null);
+        String joinExpression = getJoinExpression(dtoClassInfo, null, children);
         T result;
         if (!StringUtils.isEmpty(joinExpression)) {
+            String joinColumns = dtoClassInfo.getJoinColumns(children);
             QueryWrapper qw = new QueryWrapper();
             qw.eq(dtoClassInfo.getEntityClassInfo().getTableInfo().getTableName()
                     + "." + dtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), id);
             result = (T) ((CommonMapper)service.getBaseMapper()).selectOneWithJoin(qw
-                    , joinExpression, dtoClassInfo.getJoinColumns());
+                    , joinExpression, (StringUtils.hasLength(joinColumns)?",": "") + joinColumns);
         } else {
             result = (T) service.getById(id);
         }
@@ -163,10 +185,19 @@ public class SelectService implements ISelectService {
             , Integer pageIndex
             , Integer pageSize
             ) {
+        return this.getEntityPageByAnnotation(relationInfo, object, null, pageIndex, pageSize);
+    }
+
+    @Override
+    public <T> PageInfo<T> getEntityPageByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object, List<String> joinNames
+            , Integer pageIndex
+            , Integer pageSize
+    ) {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(object);
 
-        return getEntityPageByQueryWrapper(relationInfo, object, queryWrapper, pageIndex, pageSize);
+        return getEntityPageByQueryWrapper(relationInfo, object, joinNames, queryWrapper, pageIndex, pageSize);
     }
 
     @Override
@@ -175,10 +206,20 @@ public class SelectService implements ISelectService {
             , Integer pageIndex
             , Integer pageSize
     ) {
-        PageInfo entityPage = getEntityPageByAnnotation(relationInfo, object, pageIndex, pageSize);
+        return this.getDtoPageByAnnotation(relationInfo, object, null, pageIndex, pageSize);
+    }
+
+    @Override
+    public <T> PageInfo<T> getDtoPageByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object, List<String> joinNames
+            , Integer pageIndex
+            , Integer pageSize
+    ) {
+        PageInfo entityPage = getEntityPageByAnnotation(relationInfo, object, joinNames, pageIndex, pageSize);
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityPage.getRecords(), dtoClassInfo);
-        return new PageInfo<>(entityPage.getTotal(), entityPage.getSize(), entityPage.getCurrent(), dtoList);    }
+        return new PageInfo<>(entityPage.getTotal(), entityPage.getSize(), entityPage.getCurrent(), dtoList);
+    }
 
     @Override
     public <T> PageInfo<T> getEntityPageByQueryWrapper(EntityDtoServiceRelation relationInfo
@@ -187,16 +228,27 @@ public class SelectService implements ISelectService {
             , Integer pageIndex
             , Integer pageSize
             ) {
+        return this.getEntityPageByQueryWrapper(relationInfo, dto, null, queryWrapper, pageIndex, pageSize);
+    }
+
+    @Override
+    public <T> PageInfo<T> getEntityPageByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , Object dto, List<String> joinNames
+            , QueryWrapper queryWrapper
+            , Integer pageIndex
+            , Integer pageSize
+    ) {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         IService service = dtoClassInfo.getServiceBean();
 
         Page page = new Page(pageIndex, pageSize);
         IPage pageResult;
 
-        String joinExpression = getJoinExpression(dtoClassInfo, dto);
+        String joinExpression = getJoinExpression(dtoClassInfo, dto, joinNames);
         if (!StringUtils.isEmpty(joinExpression)) {
+            String joinColumns = dtoClassInfo.getJoinColumns(null);
             pageResult = ((CommonMapper) service.getBaseMapper()).selectPageWithJoin(page, queryWrapper
-                    , joinExpression, dtoClassInfo.getJoinColumns());
+                    , joinExpression, (StringUtils.hasLength(joinColumns)?",": "") + joinColumns);
         } else {
             pageResult = service.page(page, queryWrapper);
         }
@@ -209,7 +261,17 @@ public class SelectService implements ISelectService {
             , Integer pageIndex
             , Integer pageSize
     ) {
-        PageInfo entityPage = getEntityPageByQueryWrapper(relationInfo, object, queryWrapper, pageIndex, pageSize);
+        return this.getDtoPageByQueryWrapper(relationInfo, object, null, queryWrapper, pageIndex, pageSize);
+    }
+
+    @Override
+    public <T> PageInfo<T> getDtoPageByQueryWrapper(EntityDtoServiceRelation relationInfo, Object object
+            , List<String> joinNames
+            , QueryWrapper queryWrapper
+            , Integer pageIndex
+            , Integer pageSize
+    ) {
+        PageInfo entityPage = getEntityPageByQueryWrapper(relationInfo, object, joinNames, queryWrapper, pageIndex, pageSize);
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         List<T> dtoList = (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityPage.getRecords(), dtoClassInfo);
         return new PageInfo<>(entityPage.getTotal(), entityPage.getSize(), entityPage.getCurrent(), dtoList);
@@ -219,17 +281,31 @@ public class SelectService implements ISelectService {
     public <T> List<T> getEntityListByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
     ) {
+        return this.getEntityListByAnnotation(relationInfo, object, null);
+    }
+
+    @Override
+    public <T> List<T> getEntityListByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object, List<String> joinNames
+    ) {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         QueryWrapper queryWrapper = dtoClassInfo.createQueryWrapper(object);
 
-        return getEntityListByQueryWrapper(relationInfo, object, queryWrapper);
+        return getEntityListByQueryWrapper(relationInfo, object, joinNames, queryWrapper);
     }
 
     @Override
     public <T> List<T> getDtoListByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
     ) {
-        List entityList = getEntityListByAnnotation(relationInfo, object);
+        return this.getDtoListByAnnotation(relationInfo, object, null);
+    }
+
+    @Override
+    public <T> List<T> getDtoListByAnnotation(EntityDtoServiceRelation relationInfo
+            , Object object, List<String> joinNames
+    ) {
+        List entityList = getEntityListByAnnotation(relationInfo, object, joinNames);
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         return (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityList, dtoClassInfo);
     }
@@ -238,13 +314,21 @@ public class SelectService implements ISelectService {
     public <T> List<T> getEntityListByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object dto, QueryWrapper queryWrapper
     ) {
+        return this.getEntityListByQueryWrapper(relationInfo, dto, null, queryWrapper);
+    }
+
+    @Override
+    public <T> List<T> getEntityListByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , Object dto, List<String> joinNames , QueryWrapper queryWrapper
+    ) {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         IService service = dtoClassInfo.getServiceBean();
         List entityList;
-        String joinExpression = getJoinExpression(dtoClassInfo, dto);
+        String joinExpression = getJoinExpression(dtoClassInfo, dto, joinNames);
         if (!StringUtils.isEmpty(joinExpression)) {
+            String joinColumns = dtoClassInfo.getJoinColumns(null);
             entityList = ((CommonMapper)service.getBaseMapper()).selectListWithJoin(queryWrapper
-                    , joinExpression, dtoClassInfo.getJoinColumns());
+                    , joinExpression, (StringUtils.hasLength(joinColumns)?",": "") + joinColumns);
         } else {
             entityList = service.list(queryWrapper);
         }
@@ -257,7 +341,14 @@ public class SelectService implements ISelectService {
     public <T> List<T> getDtoListByQueryWrapper(EntityDtoServiceRelation relationInfo, Object object
             , QueryWrapper queryWrapper
     ) {
-        List entityList = getEntityListByQueryWrapper(relationInfo, object, queryWrapper);
+        return this.getDtoListByQueryWrapper(relationInfo, object, null, queryWrapper);
+    }
+
+    @Override
+    public <T> List<T> getDtoListByQueryWrapper(EntityDtoServiceRelation relationInfo, Object object
+            , List<String> joinNames , QueryWrapper queryWrapper
+    ) {
+        List entityList = getEntityListByQueryWrapper(relationInfo, object, joinNames, queryWrapper);
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         return (List<T>) this.dtoClassInfoHelper.convertFromEntityList(entityList, dtoClassInfo);
     }
@@ -276,13 +367,21 @@ public class SelectService implements ISelectService {
     public Long getCountByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object dto, QueryWrapper queryWrapper
     ) {
+        return this.getCountByQueryWrapper(relationInfo, dto, null, queryWrapper);
+    }
+
+    @Override
+    public Long getCountByQueryWrapper(EntityDtoServiceRelation relationInfo
+            , Object dto, List<String> joinNames, QueryWrapper queryWrapper
+    ) {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         IService service = dtoClassInfo.getServiceBean();
         Long result;
-        String joinExpression = getJoinExpression(dtoClassInfo, dto);
+        String joinExpression = getJoinExpression(dtoClassInfo, dto, joinNames);
         if (!StringUtils.isEmpty(joinExpression)) {
+            String joinColumns = dtoClassInfo.getJoinColumns(null);
             result = ((CommonMapper)service.getBaseMapper()).selectCountWithJoin(queryWrapper
-                    , joinExpression, dtoClassInfo.getJoinColumns());
+                    , joinExpression, (StringUtils.hasLength(joinColumns)?",": "") + joinColumns);
         } else {
             result = service.count(queryWrapper);
         }
@@ -290,7 +389,7 @@ public class SelectService implements ISelectService {
         return result;
     }
 
-    private String getJoinExpression(DtoClassInfo dtoClassInfo, Object dto) {
-        return SPELParser.parseStringExpression(dto, dtoClassInfo.getJoinTables());
+    private String getJoinExpression(DtoClassInfo dtoClassInfo, Object dto, List<String> joinNames) {
+        return SPELParser.parseStringExpression(dto, dtoClassInfo.getJoinString(joinNames));
     }
 }

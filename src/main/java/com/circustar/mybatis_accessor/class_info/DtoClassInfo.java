@@ -40,8 +40,7 @@ public class DtoClassInfo {
     private final List<DtoField> normalFieldList;
     private final Map<String, DtoField> dtoFieldMap;
     private final EntityClassInfo entityClassInfo;
-    private String joinTables;
-    private String joinColumns;
+    private List<JoinExpression> joinExpressions;
     private DtoField versionField;
     private Object versionDefaultValue;
     private DtoField keyField;
@@ -196,36 +195,33 @@ public class DtoClassInfo {
         List<TableJoinInfo> tableJoinInfoList = this.subDtoFieldList.stream().map(x -> x.getTableJoinInfo()).filter(x -> x != null).collect(Collectors.toList());
         TableJoinInfo.setPosition(tableJoinInfoList);
 
-        List<String> joinTableList = new ArrayList<>();
-        List<String> joinColumnList = new ArrayList<>();
-        tableJoinInfoList.stream().sorted(Comparator.comparingInt(x -> x.getQueryJoin().getOrder()))
-                .forEach(tableJoinInfo -> {
+        this.joinExpressions = tableJoinInfoList.stream().sorted(Comparator.comparingInt(x -> x.getQueryJoin().getOrder()))
+                .map(tableJoinInfo -> {
                     Class joinClazz = tableJoinInfo.getActualClass();
                     TableInfo joinTableInfo = TableInfoHelper.getTableInfo(joinClazz);
-                    joinTableList.add(tableJoinInfo.getQueryJoin().getJoinType().getJoinExpression()
-                            + " " + getJoinTableName(joinTableInfo.getTableName(), tableJoinInfo.getQueryJoin()) + " " + tableJoinInfo.getQueryJoin().getTableAlias());
-                    String joinExpression = tableJoinInfo.getQueryJoin().getJoinExpression();
-                    if(!org.springframework.util.StringUtils.hasLength(joinExpression)) {
+                    JoinExpression joinExpression = new JoinExpression(tableJoinInfo.getFieldName());
+                    String connectString = tableJoinInfo.getQueryJoin().getJoinType().getJoinExpression()
+                            + " " + getJoinTableName(joinTableInfo.getTableName(), tableJoinInfo.getQueryJoin()) + " " + tableJoinInfo.getQueryJoin().getTableAlias()
+                            + " on ";
+                    if(!org.springframework.util.StringUtils.hasLength(tableJoinInfo.getQueryJoin().getJoinExpression())) {
                         if(this.entityClassInfo.getFieldByName(joinTableInfo.getKeyProperty()) != null) {
-                            joinExpression = this.entityClassInfo.getTableInfo().getTableName() + "." + joinTableInfo.getKeyColumn()
+                            connectString += this.entityClassInfo.getTableInfo().getTableName() + "." + joinTableInfo.getKeyColumn()
                                     + " = " + tableJoinInfo.getQueryJoin().getTableAlias() + "." + joinTableInfo.getKeyColumn();
                         } else {
-                            joinExpression = this.entityClassInfo.getTableInfo().getTableName() + "." + this.entityClassInfo.getTableInfo().getKeyColumn()
+                            connectString += this.entityClassInfo.getTableInfo().getTableName() + "." + this.entityClassInfo.getTableInfo().getKeyColumn()
                                     + " = " + tableJoinInfo.getQueryJoin().getTableAlias() + "." + this.entityClassInfo.getTableInfo().getKeyColumn();
                         }
+                    } else {
+                        connectString += tableJoinInfo.getQueryJoin().getJoinExpression();
                     }
-                    joinTableList.add(" on " + joinExpression);
-
-                    String joinColumn = Arrays.stream(joinTableInfo.getAllSqlSelect().split(","))
+                    joinExpression.setJoinString(connectString);
+                    joinExpression.setColumnNames(Arrays.stream(joinTableInfo.getAllSqlSelect().split(","))
                             .map(x -> tableJoinInfo.getQueryJoin().getTableAlias() + "." + x
                                     + " as " + TableJoinColumnPrefixManager.tryGet(entityClassInfo.getEntityClass()
                                     , tableJoinInfo.getActualClass(), tableJoinInfo.getPosition()) + "_" + x )
-                            .collect(Collectors.joining(","));
-                    joinColumnList.add(joinColumn);
-                });
-        this.joinTables = joinTableList.stream().collect(Collectors.joining(" "));
-        this.joinColumns = joinColumnList.stream().collect(Collectors.joining(",")).trim();
-        this.joinColumns = (StringUtils.isBlank(this.joinColumns) ? "" : ",") + this.joinColumns;
+                            .collect(Collectors.toList()));
+                    return joinExpression;
+                }).collect(Collectors.toList());
     }
 
     public Class<?> getDtoClass() {
@@ -265,12 +261,35 @@ public class DtoClassInfo {
         return !this.subDtoFieldList.isEmpty();
     }
 
-    public String getJoinTables() {
-        return joinTables;
+    public List<JoinExpression> getJoinExpressions() {
+        return joinExpressions;
     }
 
-    public String getJoinColumns() {
-        return joinColumns;
+    public void setJoinExpressions(List<JoinExpression> joinExpressions) {
+        this.joinExpressions = joinExpressions;
+    }
+
+    public String getJoinString(List<String> joinTableNames) {
+        if(CollectionUtils.isEmpty(this.joinExpressions)) {
+            return "";
+        }
+        if(CollectionUtils.isEmpty(joinTableNames)) {
+            return joinExpressions.stream().map(x -> x.getJoinString()).collect(Collectors.joining(" "));
+        }
+        return joinExpressions.stream().filter(x -> joinTableNames.stream().anyMatch(y -> x.getJoinName().equals(y)))
+                .map(x -> x.getJoinString()).collect(Collectors.joining(" "));
+    }
+
+    public String getJoinColumns(List<String> joinTableNames) {
+        if(CollectionUtils.isEmpty(this.joinExpressions)) {
+            return "";
+        }
+        if(CollectionUtils.isEmpty(joinTableNames)) {
+            return joinExpressions.stream().map(x -> x.getColumnNames()).flatMap(List::stream)
+                    .collect(Collectors.joining(","));
+        }
+        return joinExpressions.stream().filter(x -> joinTableNames.stream().anyMatch(y -> x.getJoinName().equals(y)))
+                .map(x -> x.getColumnNames()).flatMap(List::stream).collect(Collectors.joining(","));
     }
 
     public DtoField getDtoField(String name) {
