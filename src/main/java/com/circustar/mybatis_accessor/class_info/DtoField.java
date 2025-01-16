@@ -45,6 +45,9 @@ public class DtoField {
 
         this.propertyDescriptor = propertyDescriptor;
         this.field = FieldUtils.getField(dtoClassInfo.getDtoClass(), propertyDescriptor.getName());
+        if (this.field == null) {
+            return;
+        }
 
         this.queryColumn = this.field.getAnnotation(QueryColumn.class);
         this.queryJoin = this.field.getAnnotation(QueryJoin.class);

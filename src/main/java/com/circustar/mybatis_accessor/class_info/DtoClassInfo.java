@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.util.CollectionUtils;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -73,6 +74,10 @@ public class DtoClassInfo {
         String finalVersionPropertyName = versionPropertyName;
         List<PropertyDescriptor> propertyDescriptors = FieldUtils.getPropertyDescriptors(clazz);
         propertyDescriptors.stream().forEach(property -> {
+            final Field fieldCheck = FieldUtils.getField(this.getDtoClass(), property.getName());
+            if(fieldCheck == null) {
+                return;
+            }
             EntityFieldInfo entityFieldInfo = entityClassInfo.getFieldByName(property.getName());
             DtoField dtoField = new DtoField(property, entityFieldInfo, this, relationMap);
             if(property.getName().equals(keyProperty)) {
