@@ -26,6 +26,11 @@ public class DtoClassInfoHelper {
 
     private final ApplicationContext applicationContext;
 
+    public static synchronized void resetMap() {
+        DTO_CLASS_INFO_MAP.values().stream().forEach(x -> x.getEntityDtoServiceRelation().setDtoClassInfo(null));
+        DTO_CLASS_INFO_MAP.clear();
+    }
+
     public DtoClassInfoHelper(ApplicationContext applicationContext
             , IEntityDtoServiceRelationMap relationMap, EntityClassInfoHelper entityClassInfoHelper) {
         this.applicationContext = applicationContext;

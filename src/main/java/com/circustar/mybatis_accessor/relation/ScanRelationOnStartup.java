@@ -4,17 +4,19 @@ import com.circustar.mybatis_accessor.annotation.scan.DtoEntityRelation;
 import com.circustar.mybatis_accessor.annotation.scan.DtoEntityRelations;
 import com.circustar.mybatis_accessor.annotation.scan.RelationScanPackages;
 import com.circustar.mybatis_accessor.annotation.scan.EnableMybatisAccessor;
+import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.IOException;
+import java.nio.file.*;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class ScanRelationOnStartup implements ApplicationRunner {
@@ -45,14 +47,26 @@ public class ScanRelationOnStartup implements ApplicationRunner {
                     .flatMap(Arrays::stream)
                     .collect(Collectors.toList()));
         }
+        List<String> allWatchList = new ArrayList<>();
         Map<String, Object> enableAutoController = context.getBeansWithAnnotation(EnableMybatisAccessor.class);
+        Class<?> targetClass = null;
         for(Map.Entry<String, Object> classEntry : enableAutoController.entrySet()) {
-            Class<?> targetClass = getTargetClass(classEntry.getValue().getClass());
+            targetClass = getTargetClass(classEntry.getValue().getClass());
             EnableMybatisAccessor[] annotations = targetClass.getAnnotationsByType(EnableMybatisAccessor.class);
             List<String> scannList = Arrays.stream(annotations).map(x -> x.relationScan().value())
                     .flatMap(Arrays::stream)
                     .collect(Collectors.toList());
             scanForRelationMap(scannList);
+
+            List<String> watchList = Arrays.stream(annotations).filter(x -> x.detectDtoChanges())
+                    .map(x -> x.relationScan().value())
+                    .flatMap(Arrays::stream)
+                    .collect(Collectors.toList());
+            allWatchList.addAll(watchList);
+        }
+        if(targetClass != null && !CollectionUtils.isEmpty(allWatchList)) {
+            final String codePath = targetClass.getProtectionDomain().getCodeSource().getLocation().getPath();
+            registerWatchService(codePath.contains(":")?codePath.substring(1) : codePath, allWatchList);
         }
     }
 
@@ -74,5 +88,32 @@ public class ScanRelationOnStartup implements ApplicationRunner {
 
             }
         }
+    }
+
+    protected void registerWatchService(String codePath, List<String> packageNameList) {
+        new Thread(() -> {
+            try {
+                WatchService watchService = FileSystems.getDefault().newWatchService();
+                for (String packageName : packageNameList) {
+                    Path path = Paths.get(codePath + packageName.replace('.', '/') + "/");
+                    path.register(watchService, StandardWatchEventKinds.ENTRY_DELETE);
+                }
+                while (true) {
+                    final WatchKey key = watchService.take();
+                    final List<WatchEvent<?>> watchEvents = key.pollEvents();
+                    if (!CollectionUtils.isEmpty(watchEvents)) {
+                        System.out.println("file system changed");
+                    }
+                    key.reset();
+                    DtoClassInfoHelper.resetMap();
+                    TimeUnit.SECONDS.sleep(10);
+                }
+            } catch (NoSuchFileException noSuchFileException) {
+                System.out.println("FILE NOT EXIST：" + noSuchFileException.getFile());
+            } catch (InterruptedException|IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+
     }
 }
