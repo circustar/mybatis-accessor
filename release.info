@@ -58,3 +58,8 @@
 
 1.2.5.3:
 -- 1.优化MybatisAccessorService,简化参数
+-- 2.select可以选择需要join的表
+-- 3.支持dto热加载(detectDtoChanges = true时)
+-- 4.bug修复
+
+

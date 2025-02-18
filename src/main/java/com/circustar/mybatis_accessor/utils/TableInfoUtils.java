@@ -161,6 +161,11 @@ public abstract class TableInfoUtils {
             for(TableJoinInfo tableJoinInfo : tableJoinInfos) {
                 Class clazz = tableJoinInfo.getActualClass();
                 TableInfo joinTableInfo = TableInfoHelper.getTableInfo(clazz);
+                if (joinTableInfo == null) {
+                    MapperBuilderAssistant mapperBuilderAssistant = new MapperBuilderAssistant(configuration, clazz.getSimpleName() + "Mapper");
+                    TableInfoHelper.initTableInfo(mapperBuilderAssistant, clazz);
+                    joinTableInfo = TableInfoHelper.getTableInfo(clazz);
+                }
                 resultMappings.add(TableInfoUtils.getNestedResultMapping(configuration, joinTableInfo, tableJoinInfo));
             }
         }

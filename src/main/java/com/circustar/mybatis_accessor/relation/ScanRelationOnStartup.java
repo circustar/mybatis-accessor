@@ -66,7 +66,8 @@ public class ScanRelationOnStartup implements ApplicationRunner {
         }
         if(targetClass != null && !CollectionUtils.isEmpty(allWatchList)) {
             final String codePath = targetClass.getProtectionDomain().getCodeSource().getLocation().getPath();
-            registerWatchService(codePath.contains(":")?codePath.substring(1) : codePath, allWatchList);
+            registerWatchService((codePath.contains(":") && codePath.startsWith("/"))?
+                    codePath.substring(1) : codePath, allWatchList);
         }
     }
 
