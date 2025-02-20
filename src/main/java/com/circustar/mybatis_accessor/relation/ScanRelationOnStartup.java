@@ -5,6 +5,7 @@ import com.circustar.mybatis_accessor.annotation.scan.DtoEntityRelations;
 import com.circustar.mybatis_accessor.annotation.scan.RelationScanPackages;
 import com.circustar.mybatis_accessor.annotation.scan.EnableMybatisAccessor;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfoHelper;
+import com.circustar.mybatis_accessor.utils.ApplicationContextUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -28,20 +29,11 @@ public class ScanRelationOnStartup implements ApplicationRunner {
         this.relationMap = relationMap;
     }
 
-    private Class getTargetClass(Class clazz) {
-        if(clazz == null) {
-            return null;
-        } else if(clazz.getName().contains("$$")) {
-            return getTargetClass(clazz.getSuperclass());
-        }
-        return clazz;
-    }
-
     @Override
     public void run(ApplicationArguments args) throws Exception {
         Map<String, Object> beans = context.getBeansWithAnnotation(RelationScanPackages.class);
         for(Map.Entry<String, Object> target : beans.entrySet()) {
-            Class<?> targetClass = getTargetClass(target.getValue().getClass());
+            Class<?> targetClass = ApplicationContextUtils.getTargetClass(target.getValue().getClass());
             RelationScanPackages[] annotations = targetClass.getAnnotationsByType(RelationScanPackages.class);
             scanForRelationMap(Arrays.stream(annotations).map(x -> x.value())
                     .flatMap(Arrays::stream)
@@ -51,7 +43,7 @@ public class ScanRelationOnStartup implements ApplicationRunner {
         Map<String, Object> enableAutoController = context.getBeansWithAnnotation(EnableMybatisAccessor.class);
         Class<?> targetClass = null;
         for(Map.Entry<String, Object> classEntry : enableAutoController.entrySet()) {
-            targetClass = getTargetClass(classEntry.getValue().getClass());
+            targetClass = ApplicationContextUtils.getTargetClass(classEntry.getValue().getClass());
             EnableMybatisAccessor[] annotations = targetClass.getAnnotationsByType(EnableMybatisAccessor.class);
             List<String> scannList = Arrays.stream(annotations).map(x -> x.relationScan().value())
                     .flatMap(Arrays::stream)

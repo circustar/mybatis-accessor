@@ -8,6 +8,7 @@ import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.common.MybatisAccessorException;
 import com.circustar.mybatis_accessor.listener.ExecuteTiming;
 import com.circustar.mybatis_accessor.provider.command.IUpdateCommand;
+import com.circustar.mybatis_accessor.utils.ApplicationContextUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.StringUtils;
 
@@ -46,7 +47,7 @@ public class UpdateExecuteBeanMethodEvent implements IUpdateEvent<UpdateEventMod
             if(applicationContext.containsBean(beanName)) {
                 bean = applicationContext.getBean(beanName);
             } else {
-                bean = applicationContext.getBean(Class.forName(beanName));
+                bean = ApplicationContextUtils.getAnyBean(applicationContext, Class.forName(beanName));
             }
 
             String methodName = model.getUpdateParams().get(1);

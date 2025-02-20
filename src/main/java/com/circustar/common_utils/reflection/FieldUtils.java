@@ -22,8 +22,14 @@ public abstract class FieldUtils {
                 readMethod.setAccessible(true);
                 return readMethod.invoke(obj);
             }
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-            throw new RuntimeException(ex);
+        } catch (Exception ex) {
+            try {
+                final Method declaredMethod = obj.getClass().getDeclaredMethod(readMethod.getName());
+                declaredMethod.setAccessible(true);
+                declaredMethod.invoke(obj);
+            } catch (Exception ex2) {
+                throw new RuntimeException(ex);
+            }
         }
         return null;
     }
@@ -35,8 +41,14 @@ public abstract class FieldUtils {
         try {
             writeMethod.setAccessible(true);
             writeMethod.invoke(obj, value);
-        } catch (IllegalAccessException | InvocationTargetException ex) {
-            throw new RuntimeException(ex);
+        } catch (Exception ex) {
+            try {
+                final Method declaredMethod = obj.getClass().getDeclaredMethod(writeMethod.getName(), value.getClass());
+                declaredMethod.setAccessible(true);
+                declaredMethod.invoke(obj, value);
+            } catch (Exception ex2) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 

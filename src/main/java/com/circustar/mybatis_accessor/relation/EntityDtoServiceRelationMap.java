@@ -25,9 +25,9 @@ public class EntityDtoServiceRelationMap implements IEntityDtoServiceRelationMap
     @Override
     public void addRelation(EntityDtoServiceRelation relation) {
         entityDtoServiceRelationList.add(relation);
-        dtoMap.put(relation.getDtoClass(), relation);
-        dtoNameMap.put(StringUtils.hasLength(relation.getName()) ? relation.getName()
-                : relation.getDtoClass().getSimpleName(), relation);
+        final Class dtoClass = relation.getDtoClass();
+        dtoMap.put(dtoClass, relation);
+        dtoNameMap.put(dtoClass.getName(), relation);
     }
 
     @Override

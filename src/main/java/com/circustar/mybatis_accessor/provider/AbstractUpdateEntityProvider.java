@@ -4,6 +4,7 @@ import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.class_info.DtoField;
 import com.circustar.mybatis_accessor.provider.parameter.IProviderParam;
 import com.circustar.mybatis_accessor.service.ISelectService;
+import com.circustar.mybatis_accessor.utils.ApplicationContextUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -31,7 +32,7 @@ public abstract class AbstractUpdateEntityProvider<P extends IProviderParam> imp
         if(this.selectService != null) {
             return  this.selectService;
         }
-        this.selectService = applicationContext.getBean(ISelectService.class);
+        this.selectService = ApplicationContextUtils.getAnyBean(applicationContext, ISelectService.class);
         return this.selectService;
     }
 

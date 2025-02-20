@@ -43,6 +43,9 @@ public class MybatisAccessorService {
         EntityDtoServiceRelation relationInfo;
         if(dtoClass != null) {
             relationInfo = this.entityDtoServiceRelationMap.getByDtoClass(dtoClass);
+            if(relationInfo == null) {
+                relationInfo = this.entityDtoServiceRelationMap.getByDtoName(dtoClass.getName());
+            }
         } else {
             String dtoClassName = FieldUtils.parseClassName(dtoName);
             relationInfo = this.entityDtoServiceRelationMap.getByDtoName(dtoClassName);

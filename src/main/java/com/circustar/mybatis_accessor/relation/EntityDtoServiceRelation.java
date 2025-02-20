@@ -5,7 +5,12 @@ import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.circustar.mybatis_accessor.class_info.DtoClassInfo;
 import com.circustar.mybatis_accessor.converter.IConverter;
+import com.circustar.mybatis_accessor.utils.ApplicationContextUtils;
 import org.springframework.context.ApplicationContext;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 
 public class EntityDtoServiceRelation {
     private Class entityClass;
@@ -67,7 +72,18 @@ public class EntityDtoServiceRelation {
 
     public IService getServiceBean(ApplicationContext applicationContext) {
         if(this.service == null) {
-            this.service = applicationContext.getBean(serviceClass);
+            this.service = ApplicationContextUtils.getAnyBean(applicationContext, serviceClass);
+        }
+        if(this.service == null) {
+            final Collection<?> values = applicationContext.getBeansOfType(IService.class).values();
+            for(Object obj : values) {
+                if(serviceClass.isAssignableFrom(obj.getClass())
+                        ||obj.getClass().getName().startsWith(serviceClass.getName() + "$")
+                        || Arrays.stream(obj.getClass().getSuperclass().getInterfaces()).anyMatch( x-> x.getName().equals(serviceClass.getName()))) {
+                    this.service = (IService) obj;
+                    break;
+                }
+            }
         }
         return this.service;
     }

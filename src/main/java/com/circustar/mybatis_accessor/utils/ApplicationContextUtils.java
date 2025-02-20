@@ -19,4 +19,21 @@ public abstract class ApplicationContextUtils {
         }
         return ClassUtils.createInstance(clazz);
     }
+
+    public static Class getTargetClass(Class clazz) {
+        if(clazz == null) {
+            return null;
+        } else if(clazz.getName().contains("$$")) {
+            return getTargetClass(clazz.getSuperclass());
+        }
+        return clazz;
+    }
+
+    public static <T> T getAnyBean(ApplicationContext applicationContext, Class clazz) {
+        final Collection<T> beanList = applicationContext.getBeansOfType(clazz).values();
+        if(!beanList.isEmpty()) {
+            return beanList.iterator().next();
+        }
+        return null;
+    }
 }
