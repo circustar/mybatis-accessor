@@ -26,7 +26,7 @@ public abstract class FieldUtils {
             try {
                 final Method declaredMethod = obj.getClass().getDeclaredMethod(readMethod.getName());
                 declaredMethod.setAccessible(true);
-                declaredMethod.invoke(obj);
+                return declaredMethod.invoke(obj);
             } catch (Exception ex2) {
                 throw new RuntimeException(ex);
             }
