@@ -17,6 +17,7 @@ public class QueryWhereModel {
     }
     public QueryWhereModel(QueryWhere queryWhere, String tableName, DtoField dtoField, Connector connector) {
         this.dtoField = dtoField;
+        final String tableShortName = tableName.substring(tableName.lastIndexOf(".") + 1);
         if(queryWhere != null) {
             this.expression = queryWhere.expression();
             this.connector = queryWhere.connector();
@@ -28,11 +29,11 @@ public class QueryWhereModel {
                     this.tableColumn = com.circustar.common_utils.collection.StringUtils.c2l(this.tableColumn);
                 }
             } else {
-                this.tableColumn = tableName + "." + dtoField.getEntityFieldInfo().getColumnName();
+                this.tableColumn = tableShortName + "." + dtoField.getEntityFieldInfo().getColumnName();
             }
 
         } else {
-            this.tableColumn = tableName + "." + dtoField.getEntityFieldInfo().getColumnName();
+            this.tableColumn = tableShortName + "." + dtoField.getEntityFieldInfo().getColumnName();
             this.connector = connector;
             this.dynamicTableColumn = false;
         }

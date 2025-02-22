@@ -20,7 +20,8 @@ public class QuerySelectModel {
         if(queryColumn != null && !StringUtils.isEmpty(queryColumn.value())) {
             this.expression = queryColumn.value() + " AS " + columnName;
         } else {
-            this.expression = tableName + "." + columnName + " AS " + columnName;
+            final String tableShortName = tableName.substring(tableName.lastIndexOf(".") + 1);
+            this.expression = tableShortName + "." + columnName + " AS " + columnName;
         }
     }
     public QuerySelectModel(QueryColumn queryColumn, String tableName, String columnName, String columnPrefix) {
