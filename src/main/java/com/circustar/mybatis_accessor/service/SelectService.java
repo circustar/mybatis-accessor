@@ -383,7 +383,7 @@ public class SelectService implements ISelectService {
             result = ((CommonMapper)service.getBaseMapper()).selectCountWithJoin(queryWrapper
                     , joinExpression, (StringUtils.hasLength(joinColumns)?",": "") + joinColumns);
         } else {
-            result = service.count(queryWrapper);
+            result = ((CommonMapper)service.getBaseMapper()).selectCountWithJoin(queryWrapper, "", "");
         }
 
         return result;
