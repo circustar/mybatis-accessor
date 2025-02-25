@@ -65,3 +65,6 @@
 1.2.5.4:
 -- 1.支持Spring-boot-devtools
 -- 2.修复selectCount报错的bug
+
+1.2.5.4.1
+-- 1.bug修复

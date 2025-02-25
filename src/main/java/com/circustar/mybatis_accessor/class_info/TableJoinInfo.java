@@ -138,7 +138,8 @@ public class TableJoinInfo {
 
         QueryJoinModel queryJoinModel = new QueryJoinModel(queryJoin);
         if(StringUtils.isEmpty(queryJoinModel.getTableAlias())) {
-            queryJoinModel.setTableAlias(tableJoinInfo.getTableInfo().getTableName());
+            queryJoinModel.setTableAlias(tableJoinInfo.getTableInfo().getTableName()
+                    .substring(tableJoinInfo.getTableInfo().getTableName().lastIndexOf(".") + 1));
         }
 
         tableJoinInfo.setQueryJoin(queryJoinModel);
