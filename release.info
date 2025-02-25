@@ -62,4 +62,6 @@
 -- 3.支持dto热加载(detectDtoChanges = true时)
 -- 4.bug修复
 
-
+1.2.5.4:
+-- 1.支持Spring-boot-devtools
+-- 2.修复selectCount报错的bug
