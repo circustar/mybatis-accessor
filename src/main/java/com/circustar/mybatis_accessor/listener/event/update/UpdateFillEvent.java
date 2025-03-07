@@ -147,11 +147,11 @@ public class UpdateFillEvent extends AbstractUpdateEvent<UpdateEventModel> imple
         }
         if(!updateSubDtoList.isEmpty()) {
             mybatisAccessorService.updateList(fieldDtoClassInfo.getEntityDtoServiceRelation(), updateSubDtoList
-                    , false, null, false, updateEventLogId);
+                    , Collections.EMPTY_LIST, false, updateEventLogId);
         }
         if(!updateDtoList.isEmpty()) {
             mybatisAccessorService.updateList(dtoClassInfo.getEntityDtoServiceRelation(), updateDtoList
-                    , false, null, false, updateEventLogId);
+                    , Collections.EMPTY_LIST, false, updateEventLogId);
         }
     }
 

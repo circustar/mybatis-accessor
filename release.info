@@ -66,5 +66,9 @@
 -- 1.支持Spring-boot-devtools
 -- 2.修复selectCount报错的bug
 
-1.2.5.4.1
--- 1.bug修复
+1.2.6
+-- 1.查询列表可以指定关联的表
+-- 2.TableName标签中可以放SCHEMA.表名
+-- 3.修复QueryOrder在关联查询中报错的bug
+-- 4.LIKE_LEFT和LIKE_RIGHT的作用互换
+-- 5.MybatisAccessorService去掉了includeAllChildren，当传入的children==null时选择所有的子项

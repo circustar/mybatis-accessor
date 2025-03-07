@@ -8,6 +8,9 @@ public class DefaultEntityProviderParam extends DefaultAbstractUpdateProviderPar
     public DefaultEntityProviderParam(DefaultAbstractUpdateProviderParam another) {
         super(another.isUpdateChildrenOnly(), another.isIncludeAllChildren(), another.getUpdateChildrenNames());
     }
+    public DefaultEntityProviderParam(boolean updateChildrenOnly, List<String> updateChildrenNames) {
+        super(updateChildrenOnly, updateChildrenNames==null, updateChildrenNames);
+    }
     public DefaultEntityProviderParam(boolean updateChildrenOnly, boolean includeAllChildren, List<String> updateChildrenNames) {
         super(updateChildrenOnly, includeAllChildren, updateChildrenNames);
     }

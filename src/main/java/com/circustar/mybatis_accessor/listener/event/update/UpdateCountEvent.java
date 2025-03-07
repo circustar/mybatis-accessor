@@ -67,7 +67,7 @@ public class UpdateCountEvent extends UpdateCountSqlEvent implements IUpdateEven
 
         if(!updateDtoList.isEmpty()) {
             mybatisAccessorService.updateList(dtoClassInfo.getEntityDtoServiceRelation(), updateDtoList
-                    , false, null, false, updateEventLogId);
+                    , Collections.EMPTY_LIST, false, updateEventLogId);
         }
     }
 }

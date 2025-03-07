@@ -102,19 +102,16 @@ public class MybatisAccessorUpdateManager {
             }
             if(IUpdateCommand.UpdateType.INSERT.equals(updateType)) {
                 mybatisAccessorService.saveList(dtoList
-                        , dtoWithOption.getParam().isIncludeAllChildren()
                         , dtoWithOption.getParam().getUpdateChildrenNames()
                         , dtoWithOption.getParam().isUpdateChildrenOnly(), updateEventLogId);
                 INSERT_TARGET_LIST.get().remove(dtoWithOption);
             } else if(IUpdateCommand.UpdateType.UPDATE.equals(updateType)) {
                 mybatisAccessorService.updateList(dtoList
-                        , dtoWithOption.getParam().isIncludeAllChildren()
                         , dtoWithOption.getParam().getUpdateChildrenNames()
                         , dtoWithOption.getParam().isUpdateChildrenOnly(), updateEventLogId);
                 UPDATE_TARGET_LIST.get().remove(dtoWithOption);
             } else {
                 mybatisAccessorService.saveOrUpdateList(dtoList
-                        , dtoWithOption.getParam().isIncludeAllChildren()
                         , dtoWithOption.getParam().getUpdateChildrenNames()
                         , dtoWithOption.getParam().isUpdateChildrenOnly(), updateEventLogId);
                 SAVE_OR_UPDATE_TARGET_LIST.get().remove(dtoWithOption);

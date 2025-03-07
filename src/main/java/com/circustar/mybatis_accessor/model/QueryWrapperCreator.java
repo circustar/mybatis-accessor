@@ -46,7 +46,7 @@ public class QueryWrapperCreator {
                 .collect(Collectors.toList());
         this.queryOrders = dtoClassInfo.getAllFieldList()
                 .stream().filter(x -> x.getQueryOrder() != null)
-                .map(x -> new QueryOrderModel(x.getQueryOrder()))
+                .map(x -> new QueryOrderModel(x))
                 .sorted(Comparator.comparingInt(QueryOrderModel::getSortIndex))
                 .collect(Collectors.toList());
 

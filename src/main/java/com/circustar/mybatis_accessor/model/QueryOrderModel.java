@@ -1,6 +1,8 @@
 package com.circustar.mybatis_accessor.model;
 
 import com.circustar.mybatis_accessor.annotation.dto.QueryOrder;
+import com.circustar.mybatis_accessor.class_info.DtoField;
+import org.springframework.util.StringUtils;
 
 public class QueryOrderModel {
     private String orderExpression;
@@ -12,8 +14,14 @@ public class QueryOrderModel {
         this.sortIndex = sortIndex;
         this.sortOrder = sortOrder;
     }
-    public QueryOrderModel(QueryOrder queryField) {
-        this(queryField.expression(), queryField.sortIndex(), queryField.sortOrder());
+    public QueryOrderModel(DtoField queryField) {
+        QueryOrder queryOrder = queryField.getQueryOrder();
+        String tableShortName = queryField.getDtoClassInfo().getEntityClassInfo().getTableInfo().getTableName();
+        tableShortName = tableShortName.substring(tableShortName.lastIndexOf(".") + 1);
+        this.orderExpression = StringUtils.hasLength(queryOrder.expression()) ? queryOrder.expression()
+                : tableShortName + "." + queryField.getEntityFieldInfo().getColumnName();
+        this.sortIndex = queryOrder.sortIndex();
+        this.sortOrder = queryOrder.sortOrder();
     }
 
     public String getOrderExpression() {

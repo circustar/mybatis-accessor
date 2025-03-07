@@ -97,71 +97,70 @@ public class MybatisAccessorService {
     public <T> T getDtoById(String dtoName
             , Serializable id) {
         EntityDtoServiceRelation relationInfo = this.getRelation(null, dtoName);
-        return this.getDtoById(relationInfo, id, true, null);
+        return this.getDtoById(relationInfo, id, null);
     }
 
     public <T> T getDtoById(String dtoName
             , Serializable id
-            , boolean includeAllChildren
             , List<String> children) {
         EntityDtoServiceRelation relationInfo = this.getRelation(null, dtoName);
-        return this.getDtoById(relationInfo, id, includeAllChildren, children);
+        return this.getDtoById(relationInfo, id, children);
+    }
+
+    public <T> T getDtoById(Class dtoClass
+            , Serializable id) {
+        EntityDtoServiceRelation relationInfo = this.getRelation(dtoClass, null);
+        return this.getDtoById(relationInfo, id, null);
     }
 
     public <T> T getDtoById(Class dtoClass
             , Serializable id
-            , boolean includeAllChildren
             , List<String> children) {
         EntityDtoServiceRelation relationInfo = this.getRelation(dtoClass, null);
-        return this.getDtoById(relationInfo, id, includeAllChildren, children);
+        return this.getDtoById(relationInfo, id, children);
     }
 
     private <T> T getDtoById(EntityDtoServiceRelation relationInfo
             , Serializable id
-            , boolean includeAllChildren
             , List<String> children)  {
-        return this.selectService.getDtoById(relationInfo, id, includeAllChildren, children);
+        return this.selectService.getDtoById(relationInfo, id, children == null, children);
     }
 
     public <T> T getDtoByQueryWrapper(Object dto
             , QueryWrapper queryWrapper) {
         EntityDtoServiceRelation relationInfo = this.getRelation(dto.getClass(), null);
-        return this.getDtoByQueryWrapper(relationInfo, dto, queryWrapper, true, null);
+        return this.getDtoByQueryWrapper(relationInfo, dto, queryWrapper, null);
     }
 
     public <T> T getDtoByQueryWrapper(Object dto
             , QueryWrapper queryWrapper
-            , boolean includeAllChildren
             , List<String> children) {
         EntityDtoServiceRelation relationInfo = this.getRelation(dto.getClass(), null);
-        return this.getDtoByQueryWrapper(relationInfo, dto, queryWrapper, includeAllChildren, children);
+        return this.getDtoByQueryWrapper(relationInfo, dto, queryWrapper, children);
     }
 
     private <T> T getDtoByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object dto
             , QueryWrapper queryWrapper
-            , boolean includeAllChildren
             , List<String> children)  {
-        return this.selectService.getDtoByQueryWrapper(relationInfo, dto, queryWrapper, includeAllChildren, children);
+        return this.selectService.getDtoByQueryWrapper(relationInfo, dto, queryWrapper, children == null, children);
     }
 
     public <T> T getDtoByAnnotation(Object object) {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
-        return this.getDtoByAnnotation(relationInfo, object, true, null);
+        return this.getDtoByAnnotation(relationInfo, object, null);
     }
 
     public <T> T getDtoByAnnotation(Object object
-            , boolean includeAllChildren
             , List<String> children) {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
-        return this.getDtoByAnnotation(relationInfo, object, includeAllChildren, children);
+        return this.getDtoByAnnotation(relationInfo, object, children);
     }
 
     private <T> T getDtoByAnnotation(EntityDtoServiceRelation relationInfo
             , Object object
-            , boolean includeAllChildren
             , List<String> children)  {
-        return this.selectService.getDtoByAnnotation(relationInfo, object, includeAllChildren, children);
+        return this.selectService.getDtoByAnnotation(relationInfo, object, children == null, children);
     }
 
     public <T> PageInfo<T> getEntityPageByAnnotation(Object object
@@ -205,16 +204,24 @@ public class MybatisAccessorService {
             , Integer pageSize
     ) {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
-        return this.getDtoPageByAnnotation(relationInfo, object, pageIndex, pageSize);
+        return this.getDtoPageByAnnotation(relationInfo, object, null, pageIndex, pageSize);
+    }
+
+    public <T> PageInfo<T> getDtoPageByAnnotation(Object object, List<String> joinNames
+            , Integer pageIndex
+            , Integer pageSize
+    ) {
+        EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
+        return this.getDtoPageByAnnotation(relationInfo, object, joinNames, pageIndex, pageSize);
     }
 
     private <T> PageInfo<T> getDtoPageByAnnotation(EntityDtoServiceRelation relationInfo
-            , Object object
+            , Object object, List<String> joinNames
             , Integer pageIndex
             , Integer pageSize
     )  {
         return this.selectService.getDtoPageByAnnotation(relationInfo
-                , object
+                , object, joinNames
                 , pageIndex, pageSize);
     }
 
@@ -223,17 +230,27 @@ public class MybatisAccessorService {
             , Integer pageIndex
             , Integer pageSize
     ) {
+        return this.getDtoPageByQueryWrapper(object, queryWrapper, null, pageIndex, pageSize);
+    }
+
+    public <T> PageInfo<T> getDtoPageByQueryWrapper(Object object
+            , QueryWrapper queryWrapper
+            , List<String> joinNames
+            , Integer pageIndex
+            , Integer pageSize
+    ) {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
-        return this.getDtoPageByQueryWrapper(relationInfo,object,queryWrapper,pageIndex,pageSize);
+        return this.getDtoPageByQueryWrapper(relationInfo,object,queryWrapper, joinNames,pageIndex,pageSize);
     }
 
     private <T> PageInfo<T> getDtoPageByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object object
             , QueryWrapper queryWrapper
+            , List<String> joinNames
             , Integer pageIndex
             , Integer pageSize
     )  {
-        return this.selectService.getDtoPageByQueryWrapper(relationInfo,object,queryWrapper,pageIndex,pageSize);
+        return this.selectService.getDtoPageByQueryWrapper(relationInfo,object, joinNames,queryWrapper,pageIndex,pageSize);
     }
 
     public List getEntityListByAnnotation(Object object
@@ -266,34 +283,40 @@ public class MybatisAccessorService {
     public List getDtoListByAnnotation(Object object
     ) {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
-        return this.getDtoListByAnnotation(relationInfo, object);
+        return this.getDtoListByAnnotation(relationInfo, object, null);
     }
 
     private List getDtoListByAnnotation(EntityDtoServiceRelation relationInfo
-            , Object object
+            , Object object, List<String> joinNames
     )  {
-        return this.selectService.getDtoListByAnnotation(relationInfo, object);
+        return this.selectService.getDtoListByAnnotation(relationInfo, object, joinNames);
+    }
+
+    public List getDtoListByAnnotation(Object object, List<String> joinNames
+    ) {
+        EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
+        return this.getDtoListByAnnotation(relationInfo, object, joinNames);
     }
 
     public <T> List<T> getDtoListByQueryWrapper(Class dtoClass
             , QueryWrapper queryWrapper
     ) {
-        EntityDtoServiceRelation relationInfo = this.getRelation(dtoClass, null);
-        return this.getDtoListByQueryWrapper(relationInfo, null, queryWrapper);
+        return this.getDtoListByQueryWrapper(dtoClass, queryWrapper, null);
     }
 
-    public <T> List<T> getDtoListByQueryWrapper(Object object
-            , QueryWrapper queryWrapper
+    public <T> List<T> getDtoListByQueryWrapper(Class dtoClass
+            , QueryWrapper queryWrapper, List<String> joinNames
     ) {
-        EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
-        return this.getDtoListByQueryWrapper(relationInfo, object, queryWrapper);
+        EntityDtoServiceRelation relationInfo = this.getRelation(dtoClass, null);
+        return this.getDtoListByQueryWrapper(relationInfo, null, queryWrapper, joinNames);
     }
+
 
     private <T> List<T> getDtoListByQueryWrapper(EntityDtoServiceRelation relationInfo
             , Object object
-            , QueryWrapper queryWrapper
+            , QueryWrapper queryWrapper, List<String> joinNames
     )  {
-        return this.selectService.getDtoListByQueryWrapper(relationInfo, object, queryWrapper);
+        return this.selectService.getDtoListByQueryWrapper(relationInfo, object, joinNames, queryWrapper);
     }
 
     protected <T> List<T> updateWithOptions(
@@ -308,28 +331,26 @@ public class MybatisAccessorService {
 
     public <T> T save(Object object) throws MybatisAccessorException {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
-        return this.save(relationInfo, object, true, null, false, null);
+        return this.save(relationInfo, object, null, false, null);
     }
 
     public <T> T save(Object object
-            , boolean includeAllChildren
             , List<String> children
             , boolean updateChildrenOnly
             , String updateEventLogId) throws MybatisAccessorException {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
-        return this.save(relationInfo, object, includeAllChildren, children, updateChildrenOnly, updateEventLogId);
+        return this.save(relationInfo, object, children, updateChildrenOnly, updateEventLogId);
     }
 
     private <T> T save(EntityDtoServiceRelation relation
             , Object object
-            , boolean includeAllChildren
             , List<String> children
             , boolean updateChildrenOnly
             , String updateEventLogId) throws MybatisAccessorException {
         if(object == null) {
             return null;
         }
-        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
+        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, children);
         List<T> objects = updateWithOptions(object, relation, defaultInsertProcessorProvider
                 , providerParam, updateEventLogId);
         return objects.get(0);
@@ -341,11 +362,10 @@ public class MybatisAccessorService {
             return null;
         }
         EntityDtoServiceRelation relationInfo = this.getRelation(objects.get(0).getClass(), null);
-        return this.saveList(relationInfo, objects, true, null, false, null);
+        return this.saveList(relationInfo, objects, null, false, null);
     }
 
     public <T> List<T> saveList(List objects
-            , boolean includeAllChildren
             , List<String> children
             , boolean updateChildrenOnly
             , String updateEventLogId) throws MybatisAccessorException {
@@ -353,20 +373,19 @@ public class MybatisAccessorService {
             return null;
         }
         EntityDtoServiceRelation relationInfo = this.getRelation(objects.get(0).getClass(), null);
-        return this.saveList(relationInfo, objects, includeAllChildren, children, updateChildrenOnly, updateEventLogId);
+        return this.saveList(relationInfo, objects, children, updateChildrenOnly, updateEventLogId);
     }
 
 
     private <T> List<T> saveList(EntityDtoServiceRelation relation
             , List objectList
-            , boolean includeAllChildren
             , List<String> children
             , boolean updateChildrenOnly
             , String updateEventLogId) throws MybatisAccessorException {
         if(objectList == null || objectList.isEmpty()) {
             return null;
         }
-        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
+        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, children);
         return updateWithOptions(objectList, relation, defaultInsertProcessorProvider
                 , providerParam, updateEventLogId);
     }
@@ -374,26 +393,24 @@ public class MybatisAccessorService {
     public <T> T update(Object object) throws MybatisAccessorException {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
         return this.update(relationInfo, object
-                , true,  null, false, null);
+                ,  null, false, null);
     }
 
     public <T> T update(Object object
-            , boolean includeAllChildren
             , List<String> children
             , boolean updateChildrenOnly
             , String updateEventLogId) throws MybatisAccessorException {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
         return this.update(relationInfo, object
-                , includeAllChildren,  children, updateChildrenOnly, updateEventLogId);
+                ,  children, updateChildrenOnly, updateEventLogId);
     }
 
     private <T> T update(EntityDtoServiceRelation relation
             , Object object
-            , boolean includeAllChildren
             , List<String> children
             , boolean updateChildrenOnly
             , String updateEventLogId) throws MybatisAccessorException {
-        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
+        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, children);
         List<T> result = updateWithOptions(object, relation, defaultUpdateProcessorProvider
                 , providerParam, updateEventLogId);
         return result.get(0);
@@ -404,12 +421,11 @@ public class MybatisAccessorService {
             return null;
         }
         EntityDtoServiceRelation relationInfo = this.getRelation(objects.get(0).getClass(), null);
-        return this.updateList(relationInfo, objects, true, null
+        return this.updateList(relationInfo, objects, null
                 , false, null);
     }
 
     public <T> List<T> updateList(List objects
-            , boolean includeAllChildren
             , List<String> children
             , boolean updateChildrenOnly
             , String updateEventLogId) throws MybatisAccessorException {
@@ -417,13 +433,12 @@ public class MybatisAccessorService {
             return null;
         }
         EntityDtoServiceRelation relationInfo = this.getRelation(objects.get(0).getClass(), null);
-        return this.updateList(relationInfo, objects, includeAllChildren, children
+        return this.updateList(relationInfo, objects, children
                 , updateChildrenOnly, updateEventLogId);
     }
 
 
     public <T> List<T> updateList(EntityDtoServiceRelation relation, List objectList
-            , boolean includeAllChildren
             , List<String> children
             , boolean updateChildrenOnly
             , String updateEventLogId) throws MybatisAccessorException {
@@ -431,7 +446,7 @@ public class MybatisAccessorService {
             return null;
         }
 
-        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
+        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, children);
         return updateWithOptions(objectList, relation, defaultUpdateProcessorProvider
                 , providerParam, updateEventLogId);
     }
@@ -439,27 +454,25 @@ public class MybatisAccessorService {
     public <T> T saveOrUpdate(Object object) throws MybatisAccessorException {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
         return this.saveOrUpdate(relationInfo, object
-                , true,  null, false, null);
+                ,  null, false, null);
     }
 
     public <T> T saveOrUpdate(Object object
-            , boolean includeAllChildren
             , List<String> children
             , boolean updateChildrenOnly
             , String updateEventLogId) throws MybatisAccessorException {
         EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
         return this.saveOrUpdate(relationInfo, object
-                , includeAllChildren,  children, updateChildrenOnly, updateEventLogId);
+                ,  children, updateChildrenOnly, updateEventLogId);
     }
 
 
     private <T> T saveOrUpdate(EntityDtoServiceRelation relation
             , Object object
-            , boolean includeAllChildren
             , List<String> children
             , boolean updateChildrenOnly
             , String updateEventLogId) throws MybatisAccessorException {
-        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
+        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, children);
         List<T> result = updateWithOptions(object, relation, defaultSaveOrUpdateProcessorProvider
                 , providerParam, updateEventLogId);
         return result.get(0);
@@ -470,12 +483,11 @@ public class MybatisAccessorService {
             return null;
         }
         EntityDtoServiceRelation relationInfo = this.getRelation(objects.get(0).getClass(), null);
-        return this.saveOrUpdateList(relationInfo, objects, true, null
+        return this.saveOrUpdateList(relationInfo, objects, null
                 , false, null);
     }
 
     public <T> List<T> saveOrUpdateList(List objects
-            , boolean includeAllChildren
             , List<String> children
             , boolean updateChildrenOnly
             , String updateEventLogId) throws MybatisAccessorException {
@@ -483,13 +495,12 @@ public class MybatisAccessorService {
             return null;
         }
         EntityDtoServiceRelation relationInfo = this.getRelation(objects.get(0).getClass(), null);
-        return this.saveOrUpdateList(relationInfo, objects, includeAllChildren, children
+        return this.saveOrUpdateList(relationInfo, objects, children
                 , updateChildrenOnly, updateEventLogId);
     }
 
 
     public <T> List<T> saveOrUpdateList(EntityDtoServiceRelation relation, List objectList
-            , boolean includeAllChildren
             , List<String> children
             , boolean updateChildrenOnly
             , String updateEventLogId) throws MybatisAccessorException {
@@ -497,7 +508,7 @@ public class MybatisAccessorService {
             return null;
         }
 
-        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
+        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, children);
         return updateWithOptions(objectList, relation, defaultSaveOrUpdateProcessorProvider
                 , providerParam, updateEventLogId);
     }
@@ -505,36 +516,33 @@ public class MybatisAccessorService {
     public <T> List<T> deleteByIds(Class dtoClass
             , Set<Serializable> ids) throws MybatisAccessorException {
         EntityDtoServiceRelation relationInfo = this.getRelation(dtoClass, null);
-        return deleteByIds(relationInfo, ids, true, null, false, null);
+        return deleteByIds(relationInfo, ids, null, false, null);
     }
 
     public <T> List<T> deleteByIds(Class dtoClass
             , Set<Serializable> ids
-            , boolean includeAllChildren
             , List<String> children
             , boolean updateChildrenOnly
             , String updateEventLogId) throws MybatisAccessorException {
         EntityDtoServiceRelation relationInfo = this.getRelation(dtoClass, null);
-        return deleteByIds(relationInfo, ids, includeAllChildren, children, updateChildrenOnly, updateEventLogId);
+        return deleteByIds(relationInfo, ids, children, updateChildrenOnly, updateEventLogId);
     }
 
     public <T> List<T> deleteByIds(String dtoName
             , Set<Serializable> ids
-            , boolean includeAllChildren
             , List<String> children
             , boolean updateChildrenOnly
             , String updateEventLogId) throws MybatisAccessorException {
         EntityDtoServiceRelation relationInfo = this.getRelation(null, dtoName);
-        return deleteByIds(relationInfo, ids, includeAllChildren, children, updateChildrenOnly, updateEventLogId);
+        return deleteByIds(relationInfo, ids, children, updateChildrenOnly, updateEventLogId);
     }
 
     private <T> List<T> deleteByIds(EntityDtoServiceRelation relationInfo
             , Set<Serializable> ids
-            , boolean includeAllChildren
             , List<String> children
             , boolean updateChildrenOnly
             , String updateEventLogId) throws MybatisAccessorException {
-        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, includeAllChildren, children);
+        IProviderParam providerParam = new DefaultEntityProviderParam(updateChildrenOnly, children==null, children);
         return updateWithOptions(ids, relationInfo, defaultDeleteByIdProcessorProvider
                 , providerParam, updateEventLogId);
     }

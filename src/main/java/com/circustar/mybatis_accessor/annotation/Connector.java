@@ -46,7 +46,7 @@ public enum Connector {
         if (values == null || values.length == 0 || StringUtils.isEmpty(values[0])) {
             return "";
         }
-        return column + " like %" + values[0];
+        return column + " like " + values[0] + "%";
     }),
     LIKE_RIGHT("likeRight", (column, wrapper, values) -> {
         if(values == null || values.length == 0 || StringUtils.isEmpty(values[0])){return;}
@@ -55,7 +55,7 @@ public enum Connector {
         if (values == null || values.length == 0) {
             return "";
         }
-        return column + " like " + values[0] + "%";
+        return column + " like %" + values[0];
     }),
     IN("in", (column, wrapper, values) -> {
         if(values == null || values.length == 0){return;}

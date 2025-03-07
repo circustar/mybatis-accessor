@@ -117,7 +117,7 @@ public class UpdateAssignEvent extends UpdateAvgEvent implements IUpdateEvent<Up
         }
         if(!updateSubDtoList.isEmpty()) {
             mybatisAccessorService.updateList(fieldDtoClassInfo.getEntityDtoServiceRelation(), updateSubDtoList
-                    , false, null, false, updateEventLogId);
+                    , Collections.EMPTY_LIST, false, updateEventLogId);
         }
     }
 }
