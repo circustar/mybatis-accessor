@@ -74,6 +74,5 @@
 -- 5.MybatisAccessorService去掉了includeAllChildren，当传入的children==null时选择所有的子项
 
 1.2.6.1
--- 1.LIKE_LEFT和LIKE_RIGHT的作用互换
+-- 1.LIKE_LEFT和LIKE_RIGHT的作用换回
 -- 2.deleteByIds入参优化
--- 3.增加getDtoOneByAnnotation方法

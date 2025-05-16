@@ -199,30 +199,6 @@ public class MybatisAccessorService {
         return this.selectService.getEntityPageByQueryWrapper(relationInfo,object,queryWrapper,pageIndex,pageSize);
     }
 
-    public <T> T getDtoOneByAnnotation(Object object
-    ) {
-        EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
-        return this.getDtoOneByAnnotation(relationInfo, object, null);
-    }
-
-    public <T> T getDtoOneByAnnotation(Object object, List<String> joinNames
-    ) {
-        EntityDtoServiceRelation relationInfo = this.getRelation(object.getClass(), null);
-        return this.getDtoOneByAnnotation(relationInfo, object, joinNames);
-    }
-
-    private <T> T getDtoOneByAnnotation(EntityDtoServiceRelation relationInfo
-            , Object object, List<String> joinNames
-    )  {
-        final PageInfo<T> dtoPageByAnnotation = this.selectService.getDtoPageByAnnotation(relationInfo
-                , object, joinNames
-                , 1, 1);
-        if(dtoPageByAnnotation.getTotal() > 0) {
-            return dtoPageByAnnotation.getRecords().get(0);
-        }
-        return null;
-    }
-
     public <T> PageInfo<T> getDtoPageByAnnotation(Object object
             , Integer pageIndex
             , Integer pageSize
