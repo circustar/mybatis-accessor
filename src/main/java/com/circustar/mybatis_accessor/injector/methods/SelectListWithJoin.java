@@ -39,7 +39,7 @@ public class SelectListWithJoin extends AbstractMethod {
         String joinTable = " ${" + MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_TABLE + "} ";
 
         CSSqlMethod sqlMethod = this.getSqlMethod();
-        String sql = String.format(sqlMethod.getSql(), this.sqlFirst(), this.sqlSelectColumns(tableInfo, true), tableInfo.getTableName(), joinTable, this.sqlWhereEntityWrapper(true, tableInfo), this.sqlComment());
+        String sql = String.format(sqlMethod.getSql(), this.sqlFirst(), this.sqlSelectColumns(tableInfo, true), tableInfo.getTableName() + " " + getDefaultAlias(tableInfo.getTableName()), joinTable, this.sqlWhereEntityWrapper(true, tableInfo), this.sqlComment());
         SqlSource sqlSource = this.languageDriver.createSqlSource(this.configuration, sql, modelClass);
         this.resultMap = TableInfoUtils.registerResultMapping(configuration, tableInfo, tableJoinInfoList);
         return this.addSelectMappedStatementForTable(mapperClass
@@ -51,7 +51,7 @@ public class SelectListWithJoin extends AbstractMethod {
         String sqlScript;
 
         if (table.isWithLogicDelete()) {
-            String logicDeleteSql = table.getTableName() + "." + table.getLogicDeleteFieldInfo().getColumn() + " = " + table.getLogicDeleteFieldInfo().getLogicNotDeleteValue();
+            String logicDeleteSql = getDefaultAlias(table.getTableName()) + "." + table.getLogicDeleteFieldInfo().getColumn() + " = " + table.getLogicDeleteFieldInfo().getLogicNotDeleteValue();
             sqlScript = table.getAllSqlWhere(false,true, true, "ew.entity.");
             sqlScript = SqlScriptUtils.convertIf(sqlScript, String.format("%s != null", "ew.entity"), true);
             sqlScript = sqlScript + "\n" + " and " + logicDeleteSql + "\n"; // add deleteValue
@@ -78,7 +78,7 @@ public class SelectListWithJoin extends AbstractMethod {
     protected String sqlSelectColumns(TableInfo table, boolean queryWrapper) {
         String selectColumns = "*";
         if (table.getResultMap() == null || table.isAutoInitResultMap()) {
-            selectColumns = Arrays.stream(table.getAllSqlSelect().split(",")).map(x -> table.getTableName() + "." + x).collect(Collectors.joining(","))
+            selectColumns = Arrays.stream(table.getAllSqlSelect().split(",")).map(x -> getDefaultAlias(table.getTableName()) + "." + x).collect(Collectors.joining(","))
                     +  "${" + MvcEnhanceConstants.MYBATIS_ENHANCE_JOIN_COLUMNS + "} ";
         }
 
@@ -91,5 +91,12 @@ public class SelectListWithJoin extends AbstractMethod {
                 , SqlCommandType.SELECT, (Class)null, this.resultMap
                 , (Class)null, new NoKeyGenerator(), (String)null, (String)null);
 
+    }
+
+    private static String getDefaultAlias(String tableName) {
+        if(tableName == null || !tableName.contains(".")) {
+            return tableName;
+        }
+        return tableName.substring(tableName.lastIndexOf(".") + 1);
     }
 }

@@ -76,16 +76,10 @@ public class SelectService implements ISelectService {
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         IService service = dtoClassInfo.getServiceBean();
         String joinExpression = getJoinExpression(dtoClassInfo, dto, children);
-        T result;
-        if (!StringUtils.isEmpty(joinExpression)) {
-            String joinColumns = dtoClassInfo.getJoinColumns(children);
-            result = (T) ((CommonMapper)service.getBaseMapper()).selectOneWithJoin(queryWrapper
-                    , joinExpression, (StringUtils.hasLength(joinColumns)?",": "") + joinColumns);
-        } else {
-            result = (T) service.getOne(queryWrapper);
-        }
 
-        return result;
+        String joinColumns = dtoClassInfo.getJoinColumns(children);
+        return (T) ((CommonMapper)service.getBaseMapper()).selectOneWithJoin(queryWrapper
+                    , joinExpression, (StringUtils.hasLength(joinColumns)?",": "") + joinColumns);
     }
 
     @Override
@@ -147,19 +141,12 @@ public class SelectService implements ISelectService {
         DtoClassInfo dtoClassInfo = dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         IService service = dtoClassInfo.getServiceBean();
         String joinExpression = getJoinExpression(dtoClassInfo, null, children);
-        T result;
-        if (!StringUtils.isEmpty(joinExpression)) {
-            String joinColumns = dtoClassInfo.getJoinColumns(children);
-            QueryWrapper qw = new QueryWrapper();
-            qw.eq(dtoClassInfo.getEntityClassInfo().getTableInfo().getTableName()
-                    + "." + dtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), id);
-            result = (T) ((CommonMapper)service.getBaseMapper()).selectOneWithJoin(qw
-                    , joinExpression, (StringUtils.hasLength(joinColumns)?",": "") + joinColumns);
-        } else {
-            result = (T) service.getById(id);
-        }
-
-        return result;
+        String joinColumns = dtoClassInfo.getJoinColumns(children);
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq(dtoClassInfo.getEntityClassInfo().getTableInfo().getTableName()
+                + "." + dtoClassInfo.getEntityClassInfo().getTableInfo().getKeyColumn(), id);
+        return (T) ((CommonMapper)service.getBaseMapper()).selectOneWithJoin(qw
+                , joinExpression, (StringUtils.hasLength(joinColumns)?",": "") + joinColumns);
     }
 
     @Override
@@ -242,16 +229,13 @@ public class SelectService implements ISelectService {
         IService service = dtoClassInfo.getServiceBean();
 
         Page page = new Page(pageIndex, pageSize);
-        IPage pageResult;
 
         String joinExpression = getJoinExpression(dtoClassInfo, dto, joinNames);
-        if (!StringUtils.isEmpty(joinExpression)) {
-            String joinColumns = dtoClassInfo.getJoinColumns(null);
-            pageResult = ((CommonMapper) service.getBaseMapper()).selectPageWithJoin(page, queryWrapper
-                    , joinExpression, (StringUtils.hasLength(joinColumns)?",": "") + joinColumns);
-        } else {
-            pageResult = service.page(page, queryWrapper);
-        }
+
+        String joinColumns = dtoClassInfo.getJoinColumns(null);
+        IPage pageResult = ((CommonMapper) service.getBaseMapper()).selectPageWithJoin(page, queryWrapper
+                , joinExpression, (StringUtils.hasLength(joinColumns)?",": "") + joinColumns);
+
         return new PageInfo(pageResult.getTotal(), pageResult.getSize(), pageResult.getCurrent(), pageResult.getRecords());
     }
 
@@ -323,17 +307,12 @@ public class SelectService implements ISelectService {
     ) {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         IService service = dtoClassInfo.getServiceBean();
-        List entityList;
-        String joinExpression = getJoinExpression(dtoClassInfo, dto, joinNames);
-        if (!StringUtils.isEmpty(joinExpression)) {
-            String joinColumns = dtoClassInfo.getJoinColumns(null);
-            entityList = ((CommonMapper)service.getBaseMapper()).selectListWithJoin(queryWrapper
-                    , joinExpression, (StringUtils.hasLength(joinColumns)?",": "") + joinColumns);
-        } else {
-            entityList = service.list(queryWrapper);
-        }
 
-        return entityList;
+        String joinExpression = getJoinExpression(dtoClassInfo, dto, joinNames);
+
+        String joinColumns = dtoClassInfo.getJoinColumns(null);
+        return ((CommonMapper)service.getBaseMapper()).selectListWithJoin(queryWrapper
+                , joinExpression, (StringUtils.hasLength(joinColumns)?",": "") + joinColumns);
     }
 
 
@@ -376,20 +355,16 @@ public class SelectService implements ISelectService {
     ) {
         DtoClassInfo dtoClassInfo = this.dtoClassInfoHelper.getDtoClassInfo(relationInfo);
         IService service = dtoClassInfo.getServiceBean();
-        Long result;
-        String joinExpression = getJoinExpression(dtoClassInfo, dto, joinNames);
-        if (!StringUtils.isEmpty(joinExpression)) {
-            String joinColumns = dtoClassInfo.getJoinColumns(null);
-            result = ((CommonMapper)service.getBaseMapper()).selectCountWithJoin(queryWrapper
-                    , joinExpression, (StringUtils.hasLength(joinColumns)?",": "") + joinColumns);
-        } else {
-            result = ((CommonMapper)service.getBaseMapper()).selectCountWithJoin(queryWrapper, "", "");
-        }
 
-        return result;
+        String joinExpression = getJoinExpression(dtoClassInfo, dto, joinNames);
+
+        String joinColumns = dtoClassInfo.getJoinColumns(null);
+        return ((CommonMapper)service.getBaseMapper()).selectCountWithJoin(queryWrapper
+                , joinExpression, (StringUtils.hasLength(joinColumns)?",": "") + joinColumns);
     }
 
     private String getJoinExpression(DtoClassInfo dtoClassInfo, Object dto, List<String> joinNames) {
-        return SPELParser.parseStringExpression(dto, dtoClassInfo.getJoinString(joinNames));
+        String joinExpression = SPELParser.parseStringExpression(dto, dtoClassInfo.getJoinString(joinNames));
+        return StringUtils.hasLength(joinExpression) ? joinExpression : "";
     }
 }
